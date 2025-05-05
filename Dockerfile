@@ -27,7 +27,7 @@ COPY package*.json ./
 RUN npm install --production
 
 # Копируем сборку из предыдущего этапа
-COPY --from=builder /app/.output ./.output
+COPY --from=builder /miniApp/.output ./.output
 
 # Указываем порт (Nuxt 3 по умолчанию использует 3000)
 EXPOSE 3000
