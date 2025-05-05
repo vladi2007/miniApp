@@ -5,7 +5,7 @@
   </template>
   
   <script setup>
-    const {data: products} = await useFetch('https://thingproxy.freeboard.io/fetch/https://carclicker.ru/hello/куча пенисов упирается мне в лицо '); 
+    const {data: products} = await useFetch('https://carclicker.ru/hello/asdads'); 
   </script>
   
   <style scoped>

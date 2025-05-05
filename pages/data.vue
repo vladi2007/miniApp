@@ -1,22 +1,13 @@
 <script setup>
-import { ref, onMounted } from 'vue'
 
-const data = ref({ message: '' });
+ const {data: products} = await useFetch('https://carclicker.ru/hello/asdasdasdasdasds'); 
 
-
-onMounted(async () => {
-   
-        const res = await fetch('https://thingproxy.freeboard.io/fetch/https://carclicker.ru/hello/h123123123uy')
-        const result = await res.json()
-   
-        data.value.message = result.message;
-});
 </script>
 
 <template>
     <div>
 
-        <pre>{{ data }}</pre>
+        <pre>{{ products }}asdsad</pre>
     </div>
 </template>
 
