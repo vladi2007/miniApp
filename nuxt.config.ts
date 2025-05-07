@@ -22,10 +22,15 @@ export default defineNuxtConfig({
     
     }
   },
-  serverHandlers : [
-    {
-      route: '/ws',
-      handler: '~/server/api/wsProxy.js',
-    },
-  ],
+  // modules: [
+  //   '@nuxtjs/proxy',
+  // ],
+  
+  // serverHandlers : [
+  //   {
+  //     route: '/ws',
+  //     handler: '~/server/api/wsProxy.js',
+  //   },
+  // ],
+
 })
