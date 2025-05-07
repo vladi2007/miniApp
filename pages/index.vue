@@ -27,7 +27,7 @@
     },
     methods: {
       connectToWebSocket() {
-        this.ws = new WebSocket(`wss://carclicker.ru/ws/${this.clientId}`);
+        this.ws = new WebSocket(`wss://voshod07.ru/ws/${this.clientId}`);
   
         // When the WebSocket connection is established
         this.ws.onopen = () => {

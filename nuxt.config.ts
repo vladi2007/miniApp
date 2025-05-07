@@ -21,5 +21,11 @@ export default defineNuxtConfig({
       allowedHosts: ['tidily-viable-mongoose.cloudpub.ru'],
     
     }
-  }
+  },
+  serverHandlers : [
+    {
+      route: '/ws',
+      handler: '~/server/api/wsProxy.js',
+    },
+  ],
 })
