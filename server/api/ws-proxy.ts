@@ -41,3 +41,43 @@
 //     ws.close();
 //   });
 // });
+
+
+// import WebSocket from 'ws'
+// import http from 'http'
+
+// const server = http.createServer()
+// const wss = new WebSocket.Server({ noServer: true })
+
+// wss.on('connection', (clientSocket, request) => {
+//   const url = new URL(request.url || '', `http://${request.headers.host}`)
+//   const clientId = url.pathname.split('/').pop()
+
+//   const backendSocket = new WebSocket(`wss://carclicker.ru/ws/${clientId}`)
+
+//   backendSocket.on('open', () => {
+//     clientSocket.on('message', message => backendSocket.send(message))
+//     backendSocket.on('message', message => clientSocket.send(message))
+//   })
+
+//   backendSocket.on('close', () => clientSocket.close())
+//   clientSocket.on('close', () => backendSocket.close())
+// })
+
+// server.on('upgrade', (request, socket, head) => {
+//   const url = new URL(request.url || '', `http://${request.headers.host}`)
+//   if (url.pathname.startsWith('/ws/')) {
+//     wss.handleUpgrade(request, socket, head, ws => {
+//       wss.emit('connection', ws, request)
+//     })
+//   } else {
+//     socket.destroy()
+//   }
+// })
+
+// export default defineEventHandler(async (event) => {
+//   const req = event.node.req
+//   const socket = (req as any).socket
+//   const head = Buffer.alloc(0)
+//   server.emit('upgrade', req, socket, head)
+// })
