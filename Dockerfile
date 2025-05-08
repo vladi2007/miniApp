@@ -35,8 +35,10 @@ EXPOSE 3000
 # Копируем сервер WebSocket-прокси
 COPY server/api/ws-proxy-server.js ./ws-proxy-server.js
 
-# Устанавливаем ws (он нужен только в рантайме)
-RUN npm install ws
+# Устанавливаем concurrently и ws
+RUN npm install concurrently ws
 
-# Запускаем Nuxt и ws-прокси параллельно
-CMD ["sh", "-c", "node .output/server/index.mjs & node ws-proxy-server.js"]
+# Добавь скрипт в package.json:
+# "start": "concurrently \"node .output/server/index.mjs\" \"node ws-proxy-server.js\""
+
+CMD ["npm", "run", "start"]

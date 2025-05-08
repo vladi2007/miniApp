@@ -7,7 +7,8 @@
     "dev": "concurrently \"nuxi dev\" \"node ws-proxy-server.js\"",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "start": "concurrently \"node .output/server/index.mjs\" \"node ws-proxy-server.js\""
   },
   "dependencies": {
     "@nuxt-alt/proxy": "^2.5.8",
