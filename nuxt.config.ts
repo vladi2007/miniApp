@@ -26,6 +26,9 @@ export default defineNuxtConfig({
     server: {
       allowedHosts: ['tidily-viable-mongoose.cloudpub.ru'],
     
+    },
+    build: {
+      sourcemap: true
     }
   },
   // modules: [
