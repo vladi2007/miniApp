@@ -9,6 +9,7 @@ services:
     restart: always
     expose:
       - 3000
+      - 4000
 
   nginx:
     image: nginx:latest
