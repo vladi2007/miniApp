@@ -32,5 +32,11 @@ COPY --from=builder /miniApp/.output ./.output
 # Указываем порт (Nuxt 3 по умолчанию использует 3000)
 EXPOSE 3000
 
-# Запуск приложения
-CMD ["node", ".output/server/index.mjs"]
+# Копируем сервер WebSocket-прокси
+COPY ws-proxy-server.js ./ws-proxy-server.js
+
+# Устанавливаем ws (он нужен только в рантайме)
+RUN npm install ws
+
+# Запускаем Nuxt и ws-прокси параллельно
+CMD ["sh", "-c", "node .output/server/index.mjs & node ws-proxy-server.js"]

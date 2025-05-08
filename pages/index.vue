@@ -27,7 +27,7 @@
     },
     methods: {
       connectToWebSocket() {
-        this.ws = new WebSocket(`/ws/${this.clientId}`);
+        this.ws = new WebSocket(`api/ws/${this.clientId}`);
   
         // When the WebSocket connection is established
         this.ws.onopen = () => {

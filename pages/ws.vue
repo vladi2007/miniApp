@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // In prod: check if secure, then use wss://
-const { status, data, send, open, close } = useWebSocket(`wss://carclicker.ru/ws/123`)
+const { status, data, send, open, close } = useWebSocket(`/ws`)
 
 const history = ref<string[]>([])
 watch(data, (newValue) => {
