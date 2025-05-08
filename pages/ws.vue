@@ -4,7 +4,7 @@
 //   ? 'wss://voshod07.ru/ws'  // на продашкен 
 //   : 'ws://localhost:4000/ws' // на локале так разворачивать
 
-const { status, data, send, open, close } = useWebSocket("wss://voshod07.ru/ws")
+const { status, data, send, open, close } = useWebSocket("wss://carclicker.ru/ws/123")
 
 const history = ref<string[]>([])
 watch(data, (newValue) => {
