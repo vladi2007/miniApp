@@ -9,7 +9,11 @@ services:
     restart: always
     expose:
       - 3000
-      - 4000
+    ports:
+      - "3000:3000"
+      - "4000:4000"
+
+      
 
   nginx:
     image: nginx:latest
