@@ -9,7 +9,7 @@ COPY package*.json ./
 
 # Устанавливаем зависимости
 #RUN npm install
-
+RUN npm ci
 # Копируем остальные файлы
 COPY . .
 
