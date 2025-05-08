@@ -33,7 +33,7 @@ COPY --from=builder /miniApp/.output ./.output
 EXPOSE 3000
 
 # Копируем сервер WebSocket-прокси
-COPY ws-proxy-server.js ./ws-proxy-server.js
+COPY server/api/ws-proxy-server.js ./ws-proxy-server.js
 
 # Устанавливаем ws (он нужен только в рантайме)
 RUN npm install ws

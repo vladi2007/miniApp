@@ -31,6 +31,11 @@ export default defineNuxtConfig({
       sourcemap: true
     }
   },
+
+
+  
+
+  
   // modules: [
   //   '@nuxtjs/proxy',
   // ],
