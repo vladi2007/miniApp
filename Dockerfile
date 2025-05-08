@@ -8,7 +8,7 @@ WORKDIR /miniApp
 COPY package*.json ./
 
 # Устанавливаем зависимости
-RUN npm install
+#RUN npm install
 
 # Копируем остальные файлы
 COPY . .
