@@ -9,7 +9,7 @@ COPY package*.json ./
 
 # Устанавливаем зависимости
 #RUN npm install
-RUN npm ci
+RUN npm install
 # Копируем остальные файлы
 COPY . .
 
@@ -33,7 +33,7 @@ COPY --from=builder /miniApp/.output ./.output
 EXPOSE 3000
 
 # Копируем сервер WebSocket-прокси
-COPY server/api/ws-proxy-server.js ./ws-proxy-server.js
+COPY ws-proxy-server.js ./ws-proxy-server.js
 
 # Устанавливаем ws (он нужен только в рантайме)
 RUN npm install ws
