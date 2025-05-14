@@ -1,66 +1,27 @@
 <template>
-    <div>
-      <h1>WebSocket Chat</h1>
-      <h2>Your ID: {{ clientId }}</h2>
-      <form @submit.prevent="sendMessage">
-        <input type="text" v-model="message" placeholder="Type your message" autocomplete="off"/>
-        <button type="submit">Send</button>
-      </form>
-      <!-- <ul id="messages">
-        <li v-for="(msg, index) in messages" :key="index">{{ msg }}</li>
-      </ul> -->
+  <div class="auth-status">
+    <div v-if="status === 'loading'" class="status-message">Пожалуйста, подождите, аутентификация...</div>
+    <div v-if="status === 'success'" class="status-message success">
+      Аутентификация прошла успешно!
+      <div class="user-info">
+        <p><strong>Имя:</strong> {{ contactData.first_name }} {{ contactData.last_name }}</p>
+        <p><strong>Телефон:</strong> {{ contactData.phone_number }}</p>
+        <p><strong>ID пользователя:</strong> {{ contactData.user_id }}</p>
+        <p><strong>Username:</strong> {{ contactData.username }}</p>
+      </div>
     </div>
-  </template>
-  
-  <script>
-  // export default {
-  //   data() {
-  //     return {
-  //       clientId: Date.now(),
-  //       message: "",
-  //       ws: null,
-  //       messages: []
-  //     };
-  //   },
-  //   mounted() {
-  //     this.connectToWebSocket();
-  //   },
-  //   methods: {
-  //     connectToWebSocket() {
-  //       this.ws = new WebSocket(`api/ws/${this.clientId}`);
-  
-  //       // When the WebSocket connection is established
-  //       this.ws.onopen = () => {
-  //         console.log("Connected to WebSocket");
-  //       };
-  
-  //       // When a message is received from the server
-  //       this.ws.onmessage = (event) => {
-  //         this.messages.push(event.data);
-  //       };
-  
-  //       // When the WebSocket is closed
-  //       this.ws.onclose = () => {
-  //         console.log("Disconnected from WebSocket");
-  //       };
-  
-  //       // Handle any errors that occur
-  //       this.ws.onerror = (error) => {
-  //         console.log("WebSocket Error: ", error);
-  //       };
-  //     },
-  
-  //     sendMessage() {
-  //       if (this.message.trim() !== "") {
-  //         this.ws.send(this.message);
-  //         this.message = "";  // Clear the input field after sending the message
-  //       }
-  //     },
-  //   },
-  // };
-  </script>
-  
-  <style scoped>
+    <div v-if="status === 'error'" class="status-message error">Ошибка аутентификации. Попробуйте снова.</div>
+  </div>
+</template>
 
-  </style>
-  
+<script setup>
+import { useAuthentication } from '/composables/auth_telegram'; // Путь к твоему composable
+
+// Используем composable
+const { status, contactData } = useAuthentication();
+
+</script>
+
+<style >
+    
+</style>

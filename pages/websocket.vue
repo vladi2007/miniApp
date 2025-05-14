@@ -21,6 +21,7 @@ function sendData(){
 
 <template>
   <div>
+    
     <h1>WebSocket - let's go!</h1>
     <form @submit.prevent="sendData">
       <input v-model="message">

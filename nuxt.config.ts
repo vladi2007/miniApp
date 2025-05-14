@@ -1,27 +1,26 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 export default defineNuxtConfig({
-  modules:[ '@vueuse/nuxt'],
+  
   nitro:{
     experimental:{
       websocket: true
     }
   },
   compatibilityDate: '2024-11-01',
-  devtools: { enabled: true },
-  app:{
-    head:{
-      meta:[
-
-      ],
-      script: [
-        {
-            src: 'https://telegram.org/js/telegram-web-app.js', defer: true
+  devtools: { enabled: false },
+  app: {
+        head: {
+            meta: [
+                {
+                    name: 'viewport',
+                    content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
+                }
+            ],
+            script: [{src: 'https://telegram.org/js/telegram-web-app.js'}],
         }
-    ]
-    }
-  },
-  ssr:true,
+    },
+  
   vite: {
     server: {
       allowedHosts: ['tidily-viable-mongoose.cloudpub.ru'],
@@ -31,20 +30,13 @@ export default defineNuxtConfig({
       sourcemap: true
     }
   },
-
-
-  
-
-  
-  // modules: [
-  //   '@nuxtjs/proxy',
-  // ],
-  
-  // serverHandlers : [
-  //   {
-  //     route: '/ws',
-  //     handler: '~/server/api/wsProxy.js',
-  //   },
-  // ],
-
+  ssr:false,
+  runtimeConfig: {
+        telegramBotToken: process.env.TELEGRAM_BOT_TOKEN,
+    },
+  modules:['@vueuse/nuxt','@pinia/nuxt'],
+  css: [
+    '@fontsource/lato' // Импортируем шрифт Lato
+   
+  ]
 })
