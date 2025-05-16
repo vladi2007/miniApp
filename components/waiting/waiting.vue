@@ -18,6 +18,7 @@ export default {
             <img src="/images/waiting/Clik.svg" />
             <img src="/images/waiting/Group.svg" />
             <img src="/images/waiting/Vector_88.svg" class="fixed" />
+            
         </div>
 
         <div class="description">

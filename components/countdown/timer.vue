@@ -37,6 +37,9 @@
     
 
 }
+.logo{
+
+}
 .timer-text {
   position: absolute;
   top: 50%;
@@ -52,8 +55,8 @@
 
 body {background-color: #853CFF;
   font-family: 'Work Sans';
-  height: 100%;
-  width: 100%;
+
+  
 }
 
 

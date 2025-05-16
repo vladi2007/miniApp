@@ -34,31 +34,7 @@ export default defineEventHandler(async (event) => {
       return {status: "not_success"};
     }
 
-    // let message = `<b>${contact.first_name.trim() + ' ' + contact.last_name.trim()}</b>, спасибо за заказ! Мы уже начали его приготовление.\n\n`;
-    // message += `Привезем по адресу: <b>${contact.address ?? null}</b>\n`;
-    // message += "<i>Отсканируйте QR код курьера через приложение Telegram для проведения оплаты и получения бонусов!</i>\n\n";
-    // message += "Мой заказ: \n";
 
-    // order.forEach(item => {
-    //     message += `<b>${item.name}</b> - ${item.count} шт. по ${item.price} ₽ \n`;
-    // });
-
-    // message += `Итого: <b>${body.total}</b> ₽ \n`;
-
-    // try {
-    //     $fetch(`https://api.telegram.org/bot${telegramBotToken}/test/sendMessage`, {
-    //         method: 'POST',
-    //         body: {
-    //             parse_mode: "html",
-    //             chat_id: contact.user_id,
-    //             text: message
-    //         }
-    //     })
-    // } catch (e) {
-    //     console.log(e)
-    // }
-
-  
   
 })
 

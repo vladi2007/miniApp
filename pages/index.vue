@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="auth-status">
     <div v-if="status === 'loading'" class="status-message">Пожалуйста, подождите, аутентификация...</div>
     <div v-if="status === 'success'" class="status-message success">
@@ -24,4 +24,69 @@ const { status, contactData } = useAuthentication();
 
 <style >
     
+</style> -->
+<!-- <script>
+import waiting  from '/components/waiting/waiting';  // Путь может отличаться в зависимости от структуры проекта
+
+export default {
+    components: {
+        waiting,
+      
+    },
+};
+
+</script>
+
+<template>
+    <waiting/>
+</template>
+
+<style>
+
+</style> -->
+
+<!-- <script>
+import timer  from '/components/countdown/timer';  // Путь может отличаться в зависимости от структуры проекта
+
+export default {
+    components: {
+        timer,
+      
+    },
+};
+
+</script>
+
+<template>
+    <waiting/>
+</template>
+
+<style>
+
+</style> -->
+<script>
+import question  from '/components/question/question';  // Путь может отличаться в зависимости от структуры проекта
+
+export default {
+    components: {
+        question,
+      
+    },
+};
+import { onMounted } from 'vue';
+
+onMounted(() => {
+  // Проверяем, доступен ли Telegram.WebApp, если да, скрываем шапку
+  if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+    Telegram.WebApp.hide();
+  }
+});
+</script>
+
+<template>
+    <question/>
+</template>
+
+<style>
+
 </style>
