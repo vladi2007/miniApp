@@ -1,4 +1,7 @@
 export interface QuestionData {
+  questions_count: string
+  timer_duration: string
+  stage:string
   timer: string
   title: string
   code: string
@@ -41,4 +44,5 @@ export interface WaitingData {
 
 export interface CountdownData {
   timer: string
+
 }

@@ -1,16 +1,22 @@
 // server.js
 import { WebSocketServer, WebSocket } from 'ws'
 import { createServer } from 'http'
-
+import url from 'url'
 const port = 4000
 const server = createServer()
 const wss = new WebSocketServer({ server, path: '/ws' })
 
-wss.on('connection', (clientSocket) => {
-  console.log('Клиент подключился')
+wss.on('connection', function connection(clientSocket, incoming_request)  {
+//   console.log('Клиент подключился')
+//  console.log(incoming_request.url);
+  // const query = url.parse(incoming_request.url, true).query
+  // const telegramId = query.telegram_id
+  // const secretKey = query.secret_key
 
+  // console.log('✅ telegram_id:', telegramId)
+  // console.log('🔑 secret_key:', secretKey)
   let backendSocket = null
-
+  
   clientSocket.on('message', (msg) => {
     try {
       const data = JSON.parse(msg)

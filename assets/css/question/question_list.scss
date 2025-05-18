@@ -120,7 +120,9 @@
   background-color: #853cff;
   color: white;
 }
-
+.question_accepted-banner.hidden {
+  display:none
+}
 .question_accepted-banner.success {
   background-color: #6ab23d;
   color: white;

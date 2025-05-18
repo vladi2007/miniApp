@@ -8,23 +8,25 @@ import type { QuestionData } from '~/types/stageData'
 
 const props = defineProps<{
   stage: string
-  data: QuestionData  // Используем тип WaitingData
+  data: QuestionData 
+  onAnswer: (answerId: string) => void  // Используем тип WaitingData
 }>()
-console.log(props.data)
+
 </script>
 
 <template>
   <div class='question'>
     <img src="/images/question/Star_2.svg" id="question_star_2" />
     <img src="/images/question/Vector_89.svg" id="question_vector_2" />
-    
+
     <!-- Компонент Timer -->
-    <timer :timer="data.timer" />
-    
+    <timer :timer="data.timer" :stage="stage" :timer_duration="data.timer_duration"/>
+
     <!-- В зависимости от типа данных, отображаем различные компоненты -->
-    <question_list :timer="data.timer" :question="data.question" :answers="data.answers" :idCorrectAnswer="data.idCorrectAnswer" :percentages="data.percentages"/>
-    
-   
+    <question_list :timer="data.timer" :question="data.question" :answers="data.answers"
+      :idCorrectAnswer="data.idCorrectAnswer" :percentages="data.percentages" :stage="stage":onAnswer="onAnswer" :questions_count ="data.questions_count" />
+
+
   </div>
 </template>
 
