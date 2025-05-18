@@ -1,0 +1,132 @@
+.question_question-list {
+  margin-left: 22px;
+  margin-right: 22px;
+  position: relative;
+}
+
+.question_number {
+  margin-top: 45px;
+  position: relative;
+  width: 131px;
+  height: 41px;
+  background-image: url("/images/question/Vector_80.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.question_icon {
+  position: absolute;
+  bottom: 20px;
+  right: 0;
+  width: 37px;
+  height: 37px;
+}
+
+.question_question-num-text {
+  font-weight: 400;
+  font-size: 16px;
+}
+
+.question_title {
+  margin-top: 14px;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.question_list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.question_answer {
+  background-color: #f7f7f7;
+  border-radius: 8px;
+  height: 46px;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  border: 2px solid transparent;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+  color: #1d1d1d;
+  padding-left: 35px;
+}
+
+.question_answer:hover {
+  background-color: #e0e0e0;
+}
+
+.question_answer.selected {
+  background-color: #853cff;
+  color: white;
+}
+
+.question_answer.correct {
+  background-color: #6ab23d;
+  color: white;
+}
+
+.question_answer.correctOutline {
+  border: 1px solid #6ab23d;
+  color: #1d1d1d;
+  background-color: #f7f7f7;
+}
+
+.question_answer.incorrect {
+  border: 1px solid #f0436c;
+  background-color: #f0436c;
+  color: white;
+}
+
+.question_answer.wrongOutline {
+  border: 1px solid #f0436c;
+  background-color: #f7f7f7;
+  color: #1d1d1d;
+}
+
+.question_percent {
+  font-size: 14px;
+  color: #333;
+  padding-right: 13px;
+}
+
+.question_percent.white {
+  color: white;
+}
+
+.question_accepted-banner {
+  margin-top: 24px;
+  padding: 12px;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.question_accepted-banner.default {
+  background-color: #853cff;
+  color: white;
+}
+
+.question_accepted-banner.success {
+  background-color: #6ab23d;
+  color: white;
+}
+
+.question_check-icon {
+  margin-right: 8px;
+  font-size: 18px;
+}

@@ -1,24 +1,23 @@
-// // composables/useTelegram.ts
-// import { ref, computed, onMounted } from 'vue'
-// import { useTgWebAppStore } from '/stores/tgWebApp'
-// const webApp = ref(null)
-// const contactData = useTgWebAppStore().contactData
-// export function useTelegram() {
-//   onMounted(() => {
-//     if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-//       webApp.value = window.Telegram.WebApp
-//       initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
-//       console.log(webApp.value)
-//     }
-//     if (!window.Telegram?.WebApp?.initDataUnsafe) {
-//       alert("Открой через Telegram WebApp на телефоне");
-//     }
-//   })
+// composables/useTelegram.ts
+import { ref, onMounted } from 'vue'
 
-//   const unsafeData = contactData
+export function useTelegram() {
+  const webApp = ref(null)
+  const contactData = ref(null)
 
+  onMounted(() => {
+    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+      webApp.value = window.Telegram.WebApp
+      const store = useTgWebAppStore() // ✅ Вызываем store внутри onMounted
+      contactData.value = store.contactData
 
-//   return {
-//     unsafeData
-//   }
-// }
+      console.log('WebApp:', webApp.value)
+    } else {
+      alert("Открой через Telegram WebApp на телефоне")
+    }
+  })
+
+  return {
+    unsafeData: contactData
+  }
+}

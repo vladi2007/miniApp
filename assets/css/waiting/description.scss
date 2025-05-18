@@ -4,7 +4,7 @@ body {
 
 }
 
-.description {
+.waiting_description {
     display: flex;
     /* Используем flexbox */
     justify-content: center;
@@ -12,7 +12,7 @@ body {
 
 }
 
-.desc-content {
+.waiting_desc-content {
     height: 223px;
     width: 332px;
     margin-top: 50px;
@@ -24,7 +24,7 @@ body {
 
 }
 
-.interactive-title {
+.waiting_interactive-title {
     font-family: 'Lato';
     color: #FFFFFF;
     font-weight: 700;
@@ -34,7 +34,7 @@ body {
     text-align: center;
 }
 
-.interactive-description {
+.waiting_interactive-description {
     margin-top:23px;
     font-family: 'Lato';
     color: #FFFFFF;
@@ -46,6 +46,6 @@ body {
     margin-left: auto;
     /* Текст выравнивается по левому краю */
 }
-.interactive-description > p{
+.waiting_interactive-description > p{
     text-align: left; 
 }

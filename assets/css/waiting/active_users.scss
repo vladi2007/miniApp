@@ -1,18 +1,17 @@
-body {
-  font-weight: 700;
-  font-family: 'Lato', sans-serif;
-}
 
-.active {
+
+.waiting_active {
   display: flex; /* Используем flexbox для выравнивания */
   align-items: center; /* Вертикальное выравнивание по центру */
   justify-content: center; /* Горизонтальное выравнивание по центру */
   font-size: 16px;
   margin-top: 65px;
-  gap:26px
+  gap:26px;
+   font-weight: 700;
+  font-family: 'Lato', sans-serif;
 }
 
-.active_number {font-family: 'Work Sans';
+.waiting_active_number {font-family: 'Work Sans';
 background-image: url('/images/waiting/Ellipse_46.svg');
 background-position: center center; /* Выравнивание по центру по горизонтали и вертикали */
   background-repeat: no-repeat; /* Запрещаем повторение фона */
@@ -28,7 +27,7 @@ background-position: center center; /* Выравнивание по центр�
   justify-content: center; 
 }
 
-.active_text {
+.waiting_active_text {
   font-weight: 700;
   line-height: 24px;
 }

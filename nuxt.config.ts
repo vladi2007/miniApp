@@ -23,7 +23,7 @@ export default defineNuxtConfig({
   
   vite: {
     server: {
-      allowedHosts: ['tidily-viable-mongoose.cloudpub.ru'],
+      allowedHosts: ['tidily-viable-mongoose.cloudpub.ru',"allegedly-innate-dotterel.cloudpub.ru"],
     
     },
     build: {
@@ -33,6 +33,7 @@ export default defineNuxtConfig({
   ssr:false,
   runtimeConfig: {
         telegramBotToken: process.env.TELEGRAM_BOT_TOKEN,
+        secretKey: process.env.SECRET_KEY,
     },
   modules:['@vueuse/nuxt','@pinia/nuxt'],
   css: [

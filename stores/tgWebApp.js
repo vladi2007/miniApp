@@ -17,7 +17,7 @@ export const useTgWebAppStore = defineStore('tgWebAppStore', {
         // Инициализация
         init() {
             return new Promise(async (resolve, reject) => {
-                if (process.client && window.Telegram?.WebApp) {  // Проверка, только если на клиенте
+                if (typeof window !== 'undefined' && window.Telegram?.WebApp) {  // Проверка, только если на клиенте
                     this.webAppData = useWebApp()
 
                     if (this.webAppData.version > '6.0') {
@@ -40,7 +40,7 @@ export const useTgWebAppStore = defineStore('tgWebAppStore', {
         // Инициализация данных из облачного хранилища
         async initDataUnsafe() {
             return new Promise(async (resolve, reject) => {
-                if (process.client && window.Telegram?.WebApp) {  // Проверка на клиенте
+                if (typeof window !== 'undefined' && window.Telegram?.WebApp) {  // Проверка на клиенте
                     try {
                         let dataUnsafe = null
                         const data = await useWebAppCloudStorage().getStorageItem('initDataUnsafe')
@@ -63,7 +63,7 @@ export const useTgWebAppStore = defineStore('tgWebAppStore', {
         // Инициализация контактных данных
         async initContactData() {
             return new Promise(async (resolve, reject) => {
-                if (process.client && window.Telegram?.WebApp) {  // Проверка на клиенте
+                if (typeof window !== 'undefined' && window.Telegram?.WebApp) {  // Проверка на клиенте
                     try {
                         let contactData = null
                         const data = await useWebAppCloudStorage().getStorageItem('contactData')
@@ -100,7 +100,7 @@ export const useTgWebAppStore = defineStore('tgWebAppStore', {
         // Аутентификация через биометрию
         async authenticateBiometric() {
             return new Promise(async (resolve, reject) => {
-                if (process.client && window.Telegram?.WebApp && this.webAppData.platform !== 'tdesktop' && this.webAppData.version > '7.2') {  // Проверка на клиенте
+                if (typeof window !== 'undefined' && window.Telegram?.WebApp && this.webAppData.version > '7.2') {  // Проверка на клиенте
                     useWebAppBiometricManager().initBiometric(() => {
                         const biometricSettings = useWebAppBiometricManager().openBiometricSettings()
                         if (biometricSettings.isBiometricAvailable) {

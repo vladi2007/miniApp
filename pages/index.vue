@@ -1,92 +1,116 @@
-<!-- <template>
-  <div class="auth-status">
-    <div v-if="status === 'loading'" class="status-message">Пожалуйста, подождите, аутентификация...</div>
-    <div v-if="status === 'success'" class="status-message success">
-      Аутентификация прошла успешно!
-      <div class="user-info">
-        <p><strong>Имя:</strong> {{ contactData.first_name }} {{ contactData.last_name }}</p>
-        <p><strong>Телефон:</strong> {{ contactData.phone_number }}</p>
-        <p><strong>ID пользователя:</strong> {{ contactData.user_id }}</p>
-        <p><strong>Username:</strong> {{ contactData.username }}</p>
-      </div>
-    </div>
-    <div v-if="status === 'error'" class="status-message error">Ошибка аутентификации. Попробуйте снова.</div>
+<script setup>
+import { ref, watch } from 'vue'
+// Импортируем компоненты
+import Waiting from '~/components/waiting/waiting.vue'
+import Countdown from '~/components/countdown/countdown.vue'
+import Question from '~/components/question/question.vue'
+import InteractiveEnd from '~/components/interactive_end/interactive_end.vue'
+
+// Словарь компонентов по имени
+const componentMap = {
+  "waiting": Waiting,
+  "countdown": Countdown,
+  "question": Question,
+  "discussion": Question,
+  "end": InteractiveEnd
+}
+
+// Инициализация данных
+// const timerData = ref({
+//   stage: "waiting",
+//   data: {
+//     title: "Тестовое мероприятие",
+//     description: "Это описание тестового мероприятия, которое проводится в рамках демонстрации.",
+//     code: "XYZ123",
+//     participants_active: "15"
+//   }
+// })
+
+
+// const timerData = ref({
+//   stage: "countdown",
+//   data: {
+//     timer:"15"
+//   }
+// })
+
+
+// const timerData = ref({
+//   stage: "end",
+//   data: {
+//     title: "Итоги мероприятия",
+//     participants_total: "25",
+//     winners: [
+//     {
+//       position: "1",
+//       username: "User_One"
+//     },
+//     {
+//       position: "2",
+//       username: "User_Two"
+//     },
+//      {
+//       position: "3",
+//       username: "User_Three"
+//     }
+//   ]
+//   }
+  
+// }
+// )
+
+
+
+const timerData = ref({
+  stage: "question",
+  data: {
+    timer: "30", 
+    title: "Какой язык программирования используется для создания Vue?",
+    code: "ABC123",
+    question: {
+      id: "1",
+      text: "Какой язык программирования используется для создания Vue?",
+      position: "1"
+    },
+    answers: [
+      {
+        id: "1",
+        text: "JavaScript"
+      },
+      {
+        id: "2",
+        text: "Python"
+      },
+      {
+        id: "3",
+        text: "Java"
+      },
+      {
+        id: "4",
+        text: "C++"
+      }
+    ]
+  }
+}
+)
+
+// Активный ключ компонента
+const currentComponentKey = ref("waiting")
+
+// // Используем WebSocket (вам нужно подключить библиотеку или определить функцию useWebSocket)
+// const { status, data, send, open, close } = useWebSocket("wss://voshod07.ru/ws")
+
+// // Отслеживаем приходящие данные
+// watch(data, (newValue) => {
+//   const dict = JSON.parse(newValue) // Парсим данные от сервера
+//   timerData.value = dict // Обновляем данные для компонента
+//   currentComponentKey.value = dict.stage // Устанавливаем новый активный компонент
+// })
+</script>
+
+<template>
+  <div>
+    <!-- Динамически рендерим компонент в зависимости от значения currentComponentKey -->
+    <component :is="componentMap[timerData.stage]" :data="timerData.data" :stage="timerData.stage" />
   </div>
 </template>
-
-<script setup>
-import { useAuthentication } from '/composables/auth_telegram'; // Путь к твоему composable
-
-// Используем composable
-const { status, contactData } = useAuthentication();
-
-</script>
-
-<style >
-    
-</style> -->
-<!-- <script>
-import waiting  from '/components/waiting/waiting';  // Путь может отличаться в зависимости от структуры проекта
-
-export default {
-    components: {
-        waiting,
-      
-    },
-};
-
-</script>
-
-<template>
-    <waiting/>
-</template>
-
-<style>
-
-</style> -->
-
-<!-- <script>
-import timer  from '/components/countdown/timer';  // Путь может отличаться в зависимости от структуры проекта
-
-export default {
-    components: {
-        timer,
-      
-    },
-};
-
-</script>
-
-<template>
-    <waiting/>
-</template>
-
-<style>
-
-</style> -->
-<script>
-import question  from '/components/question/question';  // Путь может отличаться в зависимости от структуры проекта
-
-export default {
-    components: {
-        question,
-      
-    },
-};
-import { onMounted } from 'vue';
-
-onMounted(() => {
-  // Проверяем, доступен ли Telegram.WebApp, если да, скрываем шапку
-  if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
-    Telegram.WebApp.hide();
-  }
-});
-</script>
-
-<template>
-    <question/>
-</template>
-
-<style>
-
-</style>

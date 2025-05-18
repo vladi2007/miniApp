@@ -34,7 +34,7 @@ export const useAuthentication = () => {
   const authenticateUser = async () => {
     try {
       // Проверяем, выполняется ли код на клиенте
-      if (process.client) {
+      if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
         // Инициализация данных (считывание unsafeData и contactData)
         await store.init();
 

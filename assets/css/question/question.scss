@@ -1,0 +1,30 @@
+.question{
+    width: 100%;
+    height: 100%;
+    font-family: 'Lato';
+    background-color: white
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* Это гарантирует, что padding и border будут учитываться в общем размере элементов */
+}
+
+
+#question_star_2{
+    
+    position: absolute;
+    top: 180px; /* Позиционируем по вертикали на 50% от родительского контейнера */
+    right: 0; /* Прижимаем к левому краю контейнера */
+    transform: translate(0, -50%); /* Убираем влияние transform на горизонтальное выравнивание */
+    z-index: 0;
+}
+#question_vector_2{
+    
+    position: absolute;
+    top: 435px; /* Позиционируем по вертикали на 50% от родительского контейнера */
+    left: 0; /* Прижимаем к левому краю контейнера */
+    transform: translate(0, -50%); /* Убираем влияние transform на горизонтальное выравнивание */
+    z-index: 0;
+}

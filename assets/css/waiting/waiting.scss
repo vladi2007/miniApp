@@ -4,34 +4,31 @@
     box-sizing: border-box;
     /* Это гарантирует, что padding и border будут учитываться в общем размере элементов */
 }
-body {width: 100%;
+
+
+.waiting_participant_waiting {
+    padding: 0px;
+    margin: 0px;
+    width: 100%;
     height: 100%;
     font-family: 'Lato';
     background-color: #853CFF;
-}
-html, body {
-    height: 100%;
-}
-.participant_waiting {
-    padding: 0px;
-    margin: 0px;
-    
-   
+
 
 }
 
-.description {
+.waiting_description {
 
     /* Содержимое контейнера может располагаться в обычном потоке документа */
 
     position: relative;
-    
+
 
 
 
 }
 
-.logo {
+.waiting_logo {
 
 
 
@@ -42,41 +39,41 @@ html, body {
 
 
 
-.description-content {
+.waiting_description-content {
     margin-top: 115px;
     background-color: white;
     width: 100%;
     height: calc(100vh - 157px);
     border-top-left-radius: 26px;
-border-top-right-radius: 26px;
-border-bottom-left-radius: 0;
-border-bottom-right-radius: 0;
+    border-top-right-radius: 26px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
     /* 70% высоты для белого фона */
-   
+
 
 }
 
 
 
-.description-content>p {
+.waiting_description-content>p {
     padding-top: 79px;
     text-align: center;
     font-weight: 700;
     font-size: 16px;
 }
 
-.grey {
-    
+.waiting_grey {
+
     background-color: #A9A9A9;
     top: 140px;
     /* 30% высоты для серого фона */
     position: absolute;
     border-radius: 26px;
     width: 100%;
-    
+
 }
 
-.grey-line {
+.waiting_grey-line {
     height: 7px;
     background-color: #A9A9A9;
     top: 135px;
@@ -87,7 +84,7 @@ border-bottom-right-radius: 0;
 
 }
 
-.fixed {
+.waiting_fixed {
     position: absolute;
     /* Эта картинка будет фиксированной */
     /* Место, где будет находиться картинка */

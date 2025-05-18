@@ -1,0 +1,58 @@
+.winners_table {
+
+    font-family: 'Lato';
+    margin-top: 6px;
+    display: flex;
+    /* Используем flexbox */
+    justify-content: center;
+    /* Выравнивание по горизонтали */
+
+    /* Высота экрана */
+
+
+}
+
+.table {
+    margin-top: 5px;
+    width: 332px;
+    ;
+    height: 292px;
+    ;
+    border: 2px solid #D9D9D9;
+    border-radius: 30px;
+}
+
+.title {
+    font-family: 'Lato';
+    text-align: center;
+    margin-top: 6px;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 24px;
+    ;
+}
+
+.winners_list {
+    display: grid;
+    grid-template-rows: repeat(3, 1fr);
+    /* 3 строки одинаковой высоты */
+    gap: 29px;
+    /* расстояние между строками — можно изменить */
+    margin-top: 45px;
+    padding: 0 16px;
+}
+
+#first {}
+
+.winner {
+    background-color: #F7F7F7;
+    padding: 6px;
+
+    font-weight: 400;
+    font-size: 16px;;
+    line-height: 24px;;
+    text-align: left;
+}
+.name{
+    margin-left: 14px;;
+}

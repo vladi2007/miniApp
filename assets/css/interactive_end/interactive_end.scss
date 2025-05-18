@@ -1,0 +1,52 @@
+.interactive_end_star-wrapper {
+    margin-top:6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+   /* Высота экрана */
+    width: 100%;
+}
+
+#interactive_end_vector {
+    position: absolute;
+    top: 0;
+    /* Позиционируем по вертикали на 50% от родительского контейнера */
+    right:-25px;
+    /* Позиционируем по горизонтали на 50% от родительского контейнера */
+
+    z-index: 2;
+}
+
+.interactive_end_question {}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* Это гарантирует, что padding и border будут учитываться в общем размере элементов */
+}
+
+.interactive_end{
+    width: 100%;
+    height: 100vh;
+    font-family: 'Lato';
+    background-color: white;
+    
+}
+
+
+.interactive_end_timer {
+    margin-left: 29px;;
+    margin-right: 29px;
+    background-color: #853cff;
+    height: 60px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 26px;
+    border-bottom-right-radius: 26px;
+}
+
+.interactive_end_logo {position: relative;
+    padding-top: 23px;
+    margin-left: 7px;
+}
