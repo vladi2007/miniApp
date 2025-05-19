@@ -7,8 +7,8 @@ const server = createServer()
 const wss = new WebSocketServer({ server, path: '/ws' })
 
 wss.on('connection', function connection(clientSocket, incoming_request)  {
-//   console.log('Клиент подключился')
-//  console.log(incoming_request.url);
+   console.log('Клиент подключился')
+  console.log(incoming_request.url);
   // const query = url.parse(incoming_request.url, true).query
   // const telegramId = query.telegram_id
   // const secretKey = query.secret_key

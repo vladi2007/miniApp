@@ -1,12 +1,10 @@
- <script setup>
-import { ref, watch , onMounted} from 'vue'
+<script setup>
+import { ref, computed, onMounted } from 'vue'
 import { useWebApp } from 'vue-tg'
 import Waiting from '~/components/waiting/waiting.vue'
 import Countdown from '~/components/countdown/countdown.vue'
 import Question from '~/components/question/question.vue'
 import InteractiveEnd from '~/components/interactive_end/interactive_end.vue'
-
-
 
 const webApp = ref(null)
 const initDataUnsafe = ref(null)
@@ -17,7 +15,9 @@ onMounted(() => {
     initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
   }
 })
- const user = computed(() => initDataUnsafe.value?.user.id)
+
+const user = computed(() => initDataUnsafe.value?.user.id)
+
 const componentMap = {
   waiting: Waiting,
   countdown: Countdown,
@@ -30,29 +30,87 @@ const timerData = ref({})
 const currentComponentKey = ref('waiting')
 let intervalId = null
 let time = 0
-let timer_duration = 0
-let questions_count = 0
-// Веб-сокет
+let timer_duration = 10
 
-const socket = ref(null)
-watch(user, (newUser) => {
-  if (newUser) {
-    // Создаем соединение, только когда user.id существует
-    socket.value = new WebSocket(`wss://voshod07.ru/ws?telegram_id=123123&secret_key=123123`)
-    socket.value.onopen = () => {
-      console.log("WebSocket подключен")
-    }
-    socket.value.onmessage = (message) => {
-      console.log("Получено сообщение от сервера:", message.data)
-    }
-    socket.value.onclose = () => {
-      console.log("WebSocket закрыт")
-    }
-    socket.value.onerror = (error) => {
-      console.log("Ошибка WebSocket:", error)
-    }
-  }
-})
+const questions = [
+  {
+    id: '1',
+    title: 'Какой язык программирования используется для создания Vue?',
+    question: {
+      id: '1',
+      text: 'Какой язык программирования используется для создания Vue?',
+      position: '1',
+    },
+    answers: [
+      { id: '1', text: 'JavaScript' },
+      { id: '2', text: 'Python' },
+      { id: '3', text: 'Java' },
+      { id: '4', text: 'C++' },
+    ],
+    correct: '1',
+    percentages: [
+      { id: '1', percentage: 65 },
+      { id: '2', percentage: 15 },
+      { id: '3', percentage: 10 },
+      { id: '4', percentage: 10 },
+    ],
+  },
+  {
+    id: '2',
+    title: 'Кто был первым ректором УрФУ?',
+    question: {
+      id: '2',
+      text: 'Кто был первым ректором УрФУ?',
+      position: '2',
+    },
+    answers: [
+      { id: '1', text: 'Обабков' },
+      { id: '2', text: 'Шадрин' },
+      { id: '3', text: 'Новиков' },
+      { id: '4', text: 'Ануфриев' },
+    ],
+    correct: '3',
+    percentages: [
+      { id: '1', percentage: 25 },
+      { id: '2', percentage: 20 },
+      { id: '3', percentage: 40 },
+      { id: '4', percentage: 15 },
+    ],
+  },
+  {
+    id: '3',
+    title: 'Когда основали УрФУ?',
+    question: {
+      id: '3',
+      text: 'Когда основали УрФУ?',
+      position: '3',
+    },
+    answers: [
+      { id: '1', text: '1941' },
+      { id: '2', text: '2005' },
+      { id: '3', text: '2011' },
+      { id: '4', text: '899' },
+    ],
+    correct: '3',
+    percentages: [
+      { id: '1', percentage: 10 },
+      { id: '2', percentage: 20 },
+      { id: '3', percentage: 60 },
+      { id: '4', percentage: 10 },
+    ],
+  },
+]
+
+let currentQuestionIndex = 0
+let questions_count = questions.length
+
+const { open, close, send, data } = useWebSocket(`ws://localhost:4000/ws?huy=123`)
+
+function sendAnswer(answerId) {
+  send(JSON.stringify({ answer_id: answerId }))
+}
+
+// Этап ожидания
 const startWaitingCycle = () => {
   currentComponentKey.value = 'waiting'
   timerData.value = {
@@ -62,22 +120,14 @@ const startWaitingCycle = () => {
       description: 'Скоро начнём, ждём остальных участников.',
       code: 'QUIZ2025',
       participants_active: '23',
-    }
+    },
   }
 
   setTimeout(() => startCountdownCycle(), 3000)
 }
 
-// Отправка ответа
-function sendAnswer(answerId) {
-  send(JSON.stringify({ answer_id: answerId }))
-}
-
-// Показываем waiting и запускаем цикл
-setTimeout(() => startCountdownCycle(), 3000) // подождать 3 секунды на экране ожидания
-
 const startCountdownCycle = () => {
-  time = 10
+  time = 5
   currentComponentKey.value = 'countdown'
   timerData.value = {
     stage: 'countdown',
@@ -98,29 +148,20 @@ const startCountdownCycle = () => {
 }
 
 const startQuestionCycle = () => {
-  time = 5
-  timer_duration = 5
-  questions_count=10
+  const q = questions[currentQuestionIndex]
+  time = 10
+  timer_duration=10
   currentComponentKey.value = 'question'
   timerData.value = {
     stage: 'question',
     data: {
-     questions_count:String(questions_count),
-      timer_duration:String(timer_duration),
+      questions_count: String(questions_count),
+      timer_duration: String(timer_duration),
       timer: String(time),
-      title: 'Какой язык программирования используется для создания Vue?',
+      title: q.title,
       code: 'ABC123',
-      question: {
-        id: '1',
-        text: 'Какой язык программирования используется для создания Vue?',
-        position: '1',
-      },
-      answers: [
-        { id: '1', text: 'JavaScript' },
-        { id: '2', text: 'Python' },
-        { id: '3', text: 'Java' },
-        { id: '4', text: 'C++' },
-      ],
+      question: q.question,
+      answers: q.answers,
     },
   }
 
@@ -128,7 +169,7 @@ const startQuestionCycle = () => {
   intervalId = setInterval(() => {
     time--
     timerData.value.data.timer = String(time)
-    if (time <= 0) {
+    if (time < 0) {
       clearInterval(intervalId)
       startDiscussionCycle()
     }
@@ -136,33 +177,22 @@ const startQuestionCycle = () => {
 }
 
 const startDiscussionCycle = () => {
+  const q = questions[currentQuestionIndex]
   time = 5
+  timer_duration=5
   currentComponentKey.value = 'discussion'
   timerData.value = {
     stage: 'discussion',
     data: {
-      questions_count:String(questions_count),
+      timer_duration:String(timer_duration),
+      questions_count: String(questions_count),
       timer: String(time),
-      title: 'Какой язык программирования используется для создания Vue?',
+      title: q.title,
       code: 'ABC123',
-      question: {
-        id: '1',
-        text: 'Какой язык программирования используется для создания Vue?',
-        position: '1',
-      },
-      answers: [
-        { id: '1', text: 'JavaScript' },
-        { id: '2', text: 'Python' },
-        { id: '3', text: 'Java' },
-        { id: '4', text: 'C++' },
-      ],
-      idCorrectAnswer: '1',
-      percentages: [
-        { id: '1', percentage: 65 },
-        { id: '2', percentage: 15 },
-        { id: '3', percentage: 10 },
-        { id: '4', percentage: 10 },
-      ],
+      question: q.question,
+      answers: q.answers,
+      idCorrectAnswer: q.correct,
+      percentages: q.percentages,
     },
   }
 
@@ -170,9 +200,14 @@ const startDiscussionCycle = () => {
   intervalId = setInterval(() => {
     time--
     timerData.value.data.timer = String(time)
-    if (time <= 0) {
+    if (time < 0) {
       clearInterval(intervalId)
-      showEndScreen()
+      currentQuestionIndex++
+      if (currentQuestionIndex < questions.length) {
+        startQuestionCycle()
+      } else {
+        showEndScreen()
+      }
     }
   }, 1000)
 }
@@ -185,28 +220,19 @@ const showEndScreen = () => {
       title: 'Игра завершена!',
       participants_total: '120',
       winners: [
-      { position: '1', username: 'Иван123' },
-      { position: '2', username: 'Maria_K' },
-      { position: '3', username: 'AlexDev' },
-    ],
+        { position: '1', username: 'Иван123' },
+        { position: '2', username: 'Maria_K' },
+        { position: '3', username: 'AlexDev' },
+      ],
     },
-    
   }
+
+  currentQuestionIndex = 0
   setTimeout(() => startWaitingCycle(), 5000)
 }
 
-// Начать с waiting
-timerData.value = {
-  stage: 'waiting',
-  data: {
-    title: 'Ожидание начала игры',
-    description: 'Скоро начнём, ждём остальных участников.',
-    code: 'QUIZ2025',
-    participants_active: '23',
-  }
-}
-
-
+// Старт с экрана ожидания
+startWaitingCycle()
 </script>
 
 

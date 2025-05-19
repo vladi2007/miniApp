@@ -25,8 +25,8 @@ watch(
 // Вычисляем прогресс в процентах
 const progressPercent = computed(() => {
   const time = Number(props.timer)
-  if (isNaN(time) || !timerDuration.value) return 0
-  return ((time - 1) / timerDuration.value) * 100  
+  if (isNaN(time) || !Number(props.timer_duration)) return 0
+  return ((time) / Number(props.timer_duration)) * 100
 })
 
 // Метка таймера
@@ -54,5 +54,4 @@ const timerLabel = computed(() => {
   </div>
 </template>
 
-<style >
-</style>
+<style></style>

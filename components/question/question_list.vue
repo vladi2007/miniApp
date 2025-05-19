@@ -44,17 +44,31 @@ const isCorrect = computed(() => {
 const getPercentage = (id: string) => {
   return props.percentages.find((p) => p.id === id)?.percentage ?? 0
 }
+const currStage = ref(props.stage)
+const prevStage = ref(props.stage)
 
-const previousStage = ref(props.stage)
-
+watch(
+  () => props.stage,
+  (newVal, oldVal) => {
+    prevStage.value = oldVal
+    currStage.value = newVal
+    if (prevStage.value === "discussion" && prevStage.value === "discussion"){
+      selectedAnswer.value = null
+    }
+  }
+)
 // Следим за приходом idCorrectAnswer
 watch(
   () => props.idCorrectAnswer,
   () => {
     if (selectedAnswer.value && selectedAnswer.value !== props.idCorrectAnswer) {
       showBanner.value = false // Скрываем плашку, если ответ неправильный
+      
+
     }
-    // Если ответ верный — showBanner остаётся true
+   () => {
+
+   }
   }
 )
 
