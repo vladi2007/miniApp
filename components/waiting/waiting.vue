@@ -5,7 +5,8 @@ import Description from '~/components/waiting/description.vue'
 
 const props = defineProps<{
   stage: string
-  data: WaitingData  // Используем тип WaitingData
+  data: WaitingData 
+    // Используем тип WaitingData
 }>()
 console.log(props.data.description)
 </script>
@@ -36,7 +37,12 @@ console.log(props.data.description)
 </template>
 
 <style>
-@import url("~/assets/css/waiting/active_users.scss");
-@import url("~/assets/css/waiting/description.scss");
-@import url("~/assets/css/waiting/waiting.scss");
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    
+    /* Это гарантирует, что padding и border будут учитываться в общем размере элементов */
+}
+
 </style>

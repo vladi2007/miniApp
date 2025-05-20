@@ -5,6 +5,56 @@ const props = defineProps<{ count: string }>()
 <template>
   <div class="waiting_active">
     <div class="waiting_active_number">{{ count }}</div>
-    <div class="waiting_active_text">Активных,<br>пользователей</div>
+    <div class="waiting_active_text">Активных,<br>участников</div>
   </div>
 </template>
+
+<style>
+.waiting_active {
+  display: flex;
+  /* Используем flexbox для выравнивания */
+  align-items: center;
+  /* Вертикальное выравнивание по центру */
+  justify-content: center;
+  /* Горизонтальное выравнивание по центру */
+  width: 773px;
+  margin-top: 160px;
+  margin-right: 30px;
+  font-size: 16px;
+
+  vertical-align: middle;
+  font-weight: 700;
+  font-family: 'Lato', sans-serif;
+
+} 
+
+.waiting_active_number {
+  font-family: 'Work Sans';
+  background-image: url('/images/waiting/Ellipse_46.svg');
+  background-position: center center;
+  /* Выравнивание по центру по горизонтали и вертикали */
+  background-repeat: no-repeat;
+  /* Запрещаем повторение фона */
+  background-size: cover;
+  font-size: 24px;
+  width: 97px;
+  height: 97px;
+  font-weight: 700;
+  font-size: 40px;
+  line-height: 117%;
+  /* Используем flexbox для центровки текста внутри круга */
+  display: flex;
+  align-items: center;
+  /* Вертикальное выравнивание текста */
+  justify-content: center;
+}
+
+.waiting_active_text {
+  margin-left: 36px;
+  font-weight: 700;
+  line-height: 40px;
+  font-size: 32px;
+
+
+}
+</style>
