@@ -15,15 +15,11 @@ function goBack() {
 }
 const props = defineProps<{
     stage: string
-    data: WaitingData  // Используем тип WaitingData
-     onStatus: () => void
+    data: WaitingData  
+    context:string
+     onStatus: (status: string) => void
 }>()
-function click_sendStatus() {
-   
-  props.onStatus()
-  
-    // Показываем плашку при выборе ответа
-}
+
 </script>
 
 <template>
@@ -44,12 +40,12 @@ function click_sendStatus() {
             <div class="waiting_description-content">
 
                 <div class="waiting_desc-comp">
-                    <Description :title="props.data?.title || ''" :description="props.data?.description || ''" />
+                    <Description :title="props.data?.title || ''" :description="props.data?.description || ''" :context="context"/>
                     <div class ="waiting_leader_buttons">
                         <button class ="waiting_back"@click ="goBack">
                             Вернуться
                         </button>
-                         <button class ="waiting_start" @click="click_sendStatus()">
+                         <button class ="waiting_start" @click="onStatus('going')">
                             Запустить
                         </button>
 
@@ -60,7 +56,7 @@ function click_sendStatus() {
                 
             </div>
             <div>
-                    <Active :count="props.data.participants_active" />
+                    <Active :count="props.data.participants_active" :context="context"/>
                 </div>
             
         </div>

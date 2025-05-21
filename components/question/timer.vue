@@ -5,12 +5,13 @@ const props = defineProps<{
   stage: string
   timer: string
   timer_duration: string
+  context:string
 }>()
 
 // Храним максимальное значение таймера (первое пришедшее число)
 // Вместо maxTime используем timer_duration для вычисления прогресса
 const timerDuration = ref<number | null>(null)
-
+const isLeaderContext = computed(() => props.context === 'leader')
 watch(
   () => props.timer_duration,
   (newVal) => {
@@ -21,7 +22,7 @@ watch(
   },
   { immediate: true }
 )
-
+const isLeader = computed(() => props.stage !== 'participant')
 // Вычисляем прогресс в процентах
 const progressPercent = computed(() => {
   const time = Number(props.timer)
@@ -31,7 +32,8 @@ const progressPercent = computed(() => {
 
 // Метка таймера
 const timerLabel = computed(() => {
-  return props.stage === 'discussion'
+
+  if (!isLeader.value) return props.stage === 'discussion'
     ? 'Следующий вопрос через:'
     : 'Времени осталось:'
 })
@@ -39,15 +41,22 @@ const timerLabel = computed(() => {
 
 <template>
   <div class="question_timer">
-    <div class="question_logo">
+    <div class="question_logo" v-if="!isLeader">
       <img src="/images/waiting/Clik.svg" />
       <img src="/images/waiting/Group.svg" />
     </div>
-
-    <p class="question_timer-text">{{ timerLabel }} {{ timer }}</p>
+    
+    <div class="question_timer-text-wrapper" v-if="isLeaderContext">
+  <div class="question_timer-text">
+    {{ timer }}
+  </div>
+</div>
+<div v-else class="question_timer-text">
+  {{ timerLabel }} {{ timer }}
+</div>
 
     <!-- Серый фон -->
-    <div class="question_grey-line">
+    <div class="question_grey-line" v-if="!isLeader">
       <!-- Прогресс -->
       <div class="question_green-line" :style="{ width: progressPercent + '%' }"></div>
     </div>
@@ -55,4 +64,29 @@ const timerLabel = computed(() => {
 </template>
 
 <style >
+.question_timer{
+  
+
+}
+
+.question_timer-text-wrapper {
+  background-image: url('/images/question/Ellipse_45.svg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  width: 97px;
+  height: 97px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.question_timer-text {
+  font-weight: 700;
+  font-size: 64px;
+  color:white ;
+  text-align: center;
+}
+
+
 </style>

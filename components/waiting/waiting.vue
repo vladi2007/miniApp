@@ -6,7 +6,8 @@ import Description from '~/components/waiting/description.vue'
 const props = defineProps<{
   stage: string
   data: WaitingData 
-    // Используем тип WaitingData
+   context:string
+   // Используем тип WaitingData
 }>()
 console.log(props.data.description)
 </script>
@@ -30,8 +31,8 @@ console.log(props.data.description)
       <p>Ждём пользователей, скоро начнём.</p>
     
       <!-- Передаем тестовые данные в компоненты -->
-      <Active :count="props.data.participants_active " />
-      <Description :title="props.data?.title || ''" :description="props.data?.description || ''" />
+      <Active :count="props.data.participants_active " :context="context"/>
+      <Description :title="props.data?.title || ''" :description="props.data?.description || ''" :context="context"/>
     </div>
   </div>
 </template>

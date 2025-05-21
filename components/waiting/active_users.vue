@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const props = defineProps<{ count: string }>()
+const props = defineProps<{ count: string; context:string}>()
 </script>
 
 <template>

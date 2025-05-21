@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-const props = defineProps<{ title: string; description: string }>()
+const props = defineProps<{ title: string; description: string ;context:string}>()
 </script>
 
 <template>
