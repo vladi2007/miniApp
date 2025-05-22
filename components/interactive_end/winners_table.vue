@@ -10,7 +10,7 @@ const router = useRouter()
 
 // Функция возврата на предыдущую страницу
 function goToMainMenu() {
-  window.location.href="https://voshod07.ru/"
+  window.location.href=`https://voshod07.ru`
   
   
 }
@@ -44,7 +44,7 @@ function goToMainMenu() {
 <style>
 .winners_table {
 
-  font-family: 'Lato';
+font-family: 'Lato', sans-serif;;
   margin-top: 50px;
   display: grid;
   /* Используем flexbox */
@@ -56,7 +56,7 @@ function goToMainMenu() {
 
 }
 
-.table {font-family: 'Lato';
+.table {font-family: 'Lato', sans-serif;
   margin-top: 5px;
   width: 1380px;
   ;
@@ -66,8 +66,8 @@ function goToMainMenu() {
   border-radius: 30px;
 }
 
-.title {font-family: 'Lato';
-  font-family: 'Lato';
+.title {font-family: 'Lato', sans-serif;
+font-family: 'Lato', sans-serif;;
   text-align: center;
   margin-top: 31px;
   font-weight: 700;
@@ -76,7 +76,7 @@ function goToMainMenu() {
   ;
 }
 
-.winners_list {font-family: 'Lato';
+.winners_list {font-family: 'Lato', sans-serif;
   display: grid;
   grid-template-rows: repeat(3, 1fr);
   /* 3 строки одинаковой высоты */
@@ -90,7 +90,7 @@ function goToMainMenu() {
 
 #first {}
 
-.winner {font-family: 'Lato';width: 100%;
+.winner {font-family: 'Lato', sans-serif;;width: 100%;
   vertical-align: middle;
   background-color: #F7F7F7;
   padding: 33px;

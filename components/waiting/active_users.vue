@@ -29,7 +29,7 @@ const props = defineProps<{ count: string; context:string}>()
 } 
 
 .waiting_active_number {
-  font-family: 'Work Sans';
+  font-family: 'Work Sans', sans-serif;
   background-image: url('/images/waiting/Ellipse_46.svg');
   background-position: center center;
   /* Выравнивание по центру по горизонтали и вертикали */

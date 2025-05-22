@@ -28,7 +28,7 @@ display: flex;
   
 }
 .waiting_interactive-title{
-  font-family: 'Lato';
+  font-family: 'Lato', sans-serif;
   font-size: 40px;
   line-height: 24px;
   font-weight: 700;
@@ -44,7 +44,7 @@ display: flex;
   
 }
 .waiting_interactive-description > p{
-  text-align: left;font-family: 'Lato';
+  text-align: left;font-family: 'Lato', sans-serif;
   font-weight: 500;
   font-size: 32px;
   line-height: 40px;

@@ -165,7 +165,7 @@ const isParticipant = computed(() => props.stage === 'participant')
   color: white;
   margin-left: 73px;
   padding-top: 92px;
-  font-family: 'Lato';
+  font-family: 'Lato', sans-serif;;
   font-weight: 700;
   font-size: 40px;
   letter-spacing: 1px;;
@@ -197,7 +197,7 @@ const isParticipant = computed(() => props.stage === 'participant')
   color: #FFFFFF;
   font-weight: 700;
   font-size: 40px;
-  font-family: 'Work Sans';
+  font-family: 'Work Sans', sans-serif;
 }
 
 .participant-text {
@@ -213,7 +213,7 @@ const isParticipant = computed(() => props.stage === 'participant')
   ;
   font-weight: 500;
   font-size: 40px;
-  font-family: 'Work Sans';
+  font-family: 'Work Sans', sans-serif;
   vertical-align: middle;
 
 }

@@ -40,7 +40,7 @@ const props = defineProps<{
     display: flex;
     
 }
-.goto_end{font-family: "Lato";margin-left: 15px;;  margin-top: 20px;
+.goto_end{font-family: 'Lato', sans-serif;margin-left: 15px;;  margin-top: 20px;
     font-weight: 500;
     font-size: 32px;
     vertical-align: middle;
@@ -51,7 +51,7 @@ const props = defineProps<{
     border: #F0436C;
     color: white;
 }
-.pause{font-family: "Lato";margin-left: 43px;;  margin-top: 20px;
+.pause{font-family: 'Lato', sans-serif;margin-left: 43px;;  margin-top: 20px;
     font-weight: 500;
     font-size: 32px;
     vertical-align: middle;
@@ -62,7 +62,7 @@ const props = defineProps<{
     border: #6AB23D;
     color: white;
 }
-.continue{font-family: "Lato";margin-left: 42px;;  margin-top: 20px;
+.continue{font-family: 'Lato', sans-serif;margin-left: 42px;;  margin-top: 20px;
     font-weight: 500;
     font-size: 32px;
     vertical-align: middle;

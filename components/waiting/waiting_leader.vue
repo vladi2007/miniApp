@@ -22,7 +22,7 @@ const props = defineProps<{
 
 </script>
 
-<template>
+<template >
     <div class="waiting_participant_waiting">
         <img src="/images/waiting/Vector_95.svg" id="waiting_vector_1" />
         <img src="/images/waiting/Vector_94.svg" id="waiting_vector_2" />
@@ -79,10 +79,12 @@ const props = defineProps<{
 
 .waiting_participant_waiting {
     display: flex;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+  height: 100vh;
     padding-left: 30px;
     padding-right: 30px;
+    background-color: white;
+    overflow: hidden;
 }
 
 
@@ -136,12 +138,12 @@ const props = defineProps<{
     bottom: 30px;
     right: 190px;
 }
-.waiting_leader_buttons{margin-top:48px;  font-family: 'Lato'; font-weight: 500; font-size: 24px; vertical-align: middle; line-height: 120%;
+.waiting_leader_buttons{margin-top:48px;  font-family: 'Lato', sans-serif; font-weight: 500; font-size: 24px; vertical-align: middle; line-height: 120%;
     display: flex;
   
     
 }
-.waiting_back{background-color: #F0436C; font-family: 'Lato'; font-weight: 500; font-size: 24px; vertical-align: middle; line-height: 120%;letter-spacing: 1px;
+.waiting_back{background-color: #F0436C; font-family: 'Lato', sans-serif; font-weight: 500; font-size: 24px; vertical-align: middle; line-height: 120%;letter-spacing: 1px;
     color: white;
     width: 185px;
     height: 50px;
@@ -150,7 +152,7 @@ const props = defineProps<{
     margin-left: 131px;;
     
 }
-.waiting_start{ background-color: #6AB23D; font-family: 'Lato'; font-weight: 500; font-size: 24px; vertical-align: middle; line-height: 120%; letter-spacing: 1px;
+.waiting_start{ background-color: #6AB23D; font-family: 'Lato', sans-serif; font-weight: 500; font-size: 24px; vertical-align: middle; line-height: 120%; letter-spacing: 1px;
    color: white;
     width: 185px;
     height: 50px;

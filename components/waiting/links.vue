@@ -26,7 +26,7 @@ const participantUrl = `https://voshod07.ru/participant/${interactiveId}`
 
 <style>
 .waiting_links_column {
-  font-family: 'Lato';
+  font-family: 'Lato', sans-serif;
   width: 526px;
 
   margin-top: 191px;
@@ -48,7 +48,7 @@ const participantUrl = `https://voshod07.ru/participant/${interactiveId}`
 
 .waiting_code-text {
   margin-top: 44px;
-  font-family: 'Lato';
+  font-family: 'Lato', sans-serif;
   letter-spacing: 1px;
   font-weight: 700;
   font-size: 32px;
@@ -56,7 +56,7 @@ const participantUrl = `https://voshod07.ru/participant/${interactiveId}`
 }
 
 .waiting_code {
-  font-family: "Work sans";
+  font-family: 'Work Sans', sans-serif;
   margin: 0 auto;
   font-weight: 700;
   font-size: 64px;
@@ -72,14 +72,14 @@ const participantUrl = `https://voshod07.ru/participant/${interactiveId}`
   background-color: #853CFF;
   height: 300px;
   width: 300px;
-  font-family: 'Lato';
+  font-family: 'Lato', sans-serif;
   margin-top: 35px;
 }
 
 .waiting_link {
   display: flex;
   align-items: center;
-  font-family: 'Lato';
+  font-family: 'Lato', sans-serif;
   margin-top: 53px;
   width: 428px;
   border-radius: 14px;
@@ -91,7 +91,7 @@ const participantUrl = `https://voshod07.ru/participant/${interactiveId}`
 }
 
 .waiting-link_text {
-  font-family: 'Lato';
+  font-family: 'Lato', sans-serif;
   font-weight: 700;
   font-size: 32px;
   line-height: 30px;
@@ -105,7 +105,7 @@ const participantUrl = `https://voshod07.ru/participant/${interactiveId}`
 }
 
 #link {
-  font-family: 'Lato';
+  font-family: 'Lato', sans-serif;
   font-weight: 700;
   font-size: 32px;
   line-height: 24px;
