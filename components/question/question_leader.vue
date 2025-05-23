@@ -39,38 +39,5 @@ const props = defineProps<{
 
 <style>
 
-.question_leader{
-   width: 100vw;
-  height: 100vh;
-  background-color: #853CFF;
-  overflow: hidden;
-}
-#logo_2 {
-    position: absolute;
-    left: 40px;
-    top: 12px
-}
-.question_leader_list_fone{
-    background-color: white; width: 1318px;
-  height: 818px;
-  border-radius: 26px;
-  margin:0 auto;
-  margin-top:32px;
-}
-.question_leader_top-bar { 
-   display: flex;
-   align-items: center;
-             /* расстояние между кнопками и таймером */
- width: 807px;; 
- margin: 0 auto;    
-margin-top:47px;
- /* необязательный отступ сверху */
-}
 
-
-.question_leader_timer{
-    margin:auto 0;
-    margin-left: 25px;;
-    
-}
 </style>

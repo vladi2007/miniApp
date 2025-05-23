@@ -26,6 +26,7 @@ const props = defineProps<{
 
 <style >
 
+@import url("~/assets/css/countdown/countdown.scss");
 
 
 </style>

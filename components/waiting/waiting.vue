@@ -38,12 +38,9 @@ console.log(props.data.description)
 </template>
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    
-    /* Это гарантирует, что padding и border будут учитываться в общем размере элементов */
-}
+@import url("/assets/css/waiting/active_users.scss");
+@import url("/assets/css/waiting/description.scss");
+@import url("/assets/css/waiting/waiting.scss");
+
 
 </style>

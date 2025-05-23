@@ -1,0 +1,92 @@
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue'
+
+const props = defineProps<{
+  questions_count: string
+  question: {
+    id: string
+    text: string
+    position: string
+  }
+  answers: {
+    id: string
+    text: string
+  }[]
+  percentages: {
+    id: string
+    percentage: number
+  }[]
+  idCorrectAnswer: string
+  timer: string
+  stage: string
+  context: string
+  onAnswer: (answerId: string) => void
+}>()
+
+const selectedAnswer = ref<string | null>()
+const showBanner = ref(false) // Состояние для плашки
+
+const isDiscussion = computed(() => props.stage === 'discussion')
+const isParticipant = computed(() => props.stage === 'participant')
+console.log(props)
+// Позволяет выбирать только в режиме "question"
+
+
+const isCorrect = computed(() => {
+  return selectedAnswer.value === props.idCorrectAnswer
+})
+
+const getPercentage = (id: string) => {
+  return props.percentages.find((p) => p.id === id)?.percentage ?? 0
+}
+
+const previousStage = ref(props.stage)
+
+// Следим за приходом idCorrectAnswer
+watch(
+  () => props.idCorrectAnswer,
+  () => {
+    if (selectedAnswer.value && selectedAnswer.value !== props.idCorrectAnswer) {
+      showBanner.value = false // Скрываем плашку, если ответ неправильный
+    }
+    // Если ответ верный — showBanner остаётся true
+  }
+)
+
+</script>
+
+<template>
+  <div class="question_question-list">
+    <div class="question_number">
+
+      <p class="question_question-num-text">Вопрос {{ props.question.position }}/ {{ props.questions_count }}</p>
+    </div>
+
+    <p class="question_title">{{ props.question.text }}</p>
+
+    <div class="question_list">
+      <div v-for="answer in props.answers" :key="answer.id" class="question_answer" :class="{
+        correct: isDiscussion,
+        wrongOutline: isDiscussion && answer.id !== props.idCorrectAnswer && answer.id !== selectedAnswer
+      }">
+        <span class="question_text">{{ answer.text }}</span>
+        <span v-if="isDiscussion" class="question_percent" :class="{ white: selectedAnswer === answer.id }">
+          {{ getPercentage(answer.id) }}%
+        </span>
+      </div>
+    </div>
+
+    <div v-if="showBanner && isCorrect" :class="['question_accepted-banner', 'success']">
+      <img src="/public/images/question/Group_1.svg" />
+      Правильный ответ
+    </div>
+    <div v-if="showBanner && !isCorrect" :class="['question_accepted-banner', 'default']">
+      Ответ принят!
+    </div>
+
+  </div>
+</template>
+
+<style>
+
+</style>

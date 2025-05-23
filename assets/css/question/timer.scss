@@ -15,7 +15,7 @@
 }
 
 .question_timer-text {
-  font-family: 'Lato', sans-serif;;
+  font-family: 'Lato';
   color: white;
   font-weight: 700;
   line-height: 120%;
@@ -38,5 +38,5 @@
   height: 100%;
   background-color: #6ab23d;
   border-radius: 26px;
-  transition: width 1s ease-out;
+  transition: width 1s linear;
 }

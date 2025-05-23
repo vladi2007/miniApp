@@ -1,25 +1,43 @@
 <script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+
+const route= useRouter()
 function goTo(url: string) {
-  window.location.href=url
+  route.push('/leader/interactives')
   
   
 }
+function goBack(){
+    route.push('/leader/interactives')
+}
+const currentPath = ref(window.location.pathname)
+
+
+const isMainMenu = computed(() => currentPath.value === "/")
+
+onMounted(() => {
+  window.addEventListener('popstate', () => {
+    currentPath.value = window.location.pathname
+  })
+})
+
 </script>
 
 <template>
-    <div class = "nav_bar">
-        <div class ="nav_bar_elements">
-            <div class ="reports" @click="goTo(`https://voshod07.ru/leader/main_menu`)">
+    <div class = "nav_bar" :class="{ nav_bar_out_main_menu: !isMainMenu }">
+     
+        <div class ="nav_bar_elements">               <!--  v-if="isMainMenu" -->
+            <div class ="reports"  v-if="isMainMenu" >
 Отчеты/История
             </div>
-            <div class="interactives" @click="goTo(`https://voshod07.ru/leader/interactives`)">
+            <div class="interactives" @click="goTo('/leader/interactives')"  v-if="isMainMenu">
              Управление интерактивами
             </div>
-            <div class ="broadcast" >
+            <div class ="broadcast" v-if="isMainMenu" >
                 Рассылка
             </div>
-            <div class = "nav_bar_logo">
-                     <img src="/images/main_menu/logo.svg" id="nav_bar_logo" />
+            <div class = "nav_bar_logo" :class="{ nav_bar_logo_out_main_menu: !isMainMenu}">
+                     <img src="/images/main_menu/logo.svg" id="nav_bar_logo"  />
             </div>
         </div>
        
@@ -27,6 +45,11 @@ function goTo(url: string) {
 </template>
 
 <style >
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
 .nav_bar {
     font-family: 'Lato', sans-serif;
     height: 71px;;
@@ -69,5 +92,11 @@ function goTo(url: string) {
 .nav_bar_logo{margin-left: 146.62px;
     width: 138px;
     height: 50px;;
+}
+.nav_bar_out_main_menu{
+    background-color: #853CFF;
+}
+.nav_bar_logo_out_main_menu{
+    margin-left: auto;
 }
 </style>

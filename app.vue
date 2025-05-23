@@ -5,5 +5,6 @@
   </div>
 </template>
 <script setup >
+Telegram.WebApp.setBackgroundColor('#ffffff')
 
 </script>

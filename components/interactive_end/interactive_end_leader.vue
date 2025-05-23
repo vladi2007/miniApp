@@ -32,24 +32,6 @@ const props = defineProps<{
 </template>
 
 <style>
-.interactive_leader_end{
-    width: 100%;
-    height: 100%;
-  
-}
-
-.interactive_end_leader_results{position: relative; margin:0 auto;
-    width: 1380px;
-    height: 281px;;
-    background-color: #853CFF;border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    border-bottom-left-radius: 26px;
-    border-bottom-right-radius: 26px;}
-#logo_leader {
-    position: absolute;
-    right: 10px;
-    top: 12px
-}
 
 
 
