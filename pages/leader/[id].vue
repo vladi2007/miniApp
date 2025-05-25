@@ -104,7 +104,7 @@ const questions = [
 let currentQuestionIndex = 0
 let questions_count = questions.length
 
-const { open, close, send, data } = useWebSocket(`ws://localhost:4000/ws?huy=123`)
+//const { open, close, send, data } = useWebSocket(`ws://localhost:4000/ws?huy=123`)
 
 function sendAnswer(answerId) {
   send(JSON.stringify({ answer_id: answerId }))
