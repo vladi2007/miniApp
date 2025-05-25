@@ -16,12 +16,27 @@ const props = defineProps<{
     id: string
     percentage: number
   }[]
-  idCorrectAnswer: string
+  id_correct_answer: string
   timer: string
   stage: string
   onAnswer: (answerId: string) => void
 }>()
 
+// Стейт для хранения ответов
+const answers = ref(props.answers)
+
+// Следим за изменениями в props.answers
+watch(
+  () => props.answers,
+  (newAnswers) => {
+    // Обновляем состояние, только если пришли новые ответы
+    if (newAnswers && newAnswers.length > 0) {
+      answers.value = newAnswers
+    }
+    // Если новый массив пустой, не обновляем состояние
+  },
+  { deep: true }
+)
 const selectedAnswer = ref<string | null>()
 const showBanner = ref(false) // Состояние для плашки
 
@@ -38,7 +53,7 @@ function selectAnswer(answerId: string) {
 }
 
 const isCorrect = computed(() => {
-  return selectedAnswer.value === props.idCorrectAnswer
+  return selectedAnswer.value === props.id_correct_answer
 })
 
 const getPercentage = (id: string) => {
@@ -59,9 +74,9 @@ watch(
 )
 // Следим за приходом idCorrectAnswer
 watch(
-  () => props.idCorrectAnswer,
+  () => props.id_correct_answer,
   () => {
-    if (selectedAnswer.value && selectedAnswer.value !== props.idCorrectAnswer) {
+    if (selectedAnswer.value && selectedAnswer.value !== props.id_correct_answer) {
       showBanner.value = false // Скрываем плашку, если ответ неправильный
       
 
@@ -90,10 +105,10 @@ watch(
         class="question_answer"
         :class="{
           selected: selectedAnswer === answer.id && !isDiscussion,
-          correct: isDiscussion && selectedAnswer === answer.id && props.idCorrectAnswer === answer.id,
-          incorrect: isDiscussion && selectedAnswer === answer.id && props.idCorrectAnswer !== answer.id,
-          correctOutline: isDiscussion && props.idCorrectAnswer === answer.id && selectedAnswer !== answer.id,
-          wrongOutline: isDiscussion && answer.id !== props.idCorrectAnswer && answer.id !== selectedAnswer
+          correct: isDiscussion && selectedAnswer === answer.id && props.id_correct_answer === answer.id,
+          incorrect: isDiscussion && selectedAnswer === answer.id && props.id_correct_answer !== answer.id,
+          correctOutline: isDiscussion && props.id_correct_answer === answer.id && selectedAnswer !== answer.id,
+          wrongOutline: isDiscussion && answer.id !== props.id_correct_answer && answer.id !== selectedAnswer
         }"
         @click="selectAnswer(answer.id)"
       >

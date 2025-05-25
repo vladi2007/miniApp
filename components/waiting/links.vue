@@ -1,15 +1,116 @@
-<script >
+<script setup lang="ts">
+import { useRoute } from 'vue-router'
+import QrcodeVue from 'qrcode.vue'
 
+const route = useRoute()
+
+// Получаем interactive_id из параметров URL
+const interactiveId = route.params.id as string
+
+// Формируем URL
+const participantUrl = `https://voshod07.ru/participant/${interactiveId}`
 </script>
 
 <template>
-  <div>
-    <p>Код викторины: </p>
-        <p>куар код</p>
-        <p>ссылка</p>
+  <div class="waiting_links_column">
+    <div class="waiting_code-text">Код викторины:</div>
+    <div class="waiting_code">00184425</div>
+    <div class="waiting_qr_code"><QrcodeVue :value="participantUrl" :size="300" /></div>
+    <div class="waiting_link">
+      <div><img src='/images/waiting/line-md_link.svg' id="link" /></div>
+      <div class="waiting-link_text"><a href="participantUrl" target="_blank" rel="noopener noreferrer"></a>{{
+        participantUrl }}</div>
+    </div>
   </div>
 </template>
 
-<style >
+<style>
+.waiting_links_column {
+  font-family: 'Lato', sans-serif;
+  width: 526px;
 
+  margin-top: 191px;
+  height: 636px;
+  display: flex;
+  flex-direction: column;
+  /* Элементы идут вертикально */
+  align-items: center;
+  /* Центрирование по горизонтали */
+  /* Центрирование по вертикали */
+
+
+  border-radius: 30px;
+  border: 3px solid #853CFF;
+
+}
+
+.waiting_links_column>div {}
+
+.waiting_code-text {
+  margin-top: 44px;
+  font-family: 'Lato', sans-serif;
+  letter-spacing: 1px;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 24px;
+}
+
+.waiting_code {
+  font-family: 'Work Sans', sans-serif;
+  margin: 0 auto;
+  font-weight: 700;
+  font-size: 64px;
+  vertical-align: middle;
+  line-height: 28px;
+  ;
+  margin-top: 44px;
+  color: #853CFFB2;
+  letter-spacing: 3px;
+}
+
+.waiting_qr_code {
+  background-color: #853CFF;
+  height: 300px;
+  width: 300px;
+  font-family: 'Lato', sans-serif;
+  margin-top: 35px;
+}
+
+.waiting_link {
+  display: flex;
+  align-items: center;
+  font-family: 'Lato', sans-serif;
+  margin-top: 53px;
+  width: 428px;
+  border-radius: 14px;
+  border: 3px solid #853CFF;
+  height: 51px;
+  ;
+
+
+}
+
+.waiting-link_text {
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 30px;
+  vertical-align: middle;
+  padding-left: 25px;
+  white-space: nowrap;
+  /* Запрещает перенос строк */
+  overflow: hidden;
+  /* Обрезает содержимое */
+  text-overflow: ellipsis;
+}
+
+#link {
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 24px;
+  vertical-align: middle;
+  margin-left: 12px;
+  ;
+}
 </style>

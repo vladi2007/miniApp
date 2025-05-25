@@ -1,66 +1,145 @@
-<script setup>
+<!-- <script setup>
+
 import { ref, onMounted } from 'vue'
 
-// Импортируем компоненты
+import main_menu from '~/components/main_menu/main_menu.vue'
+
+const webApp = ref(null)
+const initDataUnsafe = ref(null)
+const my_interactives = ref(null)
+
+const isLoading = ref(true) // <- новый флаг
+
+const isReady = ref(false)
+const role = ref(null)
+
+onMounted(async () => {
+  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+    webApp.value = window.Telegram.WebApp
+    initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
+
+    const userId = initDataUnsafe.value?.user?.id
+
+    if (userId) {
+      const { data, error } = await useFetch('/api/role', {
+        query: {
+          telegram_id: "1",
+        },
+      })
+      
+      if (!error.value && data.value?.role) {
+        role.value = data.value.role
+        console.log(`УРА${data.value.role}`)
+      } else {
+        console.error("Ошибка запроса или пустой ответ", error.value)
+      }
+    }
+
+    isReady.value = true
+  }
+})
+console.log(role.value)
+</script>
+
+<template>
+  
+  <div v-if="isReady">
+    <main_menu v-if="role !== 'leader'" />
+    
+    <div v-else class="you_are_not_leader">
+      <div>У вас нет прав ведущего!</div>
+    </div>
+  </div>
+</template>
+
+<style >
+.you_are_not_leader {
+  background-color: white;
+  height: 100vh;
+  width: 100vw;
+  
+  display: flex;                /* Используем Flexbox */
+  justify-content: center;     /* Центр по горизонтали */
+  align-items: center;         /* Центр по вертикали */
+  text-align: center;          /* Центрируем текст внутри блока */
+  font-family: 'Lato', sans-serif;
+  font-size: 64px;
+  font-weight: 500;
+}
+</style> -->
+
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useWebApp } from 'vue-tg'
 import Waiting from '~/components/waiting/waiting.vue'
 import Countdown from '~/components/countdown/countdown.vue'
 import Question from '~/components/question/question.vue'
 import InteractiveEnd from '~/components/interactive_end/interactive_end.vue'
 
-// Словарь компонентов по имени
-const componentMap = {
-  "waiting": Waiting,
-  "countdown": Countdown,
-  "question": Question,
-  "discussion": Question,
-  "end": InteractiveEnd
-}
+const webApp = ref(null)
+const initDataUnsafe = ref(null)
 
-// Упорядоченный список ключей компонентов для переключения
-const componentOrder = ["waiting", "countdown", "question", "discussion", "end"]
-
-// Активный ключ компонента
-const currentComponentKey = ref(componentOrder[0])
-
-// Данные из WebSocket
-const timerData = ref("300") // Пример с таймером
-
-// Функция для имитации получения данных из WebSocket (тестовые данные)
-const getTestDataFromWebSocket = () => {
-  // Пример полученных данных для компонента
-  const data = {
-    stage: "question", // Это будет передано в компонент как stage
-    data: {
-      timer: "150", // Время для компонента countdown
-    }
-  }
-  
-  // Обновляем данные
-  timerData.value = data.data.timer
-}
-
-// Симуляция получения данных из WebSocket при монтировании
 onMounted(() => {
-  getTestDataFromWebSocket() // Инициализация данных
-
-  // Циклическое переключение компонентов каждые 5 секунд
-  let index = 0
-  setInterval(() => {
-    index = (index + 1) % componentOrder.length
-    currentComponentKey.value = componentOrder[index]
-  }, 5000)
+  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+    webApp.value = window.Telegram.WebApp
+    initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
+  }
 })
+
+const user = computed(() => initDataUnsafe.value?.user.id)
+
+const componentMap = {
+  waiting: Waiting,
+  countdown: Countdown,
+  question: Question,
+  discussion: Question,
+  end: InteractiveEnd,
+}
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+const interactiveId = route.params.id
+
+const { data, send } = useWebSocket(`wss://carclicker.ru/ws/${interactiveId}?telegram_id=1&role=leader&x_key=super-secret-key`)
+
+// props для компонента
+const data_props = ref({
+  stage: '',   // например, 'waiting', 'countdown' и т.п.
+  data: {}     // объект с данными для компонента
+})
+
+// Когда data.value меняется, обновляем data_props
+watch(data, (newVal) => {
+  if (!newVal) return
+
+  // Так как данные приходят как строка, нужно её распарсить
+  try {
+    const parsedData = JSON.parse(newVal)
+    
+    // Ожидаем, что parsedData будет объектом с ключами "stage" и "data"
+    data_props.value.stage = parsedData.stage || ''
+    data_props.value.data = parsedData.data || {}
+  } catch (error) {
+    console.error("Ошибка при разборе данных WebSocket:", error)
+  }
+})
+
+function sendStatus(status) {
+  send(JSON.stringify({ interactive_status: status }))
+}
+
+
+const timerData = ref({})
+
+
 </script>
 
-<template>
-  <!-- Отображение текущего компонента и передача данных через props -->
-  <component 
-    :is="componentMap[currentComponentKey]" 
-    :data="timerData" 
-    :stage="currentComponentKey"
-  />
-</template>
 
-<style>
-/* Добавь стили по необходимости */
-</style>
+<template>
+  <div>
+
+   
+    <component :is="componentMap[timerData.stage]" :data="timerData.data" :stage="timerData.stage"
+      :onAnswer="sendAnswer" />
+  </div>
+</template> 

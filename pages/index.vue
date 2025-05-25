@@ -35,19 +35,19 @@ let timer_duration = 10
 const questions = [
   {
     id: '1',
-    title: 'Какой язык программирования используется для создания Vue?',
+    title: 'Когда была запущена первая магистерская программа в ИРИТ-РТФ',
     question: {
       id: '1',
-      text: 'Какой язык программирования используется для создания Vue?',
+      text: 'Когда была запущена первая магистерская программа в ИРИТ-РТФ?',
       position: '1',
     },
     answers: [
-      { id: '1', text: 'JavaScript' },
-      { id: '2', text: 'Python' },
-      { id: '3', text: 'Java' },
-      { id: '4', text: 'C++' },
+      { id: '1', text: '2011' },
+      { id: '2', text: '2005' },
+      { id: '3', text: '2010' },
+      { id: '4', text: '2007' },
     ],
-    correct: '1',
+    correct: '3',
     percentages: [
       { id: '1', percentage: 65 },
       { id: '2', percentage: 15 },
@@ -60,14 +60,14 @@ const questions = [
     title: 'Кто был первым ректором УрФУ?',
     question: {
       id: '2',
-      text: 'Кто был первым ректором УрФУ?',
+      text: 'Как называется одно из направлений магистратуры ИРИТ-РТФ, связанное с ИИ?',
       position: '2',
     },
     answers: [
-      { id: '1', text: 'Обабков' },
-      { id: '2', text: 'Шадрин' },
-      { id: '3', text: 'Новиков' },
-      { id: '4', text: 'Ануфриев' },
+      { id: '1', text: 'Робототехника и мехатроника' },
+      { id: '2', text: 'Программная инженерия' },
+      { id: '3', text: 'Искусственный интеллект и цифровые технологии' },
+      { id: '4', text: 'Сетевое администрирование' },
     ],
     correct: '3',
     percentages: [
@@ -82,16 +82,16 @@ const questions = [
     title: 'Когда основали УрФУ?',
     question: {
       id: '3',
-      text: 'Когда основали УрФУ?',
+      text: 'Какая компания является партнёром программ магистратуры ИРИТ-РТФ?',
       position: '3',
     },
     answers: [
-      { id: '1', text: '1941' },
-      { id: '2', text: '2005' },
-      { id: '3', text: '2011' },
-      { id: '4', text: '899' },
+      { id: '1', text: 'Сбер' },
+      { id: '2', text: 'Яндекс' },
+      { id: '3', text: 'Уралсофт' },
+      { id: '4', text: 'Mail.ru' },
     ],
-    correct: '3',
+    correct: '2',
     percentages: [
       { id: '1', percentage: 10 },
       { id: '2', percentage: 20 },
@@ -116,8 +116,8 @@ const startWaitingCycle = () => {
   timerData.value = {
     stage: 'waiting',
     data: {
-      title: 'Ожидание начала игры',
-      description: 'Скоро начнём, ждём остальных участников.',
+      title: 'Интересные факты про магистратуру ИРИТ-РТФ',
+      description: 'Познакомься поближе с магистратурой ИРИТ-РТФ. В данном интерактиве используются факты о которых мало кто знает.',
       code: 'QUIZ2025',
       participants_active: '23',
     },
@@ -191,7 +191,7 @@ const startDiscussionCycle = () => {
       code: 'ABC123',
       question: q.question,
       answers: q.answers,
-      idCorrectAnswer: q.correct,
+      id_correct_answer: q.correct,
       percentages: q.percentages,
     },
   }
@@ -244,3 +244,4 @@ startWaitingCycle()
       :onAnswer="sendAnswer" />
   </div>
 </template> 
+

@@ -5,6 +5,8 @@ const props = defineProps<{
   stage: string
   timer: string
   timer_duration: string
+  question_count:string
+  question_num: string
 }>()
 
 // Храним максимальное значение таймера (первое пришедшее число)
@@ -31,9 +33,19 @@ const progressPercent = computed(() => {
 
 // Метка таймера
 const timerLabel = computed(() => {
-  return props.stage === 'discussion'
-    ? 'Следующий вопрос через:'
-    : 'Времени осталось:'
+  if (props.stage === 'discussion')
+  {
+    if (props.question_count === props.question_num)
+      {
+        return 'Результаты через:'
+      }
+    else{
+      return 'Следующий вопрос через:'
+    }
+  }
+  else{
+    return 'Времени осталось:'
+  }
 })
 </script>
 

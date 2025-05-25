@@ -1,0 +1,97 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+
+    /* Это гарантирует, что padding и border будут учитываться в общем размере элементов */
+}
+
+.waiting_participant_waiting {
+    display: flex;
+    width: 100vw;
+  height: 100vh;
+    padding-left: 30px;
+    padding-right: 30px;
+    background-color: white;
+    
+}
+
+.waiting_description-content{
+      padding-bottom: 45px;;
+}
+
+.waiting_description_column {
+    margin-left: auto;
+    width: 773px;
+    height: 525px;;
+    
+    
+    background-color: #853CFF;
+     border-bottom-left-radius: 26px;
+    border-bottom-right-radius: 26px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    padding-bottom: 545px;;
+      
+    /* 70% высоты для белого фона */
+}
+
+.waiting_logo {
+    position: relative;
+}
+
+#logo {
+    position: absolute;
+    right: 10px;
+    top: 12px
+}
+
+.waiting_desc-comp {
+
+
+    background-color: #FFFFFF;
+    
+    width: 680px;
+    ;
+    margin: 0 auto;
+    border-radius: 30px;
+   
+}
+
+#waiting_vector_1{left: 0;
+    position: absolute;
+}
+
+#waiting_vector_2{z-index: 1;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+#waiting_star1{z-index: 2;
+    position: absolute;
+    bottom: 30px;
+    right: 190px;
+}
+.waiting_leader_buttons{margin-top:48px;  font-family: 'Lato', sans-serif; font-weight: 500; font-size: 24px; vertical-align: middle; line-height: 120%;
+    display: flex;
+    padding-bottom: 20px;;
+    
+}
+.waiting_back{background-color: #F0436C; font-family: 'Lato', sans-serif; font-weight: 500; font-size: 24px; vertical-align: middle; line-height: 120%;letter-spacing: 1px;
+    color: white;
+    width: 185px;
+    height: 50px;
+    border-radius: 5px;
+    border:#F0436C 3px;
+    margin-left: 131px;;
+    
+}
+.waiting_start{ background-color: #6AB23D; font-family: 'Lato', sans-serif; font-weight: 500; font-size: 24px; vertical-align: middle; line-height: 120%; letter-spacing: 1px;
+   color: white;
+    width: 185px;
+    height: 50px;
+    border-radius: 5px;
+    border:#6AB23D 3px;
+    margin-left: auto;
+    margin-right: 131px;;
+}

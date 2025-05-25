@@ -22,7 +22,7 @@ const props = defineProps<{
     </div>
     
     <!-- Передаем данные в компонент Results -->
-    <Results :title="props.data.title" :participantsTotal="props.data.participants_total" />
+    <Results :title="props.data.title" :participantsTotal="props.data.participants_total"  :stage="props.stage" />
     
     <div class="interactive_end_star-wrapper">
       <img src="/images/interactive_end/Star_7.svg" id="interactive_end_star" />
