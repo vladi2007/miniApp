@@ -1,12 +1,9 @@
 <script setup>
-
+import create_interactive from '~/components/interactive_editor/interactive_editor.vue'
 </script>
 
 <template>
-    <div class ="create_interactive">
-
-       sssss
-    </div>
+    <create_interactive/>
 </template>
 
 <style >

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
 import type { EndData } from '~/types/stageData'
-import Results from '~/components/interactive_end/results.vue'
-import WinnersTable from '~/components/interactive_end/winners_table.vue'
+import Results_leader from '~/components/interactive_end/results_leader.vue'
+import WinnersTable_leader from '~/components/interactive_end/winners_table_leader.vue'
 
 // Получаем данные через props
 const props = defineProps<{
@@ -18,7 +18,7 @@ const props = defineProps<{
     <!-- Передаем данные в компонент Results -->
      <div class ='interactive_end_leader_results'>
         <img src="/images/waiting/Group_7055.svg" id="logo_leader" />
-        <Results :title="props.data.title" :participantsTotal="props.data.participants_total" :stage="props.stage" />
+        <Results_leader :title="props.data.title" :participantsTotal="props.data.participants_total" :stage="props.stage" />
      </div>
     
     
@@ -27,13 +27,15 @@ const props = defineProps<{
     </div> -->
     
     <!-- Передаем данные в компонент WinnersTable -->
-    <WinnersTable :winners="props.data.winners"/>
+    <WinnersTable_leader :winners="props.data.winners"/>
   </div>
 </template>
 
 <style>
 
-
+@import url("~/assets/css/interactive_end/results_leader.scss");
+@import url("~/assets/css/interactive_end/winners_table_leader.scss");
+@import url("~/assets/css/interactive_end/interactive_end_leader.scss");
 
 
 

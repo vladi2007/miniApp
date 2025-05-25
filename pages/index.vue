@@ -1,4 +1,15 @@
 <!-- <script setup>
+import create_interactive from '~/components/interactive_editor/interactive_editor.vue'
+</script>
+
+<template>
+    <create_interactive/>
+</template>
+
+<style >
+
+</style> -->
+<script setup>
 
 import { ref, onMounted } from 'vue'
 
@@ -26,10 +37,10 @@ onMounted(async () => {
           telegram_id: "1",
         },
       })
-      
+      console.log("УРА")
       if (!error.value && data.value?.role) {
         role.value = data.value.role
-        console.log(`УРА${data.value.role}`)
+        console.log("УРА")
       } else {
         console.error("Ошибка запроса или пустой ответ", error.value)
       }
@@ -42,9 +53,9 @@ console.log(role.value)
 </script>
 
 <template>
-  
+  <!-- Показываем только когда данные загружены -->
   <div v-if="isReady">
-    <main_menu v-if="role !== 'leader'" />
+    <main_menu v-if="role === 'leader'" />
     
     <div v-else class="you_are_not_leader">
       <div>У вас нет прав ведущего!</div>
@@ -54,9 +65,7 @@ console.log(role.value)
 
 <style >
 .you_are_not_leader {
-  background-color: white;
-  height: 100vh;
-  width: 100vw;
+
   
   display: flex;                /* Используем Flexbox */
   justify-content: center;     /* Центр по горизонтали */
@@ -66,251 +75,262 @@ console.log(role.value)
   font-size: 64px;
   font-weight: 500;
 }
-</style> -->
+</style>
+<!-- <script setup lang="ts">
+import { ref } from 'vue'
 
-<script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useWebApp } from 'vue-tg'
-import Waiting from '~/components/waiting/waiting.vue'
-import Countdown from '~/components/countdown/countdown.vue'
-import Question from '~/components/question/question.vue'
-import InteractiveEnd from '~/components/interactive_end/interactive_end.vue'
+const step = ref(1) // 1 — General settings, 2 — Questions
 
-const webApp = ref(null)
-const initDataUnsafe = ref(null)
-
-onMounted(() => {
-  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-    webApp.value = window.Telegram.WebApp
-    initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
-  }
+const form = ref({
+  title: '',
+  description: '',
+  target_audience: '',
+  location: '',
+  responsible_full_name: '',
+  answer_duration: 60,
+  discussion_duration: 20,
+  countdown_duration: 10,
+  questions: [
+    {
+      text: '',
+      position: 0,
+      answers: [
+        {
+          text: '',
+          is_answered: false
+        }
+      ]
+    }
+  ]
 })
+const currentQuestionIndex = ref(0)
 
-const user = computed(() => initDataUnsafe.value?.user.id)
+const currentQuestion = computed(() => form.value.questions[currentQuestionIndex.value])
 
-const componentMap = {
-  waiting: Waiting,
-  countdown: Countdown,
-  question: Question,
-  discussion: Question,
-  end: InteractiveEnd,
-}
-
-const timerData = ref({})
-const currentComponentKey = ref('waiting')
-let intervalId = null
-let time = 0
-let timer_duration = 10
-
-const questions = [
-  {
-    id: '1',
-    title: 'Какой язык программирования используется для создания Vue?',
-    question: {
-      id: '1',
-      text: 'Какой язык программирования используется для создания Vue?',
-      position: '1',
-    },
+function addQuestion() {
+  form.value.questions.push({
+    text: '',
+    position: form.value.questions.length,
     answers: [
-      { id: '1', text: 'JavaScript' },
-      { id: '2', text: 'Python' },
-      { id: '3', text: 'Java' },
-      { id: '4', text: 'C++' },
-    ],
-    correct: '1',
-    percentages: [
-      { id: '1', percentage: 65 },
-      { id: '2', percentage: 15 },
-      { id: '3', percentage: 10 },
-      { id: '4', percentage: 10 },
-    ],
-  },
-  {
-    id: '2',
-    title: 'Кто был первым ректором УрФУ?',
-    question: {
-      id: '2',
-      text: 'Кто был первым ректором УрФУ?',
-      position: '2',
-    },
-    answers: [
-      { id: '1', text: 'Обабков' },
-      { id: '2', text: 'Шадрин' },
-      { id: '3', text: 'Новиков' },
-      { id: '4', text: 'Ануфриев' },
-    ],
-    correct: '3',
-    percentages: [
-      { id: '1', percentage: 25 },
-      { id: '2', percentage: 20 },
-      { id: '3', percentage: 40 },
-      { id: '4', percentage: 15 },
-    ],
-  },
-  {
-    id: '3',
-    title: 'Когда основали УрФУ?',
-    question: {
-      id: '3',
-      text: 'Когда основали УрФУ?',
-      position: '3',
-    },
-    answers: [
-      { id: '1', text: '1941' },
-      { id: '2', text: '2005' },
-      { id: '3', text: '2011' },
-      { id: '4', text: '899' },
-    ],
-    correct: '3',
-    percentages: [
-      { id: '1', percentage: 10 },
-      { id: '2', percentage: 20 },
-      { id: '3', percentage: 60 },
-      { id: '4', percentage: 10 },
-    ],
-  },
-]
-
-let currentQuestionIndex = 0
-let questions_count = questions.length
-
-const { open, close, send, data } = useWebSocket(`ws://localhost:4000/ws?huy=123`)
-
-function sendAnswer(answerId) {
-  send(JSON.stringify({ answer_id: answerId }))
+      { text: '', is_answered: false }
+    ]
+  })
+  currentQuestionIndex.value = form.value.questions.length - 1
 }
 
-// Этап ожидания
-const startWaitingCycle = () => {
-  currentComponentKey.value = 'waiting'
-  timerData.value = {
-    stage: 'waiting',
-    data: {
-      title: 'Ожидание начала игры',
-      description: 'Скоро начнём, ждём остальных участников.',
-      code: 'QUIZ2025',
-      participants_active: '23',
-    },
+function removeQuestion() {
+  if (form.value.questions.length > 1) {
+    form.value.questions.splice(currentQuestionIndex.value, 1)
+    // Перейти к предыдущему вопросу или нулевому
+    currentQuestionIndex.value = Math.max(0, currentQuestionIndex.value - 1)
   }
-
-  setTimeout(() => startCountdownCycle(), 3000)
 }
-
-const startCountdownCycle = () => {
-  time = 5
-  currentComponentKey.value = 'countdown'
-  timerData.value = {
-    stage: 'countdown',
-    data: {
-      timer: String(time),
-    },
+function goToQuestions() {
+  // простая проверка: все поля general_settings заполнены
+  const f = form.value
+  if (
+    f.title &&
+    f.description &&
+    f.target_audience &&
+    f.location &&
+    f.responsible_full_name &&
+    f.answer_duration > 0 &&
+    f.discussion_duration > 0 &&
+    f.countdown_duration >= 0
+  ) {
+    step.value = 2
+  } else {
+    alert('Пожалуйста, заполните все обязательные поля')
   }
-
-  clearInterval(intervalId)
-  intervalId = setInterval(() => {
-    time--
-    timerData.value.data.timer = String(time)
-    if (time <= 0) {
-      clearInterval(intervalId)
-      startQuestionCycle()
-    }
-  }, 1000)
 }
-
-const startQuestionCycle = () => {
-  const q = questions[currentQuestionIndex]
-  time = 10
-  timer_duration=10
-  currentComponentKey.value = 'question'
-  timerData.value = {
-    stage: 'question',
-    data: {
-      questions_count: String(questions_count),
-      timer_duration: String(timer_duration),
-      timer: String(time),
-      title: q.title,
-      code: 'ABC123',
-      question: q.question,
-      answers: q.answers,
-    },
-  }
-
-  clearInterval(intervalId)
-  intervalId = setInterval(() => {
-    time--
-    timerData.value.data.timer = String(time)
-    if (time < 0) {
-      clearInterval(intervalId)
-      startDiscussionCycle()
-    }
-  }, 1000)
-}
-
-const startDiscussionCycle = () => {
-  const q = questions[currentQuestionIndex]
-  time = 5
-  timer_duration=5
-  currentComponentKey.value = 'discussion'
-  timerData.value = {
-    stage: 'discussion',
-    data: {
-      timer_duration:String(timer_duration),
-      questions_count: String(questions_count),
-      timer: String(time),
-      title: q.title,
-      code: 'ABC123',
-      question: q.question,
-      answers: q.answers,
-      idCorrectAnswer: q.correct,
-      percentages: q.percentages,
-    },
-  }
-
-  clearInterval(intervalId)
-  intervalId = setInterval(() => {
-    time--
-    timerData.value.data.timer = String(time)
-    if (time < 0) {
-      clearInterval(intervalId)
-      currentQuestionIndex++
-      if (currentQuestionIndex < questions.length) {
-        startQuestionCycle()
-      } else {
-        showEndScreen()
-      }
-    }
-  }, 1000)
-}
-
-const showEndScreen = () => {
-  currentComponentKey.value = 'end'
-  timerData.value = {
-    stage: 'end',
-    data: {
-      title: 'Игра завершена!',
-      participants_total: '120',
-      winners: [
-        { position: '1', username: 'Иван123' },
-        { position: '2', username: 'Maria_K' },
-        { position: '3', username: 'AlexDev' },
-      ],
-    },
-  }
-
-  currentQuestionIndex = 0
-  setTimeout(() => startWaitingCycle(), 5000)
-}
-
-// Старт с экрана ожидания
-startWaitingCycle()
 </script>
 
-
 <template>
-  <div>
+  <div class="form-wrapper">
 
    
-    <component :is="componentMap[timerData.stage]" :data="timerData.data" :stage="timerData.stage"
-      :onAnswer="sendAnswer" />
+    <div v-if="step === 1" class="general_settings">
+      <h1>Общие настройки интерактива</h1>
+
+      <div class="form-grid">
+        <div class="form-column">
+          <label>Название интерактива*<input v-model="form.title" /></label>
+          <label>ФИО ведущего*<input v-model="form.responsible_full_name" /></label>
+          <label>Описание интерактива*<textarea v-model="form.description" /></label>
+          <label>Место проведения интерактива*<input v-model="form.location" /></label>
+        </div>
+
+        <div class="form-column">
+          <label>Целевая аудитория участников*<input v-model="form.target_audience" /></label>
+          <label>Время ответа (сек.)*<input type="number" v-model.number="form.answer_duration" /></label>
+          <label>Время на показ ответа (сек.)*<input type="number" v-model.number="form.discussion_duration" /></label>
+          <label>Обратный отсчет перед стартом (сек.)*<input type="number"
+              v-model.number="form.countdown_duration" /></label>
+        </div>
+      </div>
+
+      <button class="next-btn" @click="goToQuestions">Перейти к вопросам</button>
+    </div>
+
+  
+    <div v-else-if="step === 2" class="questions_section">
+      <h1>Создание вопросов</h1>
+
+
+      <div class="question-nav">
+        <div class="question-buttons">
+          <button v-for="(q, index) in form.questions" :key="index" :class="{ active: index === currentQuestionIndex }"
+            @click="currentQuestionIndex = index">
+            Вопрос {{ index + 1 }}
+          </button>
+        </div>
+        <div class="question-actions">
+          <button @click="addQuestion">Добавить вопрос</button>
+          <button @click="removeQuestion" :disabled="form.questions.length === 1">Удалить вопрос</button>
+        </div>
+      </div>
+
+
+      <div v-if="currentQuestion" class="question-form">
+        <label>Текст вопроса
+          <input v-model="currentQuestion.text" type="text" />
+        </label>
+
+        <label>Позиция вопроса
+          <input v-model.number="currentQuestion.position" type="number" />
+        </label>
+
+        <h3>Ответы</h3>
+        <div v-for="(answer, index) in currentQuestion.answers" :key="index">
+          <label>Ответ {{ index + 1 }}
+            <input v-model="answer.text" type="text" />
+          </label>
+          <label>
+            <input type="checkbox" v-model="answer.is_answered" />
+            Правильный
+          </label>
+        </div>
+      </div>
+
+    
+      <button class="back-button" @click="step = 1">
+        Вернуться к главным настройкам
+      </button>
+    </div>
   </div>
-</template> 
+</template>
+
+<style scoped>
+.back-button {
+  margin-top: 30px;
+  padding: 10px 20px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  background-color: #5a6268;
+}
+
+.form-wrapper {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+  font-family: 'Lato', sans-serif;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+input,
+textarea {
+  margin-top: 8px;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.next-btn {
+  margin-top: 30px;
+  padding: 12px 24px;
+  background-color: #853CFF;
+  color: white;
+  font-size: 18px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.next-btn:hover {
+  background-color: #6b2de0;
+}
+
+.question-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.question-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.question-buttons button {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  background-color: #eee;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.question-buttons button.active {
+  background-color: #853CFF;
+  color: white;
+  font-weight: bold;
+}
+
+.question-actions button {
+  margin-left: 10px;
+  background-color: #28a745;
+  border: none;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.question-actions button:last-child {
+  background-color: #dc3545;
+}
+
+.question-actions button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+</style> -->

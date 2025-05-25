@@ -34,5 +34,5 @@ const props = defineProps<{
 </template>
 
 <style >
-
+@import url("~/assets/css/countdown/countdown_leader.scss");
 </style>

@@ -44,7 +44,7 @@ onMounted(async () => {
 
 <template>
   <div>
-  
+
     <interactives v-if="my_interactives" :interactives_list="my_interactives" />
   </div>
 </template>

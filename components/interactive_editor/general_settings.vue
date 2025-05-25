@@ -1,0 +1,678 @@
+<script setup lang="ts">
+import { ref, computed, defineProps, defineEmits } from 'vue'
+
+const props = defineProps<{ step: number }>()
+const emit = defineEmits<{ (e: 'update-step', value: number): void }>()
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const form = ref({
+    title: '',
+    description: '',
+    target_audience: '',
+    location: '',
+    responsible_full_name: '',
+    answer_duration: 60,
+    discussion_duration: 20,
+    countdown_duration: 10,
+    questions: [
+        {
+            text: '',
+            position: 1,
+            answers: Array(4).fill(null).map(() => ({ text: '', is_correct: false }))
+        }
+    ]
+})
+
+const currentQuestionIndex = ref(0)
+const currentQuestion = computed(() => form.value.questions[currentQuestionIndex.value])
+type CreateInteractiveResponse = {
+
+ 
+  success: boolean,
+  data: {
+    interactive_id: number
+
+
+}
+}
+function addQuestion() {
+    const question = currentQuestion.value
+
+    // Проверка: есть ли текст вопроса
+    if (!question.text.trim()) {
+        alert('Введите текст вопроса перед добавлением нового.');
+        return;
+    }
+
+    // Проверка: все ли 4 ответа заполнены
+    const allAnswersFilled = question.answers.every(ans => ans.text.trim() !== '');
+    if (!allAnswersFilled) {
+        alert('Пожалуйста, заполните все 4 ответа.');
+        return;
+    }
+
+    // Проверка: выбран ли правильный ответ
+    const hasCorrectAnswer = question.answers.some(ans => ans.is_correct);
+    if (!hasCorrectAnswer) {
+        alert('Пожалуйста, выберите правильный ответ.');
+        return;
+    }
+
+    // Если все ок — добавляем
+    form.value.questions.push({
+        text: '',
+        position: form.value.questions.length + 1,
+        answers: Array(4).fill(null).map(() => ({ text: '', is_correct: false }))
+    })
+    currentQuestionIndex.value = form.value.questions.length - 1
+}
+
+function removeQuestion() {
+    if (form.value.questions.length > 1) {
+        form.value.questions.splice(currentQuestionIndex.value, 1)
+        currentQuestionIndex.value = Math.max(0, currentQuestionIndex.value - 1)
+    }
+}
+
+function goToQuestions() {
+    const f = form.value
+    if (
+        f.title &&
+        f.description &&
+        f.target_audience &&
+        f.location &&
+        f.responsible_full_name &&
+        f.answer_duration > 0 &&
+        f.discussion_duration > 0 &&
+        f.countdown_duration >= 0
+    ) {
+        emit('update-step', 2)
+    } else {
+        alert('Пожалуйста, заполните все обязательные поля')
+    }
+}
+function markCorrectAnswer(questionIndex: number, answerIndex: number) {
+    const answers = form.value.questions[questionIndex].answers
+    answers.forEach((ans, idx) => {
+        ans.is_correct = idx === answerIndex
+    })
+}
+async function createInteractive(): Promise<number | null> {
+    const f = form.value
+
+    if (
+        !f.title ||
+        !f.description ||
+        !f.target_audience ||
+        !f.location ||
+        !f.responsible_full_name ||
+        f.questions.length === 0
+    ) {
+        alert('Пожалуйста, заполните все обязательные поля и добавьте хотя бы один вопрос.')
+        return null
+    }
+
+    const x_key = 'super-secret-key'
+    const telegram_id = 1
+
+    const payload = {
+        title: f.title,
+        description: f.description,
+        target_audience: f.target_audience,
+        location: f.location,
+        responsible_full_name: f.responsible_full_name,
+        answer_duration: f.answer_duration,
+        discussion_duration: f.discussion_duration,
+        countdown_duration: f.countdown_duration,
+        questions: f.questions.map(q => ({
+            text: q.text,
+            position: q.position,
+            answers: q.answers.map(ans => ({
+                text: ans.text,
+                is_correct: ans.is_correct
+            }))
+        }))
+    }
+
+    try {
+        const response = await $fetch<CreateInteractiveResponse>('/api/create_interactive', {
+            method: 'POST',
+            query: {
+                x_key,
+                telegram_id
+            },
+            body: payload
+        })
+
+
+
+        const result = await response
+        console.log(result.data.interactive_id)
+        return Number(result.data.interactive_id)
+    } catch (err) {
+        console.error('Ошибка при отправке:', err)
+        alert('Произошла ошибка при отправке. Проверьте соединение или консоль разработчика.')
+        return null
+    }
+}
+
+async function saveInteractive() {
+    const id = await createInteractive()
+    if (id !== null) {
+        alert(`Интерактив сохранён! ID: ${id}`)
+    }
+}
+
+async function startInteractive() {
+    const id = await createInteractive()
+    if (id !== null) {
+        router.push(`/leader/${id}`)
+
+    }
+}
+</script>
+
+<template>
+    <div class="general_settings">
+
+
+        <div class="form-wrapper">
+
+            <!-- Step 1: General Settings -->
+            <div v-if="props.step === 1" class="general_settings">
+
+
+                <div class="form-grid">
+                    <div class="form-column-first">
+                        <div class="input-group">
+                            <label>Название интерактива*<textarea v-model="form.title" /></label>
+                            <label>Описание интерактива*<textarea v-model="form.description"
+                                    id="description_input" /></label>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Место проведения интерактива*<textarea v-model="form.location" /></label>
+                        </div>
+                        <div class="input-group">
+                            <label>Целевая аудитория участников*<textarea v-model="form.target_audience" /></label>
+                        </div>
+                    </div>
+
+                    <div class="form-column-second">
+                        <div class="input-group">
+                            <label>ФИО ведущего*<textarea v-model="form.responsible_full_name" /></label>
+                        </div>
+                        <div class="input-group">
+                            <label>Время ответа (сек.)*<textarea type="number"
+                                    v-model.number="form.answer_duration" /></label>
+                            <label>Время на показ ответа (сек.)*<textarea type="number"
+                                    v-model.number="form.discussion_duration" /></label>
+                            <label>Обратный отсчет перед стартом (сек.)*<textarea type="number"
+                                    v-model.number="form.countdown_duration" /></label>
+                        </div>
+                        <div class="next-btn" @click="goToQuestions">
+                            <div class="next-btn-text">Наполнение интерактива</div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <!-- Step 2: Questions -->
+            <div v-else-if="props.step === 2" class="questions_section">
+
+                <!-- Панель навигации по вопросам -->
+                <div class="question-nav">
+                    <div class="question_nav_header">Навигатор по вопросам</div>
+                    <div class="question-buttons">
+                        <button v-for="(q, index) in form.questions" :key="index"
+                            :class="{ active: index === currentQuestionIndex }" @click="currentQuestionIndex = index">
+                            {{ index + 1 }}
+                        </button>
+                    </div>
+                    <div class="question-actions">
+                        <button @click="removeQuestion" :disabled="form.questions.length === 1"
+                            id="delete_question">Удалить</button>
+                        <button @click="addQuestion" id="add_question">Добавить</button>
+
+                    </div>
+                </div>
+
+                <!-- Редактирование вопроса -->
+                <div v-if="currentQuestion" class="question-form" id="answers_form">
+                    <div class="question-header">Вопрос {{ currentQuestion.position }}</div>
+                    <div class="input-group" id="question-text">
+                        <label class="question_label">Вопрос*</label>
+                        <textarea v-model="currentQuestion.text" type="text" id="question_textarea" />
+
+                    </div>
+
+                    <div class="input-group" id="answers">
+                        <label class="question_label" id="answers-text">Ответы*</label>
+                        <div v-for="(answer, index) in currentQuestion.answers" :key="index" class="answer-item">
+                            <label class="answer-wrapper">
+                                <input type="radio" :name="'correct-answer-' + currentQuestionIndex"
+                                    :checked="answer.is_correct"
+                                    @change="markCorrectAnswer(currentQuestionIndex, index)" />
+                                <input v-model="answer.text" type="text" class="answer-input"
+                                    placeholder="Поле для ввода ответа" />
+                            </label>
+                        </div>
+
+                    </div>
+                    <!-- Кнопки "Сохранить" и "Запуск" -->
+                    <div class="question-controls">
+                        <button class="start-button" @click="startInteractive()">Запуск</button>
+                        <button class="save-button" @click="saveInteractive()">Сохранить</button>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</template>
+
+
+<style>
+#question_textarea {
+    height: 100px;
+    ;
+    border-radius: 18px;
+    ;
+}
+
+.answer-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+
+}
+
+.answer-wrapper input[type="radio"] {
+    position: absolute;
+    left: 23px;
+    height: 38px;
+    width: 38px;
+    z-index: 2;
+    top: 38px;
+
+    border-radius: 50%;
+    /* чтобы было круглое */
+
+    /* Добавим фиолетовую рамку */
+    border: 4px solid #853CFF;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: white;
+    cursor: pointer;
+    outline: none;
+}
+
+/* Для того чтобы радио выглядело как радио с рамкой и менялось при выборе */
+
+.answer-wrapper input[type="radio"]:checked {
+    background-color: #853CFF;
+    box-shadow: 0 0 0 3px #853CFF inset;
+}
+
+/* Чтобы показать точку внутри при выборе */
+.answer-wrapper input[type="radio"]:checked::before {
+    content: "";
+    display: block;
+    width: 14px;
+    height: 14px;
+    margin: 11px auto;
+    border-radius: 50%;
+    background-color: #853CFF;
+    /* точка внутри тоже фиолетовая */
+}
+
+.answer-input {
+    padding-left: 78px;
+    /* пространство под radio */
+    height: 75px;
+    width: 100%;
+    border: 4px solid white;
+    border-radius: 18px;
+    font-size: 24px;
+}
+
+.answer-input::placeholder {
+    font-family: 'Lato', sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+
+    letter-spacing: 1px;
+
+
+}
+
+* {
+    padding: 0;
+    ;
+    margin: 0;
+    ;
+}
+
+#answers {
+    margin-top: 30px;
+    height: 476px;
+    ;
+}
+
+.question-header {
+    height: 26px;
+    ;
+    margin-left: 46px;
+    ;
+    font-family: 'Lato', sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+    vertical-align: middle;
+    letter-spacing: 1px;
+    ;
+}
+
+#question-text {
+    margin-top: 35px;
+    ;
+}
+
+
+.question_nav_header {
+    width: 280px;
+    ;
+    margin: 0 auto;
+    margin-top: 48px;
+    font-family: 'Lato', sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+    vertical-align: middle;
+    letter-spacing: 1px;
+    ;
+}
+
+.questions_section {
+    display: grid;
+    grid-template-columns: 350px 911px;
+    ;
+    gap: 48px;
+    ;
+}
+
+.question-nav {
+    margin-top: 99px;
+    display: flex;
+    flex-direction: column;
+    height: 446px;
+
+    border-radius: 30px;
+    border: 3px solid #853CFF;
+
+}
+
+.question-actions {
+    margin-top: auto;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.question-buttons {
+    margin: 0 auto;
+    overflow-y: auto;
+    width: 290px;
+    ;
+    margin-top: 39px;
+    max-height: 225px;
+    ;
+    display: flex;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    /* если нужно переносить строки */
+    gap: 12px;
+
+}
+
+.question-buttons>button {
+    height: 65px;
+    width: 65px;
+    ;
+    background-color: white;
+    border-radius: 15px;
+    ;
+    border: 3px solid #853CFF;
+}
+
+#add_question {
+    color: white;
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 24px;
+    letter-spacing: 1px;
+    vertical-align: middle;
+    width: 130px;
+    height: 40px;
+    border-radius: 5px;
+    background-color: #6AB23D;
+    border: 1px solid #6AB23D;
+}
+
+#delete_question {
+    color: white;
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 24px;
+    letter-spacing: 1px;
+    vertical-align: middle;
+    width: 130px;
+    height: 40px;
+    border: 1px solid #F0436CF0;
+    border-radius: 5px;
+    background-color: #F0436CF0;
+    margin-bottom: 15px;
+}
+
+.question-form {
+    margin-top: 38px;
+    width: 911px;
+    height: 753px;
+    ;
+
+}
+
+
+.general_settings {
+    width: 1360px;
+    height: 738px;
+
+    margin: 0 auto;
+
+
+    font-family: 'Lato', sans-serif;
+
+}
+
+.form-wrapper {
+    display: grid;
+
+
+}
+
+.form-grid {
+    padding-top: 68px;
+    display: grid;
+    grid-template-columns: 659px 665px;
+
+    gap: 36px;
+
+}
+
+.form-grid>div {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    ;
+}
+
+.form-column-first {
+    height: 738px;
+    ;
+
+}
+
+.form-column-second {
+    height: 606px;
+    ;
+
+}
+
+.input-group {
+    background-color: #853CFF;
+    display: flex;
+    flex-direction: column;
+    padding-left: 23px;
+
+    padding-right: 25px;
+    ;
+    padding-bottom: 20px;
+    ;
+    border-radius: 26px;
+    ;
+}
+
+.input-group label {
+    display: flex;
+    flex-direction: column;
+    font-family: 'Lato', sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+    vertical-align: middle;
+    color: white;
+    letter-spacing: 1px;
+    ;
+}
+
+.input-group textarea {
+    margin-top: 20px;
+    height: 72px;
+    ;
+
+    border-radius: 18px;
+    ;
+    border: 4px solid white;
+    ;
+    font-family: 'Lato', sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 32px;
+    ;
+    letter-spacing: 1px;
+    ;
+
+}
+
+.input-group label+label {
+    margin-top: 14px;
+}
+
+#description_input {
+    height: 163px;
+    ;
+}
+
+.input-group label:first-of-type {
+    padding-top: 20px;
+}
+
+.next-btn {
+    margin-left: 284px;
+    ;
+    width: 348px;
+    ;
+    padding: 25px 50px 25px 50px;
+    ;
+    border-radius: 5px;
+    background-color: #6AB23D;
+    ;
+
+    color: white;
+    font-family: 'Lato', sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+    letter-spacing: 1px;
+    ;
+}
+
+.next-btn-text {
+    text-align: center;
+    height: 57px;
+    ;
+}
+
+.question_label {
+    margin-left: 22px;
+}
+
+.question_label textarea {
+    margin-right: 22px;
+    ;
+    /* сбрасываем возможное влияние */
+
+}
+
+.answer-item {
+    margin-bottom: 9px;
+    ;
+}
+
+.question-controls {
+    width: 739px;
+    ;
+    margin-left: auto;
+    margin-top: 62px;
+}
+
+.start-button {
+    width: 352px;
+    height: 62px;
+    ;
+    background-color: #F0436C;
+    border: 1px solid #F0436C;
+    ;
+    border-radius: 5px;
+    ;
+    font-family: 'Lato', sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+    letter-spacing: 1px;
+    color: white;
+    ;
+}
+
+.save-button {
+    width: 351px;
+    height: 62px;
+    ;
+    background-color: #6AB23D;
+    border: 1px solid #6AB23D;
+    border-radius: 5px;
+    ;
+    font-family: 'Lato', sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+    letter-spacing: 1px;
+    color: white;
+    ;
+    margin-left: 36px;
+    ;
+}
+</style>

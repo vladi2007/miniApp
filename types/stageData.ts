@@ -14,7 +14,7 @@ export interface QuestionData {
     id: string
     text: string
   }[]
-  idCorrectAnswer: string
+  id_correct_answer: string
   percentages: {
     id: string
     percentage: number

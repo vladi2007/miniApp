@@ -10,8 +10,8 @@ const router = useRouter()
 
 // Функция возврата на предыдущую страницу
 function goToMainMenu() {
-  window.location.href=`https://voshod07.ru`
   
+  router.push('/leader/main_menu')
   
 }
 </script>

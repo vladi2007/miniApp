@@ -16,13 +16,27 @@ const props = defineProps<{
     id: string
     percentage: number
   }[]
-  idCorrectAnswer: string
+  id_correct_answer: string
   timer: string
   stage: string
   context: string
   onAnswer: (answerId: string) => void
 }>()
+// Стейт для хранения ответов
+const answers = ref(props.answers)
 
+// Следим за изменениями в props.answers
+watch(
+  () => props.answers,
+  (newAnswers) => {
+    // Обновляем состояние, только если пришли новые ответы
+    if (newAnswers && newAnswers.length > 0) {
+      answers.value = newAnswers
+    }
+    // Если новый массив пустой, не обновляем состояние
+  },
+  { deep: true }
+)
 const selectedAnswer = ref<string | null>()
 const showBanner = ref(false) // Состояние для плашки
 
@@ -33,7 +47,7 @@ console.log(props)
 
 
 const isCorrect = computed(() => {
-  return selectedAnswer.value === props.idCorrectAnswer
+  return selectedAnswer.value === props.id_correct_answer
 })
 
 const getPercentage = (id: string) => {
@@ -44,9 +58,9 @@ const previousStage = ref(props.stage)
 
 // Следим за приходом idCorrectAnswer
 watch(
-  () => props.idCorrectAnswer,
+  () => props.id_correct_answer,
   () => {
-    if (selectedAnswer.value && selectedAnswer.value !== props.idCorrectAnswer) {
+    if (selectedAnswer.value && selectedAnswer.value !== props.id_correct_answer) {
       showBanner.value = false // Скрываем плашку, если ответ неправильный
     }
     // Если ответ верный — showBanner остаётся true
@@ -65,10 +79,10 @@ watch(
     <p class="question_title">{{ props.question.text }}</p>
 
     <div class="question_list">
-      <div v-for="answer in props.answers" :key="answer.id" class="question_answer" :class="{
-        correct: isDiscussion,
-        wrongOutline: isDiscussion && answer.id !== props.idCorrectAnswer && answer.id !== selectedAnswer
-      }">
+      <div v-for="answer in answers" :key="answer.id" class="question_answer" :class="{
+  correct: answer.id === props.id_correct_answer,
+  wrongOutline: isDiscussion && answer.id !== props.id_correct_answer
+}">
         <span class="question_text">{{ answer.text }}</span>
         <span v-if="isDiscussion" class="question_percent" :class="{ white: selectedAnswer === answer.id }">
           {{ getPercentage(answer.id) }}%
