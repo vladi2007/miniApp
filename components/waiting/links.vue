@@ -44,7 +44,7 @@ const participantUrl = `https://voshod07.ru/participant/${interactiveId}`
 
 }
 
-.waiting_links_column>div {}
+
 
 .waiting_code-text {
   margin-top: 44px;

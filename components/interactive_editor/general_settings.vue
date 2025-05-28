@@ -1,175 +1,228 @@
 <script setup lang="ts">
-import { ref, computed, defineProps, defineEmits } from 'vue'
+import { ref, computed, defineProps, defineEmits, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
-const props = defineProps<{ step: number }>()
+const props = defineProps<{
+  step: number
+  mode: string
+}>()
+const id = computed(() => route.params.id as string)
 const emit = defineEmits<{ (e: 'update-step', value: number): void }>()
-import { useRouter } from 'vue-router'
 
 const router = useRouter()
+const route = useRoute()
+
 const form = ref({
-    title: '',
-    description: '',
-    target_audience: '',
-    location: '',
-    responsible_full_name: '',
-    answer_duration: 60,
-    discussion_duration: 20,
-    countdown_duration: 10,
-    questions: [
-        {
-            text: '',
-            position: 1,
-            answers: Array(4).fill(null).map(() => ({ text: '', is_correct: false }))
-        }
-    ]
+  title: '',
+  description: '',
+  target_audience: '',
+  location: '',
+  responsible_full_name: '',
+  answer_duration: 60,
+  discussion_duration: 20,
+  countdown_duration: 10,
+  questions: [
+    {
+      text: '',
+      position: 1,
+      answers: Array(4).fill(null).map(() => ({ text: '', is_correct: false }))
+    }
+  ]
 })
 
 const currentQuestionIndex = ref(0)
 const currentQuestion = computed(() => form.value.questions[currentQuestionIndex.value])
+
 type CreateInteractiveResponse = {
-
- 
-  success: boolean,
-  data: {
-    interactive_id: number
-
-
+  interactive_id: number
 }
-}
+
+// Загрузка данных интерактива при edit или dublicate
+onMounted(async () => {
+  if (props.mode === 'edit' || props.mode === 'dublicate') {
+    const id = route.params.id as string
+    try {
+      const data = await $fetch(`/api/get_interactive`, {
+        method: 'GET',
+        query:{
+            telegram_id:2, 
+            x_key:"super-secret-key",
+             id:id
+        }
+      })
+      console.log(data)
+      form.value = {
+        title:  data.title,
+        description: data.description,
+        target_audience: data.target_audience,
+        location: data.location,
+        responsible_full_name: data.responsible_full_name,
+        answer_duration: data.answer_duration,
+        discussion_duration: data.discussion_duration,
+        countdown_duration: data.countdown_duration,
+        questions: data.questions.map((q: any, index: number) => ({
+          text: q.text,
+          position: index + 1,
+          answers: q.answers.map((a: any) => ({
+            text: a.text,
+            is_correct: a.is_correct
+          }))
+        }))
+      }
+
+      currentQuestionIndex.value = 0
+    } catch (err) {
+      console.error('Ошибка загрузки интерактива:', err)
+      alert('Не удалось загрузить данные интерактива.')
+    }
+  }
+})
+
 function addQuestion() {
-    const question = currentQuestion.value
+  const question = currentQuestion.value
 
-    // Проверка: есть ли текст вопроса
-    if (!question.text.trim()) {
-        alert('Введите текст вопроса перед добавлением нового.');
-        return;
-    }
+  if (!question.text.trim()) {
+    alert('Введите текст вопроса перед добавлением нового.')
+    return
+  }
 
-    // Проверка: все ли 4 ответа заполнены
-    const allAnswersFilled = question.answers.every(ans => ans.text.trim() !== '');
-    if (!allAnswersFilled) {
-        alert('Пожалуйста, заполните все 4 ответа.');
-        return;
-    }
+  const allAnswersFilled = question.answers.every(ans => ans.text.trim() !== '')
+  if (!allAnswersFilled) {
+    alert('Пожалуйста, заполните все 4 ответа.')
+    return
+  }
 
-    // Проверка: выбран ли правильный ответ
-    const hasCorrectAnswer = question.answers.some(ans => ans.is_correct);
-    if (!hasCorrectAnswer) {
-        alert('Пожалуйста, выберите правильный ответ.');
-        return;
-    }
+  const hasCorrectAnswer = question.answers.some(ans => ans.is_correct)
+  if (!hasCorrectAnswer) {
+    alert('Пожалуйста, выберите правильный ответ.')
+    return
+  }
 
-    // Если все ок — добавляем
-    form.value.questions.push({
-        text: '',
-        position: form.value.questions.length + 1,
-        answers: Array(4).fill(null).map(() => ({ text: '', is_correct: false }))
-    })
-    currentQuestionIndex.value = form.value.questions.length - 1
+  form.value.questions.push({
+    text: '',
+    position: form.value.questions.length + 1,
+    answers: Array(4).fill(null).map(() => ({ text: '', is_correct: false }))
+  })
+  currentQuestionIndex.value = form.value.questions.length - 1
 }
 
 function removeQuestion() {
-    if (form.value.questions.length > 1) {
-        form.value.questions.splice(currentQuestionIndex.value, 1)
-        currentQuestionIndex.value = Math.max(0, currentQuestionIndex.value - 1)
-    }
+  if (form.value.questions.length > 1) {
+    form.value.questions.splice(currentQuestionIndex.value, 1)
+    currentQuestionIndex.value = Math.max(0, currentQuestionIndex.value - 1)
+  }
 }
 
 function goToQuestions() {
-    const f = form.value
-    if (
-        f.title &&
-        f.description &&
-        f.target_audience &&
-        f.location &&
-        f.responsible_full_name &&
-        f.answer_duration > 0 &&
-        f.discussion_duration > 0 &&
-        f.countdown_duration >= 0
-    ) {
-        emit('update-step', 2)
-    } else {
-        alert('Пожалуйста, заполните все обязательные поля')
-    }
+  const f = form.value
+  if (
+    f.title &&
+    f.description &&
+    f.target_audience &&
+    f.location &&
+    f.responsible_full_name &&
+    f.answer_duration > 0 &&
+    f.discussion_duration > 0 &&
+    f.countdown_duration >= 0
+  ) {
+    emit('update-step', 2)
+  } else {
+    alert('Пожалуйста, заполните все обязательные поля')
+  }
 }
+
 function markCorrectAnswer(questionIndex: number, answerIndex: number) {
-    const answers = form.value.questions[questionIndex].answers
-    answers.forEach((ans, idx) => {
-        ans.is_correct = idx === answerIndex
-    })
+  const answers = form.value.questions[questionIndex].answers
+  answers.forEach((ans, idx) => {
+    ans.is_correct = idx === answerIndex
+  })
 }
-async function createInteractive(): Promise<number | null> {
-    const f = form.value
 
-    if (
-        !f.title ||
-        !f.description ||
-        !f.target_audience ||
-        !f.location ||
-        !f.responsible_full_name ||
-        f.questions.length === 0
-    ) {
-        alert('Пожалуйста, заполните все обязательные поля и добавьте хотя бы один вопрос.')
-        return null
+async function submitInteractive(): Promise<number | null> {
+  const f = form.value
+
+  if (
+    !f.title ||
+    !f.description ||
+    !f.target_audience ||
+    !f.location ||
+    !f.responsible_full_name ||
+    f.questions.length === 0
+  ) {
+    alert('Пожалуйста, заполните все обязательные поля и добавьте хотя бы один вопрос.')
+    return null
+  }
+
+  const payload = {
+    title: f.title,
+    description: f.description,
+    target_audience: f.target_audience,
+    location: f.location,
+    responsible_full_name: f.responsible_full_name,
+    answer_duration: f.answer_duration,
+    discussion_duration: f.discussion_duration,
+    countdown_duration: f.countdown_duration,
+    questions: f.questions.map(q => ({
+      text: q.text,
+      position: q.position,
+      answers: q.answers.map(ans => ({
+        text: ans.text,
+        is_correct: ans.is_correct
+      }))
+    }))
+  }
+
+  const x_key = 'super-secret-key'
+  const telegram_id = 2
+
+  try {
+    let response: CreateInteractiveResponse
+
+    if (props.mode === 'edit') {
+      const id = route.params.id as string
+
+      response = await $fetch<CreateInteractiveResponse>(`/api/edit_interatcive`, {
+        method: 'PATCH',
+        query:{
+            telegram_id:2, 
+            x_key:"super-secret-key",
+             id:id
+        },
+        body: payload
+      })
+    } else {
+        const id = route.params.id as string
+      response = await $fetch<CreateInteractiveResponse>(`/api/create_interactive`, {
+        method: 'POST',
+       query:{
+            telegram_id:2, 
+            x_key:"super-secret-key",
+             id:id
+        },
+        body: payload
+      })
     }
 
-    const x_key = 'super-secret-key'
-    const telegram_id = 1
-
-    const payload = {
-        title: f.title,
-        description: f.description,
-        target_audience: f.target_audience,
-        location: f.location,
-        responsible_full_name: f.responsible_full_name,
-        answer_duration: f.answer_duration,
-        discussion_duration: f.discussion_duration,
-        countdown_duration: f.countdown_duration,
-        questions: f.questions.map(q => ({
-            text: q.text,
-            position: q.position,
-            answers: q.answers.map(ans => ({
-                text: ans.text,
-                is_correct: ans.is_correct
-            }))
-        }))
-    }
-
-    try {
-        const response = await $fetch<CreateInteractiveResponse>('/api/create_interactive', {
-            method: 'POST',
-            query: {
-                x_key,
-                telegram_id
-            },
-            body: payload
-        })
-
-
-
-        const result = await response
-        console.log(result.data.interactive_id)
-        return Number(result.data.interactive_id)
-    } catch (err) {
-        console.error('Ошибка при отправке:', err)
-        alert('Произошла ошибка при отправке. Проверьте соединение или консоль разработчика.')
-        return null
-    }
+    return response.interactive_id
+  } catch (err) {
+    console.error('Ошибка при отправке:', err)
+    alert('Произошла ошибка при отправке.')
+    return null
+  }
 }
 
 async function saveInteractive() {
-    const id = await createInteractive()
-    if (id !== null) {
-        alert(`Интерактив сохранён! ID: ${id}`)
-    }
+  const id = await submitInteractive()
+  if (id !== null) {
+    router.push(`/leader/interactives`)
+  }
 }
 
 async function startInteractive() {
-    const id = await createInteractive()
-    if (id !== null) {
-        router.push(`/leader/${id}`)
-
-    }
+  const id = route.params.id as string
+  if (id !== null) {
+    router.push(`/leader/${id}`)
+  }
 }
 </script>
 

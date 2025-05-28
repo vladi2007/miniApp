@@ -13,15 +13,17 @@ onMounted(async () => {
     const userId = initDataUnsafe.value?.user?.id
 
     if (userId) {
-      const { data, error } = await useFetch(`https://carclicker.ru/api/interactivities/me`, {
+      const  {data, error}  = await useFetch(`/api/get_interactives`, {
+  
         query: {
-          x_key: 'super-secret-key',
-          telegram_id: "1"
+          telegram_id: "2",
+          x_key: 'super-secret-key'
+          
         },
         
       })
       
-      if (!error.value && data.value) {
+      if (data.value) {
         // Приводим числовые поля к строкам
         const mapList = (list) =>
           list.map(item => ({

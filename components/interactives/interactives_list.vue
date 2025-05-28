@@ -17,7 +17,7 @@ const route= useRouter()
 const isEnd = computed(() => props.status === 'end')
 
 function start_interactive(id: string) {
-  route.push(`/leader/start/${id}`)
+  route.push(`/leader/${id}`)
 }
 
 function dublicate_interactive(id: string) {

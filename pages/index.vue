@@ -34,7 +34,7 @@ onMounted(async () => {
     if (userId) {
       const { data, error } = await useFetch('/api/role', {
         query: {
-          telegram_id: "1",
+          telegram_id: "2",
         },
       })
       console.log("УРА")
