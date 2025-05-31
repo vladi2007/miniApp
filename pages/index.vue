@@ -1,15 +1,33 @@
-<!-- <script setup>
-import create_interactive from '~/components/interactive_editor/interactive_editor.vue'
+<script setup>
+window.Telegram.WebApp.expand()
+import history from '~/components/history/history.vue'
+onMounted(() => {
+  if (window.Telegram?.WebApp?.expand) {
+    //Expands the app on the users' phone to 100% height
+  }
+})
+let tg = window.Telegram.WebApp;
+tg.expand()
 </script>
 
 <template>
-    <create_interactive/>
+    <history/>
 </template>
 
 <style >
+html, body, #__nuxt {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  
+  
+}
 
-</style> -->
-<script setup>
+
+
+</style>
+<!-- <script setup>
 
 import { ref, onMounted } from 'vue'
 
@@ -53,7 +71,7 @@ console.log(role.value)
 </script>
 
 <template>
-  <!-- Показываем только когда данные загружены -->
+
   <div v-if="isReady">
     <main_menu v-if="role === 'leader'" />
     
@@ -75,7 +93,7 @@ console.log(role.value)
   font-size: 64px;
   font-weight: 500;
 }
-</style>
+</style> -->
 <!-- <script setup lang="ts">
 import { ref } from 'vue'
 
