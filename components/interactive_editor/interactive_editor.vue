@@ -58,12 +58,12 @@ console.log(mode.value)
 }
 
 
-.interactive_edit_backButton {
+.interactive_edit_backButton {cursor: pointer;
   position: absolute;
   top: 19px;
 }
 
-.interactive_edit_backButton {
+.interactive_edit_backButton {cursor: pointer;
   margin-left: 23px;
   ;
   width: 229px;

@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 
 const route= useRouter()
 function goTo(url: string) {
-  route.push('/leader/interactives')
+  route.push(url)
   
   
 }
@@ -27,7 +27,7 @@ onMounted(() => {
     <div class = "nav_bar" :class="{ nav_bar_out_main_menu: !isMainMenu }">
      
         <div class ="nav_bar_elements">               <!--  v-if="isMainMenu" -->
-            <div class ="reports"  v-if="isMainMenu" >
+            <div class ="reports"  v-if="isMainMenu" @click="goTo('/leader/history')">
 Отчеты/История
             </div>
             <div class="interactives" @click="goTo('/leader/interactives')"  v-if="isMainMenu">
@@ -74,19 +74,19 @@ onMounted(() => {
  
     vertical-align: middle;
     width: 224px;
- 
+ cursor: pointer;
    
 }
 
 .interactives{margin-left: 173px;
     width: 347px;
-
+ cursor: pointer;
 
 }
 
 .broadcast{margin-left: 173px;
     width: 138px;
-   vertical-align: middle;
+   vertical-align: middle; cursor: pointer;
 }
 
 .nav_bar_logo{margin-left: 146.62px;

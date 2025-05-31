@@ -178,7 +178,7 @@ function edit_interactive(id: string) {
 
 }
 
-.interactive_dublicate {
+.interactive_dublicate {cursor: pointer;
     width: 60px;
     height: 60px;
     border-radius: 5px;
@@ -186,7 +186,7 @@ function edit_interactive(id: string) {
     background-color: #853CFF;
 }
 
-.interactive_edit {
+.interactive_edit {cursor: pointer;
     margin-left: 16px;
     width: 60px;
     border-radius: 5px;
@@ -196,7 +196,7 @@ function edit_interactive(id: string) {
     background-color: #F0436C;
 }
 
-.interactive_start {
+.interactive_start {cursor: pointer;
     margin-left: 16px;
     width: 60px;
     border-radius: 5px;

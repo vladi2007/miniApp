@@ -13,12 +13,12 @@ wss.on('connection', function connection(clientSocket, incoming_request) {
   const telegramId = query.telegram_id
   const role = query.role
   const xKey = query.x_key
-
+const interactive_id = query.interactive_id
   console.log('🔌 Клиент подключился:')
   console.log('📎 telegram_id:', telegramId)
   console.log('👤 role:', role)
   console.log('🔑 x_key:', xKey)
-
+console.log('🔑 interactive_id:', interactive_id)
   let backendSocket = null
 
   clientSocket.on('message', (msg) => {
@@ -27,20 +27,21 @@ wss.on('connection', function connection(clientSocket, incoming_request) {
 
       if (data.type === 'init' && data.id) {
         // Собираем URL с параметрами
-        const backendUrl = `wss://carclicker.ru/ws/${data.id}?telegram_id=${telegramId}&role=${role}&x_key=${xKey}`
+        const backendUrl = `wss://carclicker.ru/ws/${interactive_id}?telegram_id=${telegramId}&role=${role}&x_key=${xKey}`
         console.log('➡️ Подключение к бэкенду:', backendUrl)
 
         backendSocket = new WebSocket(backendUrl)
 
         backendSocket.on('message', (backendMsg) => {
-          clientSocket.send(backendMsg.toString())
-        })
+  console.log('📩 от бэкенда:', backendMsg.toString())
+  clientSocket.send(backendMsg.toString())
+})
 
         backendSocket.on('close', () => clientSocket.close())
         backendSocket.on('error', () => clientSocket.close())
       } else if (backendSocket?.readyState === WebSocket.OPEN) {
-        backendSocket.send(msg.toString())
-      }
+  backendSocket.send(msg.toString())
+}
     } catch (err) {
       console.error('❌ Ошибка при разборе сообщения:', err)
     }

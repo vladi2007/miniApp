@@ -16,7 +16,7 @@ const props = defineProps<{
        <div> <button class="pause"@click="onStatus('pause')">
             Пауза
         </button></div>
-       <div> <button class="continue" @click="onStatus('continue')">
+       <div> <button class="continue" @click="onStatus('pause')">
             Продолжить
         </button></div>
     </div>

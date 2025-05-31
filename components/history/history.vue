@@ -1,14 +1,14 @@
-<script setup lang="ts">
+<script setup >
 import { defineProps, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 // Получаем данные через props
 const route = useRouter();
 const showPopup = ref(false);
-const selectedOption = ref<string | null>("");
+const selectedOption = ref("");
 
 // Массив для хранения выбранных интерактивов
-const selectedInteractives = ref<string[]>([]); // Массив для выбранных интерактивов
+const selectedInteractives = ref([]); // Массив для выбранных интерактивов
 
 // Статус для выбора нескольких интерактивов
 const selectMany = ref(false);
@@ -18,7 +18,7 @@ function goToMainMenu() {
   route.back();
 }
 
-function openPopup(interactiveId: string | string[]) {
+function openPopup(interactiveId) {
   selectedOption.value = null; // Очищаем выбор при открытии попапа
   selectedInteractives.value = Array.isArray(interactiveId) ? interactiveId : [interactiveId]; // Обновляем выбранные интерактивы
   showPopup.value = true;
@@ -40,7 +40,7 @@ function selectManyOption() {
 }
 
 // Функция для выбора интерактива (при выборе нескольких)
-function toggleInteractiveSelection(id: string) {
+function toggleInteractiveSelection(id) {
   const index = selectedInteractives.value.indexOf(id);
   if (index === -1) {
     selectedInteractives.value.push(id); // Добавляем в выбранные
@@ -49,59 +49,94 @@ function toggleInteractiveSelection(id: string) {
   }
 }
 
-// Функция для отправки данных отчета
-function submitReport() {
-  console.log("selectedOption.value:", selectedOption.value);
-  console.log("selectedInteractives.value:", selectedInteractives.value);
-
-  // Проверяем, что выбран хотя бы один интерактив и выбран тип отчета
-  if (!selectedOption.value || selectedInteractives.value.length === 0) {
+async function submitReport() {
+  try {
+    if (!selectedOption.value || selectedInteractives.value.length === 0) {
     alert('Пожалуйста, выберите хотя бы один интерактив и тип отчета');
     return;
   }
 
-  const requestPayload = {
-    telegram_id: 'your-telegram-id',
-    report_type: selectedOption.value,
-    interactives_id: Array.from(selectedInteractives.value) // Здесь передаем список выбранных интерактивов
+  const interactive_id = selectedInteractives.value.map(id => ({ id }));
+
+  
+    const url = "https://carclicker.ru/api/reports/export?x_key=super-secret-key";
+    const requestPayload = {
+    telegram_id: 2,
+    interactive_id,
+    report_type: selectedOption.value
   };
 
-  console.log('Отправка запроса с данными: ', requestPayload);
-  // Здесь можно отправить запрос через axios или fetch
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/octet-stream"  // или "application/json" если сервер так требует
+      },
+      body: JSON.stringify(requestPayload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Ошибка: ${response.status} - ${errorText}`);
+    }
+
+    // получаем Blob — бинарные данные файла
+    const blob = await response.blob();
+
+    // создаём временный URL для скачивания
+    const downloadUrl = URL.createObjectURL(blob);
+
+    // создаём ссылку и кликаем по ней для скачивания файла
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+    a.download = "report.xlsx";  // имя файла для скачивания
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    // освобождаем память
+    URL.revokeObjectURL(downloadUrl);
+  } catch (err) {
+  
+ 
+  }
 }
-const props = {
-    interactives_list: [
-        {
-            title: "Интересные факты про УрФУ",
-            participant_count: "10",
-            target_audience: "Школьники 10-11 классов",
-            location: "Москва, Школа №123",
-            date_completed: "19.04.25",
-            interactive_id: "123123123"
+const webApp = ref(null)
+const initDataUnsafe = ref(null)
+const userId =ref(null)
+const props = ref(null)
+const isReady = ref(false)
+onMounted(async () => {
+  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+    webApp.value = window.Telegram.WebApp
+    initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
+    
+
+    userId.value = initDataUnsafe.value?.user?.id
+    console.log(userId)
+    const data = await useFetch('/api/reports/preview', {
+     
+        query: {
+          telegram_id: "2",
+          x_key:'super-secret-key'
         },
-        {
-            title: "Космическое путешествие",
-            participant_count: "15",
-            target_audience: "Дети 7-10 лет",
-            location: "Санкт-Петербург, Детский центр «Звёздочка»",
-            date_completed: "19.04.25",
-            interactive_id: "474574574"
-        },
-        {
-            title: "Безопасность в сети",
-            participant_count: "12",
-            target_audience: "Подростки 13-16 лет",
-            location: "Новосибирск, Школа №89",
-            date_completed: "19.04.25",
-            interactive_id: "890890890"
-        }
-    ]
-}
+    });
+     props.value = data
+     console.log(props.value)
+     isReady.value=true
+     
+  }
+})
+
+
+
+
 
 </script>
 
 <template>
-  <div class="history_fon">
+  <div  class="history_fon" v-if="isReady" >
+
     <div class="history">
       <div class="history_logo">
         <img src="/images/main_menu/logo.svg" id="history_nav_bar_logo" />
@@ -142,18 +177,19 @@ const props = {
               </div>
             </div>
           </div>
+          
           <div class="history_content_list">
-            <div v-for="interactive in props.interactives_list" :key="interactive.interactive_id">
+            <div v-for="interactive in props.data.interactives_list" :key="interactive.interactive_id">
               <div class="history_interactive">
-                <div class="interactive_header">
-                  <div class="date-fon">
-                    <div class="date">{{ interactive.date_completed }}</div>
+                <div class="history_header">
+                  <div class="history_date-fon">
+                    <div class="history_date">{{ interactive.date_completed }}</div>
                   </div>
-                  <div class="title">{{ interactive.title }}</div>
+                  <div class="history_title">{{ interactive.title }}</div>
                   <img src="/images/history/Vector_109.svg" id="history_line" />
                 </div>
 
-                <div class="interactive_info">
+                <div class="history_info">
                   <div class="participant_count">
                     Участников: {{ interactive.participant_count }}
                   </div>
@@ -168,7 +204,6 @@ const props = {
                 <button v-if="!selectMany" class="history_download" @click="openPopup(interactive.interactive_id)">
                   Выгрузить
                 </button>
-
                 <label v-if="selectMany" class="select_many_option">
                   <input
                     type="checkbox"
@@ -210,7 +245,7 @@ const props = {
 </template>
 
 <style>
-.history_download {
+.history_download {cursor: pointer;
     position: absolute;
     top: 179px;
     left: 1086px;
@@ -266,7 +301,7 @@ const props = {
     ;
 }
 
-.history_backButton {
+.history_backButton {cursor: pointer;
     width: 229px;
     height: 62px;
     border-radius: 5px;
@@ -309,7 +344,7 @@ const props = {
     margin-left: auto;
 }
 
-.history_content_menu_info_button {
+.history_content_menu_info_button {cursor: pointer;
     margin-left: auto;
     width: 210px;
     height: 50px;
@@ -384,7 +419,7 @@ const props = {
     margin-bottom: 0;
 }
 
-.interactive_header {
+.history_header {
     position: relative;
     height: 90px;
     ;
@@ -396,7 +431,7 @@ const props = {
 
 }
 
-.interactive_info {
+.history_info {
     margin-top: 11px;
     display: grid;
     flex-direction: column;
@@ -415,14 +450,14 @@ const props = {
     ;
 }
 
-.date-fon {
+.history_date-fon {
     background-color: #853CFF;
     border-radius: 68px;
     ;
 
 }
 
-.date {
+.history_date {
     width: 179px;
     ;
     padding: 2px 15px 2px 15px;
@@ -438,7 +473,7 @@ const props = {
 
 }
 
-.title {
+.history_title {
     margin-left: 18px;
     ;
     font-family: 'Lato', sans-serif;
@@ -620,7 +655,7 @@ const props = {
 }
 
 
-.select_many_option{
+.select_many_option{cursor: pointer;
     position: absolute;
     top:94px;
     right: 60px;;
@@ -632,7 +667,7 @@ const props = {
   border: 1px solid  #F0436C;
   background-color: #F0436C;
 }
-.selectManyDownload{position: absolute;
+.selectManyDownload{position: absolute;cursor: pointer;
     width: 202px;
     height: 62px;
     border-radius: 5px;

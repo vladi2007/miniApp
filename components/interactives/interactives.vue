@@ -124,7 +124,7 @@ function create_new_interactive() {
 }
 
 /* Нижний правый угол */
-.interactives_top_menu_create_interactive {
+.interactives_top_menu_create_interactive {cursor: pointer;
     grid-column: 2;
     grid-row: 2;
     justify-self: end;
@@ -146,7 +146,7 @@ function create_new_interactive() {
     vertical-align: middle;
 }
 
-.interactives_backButton {
+.interactives_backButton {cursor: pointer;
     width: 229px;
     height: 62px;
     border-radius: 5px;

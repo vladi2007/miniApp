@@ -10,8 +10,10 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 const interactiveId = route.params.id
 
-const { data, send } = useWebSocket(`wss://carclicker.ru/ws/${interactiveId}?telegram_id=2&role=leader&x_key=super-secret-key`)
-
+const { data, send } = useWebSocket(`ws://localhost:4000/ws?interactive_id=${interactiveId}&telegram_id=2&role=leader&x_key=super-secret-key`)
+onMounted(() => {
+  send(JSON.stringify({ type: 'init', id: interactiveId }))
+})
 // props для компонента
 const data_props = ref({
   stage: '',   // например, 'waiting', 'countdown' и т.п.

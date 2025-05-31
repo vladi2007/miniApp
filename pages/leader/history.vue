@@ -1,12 +1,9 @@
-<script >
-
+<script setup>
+import history from '~/components/history/history.vue'
 </script>
 
 <template>
-    <div>
-
-       
-    </div>
+    <history/>
 </template>
 
 <style >
