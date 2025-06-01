@@ -17,7 +17,7 @@ const interactive_id = query.interactive_id
   console.log('🔌 Клиент подключился:')
   console.log('📎 telegram_id:', telegramId)
   console.log('👤 role:', role)
-  console.log('🔑 x_key:', xKey)
+ 
 console.log('🔑 interactive_id:', interactive_id)
   let backendSocket = null
 
@@ -27,7 +27,7 @@ console.log('🔑 interactive_id:', interactive_id)
 
       if (data.type === 'init' && data.id) {
         // Собираем URL с параметрами
-        const backendUrl = `wss://carclicker.ru/ws/${interactive_id}?telegram_id=${telegramId}&role=${role}&x_key=${xKey}`
+        const backendUrl = `wss://carclicker.ru/ws/${interactive_id}?telegram_id=${telegramId}&role=${role}&x_key=super-secret-key`
         console.log('➡️ Подключение к бэкенду:', backendUrl)
 
         backendSocket = new WebSocket(backendUrl)

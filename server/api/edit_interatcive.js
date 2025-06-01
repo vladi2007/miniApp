@@ -4,14 +4,12 @@ export default defineEventHandler(async (event) => {
 
   const { telegram_id, x_key , id} = query
 
-  if (!telegram_id || !x_key) {
-    return { success: false, error: 'Отсутствует telegram_id или x_key' }
-  }
+
 
   try {
     // Тип явно указываем
     const response = await fetch(
-      `https://carclicker.ru/api/interactivities/${id}?x_key=${x_key}&telegram_id=${telegram_id}`,
+      `https://carclicker.ru/api/interactivities/${id}?x_key=super-secret-key&telegram_id=${telegram_id}`,
       {
         method: 'PATCH',
         headers: {

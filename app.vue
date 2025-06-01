@@ -19,7 +19,7 @@ import { onMounted } from 'vue'
 onMounted(() => {
   if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
     Telegram.WebApp.setBackgroundColor('#ffffff')
-    window.Telegram.WebApp.expand()
+    window.Telegram.WebApp.requestFullscreen()
     
   }
 

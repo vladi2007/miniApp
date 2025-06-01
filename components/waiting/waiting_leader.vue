@@ -27,7 +27,7 @@ const props = defineProps<{
         <img src="/images/waiting/Vector_95.svg" id="waiting_vector_1" />
         <img src="/images/waiting/Vector_94.svg" id="waiting_vector_2" />
         <img src="/images/waiting/Star_4_(1).svg" id="waiting_star1" />
-        <div><Links/></div>
+        <div><Links :code="props.data.code"/></div>
         <div class="waiting_description_column">
             <div class="waiting_logo">
                 <div class="waiting_logo_img">

@@ -5,19 +5,21 @@ import { ref, onMounted } from 'vue'
 const webApp = ref(null)
 const initDataUnsafe = ref(null)
 const my_interactives = ref(null)
-
+const userId =ref(null)
 onMounted(async () => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
     initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
-    const userId = initDataUnsafe.value?.user?.id
+    
 
+    userId.value = initDataUnsafe.value?.user?.id
+    console.log(userId.value)
     if (userId) {
       const  {data, error}  = await useFetch(`/api/get_interactives`, {
   
         query: {
-          telegram_id: "2",
-          x_key: 'super-secret-key'
+          telegram_id: userId.value,
+          
           
         },
         

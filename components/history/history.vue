@@ -59,19 +59,19 @@ async function submitReport() {
   const interactive_id = selectedInteractives.value.map(id => ({ id }));
 
   
-    const url = "https://carclicker.ru/api/reports/export?x_key=super-secret-key";
+ 
     const requestPayload = {
-    telegram_id: 2,
+    telegram_id: userId.value,
     interactive_id,
     report_type: selectedOption.value
   };
 
-    const response = await fetch(url, {
+    const response = await fetch('/api/reports/export', {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/octet-stream"  // или "application/json" если сервер так требует
+        'Content-Type': 'application/json', // Убедитесь, что указываете нужный заголовок
       },
+      
       body: JSON.stringify(requestPayload),
     });
 
@@ -113,12 +113,11 @@ onMounted(async () => {
     
 
     userId.value = initDataUnsafe.value?.user?.id
-    console.log(userId)
+    console.log(userId.value)
     const data = await useFetch('/api/reports/preview', {
      
         query: {
-          telegram_id: "2",
-          x_key:'super-secret-key'
+          telegram_id: userId.value
         },
     });
      props.value = data
@@ -268,10 +267,14 @@ onMounted(async () => {
 
 .history_fon {
 
-    width: 100vw;
+      background-color: #A774FC;
+
+  
     height: 100vh;
 
-    background-color: #A774FC;
+
+    
+    
 
 }
 

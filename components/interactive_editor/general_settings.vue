@@ -39,17 +39,28 @@ type CreateInteractiveResponse = {
   }
 
 }
+const webApp = ref(null)
+const initDataUnsafe = ref(null)
+const userId = ref(null)
 
 // Загрузка данных интерактива при edit или dublicate
 onMounted(async () => {
+  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+    webApp.value = window.Telegram.WebApp
+    initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
+
+
+    userId.value = initDataUnsafe.value?.user?.id
+  }
   if (props.mode === 'edit' || props.mode === 'dublicate') {
+
     const id = route.params.id as string
     try {
       const data = await $fetch(`/api/get_interactive`, {
         method: 'GET',
         query: {
-          telegram_id: 2,
-          x_key: "super-secret-key",
+          telegram_id: userId.value,
+          
           id: id
         }
       })
@@ -175,20 +186,22 @@ async function submitInteractive(): Promise<number | null> {
     }))
   }
 
-  const x_key = 'super-secret-key'
-  const telegram_id = 2
+
+
 
   try {
     let response: CreateInteractiveResponse
 
     if (props.mode === 'edit') {
+      console.log(userId.value)
+      console.log("создание")
       const id = route.params.id as string
 
       response = await $fetch<CreateInteractiveResponse>(`/api/edit_interatcive`, {
         method: 'PATCH',
         query: {
-          telegram_id: 2,
-          x_key: "super-secret-key",
+          telegram_id: userId.value,
+          
           id: id
         },
         body: payload
@@ -198,8 +211,8 @@ async function submitInteractive(): Promise<number | null> {
       response = await $fetch<CreateInteractiveResponse>(`/api/create_interactive`, {
         method: 'POST',
         query: {
-          telegram_id: 2,
-          x_key: "super-secret-key",
+          telegram_id: userId.value,
+          
           id: id
         },
         body: payload
@@ -282,7 +295,7 @@ async function startInteractive() {
         <div class="question-nav">
           <div class="question_nav_header">Навигатор по вопросам</div>
           <div class="question-buttons">
-            <button class ="quest-nav-button"v-for="(q, index) in form.questions" :key="index"
+            <button class="quest-nav-button" v-for="(q, index) in form.questions" :key="index"
               :class="{ active: index === currentQuestionIndex }" @click="currentQuestionIndex = index">
               {{ index + 1 }}
             </button>
@@ -332,9 +345,10 @@ async function startInteractive() {
 
 
 <style>
-.quest-nav-button{
+.quest-nav-button {
   cursor: pointer;
 }
+
 #question_textarea {
   height: 100px;
   ;
@@ -495,10 +509,13 @@ async function startInteractive() {
   gap: 12px;
 
 }
-.question-actions > button {
+
+.question-actions>button {
   cursor: pointer;
 }
-.question-buttons>button {cursor: pointer;
+
+.question-buttons>button {
+  cursor: pointer;
   height: 65px;
   width: 65px;
   ;
@@ -651,7 +668,8 @@ async function startInteractive() {
   padding-top: 20px;
 }
 
-.next-btn {cursor: pointer;
+.next-btn {
+  cursor: pointer;
   margin-left: 284px;
   ;
   width: 348px;
@@ -699,7 +717,8 @@ async function startInteractive() {
   margin-top: 62px;
 }
 
-.start-button {cursor: pointer;
+.start-button {
+  cursor: pointer;
   width: 352px;
   height: 62px;
   ;
@@ -716,7 +735,8 @@ async function startInteractive() {
   ;
 }
 
-.save-button {cursor: pointer;
+.save-button {
+  cursor: pointer;
   width: 351px;
   height: 62px;
   ;

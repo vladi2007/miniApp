@@ -2,16 +2,14 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const body = await readBody(event)
 
-  const { telegram_id, x_key } = query
+  const { telegram_id, x_key, id } = query
+  console.log(telegram_id)
 
-  if (!telegram_id || !x_key) {
-    return { success: false, error: 'Отсутствует telegram_id или x_key' }
-  }
 
   try {
     // Тип явно указываем
     const response = await fetch(
-      `https://carclicker.ru/api/interactivities/?x_key=${x_key}&telegram_id=${telegram_id}`,
+      `https://carclicker.ru/api/interactivities/?x_key=super-secret-key&telegram_id=${telegram_id}`,
       {
         method: 'POST',
         headers: {

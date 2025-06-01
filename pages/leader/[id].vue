@@ -1,34 +1,62 @@
 <script setup>
-import { ref, watch } from 'vue'
-
+import { ref, watch, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import Waiting_leader from '~/components/waiting/waiting_leader.vue'
 import Countdown_leader from '~/components/countdown/countdown_leader.vue'
 import Question_leader from '~/components/question/question_leader.vue'
 import InteractiveEnd_leader from '~/components/interactive_end/interactive_end_leader.vue'
-import { useRoute } from 'vue-router'
 
+// Реактивные переменные
 const route = useRoute()
 const interactiveId = route.params.id
+const webApp = ref(null)
+const initDataUnsafe = ref(null)
+const userId = ref(null)
 
-const { data, send } = useWebSocket(`ws://localhost:4000/ws?interactive_id=${interactiveId}&telegram_id=2&role=leader&x_key=super-secret-key`)
-onMounted(() => {
+const data = ref(null)
+let send = null // функция отправки
+
+// Функция для создания websocket
+function createWebSocket(interactiveId, telegramId) {
+  // Предполагаю, что useWebSocket возвращает { data, send }
+  const ws = useWebSocket(`wss://voshod07.ru/ws?interactive_id=${interactiveId}&telegram_id=${telegramId}&role=leader`)
+  send = ws.send
+
+  // Обновляем реактивный data
+  watch(ws.data, (val) => {
+    data.value = val
+  })
+
+  // Инициализация соединения (по примеру твоего кода)
   send(JSON.stringify({ type: 'init', id: interactiveId }))
+}
+
+onMounted(() => {
+  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+    webApp.value = window.Telegram.WebApp
+    initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
+    userId.value = initDataUnsafe.value?.user?.id
+  }
 })
+
+// Создаем websocket только когда userId стал известен
+watch(userId, (newUserId) => {
+  if (newUserId) {
+    createWebSocket(interactiveId, newUserId)
+  }
+})
+
 // props для компонента
 const data_props = ref({
-  stage: '',   // например, 'waiting', 'countdown' и т.п.
-  data: {}     // объект с данными для компонента
+  stage: '',
+  data: {}
 })
 
-// Когда data.value меняется, обновляем data_props
+// Парсим и обновляем data_props при изменении data.value
 watch(data, (newVal) => {
   if (!newVal) return
-
-  // Так как данные приходят как строка, нужно её распарсить
   try {
     const parsedData = JSON.parse(newVal)
-    
-    // Ожидаем, что parsedData будет объектом с ключами "stage" и "data"
     data_props.value.stage = parsedData.stage || ''
     data_props.value.data = parsedData.data || {}
   } catch (error) {
@@ -37,7 +65,9 @@ watch(data, (newVal) => {
 })
 
 function sendStatus(status) {
-  send(JSON.stringify({ interactive_status: status }))
+  if (send) {
+    send(JSON.stringify({ interactive_status: status }))
+  }
 }
 
 const componentMap = {
@@ -48,7 +78,6 @@ const componentMap = {
   end: InteractiveEnd_leader,
 }
 </script>
-
 <template>
   <component
     :is="componentMap[data_props.stage]"
