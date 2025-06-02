@@ -13,13 +13,13 @@ const isLoading = ref(true) // <- новый флаг
 
 const isReady = ref(false)
 const role = ref(null)
-
+const userId = ref(null)
 onMounted(async () => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
     initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
 
-    const userId = initDataUnsafe.value?.user?.id
+    userId.value = initDataUnsafe.value?.user?.id
     console.log(userId.value)
     if (userId) {
       const { data, error } = await useFetch('/api/role', {
