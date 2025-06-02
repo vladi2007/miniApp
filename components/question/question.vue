@@ -26,7 +26,7 @@ const props = defineProps<{
 
     <!-- В зависимости от типа данных, отображаем различные компоненты -->
     <question_list :timer="data.timer" :question="data.question" :answers="data.answers"
-      :idCorrectAnswer="data.idCorrectAnswer" :percentages="data.percentages" :stage="stage":onAnswer="onAnswer" :questions_count ="data.questions_count" :context="context" />
+      :id_correct_answer="data.id_correct_answer" :percentages="data.percentages" :stage="stage":onAnswer="onAnswer" :questions_count ="data.questions_count" :context="context" />
 
 
   </div>

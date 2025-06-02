@@ -100,7 +100,7 @@ watch(
 
     <div class="question_list">
       <div
-        v-for="answer in props.answers"
+        v-for="answer in answers"
         :key="answer.id"
         class="question_answer"
         :class="{

@@ -64,9 +64,9 @@ watch(data, (newVal) => {
   }
 })
 
-function sendStatus(status) {
+function sendStatus(id) {
   if (send) {
-    send(JSON.stringify({ interactive_status: status }))
+    send(JSON.stringify({ anwer_id: id }))
   }
 }
 
@@ -88,6 +88,6 @@ const timerData = ref({})
 
    
     <component v-if="data_props.stage"  :is="componentMap[data_props.stage]" :data="data_props.data" :stage="data_props.stage"
-      :onAnswer="sendAnswer" />
+      :onAnswer="sendStatus()" />
   </div>
 </template> 
