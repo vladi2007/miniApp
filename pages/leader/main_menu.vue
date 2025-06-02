@@ -22,13 +22,13 @@ onMounted(async () => {
     userId.value = initDataUnsafe.value?.user?.id
     console.log(userId.value)
     if (userId) {
-      const { data, error } = await useFetch('/api/role', {
+      const  data = await useFetch('/api/role', {
         query: {
           telegram_id: userId.value,
         },
       })
       console.log("УРА")
-      if (!error.value && data.value?.role) {
+      if ( data.value?.role) {
         role.value = data.value.role
         console.log("УРА")
       } else {
