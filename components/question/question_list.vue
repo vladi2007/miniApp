@@ -100,6 +100,7 @@ watch(
 
     <div class="question_list">
       <div v-for="answer in answers" :key="answer.id" class="question_answer" :class="{
+        selected: selectedAnswer === String(answer.id) && !isDiscussion,
         correct: isDiscussion && selectedAnswer === String(answer.id) && String(props.id_correct_answer) === String(answer.id),
         incorrect: isDiscussion && selectedAnswer === String(answer.id) && String(props.id_correct_answer) !== String(answer.id),
         correctOutline: isDiscussion && String(props.id_correct_answer) === String(answer.id) && selectedAnswer !== String(answer.id),
