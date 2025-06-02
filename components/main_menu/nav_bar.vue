@@ -13,7 +13,7 @@ function goBack(){
 const currentPath = ref(window.location.pathname)
 
 
-const isMainMenu = computed(() => currentPath.value === "/")
+const isMainMenu = computed(() => currentPath.value === "/leader/main_menu")
 
 onMounted(() => {
   window.addEventListener('popstate', () => {
