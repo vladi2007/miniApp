@@ -67,7 +67,7 @@ watch(
   (newVal, oldVal) => {
     prevStage.value = oldVal
     currStage.value = newVal
-    if (prevStage.value === "discussion" && prevStage.value === "discussion"){
+    if (prevStage.value === "discussion" && currStage.value === "question"){
       selectedAnswer.value = null
     }
   }
