@@ -13,27 +13,24 @@ const isLoading = ref(true) // <- новый флаг
 
 const isReady = ref(false)
 const role = ref(null)
-const userId =ref(null)
+const userId = ref(null)
 onMounted(async () => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
     initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
 
     userId.value = initDataUnsafe.value?.user?.id
-
+    console.log(userId.value)
     if (userId) {
-      const { data, error } = await useFetch('/api/role', {
+      const  data = await useFetch('/api/role', {
         query: {
           telegram_id: userId.value,
         },
       })
       console.log("УРА")
-      if (!error.value && data.value?.role) {
-        role.value = data.value.role
-        console.log("УРА")
-      } else {
-        console.error("Ошибка запроса или пустой ответ", error.value)
-      }
+      console.log(data.data.value.role)
+      role.value = data.data.value.role
+        console.log(role.value)
     }
 
     isReady.value = true

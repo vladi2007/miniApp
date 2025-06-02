@@ -28,12 +28,9 @@ onMounted(async () => {
         },
       })
       console.log("УРА")
-      if ( data.value?.role) {
-        role.value = data.value.role
-        console.log("УРА")
-      } else {
-        console.error("Ошибка запроса или пустой ответ", error.value)
-      }
+      console.log(data.data.value.role)
+      role.value = data.data.value.role
+        console.log(role.value)
     }
 
     isReady.value = true
