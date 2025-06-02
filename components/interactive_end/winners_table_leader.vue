@@ -11,7 +11,7 @@ const router = useRouter()
 // Функция возврата на предыдущую страницу
 function goToMainMenu() {
   
-  router.push('/')
+  router.push('/leader/main_menu')
   
 }
 </script>

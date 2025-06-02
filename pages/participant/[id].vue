@@ -87,7 +87,7 @@ const timerData = ref({})
   <div>
 
    
-    <component :is="componentMap[timerData.stage]" :data="timerData.data" :stage="timerData.stage"
+    <component v-if="data_props.stage"  :is="componentMap[timerData.stage]" :data="data_props.data" :stage="data_props.stage"
       :onAnswer="sendAnswer" />
   </div>
 </template> 
