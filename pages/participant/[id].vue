@@ -64,7 +64,7 @@ watch(data, (newVal) => {
 
 function sendAnswer(id) {
   if (send) {
-    send(JSON.stringify({ anwer_id: id }))
+    send(JSON.stringify({ answer_id: id }))
   }
 }
 
