@@ -11,7 +11,7 @@ const props = defineProps<{
   data: QuestionData 
   context:string
   onAnswer: (answerId: string) => void
-  onStatus: (status: string) => void  // Используем тип WaitingData
+  
 }>()
 
 </script>

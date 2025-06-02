@@ -1,5 +1,3 @@
-
-
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useWebApp } from 'vue-tg'
@@ -64,7 +62,7 @@ watch(data, (newVal) => {
   }
 })
 
-function sendStatus(id) {
+function sendAnswer(id) {
   if (send) {
     send(JSON.stringify({ anwer_id: id }))
   }
@@ -86,8 +84,8 @@ const timerData = ref({})
 <template>
   <div>
 
-   
-    <component v-if="data_props.stage"  :is="componentMap[data_props.stage]" :data="data_props.data" :stage="data_props.stage"
-      :onAnswer="sendStatus()" />
+
+    <component v-if="data_props.stage" :is="componentMap[data_props.stage]" :data="data_props.data"
+      :stage="data_props.stage" :onAnswer="sendAnswer" />
   </div>
-</template> 
+</template>
