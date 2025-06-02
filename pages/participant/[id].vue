@@ -61,11 +61,9 @@ watch(data, (newVal) => {
     console.error("Ошибка при разборе данных WebSocket:", error)
   }
 })
-
-function sendAnswer(id) {
-  if (send) {
-    send(JSON.stringify({ answer_id: id }))
-  }
+// Отправка ответа
+function sendAnswer(answerId) {
+  send(JSON.stringify({ answer_id: answerId }))
 }
 
 const componentMap = {
@@ -86,6 +84,6 @@ const timerData = ref({})
 
 
     <component v-if="data_props.stage" :is="componentMap[data_props.stage]" :data="data_props.data"
-      :stage="data_props.stage" :onAnswer="sendAnswer" />
+      :stage="data_props.stage" :onAnswer="sendAnswer" context="participant"/>
   </div>
 </template>

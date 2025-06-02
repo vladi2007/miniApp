@@ -110,7 +110,7 @@ watch(
           correctOutline: isDiscussion && props.id_correct_answer === answer.id && selectedAnswer !== answer.id,
           wrongOutline: isDiscussion && answer.id !== props.id_correct_answer && answer.id !== selectedAnswer
         }"
-        @click="selectAnswer(answer.id)"
+        @click="selectAnswer(`${answer.id}`)"
       >
         <span class="question_text">{{ answer.text }}</span>
         <span
