@@ -11,7 +11,7 @@ const props = defineProps<{
   answers: {
     id: string
     text: string
-  }[] 
+  }[]
   percentages: {
     id: string
     percentage: number
@@ -40,20 +40,20 @@ watch(
 const selectedAnswer = ref<string | null>()
 const showBanner = ref(false) // Состояние для плашки
 
-const isDiscussion =computed(() => props.stage === 'discussion')
+const isDiscussion = computed(() => props.stage === 'discussion')
 console.log(props)
 // Позволяет выбирать только в режиме "question"
 function selectAnswer(answerId: string) {
-  if (isDiscussion.value ) return // Блокируем выбор в режиме discussion
+  if (isDiscussion.value) return // Блокируем выбор в режиме discussion
   selectedAnswer.value = answerId
-  showBanner.value = true 
+  showBanner.value = true
   props.onAnswer(answerId)
-  
-    // Показываем плашку при выборе ответа
+
+  // Показываем плашку при выборе ответа
 }
 
 const isCorrect = computed(() => {
-  return selectedAnswer.value === props.id_correct_answer
+  return selectedAnswer.value === String(props.id_correct_answer)
 })
 
 const getPercentage = (id: string) => {
@@ -67,7 +67,7 @@ watch(
   (newVal, oldVal) => {
     prevStage.value = oldVal
     currStage.value = newVal
-    if (prevStage.value === "discussion" && currStage.value === "question"){
+    if (oldVal === "discussion" && newVal === "question") {
       selectedAnswer.value = null
     }
   }
@@ -76,14 +76,14 @@ watch(
 watch(
   () => props.id_correct_answer,
   () => {
-    if (selectedAnswer.value && selectedAnswer.value !== props.id_correct_answer) {
+    if (selectedAnswer.value && selectedAnswer.value !== String(props.id_correct_answer)) {
       showBanner.value = false // Скрываем плашку, если ответ неправильный
-      
+
 
     }
-   () => {
+    () => {
 
-   }
+    }
   }
 )
 
@@ -99,48 +99,31 @@ watch(
     <p class="question_title">{{ props.question.text }}</p>
 
     <div class="question_list">
-      <div
-        v-for="answer in answers"
-        :key="answer.id"
-        class="question_answer"
-        :class="{
-          selected: selectedAnswer === answer.id && !isDiscussion,
-          correct: isDiscussion && selectedAnswer === answer.id && props.id_correct_answer === answer.id,
-          incorrect: isDiscussion && selectedAnswer === answer.id && props.id_correct_answer !== answer.id,
-          correctOutline: isDiscussion && props.id_correct_answer === answer.id && selectedAnswer !== answer.id,
-          wrongOutline: isDiscussion && answer.id !== props.id_correct_answer && answer.id !== selectedAnswer
-        }"
-        @click="selectAnswer(`${answer.id}`)"
-      >
+      <div v-for="answer in answers" :key="answer.id" class="question_answer" :class="{
+        correct: isDiscussion && selectedAnswer === String(answer.id) && String(props.id_correct_answer) === String(answer.id),
+        incorrect: isDiscussion && selectedAnswer === String(answer.id) && String(props.id_correct_answer) !== String(answer.id),
+        correctOutline: isDiscussion && String(props.id_correct_answer) === String(answer.id) && selectedAnswer !== String(answer.id),
+        wrongOutline: isDiscussion && String(answer.id) !== String(props.id_correct_answer) && String(answer.id) !== selectedAnswer
+      }" @click="selectAnswer(String(answer.id))">
         <span class="question_text">{{ answer.text }}</span>
-        <span
-          v-if="isDiscussion"
-          class="question_percent"
-          :class="{ white: selectedAnswer === answer.id }"
-        >
+        <span v-if="isDiscussion" class="question_percent" :class="{ white: selectedAnswer === answer.id }">
           {{ getPercentage(answer.id) }}%
         </span>
       </div>
     </div>
 
-    <div
-      v-if="showBanner && isCorrect" 
-      :class="['question_accepted-banner', 'success']"
-    >
-      <img src="/public/images/question/Group_1.svg"  />
+    <div v-if="showBanner && isCorrect" :class="['question_accepted-banner', 'success']">
+      <img src="/public/images/question/Group_1.svg" />
       Правильный ответ
     </div>
-    <div
-      v-if="showBanner && !isCorrect" 
-      :class="['question_accepted-banner', 'default']"
-    >
+    <div v-if="showBanner && !isCorrect" :class="['question_accepted-banner', 'default']">
       Ответ принят!
     </div>
 
   </div>
 </template>
 
-<style >
+<style>
 .question_question-list {
   margin-left: 22px;
   margin-right: 22px;
@@ -263,9 +246,11 @@ watch(
   background-color: #853cff;
   color: white;
 }
+
 .question_accepted-banner.hidden {
-  display:none
+  display: none
 }
+
 .question_accepted-banner.success {
   background-color: #6ab23d;
   color: white;
