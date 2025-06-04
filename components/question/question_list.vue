@@ -163,6 +163,7 @@ watch(
   font-weight: 400;
   font-size: 16px;
   line-height: 24px;
+  margin-left:7px;
 }
 
 .question_list {
@@ -186,7 +187,7 @@ watch(
   transition: all 0.2s ease;
   color: #1d1d1d;
   padding-left: 35px;
-  width: 271px;
+  width: 346px;
   white-space: pre-wrap;
   /* сохраняет переводы строк и переносит при необходимости */
   word-break: break-word;
@@ -195,7 +196,7 @@ watch(
 }
 
 .question_text {
-  width: 317px;
+ width: 271px;
   white-space: pre-wrap;
   /* сохраняет переводы строк и переносит при необходимости */
   word-break: break-word;
