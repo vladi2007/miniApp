@@ -175,7 +175,7 @@ watch(
 .question_answer {
   background-color: #f7f7f7;
   border-radius: 8px;
-  height: 46px;
+  min-height: 46px;
   font-size: 16px;
   font-weight: 400;
   cursor: pointer;
@@ -186,6 +186,21 @@ watch(
   transition: all 0.2s ease;
   color: #1d1d1d;
   padding-left: 35px;
+  width: 271px;
+  white-space: pre-wrap;
+  /* сохраняет переводы строк и переносит при необходимости */
+  word-break: break-word;
+  line-height: 24px;
+  ;
+}
+
+.question_text {
+  width: 317px;
+  white-space: pre-wrap;
+  /* сохраняет переводы строк и переносит при необходимости */
+  word-break: break-word;
+  line-height: 24px;
+  ;
 }
 
 .question_answer:hover {
