@@ -164,6 +164,11 @@ watch(
   font-size: 16px;
   line-height: 24px;
   margin-left:7px;
+  width: 320px;
+  white-space: pre-wrap;
+  /* сохраняет переводы строк и переносит при необходимости */
+  word-break: break-word;
+  
 }
 
 .question_list {
@@ -171,6 +176,7 @@ watch(
   flex-direction: column;
   gap: 12px;
   margin-top: 16px;
+
 }
 
 .question_answer {
@@ -196,7 +202,7 @@ watch(
 }
 
 .question_text {
- width: 271px;
+ width: 260px;
   white-space: pre-wrap;
   /* сохраняет переводы строк и переносит при необходимости */
   word-break: break-word;
