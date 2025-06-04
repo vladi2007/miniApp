@@ -28,7 +28,7 @@ function goToMainMenu() {
         <div v-for="(winner, index) in props.winners" :key="index" class="winner">
           <span class="position">{{ winner.position }}.</span>
           <span class="name">{{ winner.username }}</span>
-          <span class = "winner-position">8</span>
+          <!-- <span class = "winner-position">8</span> -->
         </div>
       </div>
 

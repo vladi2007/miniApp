@@ -437,7 +437,7 @@ body.history-background {padding-bottom: 42px;;
     position: relative;
     height: 90px;
     ;
-    margin-left: 34px;
+    margin-left: 35px;
     ;
     display: flex;
     align-items: center;
@@ -465,24 +465,23 @@ body.history-background {padding-bottom: 42px;;
 }
 
 .history_date-fon {
+  
     background-color: #853CFF;
     border-radius: 68px;
-    ;
+    width: 300px;
 
 }
 
 .history_date {
-    width: 179px;
-    ;
-    padding: 2px 15px 2px 15px;
-    ;
+    padding-left: 15px;
+    width: 210px;
     color: white;
-    ;
+    text-align: left;
     font-family: 'Work Sans';
     font-weight: 700;
     font-size: 36px;
     ;
-    letter-spacing: 1px;
+    
     ;
 
 }
