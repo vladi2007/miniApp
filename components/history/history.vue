@@ -37,6 +37,9 @@ function closePopup() {
 // Функция для выбора нескольких интерактивов
 function selectManyOption() {
   selectMany.value = !selectMany.value;
+  if (!selectMany.value) {
+    selectedInteractives.value = [];
+  }
 }
 
 // Функция для выбора интерактива (при выборе нескольких)
@@ -52,7 +55,7 @@ function toggleInteractiveSelection(id) {
 async function submitReport() {
   try {
     if (!selectedOption.value || selectedInteractives.value.length === 0) {
-    alert('Пожалуйста, выберите хотя бы один интерактив и тип отчета');
+    window.Telegram.WebApp.showAlert('Пожалуйста, выберите хотя бы один интерактив и тип отчета');
     return;
   }
 
@@ -128,7 +131,12 @@ onMounted(async () => {
 })
 
 
-
+onMounted(() => {
+  document.body.classList.add('history-background');
+});
+onUnmounted(() => {
+  document.body.classList.remove('history-background');
+});
 
 
 </script>
@@ -244,6 +252,9 @@ onMounted(async () => {
 </template>
 
 <style>
+body.history-background {padding-bottom: 42px;;
+  background-color: #A774FC;
+}
 .history_download {cursor: pointer;
     position: absolute;
     top: 179px;
@@ -268,9 +279,9 @@ onMounted(async () => {
 .history_fon {
 
       background-color: #A774FC;
-
-  
-    height: 100vh;
+  height: 1159px;;
+  margin-bottom: 56px;;
+    
 
 
     
@@ -278,7 +289,7 @@ onMounted(async () => {
 
 }
 
-.history {
+.history {min-height: 100vh;
     height: 50px;
     ;
     width: 1360px;
@@ -297,7 +308,7 @@ onMounted(async () => {
     margin-top: 8px;
     width: 1360px;
     ;
-    height: 1033px;
+    min-height: 1033px;
     ;
     background-color: white;
     border-radius: 40px;

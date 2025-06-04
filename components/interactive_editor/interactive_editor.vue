@@ -9,20 +9,20 @@ const step = ref(1)
 
 function handleBackClick() {
   if (step.value === 1) {
-    route.back()
+    route.push("/leader/interactives")
   } else {
     step.value = 1
   }
 }
 const router = useRoute()
 
-const mode = computed(() => router.params.mode as string )
+const mode = computed(() => router.params.mode as string)
 const id = computed(() => router.params.id as string)
 console.log(mode.value)
 </script>
 
 <template>
-  <div>
+  <div class="interactive_editor">
 
     <nav_bar />
     <div class="interactive_edit_top_menu">
@@ -39,14 +39,20 @@ console.log(mode.value)
       </div>
 
     </div>
+
+    <general_settings :step="step" @update-step="step = $event" :mode="mode" />
   </div>
-  <general_settings :step="step" @update-step="step = $event" :mode ="mode"/>
 </template>
 
 <style>
 * {
   padding: 0;
   margin: 0;
+}
+
+.interactive_editor {
+  height: 1246px;
+  ;
 }
 
 .interactive_edit_top_menu {
@@ -58,12 +64,14 @@ console.log(mode.value)
 }
 
 
-.interactive_edit_backButton {cursor: pointer;
+.interactive_edit_backButton {
+  cursor: pointer;
   position: absolute;
   top: 19px;
 }
 
-.interactive_edit_backButton {cursor: pointer;
+.interactive_edit_backButton {
+  cursor: pointer;
   margin-left: 23px;
   ;
   width: 229px;

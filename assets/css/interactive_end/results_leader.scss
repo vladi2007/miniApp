@@ -125,6 +125,9 @@
   font-size: 40px;
   letter-spacing: 1px;;
   vertical-align: middle;
+  width:640px;; white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
+  word-break: break-word;   
+  height: 200px;;  /* переносит длинные слова */
 }
 
 
@@ -133,8 +136,8 @@
 
 
 .participants-num {
-  margin-top: 51px;
-  ;
+  // margin-top: 51px;
+
   display: flex;
   margin-left: 132px;
   ;

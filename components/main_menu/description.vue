@@ -51,7 +51,7 @@
     margin-top: 50px;
     width: 1320px;
     height: 844px;
-
+margin-bottom: 30px;;
 }
 
 .description {

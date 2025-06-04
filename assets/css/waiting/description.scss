@@ -31,7 +31,9 @@ body {
     font-size: 16px;
     line-height: 24px;
     margin-top:28px;
-    text-align: center;
+    text-align: center;white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
+  word-break: break-word; 
+
 }
 
 .waiting_interactive-description {
@@ -43,7 +45,9 @@ body {
     line-height: 24px;
     
     max-width: 295px ;
-    margin-left: auto;
+    margin-left: auto;white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
+  word-break: break-word; 
+
     /* Текст выравнивается по левому краю */
 }
 .waiting_interactive-description > p{

@@ -14,7 +14,12 @@ const props = defineProps<{
   onAnswer: () => void  
   onStatus: (status: string) => void// Используем тип WaitingData
 }>()
-
+onMounted(() => {
+  document.body.classList.add('question-leader-background');
+});
+onUnmounted(() => {
+  document.body.classList.remove('question-leader-background');
+});
 </script>
 
 <template>

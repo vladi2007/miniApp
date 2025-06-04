@@ -4,6 +4,7 @@
   padding-top: 27px;
   width: 1184px;
   font-family: 'Lato', sans-serif;
+  
 }
 
 .question_number {
@@ -34,8 +35,9 @@
   margin-top: 40px;
   font-weight: 500;
   font-size: 32px;
-  line-height: 40px;
-  height: 58px;
+  
+  white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
+  word-break: break-word; 
 }
 
 .question_list {

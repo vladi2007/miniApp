@@ -28,7 +28,8 @@
     margin-top: 50px;
     margin-left: 30px;
     width: 70%;
-    text-align: left;
+    text-align: left;white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
+  word-break: break-word; 
 }
 
 .interactive-description {
@@ -40,7 +41,8 @@
     line-height: 24px;
 
     max-width: 295px;
-    margin-left: auto;
+    margin-left: auto;white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
+  word-break: break-word; 
     /* Текст выравнивается по левому краю */
 }
 

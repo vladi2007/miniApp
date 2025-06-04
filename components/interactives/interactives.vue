@@ -6,7 +6,7 @@ import interactives_list from '~/components/interactives/interactives_list.vue'
 const route= useRouter()
 function goToMainMenu() {
 
-    route.back()
+    route.push("/leader/main_menu")
 
 }
 const props = defineProps<{

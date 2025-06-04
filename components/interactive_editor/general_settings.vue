@@ -87,7 +87,7 @@ onMounted(async () => {
       currentQuestionIndex.value = 0
     } catch (err) {
       console.error('Ошибка загрузки интерактива:', err)
-      alert('Не удалось загрузить данные интерактива.')
+      window.Telegram.WebApp.showAlert('Не удалось загрузить данные интерактива.')
     }
   }
 })
@@ -96,19 +96,19 @@ function addQuestion() {
   const question = currentQuestion.value
 
   if (!question.text.trim()) {
-    alert('Введите текст вопроса перед добавлением нового.')
+    window.Telegram.WebApp.showAlert('Введите текст вопроса перед добавлением нового.')
     return
   }
 
   const allAnswersFilled = question.answers.every(ans => ans.text.trim() !== '')
   if (!allAnswersFilled) {
-    alert('Пожалуйста, заполните все 4 ответа.')
+    window.Telegram.WebApp.showAlert('Пожалуйста, заполните все 4 ответа.')
     return
   }
 
   const hasCorrectAnswer = question.answers.some(ans => ans.is_correct)
   if (!hasCorrectAnswer) {
-    alert('Пожалуйста, выберите правильный ответ.')
+    window.Telegram.WebApp.showAlert('Пожалуйста, выберите правильный ответ.')
     return
   }
 
@@ -141,7 +141,7 @@ function goToQuestions() {
   ) {
     emit('update-step', 2)
   } else {
-    alert('Пожалуйста, заполните все обязательные поля')
+    window.Telegram.WebApp.showAlert('Пожалуйста, заполните все обязательные поля')
   }
 }
 
@@ -155,6 +155,57 @@ function markCorrectAnswer(questionIndex: number, answerIndex: number) {
 async function submitInteractive(): Promise<number | null> {
   const f = form.value
 
+
+  // Проверяем обязательные поля
+  if (!f.title) {
+    window.Telegram.WebApp.showAlert('Пожалуйста, введите название интерактива.')
+    return null
+  }
+  if (!f.description) {
+    window.Telegram.WebApp.showAlert('Пожалуйста, введите описание интерактива.')
+    return null
+  }
+  if (!f.target_audience) {
+    window.Telegram.WebApp.showAlert('Пожалуйста, укажите целевую аудиторию.')
+    return null
+  }
+  if (!f.location) {
+    window.Telegram.WebApp.showAlert('Пожалуйста, укажите место проведения.')
+    return null
+  }
+  if (!f.responsible_full_name) {
+    window.Telegram.WebApp.showAlert('Пожалуйста, укажите ФИО ведущего.')
+    return null
+  }
+
+  if (f.questions.length === 0) {
+    window.Telegram.WebApp.showAlert('Добавьте хотя бы один вопрос.')
+    return null
+  }
+
+  // Проверяем каждый вопрос
+  for (let i = 0; i < f.questions.length; i++) {
+    const q = f.questions[i]
+    if (!q.text.trim()) {
+      window.Telegram.WebApp.showAlert(`Пожалуйста, заполните текст вопроса №${i + 1}.`)
+      return null
+    }
+    if (q.answers.length !== 4) {
+      window.Telegram.WebApp.showAlert(`Вопрос №${i + 1} должен содержать ровно 4 ответа.`)
+      return null
+    }
+    for (let j = 0; j < q.answers.length; j++) {
+      if (!q.answers[j].text.trim()) {
+        window.Telegram.WebApp.showAlert(`Пожалуйста, заполните текст ответа №${j + 1} в вопросе №${i + 1}.`)
+        return null
+      }
+    }
+    const hasCorrect = q.answers.some(ans => ans.is_correct)
+    if (!hasCorrect) {
+      window.Telegram.WebApp.showAlert(`Пожалуйста, выберите правильный ответ в вопросе №${i + 1}.`)
+      return null
+    }
+  }
   if (
     !f.title ||
     !f.description ||
@@ -163,7 +214,7 @@ async function submitInteractive(): Promise<number | null> {
     !f.responsible_full_name ||
     f.questions.length === 0
   ) {
-    alert('Пожалуйста, заполните все обязательные поля и добавьте хотя бы один вопрос.')
+    window.Telegram.WebApp.showAlert('Пожалуйста, заполните все обязательные поля и добавьте хотя бы один вопрос.')
     return null
   }
 
@@ -222,7 +273,7 @@ async function submitInteractive(): Promise<number | null> {
     return response.data.interactive_id
   } catch (err) {
     console.error('Ошибка при отправке:', err)
-    alert('Произошла ошибка при отправке.')
+    window.Telegram.WebApp.showAlert('Произошла ошибка при отправке.')
     return null
   }
 }
@@ -256,28 +307,28 @@ async function startInteractive() {
         <div class="form-grid">
           <div class="form-column-first">
             <div class="input-group">
-              <label>Название интерактива*<textarea v-model="form.title" /></label>
-              <label>Описание интерактива*<textarea v-model="form.description" id="description_input" /></label>
+              <label>Название интерактива*<textarea v-model="form.title" maxlength="45"/></label>
+              <label>Описание интерактива*<textarea v-model="form.description" id="description_input" maxlength="115"/></label>
             </div>
 
-            <div class="input-group">
-              <label>Место проведения интерактива*<textarea v-model="form.location" /></label>
+            <div class="input-group" >
+              <label>Место проведения интерактива*<textarea v-model="form.location" maxlength="40"/></label>
             </div>
             <div class="input-group">
-              <label>Целевая аудитория участников*<textarea v-model="form.target_audience" /></label>
+              <label>Целевая аудитория участников*<textarea v-model="form.target_audience" maxlength="40" /></label>
             </div>
           </div>
 
           <div class="form-column-second">
             <div class="input-group">
-              <label>ФИО ведущего*<textarea v-model="form.responsible_full_name" /></label>
+              <label>ФИО ведущего*<textarea v-model="form.responsible_full_name" maxlength="40"/></label>
             </div>
             <div class="input-group">
-              <label>Время ответа (сек.)*<textarea type="number" v-model.number="form.answer_duration" /></label>
+              <label>Время ответа (сек.)*<textarea type="number" v-model.number="form.answer_duration" maxlength="2"/></label>
               <label>Время на показ ответа (сек.)*<textarea type="number"
-                  v-model.number="form.discussion_duration" /></label>
+                  v-model.number="form.discussion_duration" maxlength="2"/></label>
               <label>Обратный отсчет перед стартом (сек.)*<textarea type="number"
-                  v-model.number="form.countdown_duration" /></label>
+                  v-model.number="form.countdown_duration" maxlength="2"/></label>
             </div>
             <div class="next-btn" @click="goToQuestions">
               <div class="next-btn-text">Наполнение интерактива</div>
@@ -313,7 +364,7 @@ async function startInteractive() {
           <div class="question-header">Вопрос {{ currentQuestion.position }}</div>
           <div class="input-group" id="question-text">
             <label class="question_label">Вопрос*</label>
-            <textarea v-model="currentQuestion.text" type="text" id="question_textarea" />
+            <textarea v-model="currentQuestion.text" type="text" id="question_textarea" maxlength="100" />
 
           </div>
 
@@ -323,7 +374,7 @@ async function startInteractive() {
               <label class="answer-wrapper">
                 <input type="radio" :name="'correct-answer-' + currentQuestionIndex" :checked="answer.is_correct"
                   @change="markCorrectAnswer(currentQuestionIndex, index)" />
-                <input v-model="answer.text" type="text" class="answer-input" placeholder="Поле для ввода ответа" />
+                <input v-model="answer.text" type="text" class="answer-input" placeholder="Поле для ввода ответа" maxlength="50"/>
               </label>
             </div>
 
@@ -345,6 +396,10 @@ async function startInteractive() {
 
 
 <style>
+textarea {white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
+  word-break: break-word; 
+  resize: none;
+}
 .quest-nav-button {
   cursor: pointer;
 }
@@ -715,6 +770,7 @@ async function startInteractive() {
   ;
   margin-left: auto;
   margin-top: 62px;
+  margin-bottom: 179px;;
 }
 
 .start-button {

@@ -1,8 +1,11 @@
 .question_leader{
-   width: 100vw;
-  height: 100vh;
+   width: 100%;
   background-color: #853CFF;
-  overflow: hidden;
+  padding-bottom: 42px;;
+
+}
+body.question-leader-background {
+  background-color: #853CFF;
 }
 #logo_2 {
     position: absolute;
@@ -11,10 +14,11 @@
 }
 .question_leader_list_fone{
     background-color: white; width: 1318px;
-  height: 818px;
+  
   border-radius: 26px;
   margin:0 auto;
   margin-top:32px;
+  padding-bottom: 32px;;
 }
 .question_leader_top-bar { 
    display: flex;

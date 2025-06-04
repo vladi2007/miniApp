@@ -137,7 +137,7 @@ function edit_interactive(id: string) {
 .interactive_description {
     font-family: 'Lato', sans-serif;
     font-weight: 500;
-    width: 600px;
+    
     ;
     font-size: 24px;
     line-height: 32px;

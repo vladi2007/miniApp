@@ -1,28 +1,32 @@
 .waiting_description{
   width: 680px;
   margin-top: 87px;
+ height: 350px;;
 }
 .waiting_desc-content{
 display: flex;
   flex-direction: column;       /* Элементы — в столбик */
   align-items: center;          /* Центрирование по горизонтали */
   justify-content: center;      /* Центрирование по вертикали (если нужно) */
-  height: 100%;                 /* Нужно для вертикального центрирования */
+            
+              
   
 }
 .waiting_interactive-title{
   font-family: 'Lato';
   font-size: 40px;
-  line-height: 24px;
+
   font-weight: 700;
   width: 565px;
   padding-top:63px;
-  vertical-align:middle;
+  vertical-align:middle;white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
+  word-break: break-word; 
 
 }
-.waiting_interactive-description{
+.waiting_interactive-description{white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
+  word-break: break-word; 
   margin-top:30px;
-  height: 152px;
+  
   width: 587px;;
   
 }

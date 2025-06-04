@@ -31,7 +31,8 @@ export default defineNuxtConfig({
   
   vite: {
     server: {
-      allowedHosts: ['tidily-viable-mongoose.cloudpub.ru',"allegedly-innate-dotterel.cloudpub.ru","swimmingly-astounding-nyala.cloudpub.ru"],
+      allowedHosts: ['tidily-viable-mongoose.cloudpub.ru',"allegedly-innate-dotterel.cloudpub.ru","swimmingly-astounding-nyala.cloudpub.ru", 
+"heatedly-gleaming-whydah.cloudpub.ru", "noisily-unattached-otter.cloudpub.ru"],
     
     },
     build: {

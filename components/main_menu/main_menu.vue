@@ -22,7 +22,9 @@ import description from '~/components/main_menu/description.vue'
 }
 .main_menu_fon{
     background-color: white;
-    width: 100vmax;
-    height: 100vh;
+    width: 100%;
+    
+    margin-bottom: 30px;;
+    padding-bottom: 42px;;
 }
 </style>

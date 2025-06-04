@@ -11,7 +11,16 @@ const props = defineProps<{
 }>()
 // Формируем URL
 const participantUrl = `https://t.me/ClikInteractive_Bot?start=${props.code}`
-
+function copyToClipboard() {
+  navigator.clipboard.writeText(participantUrl)
+    .then(() => {
+      window.Telegram?.WebApp?.showAlert?.('Ссылка скопирована!');
+    })
+    .catch(err => {
+      console.error('Ошибка копирования:', err);
+      window.Telegram?.WebApp?.showAlert?.('Не удалось скопировать ссылку');
+    });
+}
 </script>
 
 <template>
@@ -20,7 +29,8 @@ const participantUrl = `https://t.me/ClikInteractive_Bot?start=${props.code}`
     <div class="waiting_code">{{props.code}}</div>
     <div class="waiting_qr_code"><QrcodeVue :value="participantUrl" :size="300" /></div>
     <div class="waiting_link">
-      <div><img src='/images/waiting/line-md_link.svg' id="link" /></div>
+      <div><img src='/images/waiting/line-md_link.svg' id="link" @click="copyToClipboard"
+      title="Скопировать ссылку" /></div>
       <div class="waiting-link_text"><a href="participantUrl" target="_blank" rel="noopener noreferrer"></a>{{
         participantUrl }}</div>
     </div>

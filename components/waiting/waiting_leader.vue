@@ -11,7 +11,7 @@ const router = useRouter()
 
 // Функция возврата на предыдущую страницу
 function goBack() {
-  router.back()
+  router.push("/leader/interactives")
 }
 const props = defineProps<{
     stage: string
