@@ -210,9 +210,6 @@ watch(
   ;
 }
 
-.question_answer:hover {
-  background-color: #e0e0e0;
-}
 
 .question_answer.selected {
   background-color: #853cff;

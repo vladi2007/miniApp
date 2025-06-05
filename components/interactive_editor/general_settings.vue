@@ -123,7 +123,14 @@ function addQuestion() {
 function removeQuestion() {
   if (form.value.questions.length > 1) {
     form.value.questions.splice(currentQuestionIndex.value, 1)
-    currentQuestionIndex.value = Math.max(0, currentQuestionIndex.value - 1)
+    
+    // Обновляем позиции всех вопросов
+    form.value.questions.forEach((q, index) => {
+      q.position = index + 1
+    })
+
+    // Переносим указатель на предыдущий вопрос, если удалили последний
+    currentQuestionIndex.value = Math.min(currentQuestionIndex.value, form.value.questions.length - 1)
   }
 }
 
@@ -140,6 +147,7 @@ function goToQuestions() {
     f.countdown_duration >= 0
   ) {
     emit('update-step', 2)
+    window.scrollTo(0, 0)
   } else {
     window.Telegram.WebApp.showAlert('Пожалуйста, заполните все обязательные поля')
   }

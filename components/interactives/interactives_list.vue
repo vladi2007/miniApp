@@ -108,7 +108,7 @@ function edit_interactive(id: string) {
     margin-left: auto;
     margin-top: 35px;
     border-radius: 26px;
-    ;
+    overflow-x: hidden;
     scrollbar-width: none;
     /* Firefox */
     -ms-overflow-style: none;
@@ -130,7 +130,7 @@ function edit_interactive(id: string) {
     margin-top: 9px;
     margin-bottom: 41px;
     ;
-
+    overflow-x: hidden;
 
 }
 

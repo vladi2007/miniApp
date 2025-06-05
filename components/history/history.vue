@@ -468,7 +468,7 @@ body.history-background {padding-bottom: 42px;;
   
     background-color: #853CFF;
     border-radius: 68px;
-    width: 300px;
+    
 
 }
 
