@@ -74,7 +74,7 @@ async function submitReport() {
     }
 
     const data = await response.json()
-
+    console.log('Current working dir:', process.cwd())
     if (data.url) {
       postEvent('web_app_request_file_download', {
         url: data.url,

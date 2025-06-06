@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
 
     // Сохраняем файл в публичную папку
     await writeFile(filePath, buffer)
-
+    
     // Возвращаем ссылку на скачивание
     return {
       url: `/public/reports/${fileName}`
