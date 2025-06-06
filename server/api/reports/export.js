@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
 
     // Возвращаем путь к файлу относительно public, чтобы фронтенд мог скачать
     return {
-     url: filePath
+     url: `/reports/${fileName}`
     }
   } catch (error) {
     return {
