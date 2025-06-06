@@ -77,7 +77,7 @@ async function submitReport() {
 
     if (data.url) {
       postEvent('web_app_request_file_download', {
-        url: `https://voshod07.ru/reports/`,
+        url: data.url,
         file_name: '!report.xlsx'
       })
     } else {
