@@ -54,7 +54,7 @@ function toggleInteractiveSelection(id) {
   }
 }
 
-async function submitReport() {
+async function submitReport() {console.log('Current working dir:', process.cwd())
   try {
     const body = {
       telegram_id: userId.value,
@@ -84,6 +84,7 @@ async function submitReport() {
       throw new Error(data.error || 'Не удалось получить ссылку на файл')
     }
   } catch (error) {
+    console.log('Current working dir:', process.cwd())
     window.Telegram.WebApp.showAlert(`Ошибка при выгрузке отчета: ${error.message}`);
   }
 }
