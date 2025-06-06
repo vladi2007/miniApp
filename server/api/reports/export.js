@@ -36,7 +36,7 @@ export default defineEventHandler(async (event) => {
 
     // Возвращаем путь к файлу относительно public, чтобы фронтенд мог скачать
     return {
-     url: `https://voshod07.ru/reports/`
+     url: filePath
     }
   } catch (error) {
     return {
