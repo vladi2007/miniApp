@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
 
     // Возвращаем ссылку на скачивание
     return {
-      url: `/public/reports/${fileName}`
+      url: `public/reports/${fileName}`
     }
   } catch (error) {
     return {
