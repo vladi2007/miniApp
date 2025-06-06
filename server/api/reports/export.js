@@ -21,17 +21,18 @@ export default defineEventHandler(async (event) => {
 
     const arrayBuffer = await response.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
 
-    // Генерируем уникальное имя файла (можно заменить на более надёжный способ)
-    const fileName = `report-${Date.now()}.xlsx`
-    const filePath = join(process.cwd(), 'public', 'reports', fileName)
+    const reportsDir = path.join(__dirname, '..', 'public', 'reports');
+    
     console.log(process.cwd())
     // Сохраняем файл в публичную папку
-    await writeFile(filePath, buffer)
+    await writeFile(reportsDir, buffer)
 
     // Возвращаем ссылку на скачивание
     return {
-      url: `public/reports/${fileName}`
+      url: `https://voshod07.ru/public/reports/${fileName}`
     }
   } catch (error) {
     return {
