@@ -24,14 +24,14 @@ export default defineEventHandler(async (event) => {
 
     // Генерируем уникальное имя файла (можно заменить на более надёжный способ)
     const fileName = `report-${Date.now()}.xlsx`
-    const filePath = join(process.cwd(), 'public', 'reports', fileName)
-    
+    const filePath = join("https://voshod07.ru/reports/", fileName)
+    console.log("ура файл записан", filePath)
     // Сохраняем файл в публичную папку
     writeFile(filePath, buffer)
     console.log("ура файл записан", filePath)
     // Возвращаем ссылку на скачивание
     return {
-      url: filePath
+      url:filePath
     }
   } catch (error) {
     return {
