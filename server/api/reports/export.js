@@ -1,5 +1,6 @@
-import { writeFile } from 'fs/promises'
-import { join } from 'path'
+import { writeFile, mkdir } from 'fs/promises'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -22,16 +23,19 @@ export default defineEventHandler(async (event) => {
     const arrayBuffer = await response.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
-    // Генерируем уникальное имя файла (можно заменить на более надёжный способ)
+    const __filename = fileURLToPath(import.meta.url)
+    const __dirname = path.dirname(__filename)
+
+    const reportsDir = path.join(__dirname, '..', 'public', 'reports')
+    await mkdir(reportsDir, { recursive: true })
+
     const fileName = `report-${Date.now()}.xlsx`
-    const filePath = join("https://voshod07.ru/reports/", fileName)
-    console.log("ура файл записан", filePath)
-    // Сохраняем файл в публичную папку
-    writeFile(filePath, buffer)
-    console.log("ура файл записан", filePath)
-    // Возвращаем ссылку на скачивание
+    const filePath = path.join(reportsDir, fileName)
+
+    await writeFile(filePath, buffer)
+
     return {
-      url:filePath
+      url: `/reports/${fileName}`
     }
   } catch (error) {
     return {
