@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     console.log("ура файл записан", filePath)
     // Возвращаем ссылку на скачивание
     return {
-      url: `reports/report-1749210004234.xlsx`
+      url: filePath
     }
   } catch (error) {
     return {
