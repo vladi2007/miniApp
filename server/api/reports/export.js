@@ -25,10 +25,10 @@ export default defineEventHandler(async (event) => {
     // Генерируем уникальное имя файла (можно заменить на более надёжный способ)
     const fileName = `report-${Date.now()}.xlsx`
     const filePath = join(process.cwd(), 'public', 'reports', fileName)
-
+    console.log(process.cwd())
     // Сохраняем файл в публичную папку
     await writeFile(filePath, buffer)
-    
+
     // Возвращаем ссылку на скачивание
     return {
       url: `/public/reports/${fileName}`

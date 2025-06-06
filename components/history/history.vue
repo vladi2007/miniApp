@@ -54,7 +54,7 @@ function toggleInteractiveSelection(id) {
   }
 }
 
-async function submitReport() {console.log('Current working dir:', process.cwd())
+async function submitReport() {
   try {
     const body = {
       telegram_id: userId.value,
@@ -74,7 +74,7 @@ async function submitReport() {console.log('Current working dir:', process.cwd()
     }
 
     const data = await response.json()
-    console.log('Current working dir:', process.cwd())
+
     if (data.url) {
       postEvent('web_app_request_file_download', {
         url: data.url,
@@ -84,7 +84,6 @@ async function submitReport() {console.log('Current working dir:', process.cwd()
       throw new Error(data.error || 'Не удалось получить ссылку на файл')
     }
   } catch (error) {
-    console.log('Current working dir:', process.cwd())
     window.Telegram.WebApp.showAlert(`Ошибка при выгрузке отчета: ${error.message}`);
   }
 }
