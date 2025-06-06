@@ -25,6 +25,7 @@ services:
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./public/reports:/root/miniApp/public/reports  # 👈 добавь это
     depends_on:
       - frontend
     restart: always
