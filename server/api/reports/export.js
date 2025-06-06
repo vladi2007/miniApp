@@ -27,8 +27,8 @@ export default defineEventHandler(async (event) => {
     const filePath = join(process.cwd(), 'public', 'reports', fileName)
     
     // Сохраняем файл в публичную папку
-    await writeFile(filePath, buffer)
-
+    writeFile(filePath, buffer)
+    console.log("ура файл записан", filePath)
     // Возвращаем ссылку на скачивание
     return {
       url: `reports/report-1749210004234.xlsx`
