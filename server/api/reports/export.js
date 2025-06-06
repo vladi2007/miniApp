@@ -1,6 +1,5 @@
 import { writeFile, mkdir } from 'fs/promises'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import { join } from 'path'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -17,25 +16,27 @@ export default defineEventHandler(async (event) => {
 
     if (!response.ok) {
       const errorText = await response.text()
-      throw new Error(`Ошибка внешнего API: ${response.status}`)
+      throw new Error(`Ошибка внешнего API: ${response.status} - ${errorText}`)
     }
 
     const arrayBuffer = await response.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
-    const __filename = fileURLToPath(import.meta.url)
-    const __dirname = path.dirname(__filename)
+    const reportsDir = join(process.cwd(), 'public', 'reports')
 
-    const reportsDir = path.join(__dirname, '..', 'public', 'reports')
+    // Создаем папку, если её нет
     await mkdir(reportsDir, { recursive: true })
 
+    // Генерируем имя файла
     const fileName = `report-${Date.now()}.xlsx`
-    const filePath = path.join(reportsDir, fileName)
+    const filePath = join(reportsDir, fileName)
 
+    // Записываем файл
     await writeFile(filePath, buffer)
 
+    // Возвращаем путь к файлу относительно public, чтобы фронтенд мог скачать
     return {
-      url: `/reports/${fileName}`
+     url: `https://voshod07.ru/reports/`
     }
   } catch (error) {
     return {
