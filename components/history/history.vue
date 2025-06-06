@@ -1,6 +1,8 @@
-<script setup >
+<script setup>
 import { defineProps, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { downloadFile } from '@telegram-apps/sdk';
+import { postEvent } from '@telegram-apps/sdk';
 
 // Получаем данные через props
 const route = useRouter();
@@ -25,7 +27,7 @@ function openPopup(interactiveId) {
 }
 function openPopupManySelect() {
   selectedOption.value = null; // Очищаем выбор при открытии попапа
-  
+
   showPopup.value = true;
 }
 // Функция для закрытия попапа
@@ -54,81 +56,66 @@ function toggleInteractiveSelection(id) {
 
 async function submitReport() {
   try {
-    if (!selectedOption.value || selectedInteractives.value.length === 0) {
-    window.Telegram.WebApp.showAlert('Пожалуйста, выберите хотя бы один интерактив и тип отчета');
-    return;
-  }
-
-  const interactive_id = selectedInteractives.value.map(id => ({ id }));
-
-  
- 
-    const requestPayload = {
-    telegram_id: userId.value,
-    interactive_id,
-    report_type: selectedOption.value
-  };
+    const body = {
+      telegram_id: userId.value,
+      interactive_id: selectedInteractives.value.map(id => ({ id })),
+      report_type: selectedOption.value
+    };
 
     const response = await fetch('/api/reports/export', {
-      method: "POST",
-      headers: {
-        'Content-Type': 'application/json', // Убедитесь, что указываете нужный заголовок
-      },
-      
-      body: JSON.stringify(requestPayload),
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Ошибка: ${response.status} - ${errorText}`);
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Ошибка сервера');
     }
 
-    // получаем Blob — бинарные данные файла
-    const blob = await response.blob();
+    const data = await response.json()
 
-    // создаём временный URL для скачивания
-    const downloadUrl = URL.createObjectURL(blob);
-
-    // создаём ссылку и кликаем по ней для скачивания файла
-    const a = document.createElement("a");
-    a.href = downloadUrl;
-    a.download = "report.xlsx";  // имя файла для скачивания
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    // освобождаем память
-    URL.revokeObjectURL(downloadUrl);
-  } catch (err) {
-  
- 
+    if (data.url) {
+      postEvent('web_app_request_file_download', {
+        url: data.url,
+        file_name: '!report.xlsx'
+      })
+    } else {
+      throw new Error(data.error || 'Не удалось получить ссылку на файл')
+    }
+  } catch (error) {
+    window.Telegram.WebApp.showAlert(`Ошибка при выгрузке отчета: ${error.message}`);
   }
 }
+
+
+
+
 const webApp = ref(null)
 const initDataUnsafe = ref(null)
-const userId =ref(null)
+const userId = ref(null)
 const props = ref(null)
 const isReady = ref(false)
 onMounted(async () => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
     initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
-    
+
 
     userId.value = initDataUnsafe.value?.user?.id
     console.log(userId.value)
     const data = await useFetch('/api/reports/preview', {
-     
-        query: {
-          telegram_id: userId.value
-        },
+
+      query: {
+        telegram_id: userId.value
+      },
     });
-     props.value = data
-     console.log(props.value)
-     isReady.value=true
-     
+    props.value = data
+    console.log(props.value)
+    isReady.value = true
+
   }
-})
+});
 
 
 onMounted(() => {
@@ -142,7 +129,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div  class="history_fon" v-if="isReady" >
+  <div class="history_fon" v-if="isReady">
 
     <div class="history">
       <div class="history_logo">
@@ -167,24 +154,17 @@ onUnmounted(() => {
                 Доступна функция выгрузки отчетов с нескольких интерактивов.
               </div>
               <div class="pick_button">
-                <button
-                  v-if="selectMany"
-                  class="selectManyDownload"
-                 @click="openPopupManySelect()"
-                >
+                <button v-if="selectMany" class="selectManyDownload" @click="openPopupManySelect()">
                   Выгрузить
                 </button>
-                <button
-                  class="history_content_menu_info_button"
-                  @click="selectManyOption"
-                  :class="{ selectManyClass: selectMany }"
-                >
+                <button class="history_content_menu_info_button" @click="selectManyOption"
+                  :class="{ selectManyClass: selectMany }">
                   {{ !selectMany ? "Выбрать" : "Отмена" }}
                 </button>
               </div>
             </div>
           </div>
-          
+
           <div class="history_content_list">
             <div v-for="interactive in props.data.interactives_list" :key="interactive.interactive_id">
               <div class="history_interactive">
@@ -212,12 +192,8 @@ onUnmounted(() => {
                   Выгрузить
                 </button>
                 <label v-if="selectMany" class="select_many_option">
-                  <input
-                    type="checkbox"
-                    :value="interactive.interactive_id"
-                    class="custom-checkbox"
-                    @change="toggleInteractiveSelection(interactive.interactive_id)"
-                  />
+                  <input type="checkbox" :value="interactive.interactive_id" class="custom-checkbox"
+                    @change="toggleInteractiveSelection(interactive.interactive_id)" />
                 </label>
               </div>
             </div>
@@ -252,495 +228,512 @@ onUnmounted(() => {
 </template>
 
 <style>
-body.history-background {padding-bottom: 42px;;
+body.history-background {
+  padding-bottom: 42px;
+  ;
   background-color: #A774FC;
 }
-.history_download {cursor: pointer;
-    position: absolute;
-    top: 179px;
-    left: 1086px;
-    ;
-    width: 202px;
-    height: 60px;
-    ;
-    border-radius: 5px;
-    background-color: #6AB23D;
-    border: 1px #6AB23D;
-    color: white;
-    font-family: 'Lato', sans-serif;
-    font-weight: 500;
-    font-size: 24px;
-    ;
-    letter-spacing: 1px;
-    ;
+
+.history_download {
+  cursor: pointer;
+  position: absolute;
+  top: 179px;
+  left: 1086px;
+  ;
+  width: 202px;
+  height: 60px;
+  ;
+  border-radius: 5px;
+  background-color: #6AB23D;
+  border: 1px #6AB23D;
+  color: white;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  ;
+  letter-spacing: 1px;
+  ;
 
 }
 
 .history_fon {
 
-      background-color: #A774FC;
-  height: 1159px;;
-  margin-bottom: 56px;;
-    
+  background-color: #A774FC;
+  height: 1159px;
+  ;
+  margin-bottom: 56px;
+  ;
 
 
-    
-    
+
+
+
 
 }
 
-.history {min-height: 100vh;
-    height: 50px;
-    ;
-    width: 1360px;
-    margin: 0 auto;
+.history {
+  min-height: 100vh;
+  height: 50px;
+  ;
+  width: 1360px;
+  margin: 0 auto;
 
-    padding-top: 12px;
+  padding-top: 12px;
 }
 
 .history_logo {
-    width: 139px;
-    ;
-    margin-left: auto;
+  width: 139px;
+  ;
+  margin-left: auto;
 }
 
 .history_content-fon {
-    margin-top: 8px;
-    width: 1360px;
-    ;
-    min-height: 1033px;
-    ;
-    background-color: white;
-    border-radius: 40px;
-    ;
+  margin-top: 8px;
+  width: 1360px;
+  ;
+  min-height: 1033px;
+  ;
+  background-color: white;
+  border-radius: 40px;
+  ;
 }
 
-.history_backButton {cursor: pointer;
-    width: 229px;
-    height: 62px;
-    border-radius: 5px;
-    background-color: #853CFF;
-    color: white;
-    border: 1px solid #853CFF;
-    font-family: 'Lato', sans-serif;
-    font-weight: 500;
-    font-size: 24px;
+.history_backButton {
+  cursor: pointer;
+  width: 229px;
+  height: 62px;
+  border-radius: 5px;
+  background-color: #853CFF;
+  color: white;
+  border: 1px solid #853CFF;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
 }
 
 .history_content {
-    padding-top: 20px;
-    padding-left: 23px;
-    ;
-    padding-right: 19px;
-    ;
-    padding-bottom: 60px;
-    ;
-    display: grid;
-    flex-direction: column;
+  padding-top: 20px;
+  padding-left: 23px;
+  ;
+  padding-right: 19px;
+  ;
+  padding-bottom: 60px;
+  ;
+  display: grid;
+  flex-direction: column;
 }
 
 .history_content_menu {
 
-    margin-top: 65px;
-    width: 1314px;
-    height: 193px;
-    ;
+  margin-top: 65px;
+  width: 1314px;
+  height: 193px;
+  ;
 }
 
 .history_content_menu_info {
 
-    margin-top: 60px;
-    position: relative;
-    display: flex;
+  margin-top: 60px;
+  position: relative;
+  display: flex;
 }
 
-.pick_button {position: relative;
-    margin-left: auto;
+.pick_button {
+  position: relative;
+  margin-left: auto;
 }
 
-.history_content_menu_info_button {cursor: pointer;
-    margin-left: auto;
-    width: 210px;
-    height: 50px;
-    border-radius: 5px;
-    background-color: #853CFF;
-    color: white;
-    border: 1px solid #853CFF;
-    font-family: 'Lato', sans-serif;
-    font-weight: 500;
-    font-size: 24px;
+.history_content_menu_info_button {
+  cursor: pointer;
+  margin-left: auto;
+  width: 210px;
+  height: 50px;
+  border-radius: 5px;
+  background-color: #853CFF;
+  color: white;
+  border: 1px solid #853CFF;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
 }
 
 .history_menu_info_header {
-    font-family: 'Lato', sans-serif;
-    font-weight: 700;
-    font-size: 36px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 36px;
 
-    vertical-align: middle;
+  vertical-align: middle;
 
 }
 
 #history_menu_info {
-    position: absolute;
-    top: 0;
-    left: 0;
-    ;
+  position: absolute;
+  top: 0;
+  left: 0;
+  ;
 }
 
 .history_content_menu_info_guide {
-    margin-left: 49px;
-    font-family: 'Lato', sans-serif;
-    font-weight: 500;
-    font-size: 24px;
-    vertical-align: middle;
-    color: #7D7D7D;
+  margin-left: 49px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  vertical-align: middle;
+  color: #7D7D7D;
 }
 
 .history_content_list::-webkit-scrollbar {
-    display: none;
-    /* Chrome, Safari */
+  display: none;
+  /* Chrome, Safari */
 }
 
 .history_content_list {
-    overflow-y: scroll;
-    /* сохраняем скролл */
+  overflow-y: scroll;
+  /* сохраняем скролл */
 
 
-    scrollbar-width: none;
-    /* Firefox */
-    -ms-overflow-style: none;
-    /* IE и Edge */
-    margin-top: 65px;
-    width: 1318px;
-    height: 568px;
-    overflow-y: auto;
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE и Edge */
+  margin-top: 65px;
+  width: 1318px;
+  height: 568px;
+  overflow-y: auto;
 
 }
 
 .history_interactive {
-    background-color: #F7F7F7;
-    border-radius: 26px;
-    ;
-    position: relative;
-    width: 100%;
-    height: 269px;
-    ;
-    margin-bottom: 30px;
+  background-color: #F7F7F7;
+  border-radius: 26px;
+  ;
+  position: relative;
+  width: 100%;
+  height: 269px;
+  ;
+  margin-bottom: 30px;
 }
 
 /* Убираем нижний отступ у последнего элемента */
 .history_content_list>div:last-child .history_interactive {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
 
 .history_header {
-    position: relative;
-    height: 90px;
-    ;
-    margin-left: 35px;
-    ;
-    display: flex;
-    align-items: center;
-    width: 950px;
+  position: relative;
+  height: 90px;
+  ;
+  margin-left: 35px;
+  ;
+  display: flex;
+  align-items: center;
+  width: 950px;
 
 }
 
 .history_info {
-    margin-top: 11px;
-    display: grid;
-    flex-direction: column;
-    margin-left: 49px;
-    ;
-    gap: 29px;
-    ;
-    width: 950px;
-    height: 119px;
-    ;
-    font-family: 'Lato', sans-serif;
-    font-weight: 500;
-    font-size: 24px;
-    vertical-align: middle;
-    letter-spacing: 1px;
-    ;
+  margin-top: 11px;
+  display: grid;
+  flex-direction: column;
+  margin-left: 49px;
+  ;
+  gap: 29px;
+  ;
+  width: 950px;
+  height: 119px;
+  ;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  vertical-align: middle;
+  letter-spacing: 1px;
+  ;
 }
 
 .history_date-fon {
-  
-    background-color: #853CFF;
-    border-radius: 68px;
-    
+
+  background-color: #853CFF;
+  border-radius: 68px;
+
 
 }
 
 .history_date {
-    padding-left: 15px;
-    width: 210px;
-    color: white;
-    text-align: left;
-    font-family: 'Work Sans';
-    font-weight: 700;
-    font-size: 36px;
-    ;
-    
-    ;
+  padding-left: 15px;
+  width: 210px;
+  color: white;
+  text-align: left;
+  font-family: 'Work Sans';
+  font-weight: 700;
+  font-size: 36px;
+  ;
+
+  ;
 
 }
 
 .history_title {
-    margin-left: 18px;
-    ;
-    font-family: 'Lato', sans-serif;
-    font-weight: 700;
-    font-size: 32px;
-    ;
-    vertical-align: middle;
-    letter-spacing: 1px;
-    ;
+  margin-left: 18px;
+  ;
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  ;
+  vertical-align: middle;
+  letter-spacing: 1px;
+  ;
 }
 
 .interactive_info {}
 
 #history_line {
-    position: absolute;
-    left: 208px;
-    ;
-    top: 70px;
+  position: absolute;
+  left: 208px;
+  ;
+  top: 70px;
 }
 
 /* Popup Styles */
 /* Popup Styles */
 /* Popup Styles */
 .popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    /* Тёмный фон для затемнения */
-    z-index: 999;
-    /* Модальное окно поверх контента */
-    display: flex;
-    justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  /* Тёмный фон для затемнения */
+  z-index: 999;
+  /* Модальное окно поверх контента */
+  display: flex;
+  justify-content: center;
 
 }
 
 .popup {
-    margin-top: 360px;
-    background: white;
-    border-radius: 35px;
-    width: 818px;
-    height: 438px;
+  margin-top: 360px;
+  background: white;
+  border-radius: 35px;
+  width: 818px;
+  height: 438px;
 
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 
-    position: relative;
+  position: relative;
 }
 
 .popup-header {
-    position: relative;
+  position: relative;
 }
 
 .popup-header-text {
-    font-family: 'Lato', sans-serif;
-    font-weight: 700;
-    font-size: 36px;
-    letter-spacing: 1px;
-    padding-top: 48px;
-    margin-left: 146px;
-    ;
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+  letter-spacing: 1px;
+  padding-top: 48px;
+  margin-left: 146px;
+  ;
 }
 
 .popup-close {
-    position: absolute;
-    top: 25px;
-    right: 25px;
-    cursor: pointer;
-    font-size: 30px;
-    color: #aaa;
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  cursor: pointer;
+  font-size: 30px;
+  color: #aaa;
 }
 
 .popup-body {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 34px;
-    margin-top: 62px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+  margin-top: 62px;
 }
 
 .popup-option {
-    margin-left: 51px;
-    ;
-    display: flex;
-    align-items: center;
-    font-size: 18px;
+  margin-left: 51px;
+  ;
+  display: flex;
+  align-items: center;
+  font-size: 18px;
 
-    cursor: pointer;
-    position: relative;
+  cursor: pointer;
+  position: relative;
 }
 
 .popup-option span {
-    font-family: 'Lato', sans-serif;
-    font-weight: 500;
-    position: relative;
-    padding-left: 62px;
-    ;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  position: relative;
+  padding-left: 62px;
+  ;
 }
 
 /* Радиокнопка скрыта, используем псевдоэлемент для отображения квадрата */
 .popup-option input[type="radio"] {
-    display: none;
-    /* Скрываем стандартную радиокнопку */
+  display: none;
+  /* Скрываем стандартную радиокнопку */
 }
 
 /* Картинка квадрата */
 .popup-option input[type="radio"]+span::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 35px;
-    height: 35px;
-    background-image: url('/public/images/history/rect.svg');
-    /* Картинка квадрата */
-    background-size: cover;
-    background-position: center;
-    cursor: pointer;
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 35px;
+  height: 35px;
+  background-image: url('/public/images/history/rect.svg');
+  /* Картинка квадрата */
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
 }
 
 /* Галочка по центру квадрата при выборе */
 .popup-option input[type="radio"]:checked+span::after {
-    content: '';
-    position: absolute;
-    top: 9px;
-    left: 7px;
-    ;
+  content: '';
+  position: absolute;
+  top: 9px;
+  left: 7px;
+  ;
 
-    width: 24px;
-    height: 18px;
-    background-image: url('/public/images/history/Vector_2.svg');
-    /* Картинка с галочкой */
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    pointer-events: none;
-    /* Чтобы клик не блокировал взаимодействие с другими элементами */
+  width: 24px;
+  height: 18px;
+  background-image: url('/public/images/history/Vector_2.svg');
+  /* Картинка с галочкой */
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  /* Чтобы клик не блокировал взаимодействие с другими элементами */
 }
 
 /* Радиокнопка при фокусе */
 .popup-option input[type="radio"]:focus {
-    outline: none;
-    box-shadow: 0 0 5px rgba(133, 60, 255, 0.6);
-    /* Тень при фокусе */
+  outline: none;
+  box-shadow: 0 0 5px rgba(133, 60, 255, 0.6);
+  /* Тень при фокусе */
 }
 
 .popup-option span {
-    font-family: 'Lato', sans-serif;
-    font-weight: 400;
-    font-size: 32px;
-    letter-spacing: 1px;
-    ;
-    position: relative;
+  font-family: 'Lato', sans-serif;
+  font-weight: 400;
+  font-size: 32px;
+  letter-spacing: 1px;
+  ;
+  position: relative;
 
 }
 
 .popup-footer {
-    margin-top: 44px;
+  margin-top: 44px;
 }
 
 .popup-submit {
-    margin-left: 292px;
-    ;
-    width: 233px;
-    height: 62px;
-    background-color: white;
-    color: #853CFF;
-    border: 3px solid #853CFF;
-    font-family: 'Lato', sans-serif;
-    font-weight: 500;
-    font-size: 24px;
-    border-radius: 5px;
-    cursor: pointer;
-    vertical-align: middle;
-    letter-spacing: 1px;
-    ;
+  margin-left: 292px;
+  ;
+  width: 233px;
+  height: 62px;
+  background-color: white;
+  color: #853CFF;
+  border: 3px solid #853CFF;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  vertical-align: middle;
+  letter-spacing: 1px;
+  ;
 
 }
 
 
-.select_many_option{cursor: pointer;
-    position: absolute;
-    top:94px;
-    right: 60px;;
+.select_many_option {
+  cursor: pointer;
+  position: absolute;
+  top: 94px;
+  right: 60px;
+  ;
 }
-.selectManyClass{
+
+.selectManyClass {
   width: 185px;
   height: 50px;
   border-radius: 5px;
-  border: 1px solid  #F0436C;
+  border: 1px solid #F0436C;
   background-color: #F0436C;
 }
-.selectManyDownload{position: absolute;cursor: pointer;
-    width: 202px;
-    height: 62px;
-    border-radius: 5px;
-    border: 1px solid #6AB23D;
-    background-color: #6AB23D;
-    font-family: 'Lato', sans-serif;
-    font-weight: 500;
-    font-size: 24px;
-    vertical-align: middle;
-    letter-spacing: 1px;;
-    color: white;
-    bottom:80px;
-    right: 0px;;
+
+.selectManyDownload {
+  position: absolute;
+  cursor: pointer;
+  width: 202px;
+  height: 62px;
+  border-radius: 5px;
+  border: 1px solid #6AB23D;
+  background-color: #6AB23D;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  vertical-align: middle;
+  letter-spacing: 1px;
+  ;
+  color: white;
+  bottom: 80px;
+  right: 0px;
+  ;
 }
 
 
 /* Скрываем стандартный чекбокс */
-.custom-checkbox {
-
-}
+.custom-checkbox {}
 
 /* Кастомный круглый чекбокс */
 .select_many_option input[type="checkbox"] {
- position: absolute;
-    top:0px;
-    right: 0px;;
-    height: 81px;
-    width: 81px;
-    
- 
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  ;
+  height: 81px;
+  width: 81px;
 
-    border-radius: 50%;
-    /* чтобы было круглое */
 
-    /* Добавим фиолетовую рамку */
-    border: 4px solid #853CFF;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-color: white;
-    cursor: pointer;
-    outline: none;
-    background-color:#F7F7F7;
-    /* Плавные переходы */
-    transition: all 0.3s ease;
+
+  border-radius: 50%;
+  /* чтобы было круглое */
+
+  /* Добавим фиолетовую рамку */
+  border: 4px solid #853CFF;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: white;
+  cursor: pointer;
+  outline: none;
+  background-color: #F7F7F7;
+  /* Плавные переходы */
+  transition: all 0.3s ease;
 }
 
 /* Для того чтобы радио выглядело как радио с рамкой и менялось при выборе */
 .select_many_option input[type="checkbox"]:checked {
-    background-color: #853CFF;
-    box-shadow: 0 0 0 3px #853CFF inset;
-    background-image: url('/public/images/history/pick.svg');
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
+  background-color: #853CFF;
+  box-shadow: 0 0 0 3px #853CFF inset;
+  background-image: url('/public/images/history/pick.svg');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 
 /* Добавляем стиль при фокусе на чекбоксе */
-.select_many_option input[type="checkbox"]:focus + span::before {
+.select_many_option input[type="checkbox"]:focus+span::before {
   outline: none;
   box-shadow: 0 0 5px rgba(133, 60, 255, 0.6);
 }
