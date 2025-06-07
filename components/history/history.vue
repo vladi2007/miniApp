@@ -55,7 +55,7 @@ function toggleInteractiveSelection(id) {
 }
 
 async function submitReport() {
-  if (length(selectedInteractives.value) > 0) {
+  if (selectedInteractives.value.length > 0) {
 
     try {
     const body = {
