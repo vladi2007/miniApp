@@ -11,16 +11,36 @@ const props = defineProps<{
 }>()
 // Формируем URL
 const participantUrl = `https://t.me/ClikInteractive_Bot?start=${props.code}`
+
 function copyToClipboard() {
-  navigator.clipboard.writeText(participantUrl)
-    .then(() => {
+  try {
+    // Создаём скрытое поле ввода
+    const input = document.createElement('input');
+    input.style.position = 'fixed';
+    input.style.opacity = '0';
+    input.value = participantUrl;
+    document.body.appendChild(input);
+    input.focus();
+    input.select();
+
+    const successful = document.execCommand('copy');
+    document.body.removeChild(input);
+
+    if (successful) {
       window.Telegram?.WebApp?.showAlert?.('Ссылка скопирована!');
-    })
-    .catch(err => {
-      console.error('Ошибка копирования:', err);
-      window.Telegram?.WebApp?.showAlert?.('Не удалось скопировать ссылку');
-    });
+    } else {
+      throw new Error('Не удалось скопировать');
+    }
+  } catch (err) {
+    console.error('Ошибка копирования (fallback):', err);
+    // Fallback на ручное копирование
+    const manualCopy = prompt('Не удалось автоматически скопировать. Скопируйте вручную:', participantUrl);
+    if (!manualCopy) {
+      window.Telegram?.WebApp?.showAlert?.('Копирование отменено.');
+    }
+  }
 }
+
 </script>
 
 <template>
