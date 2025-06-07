@@ -17,7 +17,7 @@ const selectMany = ref(false);
 
 // Функция для возврата на главную страницу
 function goToMainMenu() {
-  route.back();
+  route.push('/leader/main_menu')
 }
 
 function openPopup(interactiveId) {
@@ -55,7 +55,9 @@ function toggleInteractiveSelection(id) {
 }
 
 async function submitReport() {
-  try {
+  if (length(selectedInteractives.value) > 0) {
+
+    try {
     const body = {
       telegram_id: userId.value,
       interactive_id: selectedInteractives.value.map(id => ({ id })),
@@ -86,6 +88,15 @@ async function submitReport() {
   } catch (error) {
     window.Telegram.WebApp.showAlert(`Ошибка при выгрузке отчета: ${error.message}`);
   }
+  }
+  else{
+    window.Telegram.WebApp.showAlert(`Выберите хотя бы один интерактив для формирования отчёта!`);
+  }
+  if (window.Telegram?.WebApp?.expand) {
+  setTimeout(() => {
+    Telegram.WebApp.requestFullscreen()
+  }, 0);
+}
 }
 
 

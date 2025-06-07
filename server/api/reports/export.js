@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     const arrayBuffer = await response.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
-    const reportsDir = join(process.cwd(), 'public', 'reports')
+    const reportsDir = join(process.cwd(), 'private_reports')
 
     // Создаем папку, если её нет
     await mkdir(reportsDir, { recursive: true })
