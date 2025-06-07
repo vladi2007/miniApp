@@ -1,4 +1,4 @@
-<!-- <script setup>
+<script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useWebApp } from 'vue-tg'
 import Waiting from '~/components/waiting/waiting.vue'
@@ -6,67 +6,17 @@ import Countdown from '~/components/countdown/countdown.vue'
 import Question from '~/components/question/question.vue'
 import InteractiveEnd from '~/components/interactive_end/interactive_end.vue'
 
-// Реактивные переменные
-const route = useRoute()
-const interactiveId = route.params.id
 const webApp = ref(null)
 const initDataUnsafe = ref(null)
-const userId = ref(null)
-
-const data = ref(null)
-let send = null // функция отправки
-
-// Функция для создания websocket
-function createWebSocket(interactiveId, telegramId) {
-  // Предполагаю, что useWebSocket возвращает { data, send }
-  const ws = useWebSocket(`ws://localhost:4000/ws?interactive_id=7&telegram_id=2&role=participant`)
-  send = ws.send
-
-  // Обновляем реактивный data
-  watch(ws.data, (val) => {
-    data.value = val
-  })
-
-  // Инициализация соединения (по примеру твоего кода)
-  send(JSON.stringify({ type: 'init', id: interactiveId }))
-}
 
 onMounted(() => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
     initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
-    userId.value = initDataUnsafe.value?.user?.id
-  }
-})
-// Создаем websocket только когда userId стал известен
-watch(userId, (newUserId) => {
-  if (newUserId) {
-    createWebSocket(interactiveId, newUserId)
-  }
-})
-// props для компонента
-const data_props = ref({
-  stage: '',
-  data: {}
-})
-
-// Парсим и обновляем data_props при изменении data.value
-watch(data, (newVal) => {
-  if (!newVal) return
-  try {
-    const parsedData = JSON.parse(newVal)
-    data_props.value.stage = parsedData.stage || ''
-    data_props.value.data = parsedData.data || {}
-  } catch (error) {
-    console.error("Ошибка при разборе данных WebSocket:", error)
   }
 })
 
-function sendStatus(id) {
-  if (send) {
-    send(JSON.stringify({ anwer_id: id }))
-  }
-}
+const user = computed(() => initDataUnsafe.value?.user.id)
 
 const componentMap = {
   waiting: Waiting,
@@ -75,82 +25,233 @@ const componentMap = {
   discussion: Question,
   end: InteractiveEnd,
 }
+
 const timerData = ref({})
+const currentComponentKey = ref('waiting')
+let intervalId = null
+let time = 0
+let timer_duration = 10
 
+const questions = [
+  {
+    id: '1',
+    title: 'Когда была запущена первая магистерская программа в ИРИТ-РТФ',
+    question: {
+      id: '1',
+      text: 'Когда была запущена первая магистерская программа в ИРИТ-РТФ?',
+      position: '1',
+    },
+    answers: [
+      { id: '1', text: '2011' },
+      { id: '2', text: '2005' },
+      { id: '3', text: '2010' },
+      { id: '4', text: '2007' },
+    ],
+    correct: '3',
+    percentages: [
+      { id: '1', percentage: 65 },
+      { id: '2', percentage: 15 },
+      { id: '3', percentage: 10 },
+      { id: '4', percentage: 10 },
+    ],
+  },
+  {
+    id: '2',
+    title: 'Кто был первым ректором УрФУ?',
+    question: {
+      id: '2',
+      text: 'Как называется одно из направлений магистратуры ИРИТ-РТФ, связанное с ИИ?',
+      position: '2',
+    },
+    answers: [
+      { id: '1', text: 'Робототехника и мехатроника' },
+      { id: '2', text: 'Программная инженерия' },
+      { id: '3', text: 'Искусственный интеллект и цифровые технологии' },
+      { id: '4', text: 'Сетевое администрирование' },
+    ],
+    correct: '3',
+    percentages: [
+      { id: '1', percentage: 25 },
+      { id: '2', percentage: 20 },
+      { id: '3', percentage: 40 },
+      { id: '4', percentage: 15 },
+    ],
+  },
+  {
+    id: '3',
+    title: 'Когда основали УрФУ?',
+    question: {
+      id: '3',
+      text: 'Какая компания является партнёром программ магистратуры ИРИТ-РТФ?',
+      position: '3',
+    },
+    answers: [
+      { id: '1', text: 'Сбер' },
+      { id: '2', text: 'Яндекс' },
+      { id: '3', text: 'Уралсофт' },
+      { id: '4', text: 'Mail.ru' },
+    ],
+    correct: '2',
+    percentages: [
+      { id: '1', percentage: 10 },
+      { id: '2', percentage: 20 },
+      { id: '3', percentage: 60 },
+      { id: '4', percentage: 10 },
+    ],
+  },
+]
 
+let currentQuestionIndex = 0
+let questions_count = questions.length
+
+const { open, close, send, data } = useWebSocket(`ws://localhost:4000/ws?huy=123`)
+
+function sendAnswer(answerId) {
+  send(JSON.stringify({ answer_id: answerId }))
+}
+
+// Этап ожидания
+const startWaitingCycle = () => {
+  currentComponentKey.value = 'waiting'
+  timerData.value = {
+    stage: 'waiting',
+    data: {
+      title: 'Интересные факты про магистратуру ИРИТ-РТФ',
+      description: 'Познакомься поближе с магистратурой ИРИТ-РТФ. В данном интерактиве используются факты о которых мало кто знает.',
+      code: 'QUIZ2025',
+      participants_active: '23',
+    },
+  }
+
+  setTimeout(() => startCountdownCycle(), 3000)
+}
+
+const startCountdownCycle = () => {
+  time = 5
+  currentComponentKey.value = 'countdown'
+  timerData.value = {
+    stage: 'countdown',
+    data: {
+      timer: String(time),
+    },
+  }
+
+  clearInterval(intervalId)
+  intervalId = setInterval(() => {
+    time--
+    timerData.value.data.timer = String(time)
+    if (time <= 0) {
+      clearInterval(intervalId)
+      startQuestionCycle()
+    }
+  }, 1000)
+}
+
+const startQuestionCycle = () => {
+  const q = questions[currentQuestionIndex]
+  time = 10
+  timer_duration=10
+  currentComponentKey.value = 'question'
+  timerData.value = {
+    stage: 'question',
+    data: {
+      questions_count: String(questions_count),
+      timer_duration: String(timer_duration),
+      timer: String(time),
+      title: q.title,
+      code: 'ABC123',
+      question: q.question,
+      answers: q.answers,
+    },
+  }
+
+  clearInterval(intervalId)
+  intervalId = setInterval(() => {
+    time--
+    timerData.value.data.timer = String(time)
+    if (time < 0) {
+      clearInterval(intervalId)
+      startDiscussionCycle()
+    }
+  }, 1000)
+}
+
+const startDiscussionCycle = () => {
+  const q = questions[currentQuestionIndex]
+  time = 5
+  timer_duration=5
+  currentComponentKey.value = 'discussion'
+  timerData.value = {
+    stage: 'discussion',
+    data: {
+      timer_duration:String(timer_duration),
+      questions_count: String(questions_count),
+      timer: String(time),
+      title: q.title,
+      code: 'ABC123',
+      question: q.question,
+      answers: q.answers,
+      id_correct_answer: q.correct,
+      percentages: q.percentages,
+    },
+  }
+
+  clearInterval(intervalId)
+  intervalId = setInterval(() => {
+    time--
+    timerData.value.data.timer = String(time)
+    if (time < 0) {
+      clearInterval(intervalId)
+      currentQuestionIndex++
+      if (currentQuestionIndex < questions.length) {
+        startQuestionCycle()
+      } else {
+        showEndScreen()
+      }
+    }
+  }, 1000)
+}
+
+const showEndScreen = () => {
+  currentComponentKey.value = 'end'
+  timerData.value = {
+    stage: 'end',
+    data: {
+      title: '1111111111111111111111111111111111111111',
+      participants_total: '120',
+      winners: [
+        { position: '1', username: 'Иван123' },
+        { position: '2', username: 'Maria_K' },
+        { position: '3', username: 'AlexDev' },
+      ],
+    },
+  }
+
+  currentQuestionIndex = 0
+  
+}
+
+currentComponentKey.value = 'end'
+  timerData.value = {
+    stage: 'end',
+    data: {
+      title: '1111111111111111111111111111111111111111',
+      participants_total: '120',
+      winners: [
+        { position: '1', username: 'Иван123' },
+        { position: '2', username: 'Maria_K' },
+        { position: '3', username: 'AlexDev' },
+      ],
+    },
+  }
 </script>
 
 
 <template>
   <div>
 
-
-    <component v-if="data_props.stage" :is="componentMap[data_props.stage]" :data="data_props.data"
-      :stage="data_props.stage" :onAnswer="sendStatus" />
+   
+    <component :is="componentMap[timerData.stage]" :data="timerData.data" :stage="timerData.stage"
+      :onAnswer="sendAnswer" />
   </div>
-</template> -->
-
-<script setup>
-
-import { ref, onMounted } from 'vue'
-
-import main_menu from '~/components/main_menu/main_menu.vue'
-
-const webApp = ref(null)
-const initDataUnsafe = ref(null)
-const my_interactives = ref(null)
-
-const isLoading = ref(true) // <- новый флаг
-
-const isReady = ref(false)
-const role = ref(null)
-const userId = ref(null)
-onMounted(async () => {
-  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-    webApp.value = window.Telegram.WebApp
-    initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
-
-    userId.value = initDataUnsafe.value?.user?.id
-    console.log(userId.value)
-    if (userId) {
-      const  data = await useFetch('/api/role', {
-        query: {
-          telegram_id: userId.value,
-        },
-      })
-      console.log("УРА")
-      console.log(data.data.value.role)
-      role.value = data.data.value.role
-        console.log(role.value)
-    }
-
-    isReady.value = true
-  }
-})
-console.log(role.value)
-</script>
-
-<template>
-  <!-- Показываем только когда данные загружены -->
-  <div v-if="isReady">
-    <main_menu v-if="role === 'leader'" />
-    
-    <div v-else class="you_are_not_leader">
-      <div>У вас нет прав ведущего!</div>
-    </div>
-  </div>
-</template>
-
-<style >
-.you_are_not_leader {
-
-  
-  display: flex;                /* Используем Flexbox */
-  justify-content: center;     /* Центр по горизонтали */
-  align-items: center;         /* Центр по вертикали */
-  text-align: center;          /* Центрируем текст внутри блока */
-  font-family: 'Lato', sans-serif;
-  font-size: 64px;
-  font-weight: 500;
-}
-</style>
+</template> 

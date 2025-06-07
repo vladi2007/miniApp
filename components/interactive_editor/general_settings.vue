@@ -315,7 +315,7 @@ async function startInteractive() {
         <div class="form-grid">
           <div class="form-column-first">
             <div class="input-group">
-              <label>Название интерактива*<textarea v-model="form.title" maxlength="45"/></label>
+              <label>Название интерактива*<textarea v-model="form.title" maxlength="40"/></label>
               <label>Описание интерактива*<textarea v-model="form.description" id="description_input" maxlength="115"/></label>
             </div>
 
