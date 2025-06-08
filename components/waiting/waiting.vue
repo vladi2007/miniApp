@@ -28,7 +28,7 @@ console.log(props.data.description)
 
     <!-- Основной контент -->
     <div class="waiting_description-content">
-      <p>Ждём пользователей, скоро начнём.</p>
+      <p>Ждём участников, скоро начнём.</p>
     
       <!-- Передаем тестовые данные в компоненты -->
       <Active :count="props.data.participants_active " :context="context"/>

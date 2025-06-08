@@ -18,9 +18,9 @@ const form = ref({
   target_audience: '',
   location: '',
   responsible_full_name: '',
-  answer_duration: 60,
-  discussion_duration: 20,
-  countdown_duration: 10,
+  answer_duration: 10,
+  discussion_duration: 5,
+  countdown_duration: 5,
   questions: [
     {
       text: '',
@@ -408,8 +408,8 @@ textarea {white-space: pre-wrap;      /* сохраняет переводы с�
   word-break: break-word; 
   resize: none;
 }
-.quest-nav-button {
-  cursor: pointer;
+.quest-nav-button {font-size: 24px;;
+  cursor: pointer;font-family: 'Lato', sans-serif; font-weight: 400; vertical-align: middle;
 }
 
 #question_textarea {
@@ -519,8 +519,8 @@ textarea {white-space: pre-wrap;      /* сохраняет переводы с�
 
 
 .question_nav_header {
-  width: 280px;
-  ;
+  
+
   margin: 0 auto;
   margin-top: 48px;
   font-family: 'Lato', sans-serif;

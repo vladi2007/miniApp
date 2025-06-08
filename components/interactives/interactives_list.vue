@@ -49,13 +49,13 @@ function edit_interactive(id: string) {
                         Целевая аудитория: {{ interactive.target_audience }}
                     </div>
                     <div class="interactive_buttons">
-                        <div class="interactive_dublicate"   :class="{hidden : isEnd}" @click="dublicate_interactive(String(interactive.id))">
-                            <img src="/images/interactives/dublicate.svg" id="dublicate"/>
+                        <div class="interactive_dublicate"   :class="{hidden : isEnd}" title="Дублировать интерактив" @click="dublicate_interactive(String(interactive.id))">
+                            <img src="/images/interactives/dublicate.svg" id="dublicate" />
                         </div>
-                        <div class="interactive_edit" v-if="!isEnd" @click="edit_interactive(String(interactive.id))">
+                        <div class="interactive_edit" v-if="!isEnd" @click="edit_interactive(String(interactive.id))" title="Редактировать интерактив">
                             <img src="/images/interactives/edit.svg" id="edit" />
                         </div>
-                        <div class="interactive_start" v-if="!isEnd" @click="start_interactive(String(interactive.id))">
+                        <div class="interactive_start" v-if="!isEnd" @click="start_interactive(String(interactive.id))" title="Запустить интерактив">
                             <img src="/images/interactives/start.svg" id="start" />
                         </div>
                     </div>

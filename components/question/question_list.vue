@@ -93,7 +93,7 @@ watch(
   <div class="question_question-list">
     <div class="question_number">
       <img src="/images/question/Star_3.svg" class="question_icon" />
-      <p class="question_question-num-text">Вопрос {{ props.question.position }}/ {{ props.questions_count }}</p>
+      <p class="question_question-num-text">Вопрос {{ props.question.position }} / {{ props.questions_count }}</p>
     </div>
 
     <p class="question_title">{{ props.question.text }}</p>

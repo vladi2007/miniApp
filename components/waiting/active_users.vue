@@ -5,7 +5,7 @@ const props = defineProps<{ count: string; context:string}>()
 <template>
   <div class="waiting_active">
     <div class="waiting_active_number">{{ count }}</div>
-    <div class="waiting_active_text">Активных,<br>участников</div>
+    <div class="waiting_active_text">Подключившихся<br>участников</div>
   </div>
 </template>
 

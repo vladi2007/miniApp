@@ -28,7 +28,7 @@ onMounted(() => {
      
         <div class ="nav_bar_elements">               <!--  v-if="isMainMenu" -->
             <div class ="reports"  v-if="isMainMenu" @click="goTo('/leader/history')">
-Отчеты/История
+Отчеты
             </div>
             <div class="interactives" @click="goTo('/leader/interactives')"  v-if="isMainMenu">
              Управление интерактивами
@@ -61,35 +61,35 @@ onMounted(() => {
     display: flex;
      align-items: center; /* Центрирование по вертикали */
     height: 100%; /* Занимает всю высоту nav_bar */
-    
+    justify-content: space-between;
     max-width: 1340px; /* ограничиваем ширину содержимого */
     margin: 0 auto; /* выравнивание по центру */
 }
 
 .nav_bar_elements > div{ font-weight: 500;  color: white;
     font-size: 24px;
-    vertical-align: middle;text-align: center;
+    vertical-align: middle;text-align: center; 
 }
 .reports{text-align: center;
  
     vertical-align: middle;
-    width: 224px;
+    width: 134px;
  cursor: pointer;
    
 }
 
-.interactives{margin-left: 173px;
+.interactives{
     width: 347px;
  cursor: pointer;
 
 }
 
-.broadcast{margin-left: 173px;
+.broadcast{ 
     width: 138px;
    vertical-align: middle; cursor: pointer;
 }
 
-.nav_bar_logo{margin-left: 146.62px;
+.nav_bar_logo{ 
     width: 138px;
     height: 50px;;
 }
