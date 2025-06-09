@@ -76,16 +76,27 @@ font-family: 'Lato', sans-serif;;
 }
 
 .goto_main_menu_button{cursor: pointer;
+  background-color:white;
+  width: 280px;
+  height: 65px;
+  border: 2px solid #853CFF;
+  border-radius: 5px;;
+  
+  font-weight: 500;
+  font-size: 24px;
+  vertical-align: middle;color:#853CFF;
+}
+.goto_main_menu_button:hover{
+  cursor: pointer;
   background-color: #853CFF;
   width: 280px;
   height: 65px;
   border-radius: 5px;;
-  border: 1px #853CFF;;
+  border: 2px #853CFF;;
   font-weight: 500;
   font-size: 24px;
   vertical-align: middle;color:white;
 }
-
 .winner-position{margin-right: 46px;
   margin-left: auto;
 }

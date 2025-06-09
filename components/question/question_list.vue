@@ -93,7 +93,7 @@ watch(
   <div class="question_question-list">
     <div class="question_number">
       <img src="/images/question/Star_3.svg" class="question_icon" />
-      <p class="question_question-num-text">Вопрос {{ props.question.position }} / {{ props.questions_count }}</p>
+      <p class="question_question-num-text">Вопрос {{ props.question.position }}/{{ props.questions_count }}</p>
     </div>
 
     <p class="question_title">{{ props.question.text }}</p>
@@ -117,9 +117,7 @@ watch(
       <img src="/public/images/question/Group_1.svg" />
       Правильный ответ
     </div>
-    <div v-if="showBanner && !isCorrect" :class="['question_accepted-banner', 'default']">
-      Ответ принят!
-    </div>
+    
 
   </div>
 </template>
@@ -132,7 +130,7 @@ watch(
 }
 
 .question_number {
-  margin-top: 45px;
+  margin-top: 25px;
   position: relative;
   width: 131px;
   height: 41px;
@@ -159,7 +157,7 @@ watch(
 }
 
 .question_title {
-  margin-top: 14px;
+  margin-top: 26px;
   font-weight: 400;
   font-size: 16px;
   line-height: 24px;
@@ -175,7 +173,7 @@ watch(
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-top: 16px;
+  margin-top: 28px;
 
 }
 
@@ -217,24 +215,24 @@ watch(
 }
 
 .question_answer.correct {
-  background-color: #6ab23d;
+  background-color:#6ab23d;
   color: white;
 }
 
 .question_answer.correctOutline {
-  border: 1px solid #6ab23d;
+  border: 2px solid #6ab23d;
   color: #1d1d1d;
   background-color: #f7f7f7;
 }
 
 .question_answer.incorrect {
-  border: 1px solid #f0436c;
+  border: 2px solid #f0436c;
   background-color: #f0436c;
   color: white;
 }
 
 .question_answer.wrongOutline {
-  border: 1px solid #f0436c;
+  border: 2px solid #f0436c;
   background-color: #f7f7f7;
   color: #1d1d1d;
 }

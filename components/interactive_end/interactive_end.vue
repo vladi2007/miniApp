@@ -25,7 +25,7 @@ const props = defineProps<{
     <Results :title="props.data.title" :participantsTotal="props.data.participants_total"  :stage="props.stage" />
     
     <div class="interactive_end_star-wrapper">
-      <img src="/images/interactive_end/Star_7.svg" id="interactive_end_star" />
+      <img src="/public/images/interactive_end/Star_8.svg" id="interactive_end_star" />
     </div>
     
     <!-- Передаем данные в компонент WinnersTable -->

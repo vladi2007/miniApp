@@ -95,22 +95,7 @@ onMounted(async () => {
 function addQuestion() {
   const question = currentQuestion.value
 
-  if (!question.text.trim()) {
-    window.Telegram.WebApp.showAlert('Введите текст вопроса перед добавлением нового.')
-    return
-  }
-
-  const allAnswersFilled = question.answers.every(ans => ans.text.trim() !== '')
-  if (!allAnswersFilled) {
-    window.Telegram.WebApp.showAlert('Пожалуйста, заполните все 4 ответа.')
-    return
-  }
-
-  const hasCorrectAnswer = question.answers.some(ans => ans.is_correct)
-  if (!hasCorrectAnswer) {
-    window.Telegram.WebApp.showAlert('Пожалуйста, выберите правильный ответ.')
-    return
-  }
+  
 
   form.value.questions.push({
     text: '',
@@ -411,7 +396,14 @@ textarea {white-space: pre-wrap;      /* сохраняет переводы с�
 .quest-nav-button {font-size: 24px;;
   cursor: pointer;font-family: 'Lato', sans-serif; font-weight: 400; vertical-align: middle;
 }
+.quest-nav-button:hover{ color: white;
+  background-color: #AA77FF;
+}
+.quest-nav-button.active { color: white;
+  background-color: #853CFF;
 
+  border-color: #853CFF;
+}
 #question_textarea {
   height: 100px;
   ;
@@ -448,7 +440,9 @@ textarea {white-space: pre-wrap;      /* сохраняет переводы с�
 }
 
 /* Для того чтобы радио выглядело как радио с рамкой и менялось при выборе */
-
+.answer-wrapper input[type="radio"]:hover{
+  background-color: #AA77FF;
+}
 .answer-wrapper input[type="radio"]:checked {
   background-color: #853CFF;
   box-shadow: 0 0 0 3px #853CFF inset;
@@ -602,7 +596,9 @@ textarea {white-space: pre-wrap;      /* сохраняет переводы с�
   background-color: #6AB23D;
   border: 1px solid #6AB23D;
 }
-
+#add_question:hover{
+  background-color: #9AC57E; border: 1px solid #9AC57E;
+}
 #delete_question {
   color: white;
   font-family: 'Lato', sans-serif;
@@ -618,7 +614,9 @@ textarea {white-space: pre-wrap;      /* сохраняет переводы с�
   background-color: #F0436CF0;
   margin-bottom: 15px;
 }
-
+#delete_question:hover{
+  background-color: #DE7D94;border: 1px solid #DE7D94;
+} 
 .question-form {
   margin-top: 38px;
   width: 911px;
@@ -750,7 +748,10 @@ textarea {white-space: pre-wrap;      /* сохраняет переводы с�
   letter-spacing: 1px;
   ;
 }
+.next-btn:hover{
+  background-color: #9AC57E;
 
+} 
 .next-btn-text {
   text-align: center;
   height: 57px;
@@ -798,7 +799,9 @@ textarea {white-space: pre-wrap;      /* сохраняет переводы с�
   color: white;
   ;
 }
-
+.start-button:hover{
+  background-color: #DE7D94;border: 1px solid  #DE7D94;
+}
 .save-button {
   cursor: pointer;
   width: 351px;
@@ -816,5 +819,8 @@ textarea {white-space: pre-wrap;      /* сохраняет переводы с�
   ;
   margin-left: 36px;
   ;
+}
+.save-button:hover{
+  background-color:#9AC57E;border: 1px solid  #9AC57E;
 }
 </style>

@@ -64,34 +64,32 @@
   word-break: break-word; 
 }
 
-.question_answer:hover {
-  background-color: #e0e0e0;
-}
+
 
 .question_answer.selected {
-  background-color: #853cff;
+  background-color:2px solid #853cff;
   color: white;
 }
 
 .question_answer.correct {
-  background-color: #6ab23d;
+  background-color: 2px solid #6ab23d;
   color: white;
 }
 
 .question_answer.correctOutline {
-  border: 1px solid #6ab23d;
+  border: 2px solid #6ab23d;
   color: #1d1d1d;
   background-color: #f7f7f7;
 }
 
 .question_answer.incorrect {
-  border: 1px solid #f0436c;
+  border: 2px solid #f0436c;
   background-color: #f0436c;
   color: white;
 }
 
 .question_answer.wrongOutline {
-  border: 1px solid #f0436c;
+  border: 2px solid #f0436c;
   background-color: #f7f7f7;
   color: #1d1d1d;
 }

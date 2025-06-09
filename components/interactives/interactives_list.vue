@@ -81,7 +81,7 @@ function edit_interactive(id: string) {
 }
 .hidden{
     position: absolute;
-
+    top:15px;
     left: 152px;;
 }
 .interactive_list {
@@ -155,7 +155,7 @@ function edit_interactive(id: string) {
 .interactive_title {
     font-family: 'Lato', sans-serif;
     font-weight: 700;
-    font-size: 32px;
+    font-size: 24px;
     line-height: 24px;
     ;
 }
@@ -185,7 +185,9 @@ function edit_interactive(id: string) {
     ;
     background-color: #853CFF;
 }
-
+.interactive_dublicate:hover{
+    background-color: #AA77FF;
+}
 .interactive_edit {cursor: pointer;
     margin-left: 16px;
     width: 60px;
@@ -195,6 +197,10 @@ function edit_interactive(id: string) {
     ;
     background-color: #F0436C;
 }
+.interactive_edit:hover{
+    background-color: #DE7D94;
+}
+
 
 .interactive_start {cursor: pointer;
     margin-left: 16px;
@@ -205,7 +211,9 @@ function edit_interactive(id: string) {
     ;
     background-color: #6AB23D;
 }
-
+.interactive_start:hover{
+    background-color: #9AC57E;
+}
 .interactive_dublicate,
 .interactive_edit,
 .interactive_start {
@@ -235,7 +243,7 @@ function edit_interactive(id: string) {
 
 .interactive_date{
     position: absolute;
-    top:15px;
+    top:25px;
     left:1004px;
     font-family: 'Work Sans', sans-serif;
     font-weight: 700;

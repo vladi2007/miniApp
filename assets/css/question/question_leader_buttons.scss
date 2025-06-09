@@ -25,6 +25,9 @@
     border: #F0436C;
     color: white;
 }
+.goto_end:hover{
+    background-color: #DE7D94; border:  #DE7D94;
+}
 .pause{font-family: 'Lato', sans-serif;margin-left: 43px;;  margin-top: 20px;cursor: pointer;
     font-weight: 500;
     font-size: 32px;
@@ -36,6 +39,9 @@
     border: #6AB23D;
     color: white;
 }
+.pause:hover{
+    background-color: #9AC57E;   border: #9AC57E;
+}
 .continue{font-family: 'Lato', sans-serif;margin-left: 42px;;  margin-top: 20px;cursor: pointer;
     font-weight: 500;
     font-size: 32px;
@@ -46,4 +52,7 @@
     height: 40px;;
     border-radius: 5px;;
     border: #853CFF;
+}
+.continue:hover{
+    background-color: #AA77FF; border: #AA77FF;
 }

@@ -6,7 +6,7 @@
 .waiting_desc-content{
 display: flex;
   flex-direction: column;       /* Элементы — в столбик */
-  align-items: center;          /* Центрирование по горизонтали */
+        /* Центрирование по горизонтали */
   justify-content: center;      /* Центрирование по вертикали (если нужно) */
             
               
@@ -16,18 +16,18 @@ display: flex;
   font-family: 'Lato';
   font-size: 40px;
 
-  font-weight: 700;
+  font-weight: 500;
   width: 565px;
-  padding-top:63px;
+  padding-top:55px;letter-spacing: 1px;;
   vertical-align:middle;white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
-  word-break: break-word; 
+  word-break: break-word; margin-left: 23px;;
 
 }
 .waiting_interactive-description{white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
   word-break: break-word; 
-  margin-top:30px;
-  
-  width: 587px;;
+
+  letter-spacing: 1px;;
+  width: 632px;margin-left: 23px;;margin-top: 20px;;font-size: 32px;
   
 }
 .waiting_interactive-description > p{

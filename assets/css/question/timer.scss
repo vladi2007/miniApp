@@ -40,3 +40,7 @@
   border-radius: 26px;
   transition: width 1s linear;
 }
+
+.question_green-line.no-transition {
+  transition: none !important;
+}

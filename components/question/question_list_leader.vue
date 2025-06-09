@@ -72,8 +72,8 @@ watch(
 <template>
   <div class="question_question-list">
     <div class="question_number">
-
-      <p class="question_question-num-text">Вопрос {{ props.question.position }}/ {{ props.questions_count }}</p>
+      <img src="/public/images/question/question_mun_star.svg" id ="question_mun_star">
+      <p class="question_question-num-text">Вопрос {{ props.question.position }}/{{ props.questions_count }}</p>
     </div>
 
     <p class="question_title">{{ props.question.text }}</p>
@@ -102,5 +102,9 @@ watch(
 </template>
 
 <style>
-
+#question_mun_star{
+  position: absolute;
+  bottom:45px;
+  right: 11px;;
+}
 </style>

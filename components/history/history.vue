@@ -169,7 +169,8 @@ onUnmounted(() => {
                   Выгрузить
                 </button>
                 <button class="history_content_menu_info_button" @click="selectManyOption"
-                  :class="{ selectManyClass: selectMany }">
+                  :class="{ selectManyClass: selectMany, 'hoverable-select': !selectMany , 'hoverable-select_red': selectMany }"
+                  >
                   {{ !selectMany ? "Выбрать" : "Отмена" }}
                 </button>
               </div>
@@ -266,7 +267,9 @@ body.history-background {
   ;
 
 }
-
+.history_download:hover{
+  background-color: #9AC57E; border: 1px  #9AC57E;
+}
 .history_fon {
 
   background-color: #A774FC;
@@ -314,14 +317,25 @@ body.history-background {
   width: 229px;
   height: 62px;
   border-radius: 5px;
-  background-color: #853CFF;
-  color: white;
-  border: 1px solid #853CFF;
+background-color: white;
+  color:#853CFF;
+  border: 2px solid #853CFF;
   font-family: 'Lato', sans-serif;
   font-weight: 500;
   font-size: 24px;
 }
-
+.history_backButton:hover {
+  cursor: pointer;
+  width: 229px;
+  height: 62px;
+  border-radius: 5px;
+background-color: #853CFF;
+  color:white;
+  border: 2px solid #853CFF;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+}
 .history_content {
   padding-top: 20px;
   padding-left: 23px;
@@ -367,7 +381,14 @@ body.history-background {
   font-weight: 500;
   font-size: 24px;
 }
-
+.hoverable-select:hover {
+  background-color: #AA77FF;
+  color: white;
+  border: 1px solid #AA77FF;
+}
+.hoverable-select_red:hover{
+  background-color:#DE7D94; border: 1px solid #DE7D94;
+}
 .history_menu_info_header {
   font-family: 'Lato', sans-serif;
   font-weight: 700;
@@ -470,10 +491,10 @@ body.history-background {
 }
 
 .history_date {
-  padding-left: 15px;
+ 
   width: 210px;
   color: white;
-  text-align: left;
+  text-align: center;
   font-family: 'Work Sans';
   font-weight: 700;
   font-size: 36px;
@@ -484,10 +505,10 @@ body.history-background {
 }
 
 .history_title {
-  margin-left: 18px;
+  margin-left: 17px;
   ;
   font-family: 'Lato', sans-serif;
-  font-weight: 700;
+  font-weight: 500;
   font-size: 32px;
   ;
   vertical-align: middle;
@@ -598,7 +619,7 @@ body.history-background {
   top: 0;
   width: 35px;
   height: 35px;
-  background-image: url('/public/images/history/rect.svg');
+  background-image: url('/public/images/history/circle.svg');
   /* Картинка квадрата */
   background-size: cover;
   background-position: center;
@@ -610,7 +631,7 @@ body.history-background {
   content: '';
   position: absolute;
   top: 9px;
-  left: 7px;
+  left: 5px;
   ;
 
   width: 24px;
@@ -652,7 +673,25 @@ body.history-background {
   height: 62px;
   background-color: white;
   color: #853CFF;
-  border: 3px solid #853CFF;
+  border: 2px solid #853CFF;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  vertical-align: middle;
+  letter-spacing: 1px;
+  ;
+
+}
+.popup-submit:hover {
+  margin-left: 292px;
+  ;
+  width: 233px;
+  height: 62px;
+  background-color: #853CFF;
+  color: white;
+  border: 2px solid #853CFF;
   font-family: 'Lato', sans-serif;
   font-weight: 500;
   font-size: 24px;
@@ -700,7 +739,9 @@ body.history-background {
   right: 0px;
   ;
 }
-
+.selectManyDownload:hover{
+  background-color: #9AC57E;border: 1px solid #9AC57E;
+}
 
 /* Скрываем стандартный чекбокс */
 .custom-checkbox {}
@@ -731,7 +772,10 @@ body.history-background {
   /* Плавные переходы */
   transition: all 0.3s ease;
 }
-
+.select_many_option input[type="checkbox"]:hover {
+  background-color: #AA77FF;
+  border-color: #853CFF;
+}
 /* Для того чтобы радио выглядело как радио с рамкой и менялось при выборе */
 .select_many_option input[type="checkbox"]:checked {
   background-color: #853CFF;
@@ -747,5 +791,8 @@ body.history-background {
 .select_many_option input[type="checkbox"]:focus+span::before {
   outline: none;
   box-shadow: 0 0 5px rgba(133, 60, 255, 0.6);
+}
+.popup-option:hover input[type="radio"] + span::before {
+  background-image: url('/public/images/history/circle_hover.svg');
 }
 </style>

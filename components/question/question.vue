@@ -22,7 +22,7 @@ const props = defineProps<{
     <img src="/images/question/Vector_89.svg" id="question_vector_2" />
 
     <!-- Компонент Timer -->
-    <timer :timer="data.timer" :stage="stage" :timer_duration="data.timer_duration" :context="context"/>
+    <timer :timer="data.timer" :stage="stage" :timer_duration="data.timer_duration" :context="context" :question_num="data.question.position" :question_count="data.questions_count"/>
 
     <!-- В зависимости от типа данных, отображаем различные компоненты -->
     <question_list :timer="data.timer" :question="data.question" :answers="data.answers"

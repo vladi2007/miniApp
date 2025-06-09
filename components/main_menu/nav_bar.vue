@@ -64,11 +64,16 @@ onMounted(() => {
     justify-content: space-between;
     max-width: 1340px; /* ограничиваем ширину содержимого */
     margin: 0 auto; /* выравнивание по центру */
+   
 }
 
-.nav_bar_elements > div{ font-weight: 500;  color: white;
+.nav_bar_elements > div{ font-weight: 500; color: #DDC9FF;
     font-size: 24px;
     vertical-align: middle;text-align: center; 
+}
+/* Наведение на элементы */
+.nav_bar_elements > div:hover {
+  color: white;
 }
 .reports{text-align: center;
  

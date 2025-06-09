@@ -10,8 +10,8 @@
     display: flex;
     width: 100vw;
   height: 100vh;
-    padding-left: 30px;
-    padding-right: 30px;
+    padding-left: 35px;
+    padding-right: 35px;
     background-color: white;
     overflow: hidden;
 }
@@ -82,6 +82,9 @@
     margin-left: 131px;;
     
 }
+.waiting_back:hover{
+    background-color: #DE7D94; border: #DE7D94 3px;
+}
 .waiting_start{ background-color: #6AB23D; font-family: 'Lato', sans-serif; font-weight: 500; font-size: 24px; vertical-align: middle; line-height: 120%; letter-spacing: 1px;
    color: white;
     width: 185px;
@@ -90,4 +93,7 @@
     border:#6AB23D 3px;cursor: pointer;
     margin-left: auto;
     margin-right: 131px;;
+}
+.waiting_start:hover{
+    background-color: #9AC57E; border:#9AC57E 3px;
 }

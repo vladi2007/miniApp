@@ -27,25 +27,26 @@ body {
 .waiting_interactive-title {
     font-family: 'Lato', sans-serif;;
     color: #FFFFFF;
-    font-weight: 700;
+    font-weight: 500;margin-left: 19px;;
     font-size: 16px;
-    line-height: 24px;
+    line-height: 24px;letter-spacing: 1px;;
     margin-top:28px;
-    text-align: center;white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
+    width: 300px;;
+    text-align: left;white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
   word-break: break-word; 
 
 }
 
-.waiting_interactive-description {
-    margin-top:23px;
+.waiting_interactive-description {letter-spacing: 1px;;
+    margin-top:24px;
     font-family: 'Lato', sans-serif;;
     color: #FFFFFF;
     font-weight: 400;
     font-size: 16px;
     line-height: 24px;
-    
+    margin-left: 19px;;
     max-width: 295px ;
-    margin-left: auto;white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
+    white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
   word-break: break-word; 
 
     /* Текст выравнивается по левому краю */

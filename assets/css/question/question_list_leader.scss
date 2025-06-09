@@ -55,7 +55,7 @@
   font-weight: 500;
   border-radius: 5px;
   ;
-  border: 2px solid transparent;
+  border: 3.5px solid transparent;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -74,19 +74,19 @@
 }
 
 .question_answer.correctOutline {
-  border: 2px solid #6ab23d;
+  border: 3.5px solid #6ab23d;
   color: #1d1d1d;
   background-color: #f7f7f7;
 }
 
 .question_answer.incorrect {
-  border: 2px solid #f0436c;
+  border: 3.5px solid #f0436c;
   background-color: #f0436c;
   color: white;
 }
 
 .question_answer.wrongOutline {
-  border: 2px solid #f0436c;
+  border: 3.5px solid #f0436c;
   background-color: #f7f7f7;
   color: #1d1d1d;
 }

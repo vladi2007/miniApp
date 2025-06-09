@@ -145,19 +145,32 @@ function create_new_interactive() {
     font-weight: 500;
     vertical-align: middle;
 }
+.interactives_top_menu_create_interactive:hover{
+    background-color: #9AC57E;
 
+}
 .interactives_backButton {cursor: pointer;
+    width: 229px;
+    height: 62px;
+    border-radius: 5px;
+    background-color: white;
+    color:#853CFF;
+    border: 2px solid #853CFF;
+    font-family: 'Lato', sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+}
+.interactives_backButton:hover {cursor: pointer;
     width: 229px;
     height: 62px;
     border-radius: 5px;
     background-color: #853CFF;
     color: white;
-    border: 1px solid #853CFF;
+    border: 2px solid #853CFF;
     font-family: 'Lato', sans-serif;
     font-weight: 500;
     font-size: 24px;
 }
-
 .interactives_lists {
     width: 1345px;
     height: 1504px;

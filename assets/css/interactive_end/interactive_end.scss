@@ -1,5 +1,5 @@
 .interactive_end_star-wrapper {
-    margin-top:6px;
+    margin-top:10px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -9,11 +9,11 @@
 
 #interactive_end_vector {
     position: absolute;
-    top: 0;
+    height: 50px;width: 50px;;
     /* Позиционируем по вертикали на 50% от родительского контейнера */
     right:-25px;
     /* Позиционируем по горизонтали на 50% от родительского контейнера */
-
+ 
     z-index: 2;
 }
 

@@ -77,15 +77,19 @@ console.log(mode.value)
   width: 229px;
   height: 62px;
   border-radius: 5px;
-  background-color: #853CFF;
-  color: white;
-  border: 1px solid #853CFF;
+  background-color:white;
+  color:#853CFF;
+  border: 2px solid #853CFF;
   font-family: 'Lato', sans-serif;
   font-weight: 500;
   font-size: 24px;
 
 }
-
+.interactive_edit_backButton:hover{
+  background-color: #853CFF;
+  color: white;
+  border: 1px solid #853CFF;
+}
 .back_to_all_settings {
   width: 280px;
   ;
