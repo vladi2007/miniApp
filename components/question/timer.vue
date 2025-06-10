@@ -9,62 +9,59 @@ const props = defineProps<{
   question_num: string
 }>()
 
-// Храним максимальное значение таймера (первое пришедшее число)
-// Вместо maxTime используем timer_duration для вычисления прогресса
 const timerDuration = ref<number | null>(null)
 const progressWidth = ref(0)
-watch(() => props.timer, (newVal, oldVal) => {
-  const numericNew = Number(newVal)
-  const numericOld = Number(oldVal)
+const resetting = ref(false) // Флаг для отслеживания сброса
 
-  if (numericNew > numericOld) {
-    // Принудительно сбросить ширину, убрав анимацию
-    resetting.value = true
-    progressWidth.value = 0
+watch(
+  () => props.timer_duration,
+  (newVal) => {
+    const numeric = Number(newVal)
+    if (!isNaN(numeric) && timerDuration.value === null) {
+      timerDuration.value = numeric
+    }
+  },
+  { immediate: true }
+)
 
-    // Через requestAnimationFrame снова задать корректное значение
-    requestAnimationFrame(() => {
+// Отслеживаем момент, когда таймер достигает 0
+watch(
+  () => props.timer,
+  (newVal, oldVal) => {
+    const numericNew = Number(newVal)
+    const numericOld = Number(oldVal)
+    
+    // Если таймер перешел с 1 на 0
+    if (numericOld === 0 && numericNew > 0) {
+      resetting.value = true
+      
+      // Включаем анимацию обратно после небольшой задержки
+      
+    }
+    if (numericOld!== 0) {
       resetting.value = false
-      const percent = 100 - (numericNew / Number(props.timer_duration)) * 100
-      progressWidth.value = percent
-    })
-  } else {
-    const percent = 100 - (numericNew / Number(props.timer_duration)) * 100
-    progressWidth.value = percent
+      // Включаем анимацию обратно после небольшой задержки
+      
+    }
   }
-})
+)
 
 // Вычисляем прогресс в процентах
 const progressPercent = computed(() => {
   const time = Number(props.timer)
   if (isNaN(time) || !Number(props.timer_duration)) return 0
-  return 100 - ((time) / Number(props.timer_duration)) * 100
+  return 100 - (time / Number(props.timer_duration)) * 100
 })
-const resetting = ref(false)
 
-watch(() => props.timer, (newVal, oldVal) => {
-  // Если таймер резко сброшен к 0 или обратно в начальное значение
-  if (Number(newVal) > Number(oldVal)) {
-    resetting.value = true
-    // Через event loop вернем флаг обратно, чтобы анимация снова работала
-    requestAnimationFrame(() => {
-      resetting.value = false
-    })
-  }
-})
 // Метка таймера
 const timerLabel = computed(() => {
-  if (props.stage === 'discussion')
-  {
-    if (props.question_count === props.question_num)
-      {
-        return 'Конец интерактива через:'
-      }
-    else{
+  if (props.stage === 'discussion') {
+    if (props.question_count === props.question_num) {
+      return 'Конец интерактива через:'
+    } else {
       return 'Следующий вопрос через:'
     }
-  }
-  else{
+  } else {
     return 'Времени осталось:'
   }
 })
@@ -82,10 +79,15 @@ const timerLabel = computed(() => {
     <!-- Серый фон -->
     <div class="question_grey-line">
       <!-- Прогресс -->
-      <div class="question_green-line" :style="{ width: progressPercent + '%' }"
-        :class="{ 'no-transition': resetting }" />
+      <div class="question_green-line" 
+           :style="{ width: progressPercent + '%' }"
+           :class="{ 'no-transition': resetting }" />
     </div>
   </div>
 </template>
 
-<style></style>
+<style>
+.no-transition {
+  transition: none !important;
+}
+</style>
