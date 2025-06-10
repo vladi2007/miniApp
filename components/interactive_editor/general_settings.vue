@@ -280,7 +280,13 @@ async function saveInteractive(): Promise<boolean> {
   }
   return false
 }
-
+async function saveInteractiveButton(){
+  const id = await submitInteractive()
+  console.log(id)
+  if (id !== null) {
+    router.push(`/leader/interactives`)
+  }
+}
 async function startInteractive() {
   const id = await submitInteractive()
   console.log(id)
@@ -396,7 +402,7 @@ async function confirmSave() {
     <div class="settings_popup-content">
       <div class="settings_popup-text">Сохранить интерактив и перейти к списку всех интерактивов?</div>
       <div class="settings_popup-buttons">
-        <button class="settings_popup-btn confirm" @click="confirmSave">Да</button>
+        <button class="settings_popup-btn confirm" @click="saveInteractiveButton()">Да</button>
         <button class="settings_popup-btn cancel" @click="showSavePopup = false">Нет</button>
       </div>
     </div>
