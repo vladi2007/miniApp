@@ -37,7 +37,7 @@
   justify-content: center;
 }
 
-.waiting_active_text {
+.waiting_active_text {position: relative; z-index: 30;
   margin-left: 36px;
   font-weight: 500;
   line-height: 40px;
