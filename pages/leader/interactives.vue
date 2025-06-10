@@ -7,6 +7,7 @@ const initDataUnsafe = ref(null)
 const my_interactives = ref(null)
 const userId =ref(null)
 onMounted(async () => {
+  
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
     initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe

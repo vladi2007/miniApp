@@ -11,7 +11,11 @@ const router = useRouter()
 
 // Функция возврата на предыдущую страницу
 function goBack() {
-  router.push("/leader/interactives")
+  router.push("/leader/interactives").then(() => {
+    // Перезагрузка после успешной навигации
+    window.location.reload()
+  })
+
 }
 const props = defineProps<{
     stage: string

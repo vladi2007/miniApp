@@ -63,7 +63,7 @@ async function duplicateAndSaveInteractive(id: string) {
     })
 
     const payload = {
-      title: data.title + ' (копия)',
+      title: data.title ,
       description: data.description,
       target_audience: data.target_audience,
       location: data.location,
@@ -148,7 +148,7 @@ const currentInteractiveId = ref<string | null>(null)
                     
                     <button class="interactives_popup-button" @click="duplicateAndSaveInteractive(String(currentInteractiveId))">Да</button>
   <button class="interactives_popup-button" @click="closePopup()">Нет</button>
-  <button class="interactives_popup-button" @click ="dublicate_interactive(String(currentInteractiveId))">Да, и хочу его сразу отреадктировать</button>
+  <button class="interactives_popup-button" @click ="dublicate_interactive(String(currentInteractiveId))">Да, и хочу его сразу отредактировать</button>
                 </div>
             </div>
         </div>

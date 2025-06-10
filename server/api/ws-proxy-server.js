@@ -48,7 +48,9 @@ console.log('🔑 interactive_id:', interactive_id)
   })
 
   clientSocket.on('close', () => {
-    if (backendSocket) backendSocket.close()
+    if (backendSocket && backendSocket.readyState === WebSocket.OPEN) {
+    backendSocket.close()
+  }
   })
 })
 
