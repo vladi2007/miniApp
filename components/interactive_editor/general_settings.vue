@@ -137,7 +137,9 @@ function goToQuestions() {
     window.Telegram.WebApp.showAlert('Пожалуйста, заполните все обязательные поля')
   }
 }
-
+defineExpose({
+  saveInteractive
+})
 function markCorrectAnswer(questionIndex: number, answerIndex: number) {
   const answers = form.value.questions[questionIndex].answers
   answers.forEach((ans, idx) => {
@@ -271,11 +273,12 @@ async function submitInteractive(): Promise<number | null> {
   }
 }
 
-async function saveInteractive() {
+async function saveInteractive(): Promise<boolean> {
   const id = await submitInteractive()
   if (id !== null) {
-    router.push(`/leader/interactives`)
+    return true
   }
+  return false
 }
 
 async function startInteractive() {
@@ -284,6 +287,11 @@ async function startInteractive() {
   if (id !== null) {
     router.push(`/leader/${id}`)
   }
+}
+const showSavePopup = ref(false)
+async function confirmSave() {
+  showSavePopup.value = false
+  await saveInteractive()
 }
 </script>
 
@@ -375,7 +383,7 @@ async function startInteractive() {
           <!-- Кнопки "Сохранить" и "Запуск" -->
           <div class="question-controls">
             <button class="start-button" @click="startInteractive()">Запуск</button>
-            <button class="save-button" @click="saveInteractive()">Сохранить</button>
+            <button class="save-button" @click="showSavePopup = true">Сохранить</button>
 
           </div>
 
@@ -384,11 +392,81 @@ async function startInteractive() {
 
       </div>
     </div>
+    <div v-if="showSavePopup" class="settings_popup-overlay">
+    <div class="settings_popup-content">
+      <div class="settings_popup-text">Сохранить интерактив и перейти к списку всех интерактивов?</div>
+      <div class="settings_popup-buttons">
+        <button class="settings_popup-btn confirm" @click="confirmSave">Да</button>
+        <button class="settings_popup-btn cancel" @click="showSavePopup = false">Нет</button>
+      </div>
+    </div>
+  </div>
   </div>
 </template>
 
 
 <style>
+.settings_popup-overlay {  font-family: 'Lato', sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.settings_popup-content {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  width: 400px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+}
+
+.settings_popup-text {
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 30px;
+
+}
+
+.settings_popup-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.settings_popup-btn {
+  width: 120px;
+  height: 45px;
+  font-size: 20px;
+  font-family: 'Lato', sans-serif;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.settings_popup-btn.confirm {
+  background-color: #6AB23D;
+  border: 2px solid #6AB23D;
+  color: white;
+}
+.settings_popup-btn.confirm:hover {
+  background-color: #9AC57E; border: 2px solid  #9AC57E;
+}
+
+.settings_popup-btn.cancel {
+  background-color: #F0436C;
+  border: 2px solid #F0436C;
+  color: white;
+}
+.settings_popup-btn.cancel:hover {
+  background-color: #DE7D94; border: 2px solid  #DE7D94;
+}
 textarea {white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
   word-break: break-word; 
   resize: none;

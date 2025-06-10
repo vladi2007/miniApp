@@ -56,7 +56,10 @@ function toggleInteractiveSelection(id) {
 
 async function submitReport() {
   if (selectedInteractives.value.length > 0) {
-
+    if (selectedOption.value !== 'forAnalise' && selectedOption.value !== 'forLeader') {
+    window.Telegram.WebApp.showAlert(`Выберите тип отчета!`);
+    return;
+  }
     try {
     const body = {
       telegram_id: userId.value,
@@ -80,7 +83,7 @@ async function submitReport() {
     if (data.url) {
       postEvent('web_app_request_file_download', {
         url: `https://voshod07.ru${data.url}`,
-        file_name: data.filename
+        file_name: `${String(selectedOption.value)}.xlsx`
       })
     } else {
       throw new Error(data.error || 'Не удалось получить ссылку на файл')

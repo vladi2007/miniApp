@@ -33,11 +33,10 @@ export default defineEventHandler(async (event) => {
 
     // Записываем файл
     await writeFile(filePath, buffer)
-    const filenameHeader = response.headers.get('filename')
+    
     // Возвращаем путь к файлу относительно public, чтобы фронтенд мог скачать
     return {
-     url: `/reports/${fileName}`,
-      filename: filenameHeader // добавляем его в ответ
+     url: `/reports/${fileName}`
     }
   } catch (error) {
     return {
