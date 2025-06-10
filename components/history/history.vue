@@ -80,7 +80,7 @@ async function submitReport() {
     if (data.url) {
       postEvent('web_app_request_file_download', {
         url: `https://voshod07.ru${data.url}`,
-        file_name: data.url.split('/').pop() || 'report.xlsx'
+        file_name: data.filename
       })
     } else {
       throw new Error(data.error || 'Не удалось получить ссылку на файл')
