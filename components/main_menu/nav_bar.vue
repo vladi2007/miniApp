@@ -33,7 +33,7 @@ onMounted(() => {
             <div class="interactives" @click="goTo('/leader/interactives')"  v-if="isMainMenu">
              Управление интерактивами
             </div>
-            <div class ="broadcast" v-if="isMainMenu" >
+            <div class ="broadcast" v-if="isMainMenu" @click="goTo('/leader/broadcasts')">
                 Рассылка
             </div>
             <div class = "nav_bar_logo" :class="{ nav_bar_logo_out_main_menu: !isMainMenu}">

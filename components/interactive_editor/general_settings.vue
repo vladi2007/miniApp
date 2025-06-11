@@ -60,7 +60,7 @@ onMounted(async () => {
         method: 'GET',
         query: {
           telegram_id: userId.value,
-          
+
           id: id
         }
       })
@@ -95,7 +95,7 @@ onMounted(async () => {
 function addQuestion() {
   const question = currentQuestion.value
 
-  
+
 
   form.value.questions.push({
     text: '',
@@ -108,7 +108,7 @@ function addQuestion() {
 function removeQuestion() {
   if (form.value.questions.length > 1) {
     form.value.questions.splice(currentQuestionIndex.value, 1)
-    
+
     // Обновляем позиции всех вопросов
     form.value.questions.forEach((q, index) => {
       q.position = index + 1
@@ -247,7 +247,7 @@ async function submitInteractive(): Promise<number | null> {
         method: 'PATCH',
         query: {
           telegram_id: userId.value,
-          
+
           id: id
         },
         body: payload
@@ -258,7 +258,7 @@ async function submitInteractive(): Promise<number | null> {
         method: 'POST',
         query: {
           telegram_id: userId.value,
-          
+
           id: id
         },
         body: payload
@@ -280,7 +280,7 @@ async function saveInteractive(): Promise<boolean> {
   }
   return false
 }
-async function saveInteractiveButton(){
+async function saveInteractiveButton() {
   const id = await submitInteractive()
   console.log(id)
   if (id !== null) {
@@ -314,12 +314,13 @@ async function confirmSave() {
         <div class="form-grid">
           <div class="form-column-first">
             <div class="input-group">
-              <label>Название интерактива*<textarea v-model="form.title" maxlength="40"/></label>
-              <label>Описание интерактива*<textarea v-model="form.description" id="description_input" maxlength="115"/></label>
+              <label>Название интерактива*<textarea v-model="form.title" maxlength="40" /></label>
+              <label>Описание интерактива*<textarea v-model="form.description" id="description_input"
+                  maxlength="115" /></label>
             </div>
 
-            <div class="input-group" >
-              <label>Место проведения интерактива*<textarea v-model="form.location" maxlength="40"/></label>
+            <div class="input-group">
+              <label>Место проведения интерактива*<textarea v-model="form.location" maxlength="40" /></label>
             </div>
             <div class="input-group">
               <label>Целевая аудитория участников*<textarea v-model="form.target_audience" maxlength="40" /></label>
@@ -328,14 +329,15 @@ async function confirmSave() {
 
           <div class="form-column-second">
             <div class="input-group">
-              <label>ФИО ведущего*<textarea v-model="form.responsible_full_name" maxlength="40"/></label>
+              <label>ФИО ведущего*<textarea v-model="form.responsible_full_name" maxlength="40" /></label>
             </div>
             <div class="input-group">
-              <label>Время ответа (сек.)*<textarea type="number" v-model.number="form.answer_duration" maxlength="2"/></label>
-              <label>Время на показ ответа (сек.)*<textarea type="number"
-                  v-model.number="form.discussion_duration" maxlength="2"/></label>
+              <label>Время ответа (сек.)*<textarea type="number" v-model.number="form.answer_duration"
+                  maxlength="2" /></label>
+              <label>Время на показ ответа (сек.)*<textarea type="number" v-model.number="form.discussion_duration"
+                  maxlength="2" /></label>
               <label>Обратный отсчет перед стартом (сек.)*<textarea type="number"
-                  v-model.number="form.countdown_duration" maxlength="2"/></label>
+                  v-model.number="form.countdown_duration" maxlength="2" /></label>
             </div>
             <div class="next-btn" @click="goToQuestions">
               <div class="next-btn-text">Наполнение интерактива</div>
@@ -381,7 +383,8 @@ async function confirmSave() {
               <label class="answer-wrapper">
                 <input type="radio" :name="'correct-answer-' + currentQuestionIndex" :checked="answer.is_correct"
                   @change="markCorrectAnswer(currentQuestionIndex, index)" />
-                <input v-model="answer.text" type="text" class="answer-input" placeholder="Поле для ввода ответа" maxlength="50"/>
+                <input v-model="answer.text" type="text" class="answer-input" placeholder="Поле для ввода ответа"
+                  maxlength="50" />
               </label>
             </div>
 
@@ -399,20 +402,21 @@ async function confirmSave() {
       </div>
     </div>
     <div v-if="showSavePopup" class="settings_popup-overlay">
-    <div class="settings_popup-content">
-      <div class="settings_popup-text">Сохранить интерактив и перейти к списку всех интерактивов?</div>
-      <div class="settings_popup-buttons">
-        <button class="settings_popup-btn confirm" @click="saveInteractiveButton()">Да</button>
-        <button class="settings_popup-btn cancel" @click="showSavePopup = false">Нет</button>
+      <div class="settings_popup-content">
+        <div class="settings_popup-text">Сохранить интерактив и перейти к списку всех интерактивов?</div>
+        <div class="settings_popup-buttons">
+          <button class="settings_popup-btn confirm" @click="saveInteractiveButton()">Да</button>
+          <button class="settings_popup-btn cancel" @click="showSavePopup = false">Нет</button>
+        </div>
       </div>
     </div>
-  </div>
   </div>
 </template>
 
 
 <style>
-.settings_popup-overlay {  font-family: 'Lato', sans-serif;
+.settings_popup-overlay {
+  font-family: 'Lato', sans-serif;
   position: fixed;
   top: 0;
   left: 0;
@@ -431,7 +435,7 @@ async function confirmSave() {
   border-radius: 20px;
   text-align: center;
   width: 400px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .settings_popup-text {
@@ -461,8 +465,10 @@ async function confirmSave() {
   border: 2px solid #6AB23D;
   color: white;
 }
+
 .settings_popup-btn.confirm:hover {
-  background-color: #9AC57E; border: 2px solid  #9AC57E;
+  background-color: #9AC57E;
+  border: 2px solid #9AC57E;
 }
 
 .settings_popup-btn.cancel {
@@ -470,24 +476,40 @@ async function confirmSave() {
   border: 2px solid #F0436C;
   color: white;
 }
+
 .settings_popup-btn.cancel:hover {
-  background-color: #DE7D94; border: 2px solid  #DE7D94;
+  background-color: #DE7D94;
+  border: 2px solid #DE7D94;
 }
-textarea {white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
-  word-break: break-word; 
+
+textarea {
+  white-space: pre-wrap;
+  /* сохраняет переводы строк и переносит при необходимости */
+  word-break: break-word;
   resize: none;
 }
-.quest-nav-button {font-size: 24px;;
-  cursor: pointer;font-family: 'Lato', sans-serif; font-weight: 400; vertical-align: middle;
+
+.quest-nav-button {
+  font-size: 24px;
+  ;
+  cursor: pointer;
+  font-family: 'Lato', sans-serif;
+  font-weight: 400;
+  vertical-align: middle;
 }
-.quest-nav-button:hover{ color: white;
+
+.quest-nav-button:hover {
+  color: white;
   background-color: #AA77FF;
 }
-.quest-nav-button.active { color: white;
+
+.quest-nav-button.active {
+  color: white;
   background-color: #853CFF;
 
   border-color: #853CFF;
 }
+
 #question_textarea {
   height: 100px;
   ;
@@ -524,9 +546,10 @@ textarea {white-space: pre-wrap;      /* сохраняет переводы с�
 }
 
 /* Для того чтобы радио выглядело как радио с рамкой и менялось при выборе */
-.answer-wrapper input[type="radio"]:hover{
+.answer-wrapper input[type="radio"]:hover {
   background-color: #AA77FF;
 }
+
 .answer-wrapper input[type="radio"]:checked {
   background-color: #853CFF;
   box-shadow: 0 0 0 3px #853CFF inset;
@@ -597,7 +620,7 @@ textarea {white-space: pre-wrap;      /* сохраняет переводы с�
 
 
 .question_nav_header {
-  
+
 
   margin: 0 auto;
   margin-top: 48px;
@@ -680,9 +703,12 @@ textarea {white-space: pre-wrap;      /* сохраняет переводы с�
   background-color: #6AB23D;
   border: 1px solid #6AB23D;
 }
-#add_question:hover{
-  background-color: #9AC57E; border: 1px solid #9AC57E;
+
+#add_question:hover {
+  background-color: #9AC57E;
+  border: 1px solid #9AC57E;
 }
+
 #delete_question {
   color: white;
   font-family: 'Lato', sans-serif;
@@ -698,9 +724,12 @@ textarea {white-space: pre-wrap;      /* сохраняет переводы с�
   background-color: #F0436CF0;
   margin-bottom: 15px;
 }
-#delete_question:hover{
-  background-color: #DE7D94;border: 1px solid #DE7D94;
-} 
+
+#delete_question:hover {
+  background-color: #DE7D94;
+  border: 1px solid #DE7D94;
+}
+
 .question-form {
   margin-top: 38px;
   width: 911px;
@@ -832,10 +861,12 @@ textarea {white-space: pre-wrap;      /* сохраняет переводы с�
   letter-spacing: 1px;
   ;
 }
-.next-btn:hover{
+
+.next-btn:hover {
   background-color: #9AC57E;
 
-} 
+}
+
 .next-btn-text {
   text-align: center;
   height: 57px;
@@ -863,7 +894,8 @@ textarea {white-space: pre-wrap;      /* сохраняет переводы с�
   ;
   margin-left: auto;
   margin-top: 62px;
-  margin-bottom: 179px;;
+  margin-bottom: 179px;
+  ;
 }
 
 .start-button {
@@ -883,9 +915,12 @@ textarea {white-space: pre-wrap;      /* сохраняет переводы с�
   color: white;
   ;
 }
-.start-button:hover{
-  background-color: #DE7D94;border: 1px solid  #DE7D94;
+
+.start-button:hover {
+  background-color: #DE7D94;
+  border: 1px solid #DE7D94;
 }
+
 .save-button {
   cursor: pointer;
   width: 351px;
@@ -904,7 +939,9 @@ textarea {white-space: pre-wrap;      /* сохраняет переводы с�
   margin-left: 36px;
   ;
 }
-.save-button:hover{
-  background-color:#9AC57E;border: 1px solid  #9AC57E;
+
+.save-button:hover {
+  background-color: #9AC57E;
+  border: 1px solid #9AC57E;
 }
 </style>

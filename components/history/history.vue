@@ -519,7 +519,7 @@ background-color: #853CFF;
   ;
 }
 
-.interactive_info {}
+
 
 #history_line {
   position: absolute;
@@ -746,8 +746,6 @@ background-color: #853CFF;
   background-color: #9AC57E;border: 1px solid #9AC57E;
 }
 
-/* Скрываем стандартный чекбокс */
-.custom-checkbox {}
 
 /* Кастомный круглый чекбокс */
 .select_many_option input[type="checkbox"] {
