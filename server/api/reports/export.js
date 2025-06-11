@@ -22,6 +22,7 @@ export default defineEventHandler(async (event) => {
     // Получаем имя файла из заголовка Content-Disposition
     const contentDisposition = response.headers.get('content-disposition') || ''
     const match = contentDisposition.match(/filename="?([^"]+)"?/)
+    const hostFilename = `report-${Date.now()}.xlsx`
     const fileName = match ? match[1] : `report-${Date.now()}.xlsx`
     const arrayBuffer = await response.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
@@ -33,14 +34,15 @@ export default defineEventHandler(async (event) => {
 
     // Генерируем имя файла
     
-    const filePath = join(reportsDir, fileName)
+    const filePath = join(reportsDir, hostFilename)
 
     // Записываем файл
     await writeFile(filePath, buffer)
     
     // Возвращаем путь к файлу относительно public, чтобы фронтенд мог скачать
     return {
-     url: `/reports/${fileName}`
+     url: `/reports/${hostFilename}`,
+     userFileName: fileName
     }
   } catch (error) {
     return {
