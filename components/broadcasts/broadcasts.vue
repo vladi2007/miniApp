@@ -34,6 +34,7 @@ function openPopupManySelect() {
 function closePopup() {
     showPopup.value = false;
     selectedOption.value = null;
+    selfSendButton.value=false
 }
 
 // Функция для выбора нескольких интерактивов
@@ -59,6 +60,7 @@ async function submitBroadcasts() {
         if (messageText.value === "") {
             window.Telegram.WebApp.showAlert(`Вы не набрали текст для сообщения!`);
             closePopup()
+            console.log(selectedInteractives.value)
         }
         else {
             try {
@@ -79,8 +81,8 @@ async function submitBroadcasts() {
                     throw new Error(errorData.error || 'Ошибка сервера');
                 }
 
-                const data = await response.json()
-
+                window.Telegram.WebApp.showAlert(`Ваше сообщение успешно отправлено!`);
+                closePopup()
 
             } catch (error) {
                 window.Telegram.WebApp.showAlert(`Ошибка при отправке сообщения`);
@@ -99,7 +101,45 @@ async function submitBroadcasts() {
         }, 0);
     }
 }
+async function submitSelfBroadcasts() {
+    
+        if (messageText.value === "") {
+            window.Telegram.WebApp.showAlert(`Вы не набрали текст для сообщения!`);
+            closePopup()
+        }
+        else {
+            try {
+                const body = {
+                    telegram_id: userId.value,
+                    text: messageText.value
+                };
 
+                const response = await fetch('/api/broadcasts/selfsend', {
+                    method: 'POST',
+                    
+                    body: JSON.stringify(body)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Ошибка сервера');
+                }
+
+                window.Telegram.WebApp.showAlert(`Ваше сообщение успешно отправлено!`);
+                closePopup()
+
+            } catch (error) {
+                window.Telegram.WebApp.showAlert(`Ошибка при отправке сообщения`);
+            }
+        }
+
+    
+    if (window.Telegram?.WebApp?.expand) {
+        setTimeout(() => {
+            Telegram.WebApp.requestFullscreen()
+        }, 0);
+    }
+}
 
 
 
@@ -140,6 +180,11 @@ const showConfirmPopup = ref(false)
 function handleBackClick() {
     showConfirmPopup.value = true
 }
+function handleSelfSend() {
+  selfSendButton.value = true;
+  openPopupManySelect();
+}
+const selfSendButton =ref(false)
 async function confirmBack(save ) {
   if (save) {
     
@@ -174,18 +219,11 @@ async function confirmBack(save ) {
                             <img src="/images/history/history.svg" id="broadcasts_menu_info" />
                             <div class="broadcasts_content_menu_info_guide">
                                 Вы можете отослать материалы для участников интерактива в боте<br />
-                                Доступна функция рассылки участникам нескольких интерактивов.
+                                Доступна функция рассылки участникам нескольких интерактивов.<br />
+                                Вы можете отправить сообщение сначала только себе для проверки корректности
                             </div>
 
-                            <div class="pick_button">
-                                <button v-if="selectMany" class="selectManyDownload" @click="openPopupManySelect()">
-                                    Отправить
-                                </button>
-                                <button class="broadcasts_content_menu_info_button" @click="selectManyOption()"
-                                    :class="{ selectManyClass: selectMany, 'hoverable-select': !selectMany, 'hoverable-select_red': selectMany }">
-                                    {{ !selectMany ? "Выбрать" : "Отмена" }}
-                                </button>
-                            </div>
+                            
                         </div>
                         <div class="broadcasts_message_text">
 
@@ -196,8 +234,22 @@ async function confirmBack(save ) {
                                     placeholder="Введите сообщение для участников"
                                     class="broadcasts_message_text_input" />
                             </label>
+                            <div class="pick_button">
+                                <button v-if="selectMany" class="selectManyDownload" @click="openPopupManySelect()">
+                                    Отправить участникам
+                                </button>
+                                <button v-if="!selectMany" class="selectManyDownload" @click = "handleSelfSend()">
+                                    Отправить только себе
+                                </button>
+                                <button class="broadcasts_content_menu_info_button" @click="selectManyOption()"
+                                    :class="{ selectManyClass: selectMany, 'hoverable-select': !selectMany, 'hoverable-select_red': selectMany }">
+                                    {{ !selectMany ? "Выбрать" : "Отмена" }}
+                                </button>
+                            </div>
 
                         </div>
+                        
+                        
                     </div>
 
                     <div class="broadcasts_content_list">
@@ -236,9 +288,11 @@ async function confirmBack(save ) {
         </div>
         <div class="broadcasts_popup-overlay" v-if="showPopup">
             <div class="broadcasts_popup-content">
-                <div class="broadcasts_popup-text">Вы точно хотите сделать рассылку?</div>
+                <div class="broadcasts_popup-text" v-if="!selfSendButton">Вы точно хотите сделать рассылку?</div>
+                <div class="broadcasts_popup-text" v-if="selfSendButton">Вы хотите отправить сообщение только себе?</div>
                 <div class="broadcasts_popup-buttons">
-                    <button class="broadcasts_popup-btn confirm" @click="submitBroadcasts">Да</button>
+                    <button class="broadcasts_popup-btn confirm" @click="submitBroadcasts" v-if="!selfSendButton">Да</button>
+                    <button class="broadcasts_popup-btn confirm" @click="submitSelfBroadcasts" v-if="selfSendButton">Да</button>
                     <button class="broadcasts_popup-btn cancel" @click="closePopup">Нет</button>
                 </div>
             </div>
@@ -434,7 +488,7 @@ async function confirmBack(save ) {
 
 .broadcasts_message_text textarea {
     margin-top: 20px;
-    height: 102px;
+    height: 202px;
     ;
     margin-left: 36px;
     ;
@@ -460,7 +514,7 @@ textarea {
 }
 
 .broadcasts_message_text_input {
-    width: 1100px;
+    width: 800px;
     ;
     height: 100px;
     ;
@@ -502,10 +556,8 @@ body.broadcasts-background {
 .broadcasts_fon {
 
     background-color: #A774FC;
-    height: 1159px;
-    ;
-    margin-bottom: 56px;
-    ;
+    height: 1359px;
+    
 
 
 
@@ -514,13 +566,11 @@ body.broadcasts-background {
 
 }
 
-.broadcasts {
-    min-height: 100vh;
-    height: 50px;
-    ;
+.broadcasts {margin-bottom: 220px;;
+    margin-bottom: 60px;
     width: 1360px;
     margin: 0 auto;
-
+height: 1200px;
     padding-top: 12px;
 }
 
@@ -534,8 +584,8 @@ body.broadcasts-background {
     margin-top: 8px;
     width: 1360px;
     ;
-    min-height: 1033px;
-    ;
+    min-height: 1133px;
+    
     background-color: white;
     border-radius: 40px;
     ;
@@ -588,7 +638,7 @@ body.broadcasts-background {
 }
 
 .broadcasts_content_menu_info {
-
+   
     margin-top: 60px;
     position: relative;
     display: flex;
@@ -597,6 +647,7 @@ body.broadcasts-background {
 .pick_button {
     position: relative;
     margin-left: auto;
+    margin-top:172px;
 }
 
 .broadcasts_content_menu_info_button {
@@ -669,10 +720,11 @@ body.broadcasts-background {
     /* Firefox */
     -ms-overflow-style: none;
     /* IE и Edge */
-    margin-top: 95px;
+    margin-top: 215px;
     width: 1318px;
     height: 588px;
     overflow-y: auto;
+    
 
 }
 

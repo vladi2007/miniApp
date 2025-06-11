@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     // валидация
   
-    const response = await fetch('https://carclicker.ru/api/broadcasts/send?x_key=super-secret-key', {
+    const response = await fetch('https://carclicker.ru/api/broadcasts/test?x_key=super-secret-key', {
       method: 'POST',
         headers: {
     'Content-Type': 'application/json',
@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
     }
    
     
-    return {success:true , message: "вы успешно отправили сообщение участникам"}
+    return {success:true, message: "вы успешно отправили сообщение только себе"}
   } catch (error) {
     return {
       success: false,
