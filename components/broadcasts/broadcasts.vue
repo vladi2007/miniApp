@@ -34,7 +34,7 @@ function openPopupManySelect() {
 function closePopup() {
     showPopup.value = false;
     selectedOption.value = null;
-    selfSendButton.value=false
+    selfSendButton.value = false
 }
 
 // Функция для выбора нескольких интерактивов
@@ -54,8 +54,10 @@ function toggleInteractiveSelection(id) {
         selectedInteractives.value.splice(index, 1); // Убираем из выбранных
     }
 }
-
+const isSending = ref(false);
 async function submitBroadcasts() {
+    if (isSending.value) return;
+    isSending.value = true;
     if (selectedInteractives.value.length > 0) {
         if (messageText.value === "") {
             window.Telegram.WebApp.showAlert(`Вы не набрали текст для сообщения!`);
@@ -72,7 +74,7 @@ async function submitBroadcasts() {
 
                 const response = await fetch('/api/broadcasts/send', {
                     method: 'POST',
-                    
+
                     body: JSON.stringify(body)
                 });
 
@@ -95,6 +97,7 @@ async function submitBroadcasts() {
         window.Telegram.WebApp.showAlert(`Выберите хотя бы один интерактив для формирования рассылки!`);
         closePopup()
     }
+    isSending.value = false;
     if (window.Telegram?.WebApp?.expand) {
         setTimeout(() => {
             Telegram.WebApp.requestFullscreen()
@@ -102,38 +105,39 @@ async function submitBroadcasts() {
     }
 }
 async function submitSelfBroadcasts() {
-    
-        if (messageText.value === "") {
-            window.Telegram.WebApp.showAlert(`Вы не набрали текст для сообщения!`);
-            closePopup()
-        }
-        else {
-            try {
-                const body = {
-                    telegram_id: userId.value,
-                    text: messageText.value
-                };
+    if (isSending.value) return;
+    isSending.value = true;
+    if (messageText.value === "") {
+        window.Telegram.WebApp.showAlert(`Вы не набрали текст для сообщения!`);
+        closePopup()
+    }
+    else {
+        try {
+            const body = {
+                telegram_id: userId.value,
+                text: messageText.value
+            };
 
-                const response = await fetch('/api/broadcasts/selfsend', {
-                    method: 'POST',
-                    
-                    body: JSON.stringify(body)
-                });
+            const response = await fetch('/api/broadcasts/selfsend', {
+                method: 'POST',
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Ошибка сервера');
-                }
+                body: JSON.stringify(body)
+            });
 
-                window.Telegram.WebApp.showAlert(`Ваше сообщение успешно отправлено!`);
-                closePopup()
-
-            } catch (error) {
-                window.Telegram.WebApp.showAlert(`Ошибка при отправке сообщения`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Ошибка сервера');
             }
-        }
+            closePopup()
+            window.Telegram.WebApp.showAlert(`Ваше сообщение успешно отправлено!`);
 
-    
+
+        } catch (error) {
+            window.Telegram.WebApp.showAlert(`Ошибка при отправке сообщения`);
+        }
+    }
+
+    isSending.value = false;
     if (window.Telegram?.WebApp?.expand) {
         setTimeout(() => {
             Telegram.WebApp.requestFullscreen()
@@ -181,19 +185,19 @@ function handleBackClick() {
     showConfirmPopup.value = true
 }
 function handleSelfSend() {
-  selfSendButton.value = true;
-  openPopupManySelect();
+    selfSendButton.value = true;
+    openPopupManySelect();
 }
-const selfSendButton =ref(false)
-async function confirmBack(save ) {
-  if (save) {
-    
-    showConfirmPopup.value = false
-      route.push('/leader/main_menu')
-  } else {
-    showConfirmPopup.value = false
-   
-  }
+const selfSendButton = ref(false)
+async function confirmBack(save) {
+    if (save) {
+
+        showConfirmPopup.value = false
+        route.push('/leader/main_menu')
+    } else {
+        showConfirmPopup.value = false
+
+    }
 }
 </script>
 
@@ -223,7 +227,7 @@ async function confirmBack(save ) {
                                 Вы можете отправить сообщение сначала только себе для проверки корректности
                             </div>
 
-                            
+
                         </div>
                         <div class="broadcasts_message_text">
 
@@ -238,7 +242,7 @@ async function confirmBack(save ) {
                                 <button v-if="selectMany" class="selectManyDownload" @click="openPopupManySelect()">
                                     Отправить участникам
                                 </button>
-                                <button v-if="!selectMany" class="selectManyDownload" @click = "handleSelfSend()">
+                                <button v-if="!selectMany" class="selectManyDownload" @click="handleSelfSend()">
                                     Отправить только себе
                                 </button>
                                 <button class="broadcasts_content_menu_info_button" @click="selectManyOption()"
@@ -248,8 +252,8 @@ async function confirmBack(save ) {
                             </div>
 
                         </div>
-                        
-                        
+
+
                     </div>
 
                     <div class="broadcasts_content_list">
@@ -289,10 +293,13 @@ async function confirmBack(save ) {
         <div class="broadcasts_popup-overlay" v-if="showPopup">
             <div class="broadcasts_popup-content">
                 <div class="broadcasts_popup-text" v-if="!selfSendButton">Вы точно хотите сделать рассылку?</div>
-                <div class="broadcasts_popup-text" v-if="selfSendButton">Вы хотите отправить сообщение только себе?</div>
+                <div class="broadcasts_popup-text" v-if="selfSendButton">Вы хотите отправить сообщение только себе?
+                </div>
                 <div class="broadcasts_popup-buttons">
-                    <button class="broadcasts_popup-btn confirm" @click="submitBroadcasts" v-if="!selfSendButton">Да</button>
-                    <button class="broadcasts_popup-btn confirm" @click="submitSelfBroadcasts" v-if="selfSendButton">Да</button>
+                    <button class="broadcasts_popup-btn confirm" @click="submitBroadcasts"
+                        v-if="!selfSendButton">Да</button>
+                    <button class="broadcasts_popup-btn confirm" @click="submitSelfBroadcasts"
+                        v-if="selfSendButton">Да</button>
                     <button class="broadcasts_popup-btn cancel" @click="closePopup">Нет</button>
                 </div>
             </div>
@@ -300,7 +307,7 @@ async function confirmBack(save ) {
         <div v-if="showConfirmPopup" class="broadcasts_edit_popup-overlay">
             <div class="broadcasts_edit_popup-content">
                 <div class="broadcasts_edit_popup-text">Вы действительно хотите вернуться на главное меню?
-                  
+
                 </div>
                 <div class="broadcasts_edit_popup-actions">
                     <button @click="confirmBack(true)" class="broadcasts_edit_popup-btn save">Да</button>
@@ -313,59 +320,60 @@ async function confirmBack(save ) {
 
 <style>
 .broadcasts_edit_popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(29, 29, 29, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(29, 29, 29, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
 .broadcasts_edit_popup-content {
-  background-color: white;
-  border-radius: 10px;
-  padding: 32px;
-  width: 600px;
-  text-align: center;
-  font-family: 'Lato', sans-serif;
+    background-color: white;
+    border-radius: 10px;
+    padding: 32px;
+    width: 600px;
+    text-align: center;
+    font-family: 'Lato', sans-serif;
 }
 
 .broadcasts_edit_popup-text {
-  font-size: 24px;
-  margin-bottom: 24px;
+    font-size: 24px;
+    margin-bottom: 24px;
 }
 
 .broadcasts_edit_popup-actions {
-  display: flex;
-  justify-content: center;
-  gap: 24px;
+    display: flex;
+    justify-content: center;
+    gap: 24px;
 }
 
 .broadcasts_edit_popup-btn {
-  padding: 12px 32px;
-  font-size: 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+    padding: 12px 32px;
+    font-size: 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .broadcasts_edit_popup-btn.save {
-  background-color: #6AB23D;
-  color: white;
+    background-color: #6AB23D;
+    color: white;
 }
 
 .broadcasts_edit_popup-btn.cancel {
-  background-color: #F0436C;
-  color: white;
+    background-color: #F0436C;
+    color: white;
 }
 
 .broadcasts_edit_popup-btn:hover {
-  opacity: 0.9;
+    opacity: 0.9;
 }
+
 .broadcasts_popup-overlay {
     font-family: 'Lato', sans-serif;
     position: fixed;
@@ -557,7 +565,7 @@ body.broadcasts-background {
 
     background-color: #A774FC;
     height: 1359px;
-    
+
 
 
 
@@ -566,11 +574,13 @@ body.broadcasts-background {
 
 }
 
-.broadcasts {margin-bottom: 220px;;
+.broadcasts {
+    margin-bottom: 220px;
+    ;
     margin-bottom: 60px;
     width: 1360px;
     margin: 0 auto;
-height: 1200px;
+    height: 1200px;
     padding-top: 12px;
 }
 
@@ -585,7 +595,7 @@ height: 1200px;
     width: 1360px;
     ;
     min-height: 1133px;
-    
+
     background-color: white;
     border-radius: 40px;
     ;
@@ -638,7 +648,7 @@ height: 1200px;
 }
 
 .broadcasts_content_menu_info {
-   
+
     margin-top: 60px;
     position: relative;
     display: flex;
@@ -647,7 +657,7 @@ height: 1200px;
 .pick_button {
     position: relative;
     margin-left: auto;
-    margin-top:172px;
+    margin-top: 172px;
 }
 
 .broadcasts_content_menu_info_button {
@@ -724,7 +734,7 @@ height: 1200px;
     width: 1318px;
     height: 588px;
     overflow-y: auto;
-    
+
 
 }
 
@@ -809,7 +819,6 @@ height: 1200px;
     ;
 }
 
-.interactive_info {}
 
 #broadcasts_line {
     position: absolute;
@@ -1039,8 +1048,6 @@ height: 1200px;
     border: 1px solid #9AC57E;
 }
 
-/* Скрываем стандартный чекбокс */
-.custom-checkbox {}
 
 /* Кастомный круглый чекбокс */
 .select_many_option input[type="checkbox"] {
