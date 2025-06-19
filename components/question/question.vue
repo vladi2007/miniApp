@@ -34,6 +34,6 @@ const props = defineProps<{
 
 <style>
 @import url("~/assets/css/question/question.scss");
-
+@import url("~/assets/css/question/question_list.scss");
 @import url("~/assets/css/question/timer.scss");
 </style>

@@ -5,7 +5,7 @@
 }
 
 .question_number {
-  margin-top: 45px;
+  margin-top: 25px;
   position: relative;
   width: 131px;
   height: 41px;
@@ -32,24 +32,29 @@
 }
 
 .question_title {
-  margin-top: 14px;
+  margin-top: 26px;
   font-weight: 400;
   font-size: 16px;
-  line-height: 24px;white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
-  word-break: break-word; 
+  line-height: 24px;
+  margin-left:7px;
+  width: 320px;
+  white-space: pre-wrap;
+  /* сохраняет переводы строк и переносит при необходимости */
+  word-break: break-word;
+  
 }
 
 .question_list {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-top: 16px;
+  margin-top: 28px;
+
 }
 
 .question_answer {
   background-color: #f7f7f7;
   border-radius: 8px;
-  height: 46px;;
   min-height: 46px;
   font-size: 16px;
   font-weight: 400;
@@ -60,19 +65,32 @@
   align-items: center;
   transition: all 0.2s ease;
   color: #1d1d1d;
-  padding-left: 35px;white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
-  word-break: break-word; 
+  padding-left: 35px;
+  width: 346px;
+  white-space: pre-wrap;
+  /* сохраняет переводы строк и переносит при необходимости */
+  word-break: break-word;
+  line-height: 24px;
+  ;
+}
+
+.question_text {
+ width: 260px;
+  white-space: pre-wrap;
+  /* сохраняет переводы строк и переносит при необходимости */
+  word-break: break-word;
+  line-height: 24px;
+  ;
 }
 
 
-
 .question_answer.selected {
-  background-color:2px solid #853cff;
+  background-color: #853cff;
   color: white;
 }
 
 .question_answer.correct {
-  background-color: 2px solid #6ab23d;
+  background-color:#6ab23d;
   color: white;
 }
 
@@ -121,9 +139,11 @@
   background-color: #853cff;
   color: white;
 }
+
 .question_accepted-banner.hidden {
-  display:none
+  display: none
 }
+
 .question_accepted-banner.success {
   background-color: #6ab23d;
   color: white;

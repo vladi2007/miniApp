@@ -1,0 +1,529 @@
+.settings_popup-overlay {
+  font-family: 'Lato', sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.settings_popup-content {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  width: 400px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.settings_popup-text {
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 30px;
+
+}
+
+.settings_popup-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.settings_popup-btn {
+  width: 120px;
+  height: 45px;
+  font-size: 20px;
+  font-family: 'Lato', sans-serif;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.settings_popup-btn.confirm {
+  background-color: #6AB23D;
+  border: 2px solid #6AB23D;
+  color: white;
+}
+
+.settings_popup-btn.confirm:hover {
+  background-color: #9AC57E;
+  border: 2px solid #9AC57E;
+}
+
+.settings_popup-btn.cancel {
+  background-color: #F0436C;
+  border: 2px solid #F0436C;
+  color: white;
+}
+
+.settings_popup-btn.cancel:hover {
+  background-color: #DE7D94;
+  border: 2px solid #DE7D94;
+}
+
+textarea {
+  white-space: pre-wrap;
+  /* сохраняет переводы строк и переносит при необходимости */
+  word-break: break-word;
+  resize: none;
+}
+
+.quest-nav-button {
+  font-size: 24px;
+  ;
+  cursor: pointer;
+  font-family: 'Lato', sans-serif;
+  font-weight: 400;
+  vertical-align: middle;
+}
+
+.quest-nav-button:hover {
+  color: white;
+  background-color: #AA77FF;
+}
+
+.quest-nav-button.active {
+  color: white;
+  background-color: #853CFF;
+
+  border-color: #853CFF;
+}
+
+#question_textarea {
+  height: 100px;
+  ;
+  border-radius: 18px;
+  ;
+}
+
+.answer-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+
+}
+
+.answer-wrapper input[type="radio"] {
+  position: absolute;
+  left: 23px;
+  height: 38px;
+  width: 38px;
+  z-index: 2;
+  top: 38px;
+
+  border-radius: 50%;
+  /* чтобы было круглое */
+
+  /* Добавим фиолетовую рамку */
+  border: 4px solid #853CFF;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: white;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Для того чтобы радио выглядело как радио с рамкой и менялось при выборе */
+.answer-wrapper input[type="radio"]:hover {
+  background-color: #AA77FF;
+}
+
+.answer-wrapper input[type="radio"]:checked {
+  background-color: #853CFF;
+  box-shadow: 0 0 0 3px #853CFF inset;
+}
+
+/* Чтобы показать точку внутри при выборе */
+.answer-wrapper input[type="radio"]:checked::before {
+  content: "";
+  display: block;
+  width: 14px;
+  height: 14px;
+  margin: 11px auto;
+  border-radius: 50%;
+  background-color: #853CFF;
+  /* точка внутри тоже фиолетовая */
+}
+
+.answer-input {
+  padding-left: 78px;
+  /* пространство под radio */
+  height: 75px;
+  width: 100%;
+  border: 4px solid white;
+  border-radius: 18px;
+  font-size: 24px;
+}
+
+.answer-input::placeholder {
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+
+  letter-spacing: 1px;
+
+
+}
+
+* {
+  padding: 0;
+  ;
+  margin: 0;
+  ;
+}
+
+#answers {
+  margin-top: 30px;
+  height: 476px;
+  ;
+}
+
+.question-header {
+  height: 26px;
+  ;
+  margin-left: 46px;
+  ;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  vertical-align: middle;
+  letter-spacing: 1px;
+  ;
+}
+
+#question-text {
+  margin-top: 35px;
+  ;
+}
+
+
+.question_nav_header {
+
+
+  margin: 0 auto;
+  margin-top: 48px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  vertical-align: middle;
+  letter-spacing: 1px;
+  ;
+}
+
+.questions_section {
+  display: grid;
+  grid-template-columns: 350px 911px;
+  ;
+  gap: 48px;
+  ;
+}
+
+.question-nav {
+  margin-top: 99px;
+  display: flex;
+  flex-direction: column;
+  height: 446px;
+
+  border-radius: 30px;
+  border: 3px solid #853CFF;
+
+}
+
+.question-actions {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.question-buttons {
+  margin: 0 auto;
+  overflow-y: auto;
+  width: 290px;
+  ;
+  margin-top: 39px;
+  max-height: 225px;
+  ;
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  /* если нужно переносить строки */
+  gap: 12px;
+
+}
+
+.question-actions>button {
+  cursor: pointer;
+}
+
+.question-buttons>button {
+  cursor: pointer;
+  height: 65px;
+  width: 65px;
+  ;
+  background-color: white;
+  border-radius: 15px;
+  ;
+  border: 3px solid #853CFF;
+}
+
+#add_question {
+  color: white;
+  font-family: 'Lato', sans-serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 24px;
+  letter-spacing: 1px;
+  vertical-align: middle;
+  width: 130px;
+  height: 40px;
+  border-radius: 5px;
+  background-color: #6AB23D;
+  border: 1px solid #6AB23D;
+}
+
+#add_question:hover {
+  background-color: #9AC57E;
+  border: 1px solid #9AC57E;
+}
+
+#delete_question {
+  color: white;
+  font-family: 'Lato', sans-serif;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 24px;
+  letter-spacing: 1px;
+  vertical-align: middle;
+  width: 130px;
+  height: 40px;
+  border: 1px solid #F0436CF0;
+  border-radius: 5px;
+  background-color: #F0436CF0;
+  margin-bottom: 15px;
+}
+
+#delete_question:hover {
+  background-color: #DE7D94;
+  border: 1px solid #DE7D94;
+}
+
+.question-form {
+  margin-top: 38px;
+  width: 911px;
+  height: 753px;
+  ;
+
+}
+
+
+.general_settings {
+  width: 1360px;
+  height: 738px;
+
+  margin: 0 auto;
+
+
+  font-family: 'Lato', sans-serif;
+
+}
+
+.form-wrapper {
+  display: grid;
+
+
+}
+
+.form-grid {
+  padding-top: 68px;
+  display: grid;
+  grid-template-columns: 659px 665px;
+
+  gap: 36px;
+
+}
+
+.form-grid>div {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  ;
+}
+
+.form-column-first {
+  height: 738px;
+  ;
+
+}
+
+.form-column-second {
+  height: 606px;
+  ;
+
+}
+
+.input-group {
+  background-color: #853CFF;
+  display: flex;
+  flex-direction: column;
+  padding-left: 23px;
+
+  padding-right: 25px;
+  ;
+  padding-bottom: 20px;
+  ;
+  border-radius: 26px;
+  ;
+}
+
+.input-group label {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  vertical-align: middle;
+  color: white;
+  letter-spacing: 1px;
+  ;
+}
+
+.input-group textarea {
+  margin-top: 20px;
+  height: 72px;
+  ;
+
+  border-radius: 18px;
+  ;
+  border: 4px solid white;
+  ;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 32px;
+  ;
+  letter-spacing: 1px;
+  ;
+
+}
+
+.input-group label+label {
+  margin-top: 14px;
+}
+
+#description_input {
+  height: 163px;
+  ;
+}
+
+.input-group label:first-of-type {
+  padding-top: 20px;
+}
+
+.next-btn {
+  cursor: pointer;
+  margin-left: 284px;
+  ;
+  width: 348px;
+  ;
+  padding: 25px 50px 25px 50px;
+  ;
+  border-radius: 5px;
+  background-color: #6AB23D;
+  ;
+
+  color: white;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  letter-spacing: 1px;
+  ;
+}
+
+.next-btn:hover {
+  background-color: #9AC57E;
+
+}
+
+.next-btn-text {
+  text-align: center;
+  height: 57px;
+  ;
+}
+
+.question_label {
+  margin-left: 22px;
+}
+
+.question_label textarea {
+  margin-right: 22px;
+  ;
+  /* сбрасываем возможное влияние */
+
+}
+
+.answer-item {
+  margin-bottom: 9px;
+  ;
+}
+
+.question-controls {
+  width: 739px;
+  ;
+  margin-left: auto;
+  margin-top: 62px;
+  margin-bottom: 179px;
+  ;
+}
+
+.start-button {
+  cursor: pointer;
+  width: 352px;
+  height: 62px;
+  ;
+  background-color: #F0436C;
+  border: 1px solid #F0436C;
+  ;
+  border-radius: 5px;
+  ;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  letter-spacing: 1px;
+  color: white;
+  ;
+}
+
+.start-button:hover {
+  background-color: #DE7D94;
+  border: 1px solid #DE7D94;
+}
+
+.save-button {
+  cursor: pointer;
+  width: 351px;
+  height: 62px;
+  ;
+  background-color: #6AB23D;
+  border: 1px solid #6AB23D;
+  border-radius: 5px;
+  ;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  letter-spacing: 1px;
+  color: white;
+  ;
+  margin-left: 36px;
+  ;
+}
+
+.save-button:hover {
+  background-color: #9AC57E;
+  border: 1px solid #9AC57E;
+}

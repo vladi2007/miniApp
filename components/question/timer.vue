@@ -87,7 +87,5 @@ const timerLabel = computed(() => {
 </template>
 
 <style>
-.no-transition {
-  transition: none !important;
-}
+
 </style>

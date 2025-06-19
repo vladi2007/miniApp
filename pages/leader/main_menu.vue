@@ -20,23 +20,23 @@ onMounted(async () => {
     initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
 
     userId.value = initDataUnsafe.value?.user?.id
-    console.log(userId.value)
+
     if (userId) {
       const  data = await useFetch('/api/role', {
         query: {
           telegram_id: userId.value,
         },
       })
-      console.log("УРА")
-      console.log(data.data.value.role)
+
+
       role.value = data.data.value.role
-        console.log(role.value)
+      
     }
 
     isReady.value = true
   }
 })
-console.log(role.value)
+
 </script>
 
 <template>

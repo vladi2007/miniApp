@@ -9,7 +9,7 @@ const props = defineProps<{
    context:string
    // Используем тип WaitingData
 }>()
-console.log(props.data.description)
+
 </script>
 
 <template>

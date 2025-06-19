@@ -15,16 +15,5 @@ import description from '~/components/main_menu/description.vue'
 </template>
 
 <style >
-*{
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-}
-.main_menu_fon{
-    background-color: white;
-    width: 100%;
-    
-    margin-bottom: 30px;;
-    padding-bottom: 42px;;
-}
+@import url("~/assets/css/main_menu/main_menu.scss");
 </style>

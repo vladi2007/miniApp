@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   const { telegram_id, x_key, id } = query
-  console.log(telegram_id)
+ 
 
 
   try {

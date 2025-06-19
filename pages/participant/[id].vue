@@ -58,7 +58,7 @@ watch(data, (newVal) => {
     data_props.value.stage = parsedData.stage || ''
     data_props.value.data = parsedData.data || {}
   } catch (error) {
-    console.error("Ошибка при разборе данных WebSocket:", error)
+   
   }
 })
 // Отправка ответа

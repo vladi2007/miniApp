@@ -14,11 +14,7 @@ wss.on('connection', function connection(clientSocket, incoming_request) {
   const role = query.role
   const xKey = query.x_key
 const interactive_id = query.interactive_id
-  console.log('🔌 Клиент подключился:')
-  console.log('📎 telegram_id:', telegramId)
-  console.log('👤 role:', role)
- 
-console.log('🔑 interactive_id:', interactive_id)
+
   let backendSocket = null
 
   clientSocket.on('message', (msg) => {
@@ -28,12 +24,12 @@ console.log('🔑 interactive_id:', interactive_id)
       if (data.type === 'init' && data.id) {
         // Собираем URL с параметрами
         const backendUrl = `wss://carclicker.ru/ws/${interactive_id}?telegram_id=${telegramId}&role=${role}&x_key=super-secret-key`
-        console.log('➡️ Подключение к бэкенду:', backendUrl)
+       
 
         backendSocket = new WebSocket(backendUrl)
 
         backendSocket.on('message', (backendMsg) => {
-  console.log('📩 от бэкенда:', backendMsg.toString())
+  
   clientSocket.send(backendMsg.toString())
 })
 
@@ -55,5 +51,5 @@ console.log('🔑 interactive_id:', interactive_id)
 })
 
 server.listen(port, () => {
-  console.log(`✅ WebSocket-прокси работает на ws://localhost:${port}/ws`)
+
 })

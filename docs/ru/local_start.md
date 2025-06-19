@@ -1,3 +1,8 @@
+# Click Telegram Mini App Docs RU
+Пользовательская документация Click Telegram Mini App на русском
+
+### [Оглавление](./index.md)
+
 # Nuxt Minimal Starter
 
 Изучите документацию  [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction).

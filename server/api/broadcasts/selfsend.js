@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   },
       body: body
     })
-    console.log(response)
+
     if (!response.ok) {
       const errorText = await response.text()
       throw new Error(`Ошибка внешнего API: ${response.status} - ${errorText}`)

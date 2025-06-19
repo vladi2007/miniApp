@@ -20,5 +20,5 @@ const props = defineProps<{
 </template>
 
 <style>
-/* Ваши стили */
+
 </style>

@@ -42,7 +42,7 @@ const showBanner = ref(false) // Состояние для плашки
 
 const isDiscussion = computed(() => props.stage === 'discussion')
 const isParticipant = computed(() => props.stage === 'participant')
-console.log(props)
+
 // Позволяет выбирать только в режиме "question"
 
 
@@ -102,9 +102,5 @@ watch(
 </template>
 
 <style>
-#question_mun_star{
-  position: absolute;
-  bottom:45px;
-  right: 11px;;
-}
+
 </style>

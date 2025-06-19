@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
       const errorText = await response.text()
       throw new Error(`Ошибка внешнего API: ${response.status} - ${errorText}`)
     }
-    console.log(response)
+
     // Получаем имя файла из заголовка Content-Disposition
     const contentDisposition = response.headers.get('content-disposition') || ''
     const match = contentDisposition.match(/filename="?([^"]+)"?/)

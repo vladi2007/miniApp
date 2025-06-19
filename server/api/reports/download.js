@@ -29,7 +29,7 @@ export default defineEventHandler((event) => {
   stream.on('end', () => {
     unlink(filePath, (err) => {
       if (err) console.error('Ошибка удаления файла:', err)
-      else console.log(`Файл ${file} удалён после отправки.`)
+  
     })
   })
 
@@ -41,6 +41,6 @@ export default defineEventHandler((event) => {
     }
   })
 
-  // Чтобы Nuxt не пытался дальше что-то возвращать
+ 
   return event.node.res
 })
