@@ -21,17 +21,19 @@ jobs:
           ssh-keyscan -H 45.9.40.96 >> ~/.ssh/known_hosts
       - name: 🚀 SSH into server and deploy
         run: |
+          BRANCH=${{ github.ref_name }}
           ssh root@45.9.40.96 << EOF
             set -e
             cd /root/miniApp
-
-            echo "📦 Checking out branch: ${{ github.ref_name }}"
+      
+            echo "📦 Checking out branch: $BRANCH"
             git fetch origin
-            git checkout -B ${{ github.ref_name }} origin/${{ github.ref_name }}
+            git checkout -B $BRANCH origin/$BRANCH
             git pull
-
+      
             echo "🔧 Rebuilding and restarting container..."
-            docker compose stop
+            docker compose down
             docker compose build --no-cache
             docker compose up -d
           EOF
+
