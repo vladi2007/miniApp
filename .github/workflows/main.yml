@@ -1,0 +1,34 @@
+name: Deploy to VPS (branch-aware)
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔐 Setup SSH agent
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_MINIAPP_KEY }}
+
+      - name: 🚀 SSH into server and deploy
+        run: |
+          ssh root@45.9.40.96 << EOF
+            set -e
+            cd /root/miniApp
+
+            echo "📦 Checking out branch: ${{ github.ref_name }}"
+            git fetch origin
+            git checkout -B ${{ github.ref_name }} origin/${{ github.ref_name }}
+            git pull
+
+            echo "🔧 Rebuilding and restarting container..."
+            docker compose stop
+            docker compose build --no-cache
+            docker compose up -d
+          EOF
