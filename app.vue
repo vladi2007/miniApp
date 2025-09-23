@@ -12,10 +12,7 @@
 window.Telegram.WebApp.expand()
 import { onMounted } from 'vue'
 
-// Предположим, что isTMA, init, viewport уже импортированы или доступны
-// Пример (раскомментируй и замени своими реализациями при необходимости):
-// import { isTMA, init, viewport } from '~/utils/telegram'
-
+// разворачиваем mini app на весь экран
 onMounted(() => {
   if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
     Telegram.WebApp.setBackgroundColor('#ffffff')

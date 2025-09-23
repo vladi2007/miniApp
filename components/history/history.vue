@@ -57,49 +57,49 @@ function toggleInteractiveSelection(id) {
 async function submitReport() {
   if (selectedInteractives.value.length > 0) {
     if (selectedOption.value !== 'forAnalise' && selectedOption.value !== 'forLeader') {
-    window.Telegram.WebApp.showAlert(`Выберите тип отчета!`);
-    return;
-  }
+      window.Telegram.WebApp.showAlert(`Выберите тип отчета!`);
+      return;
+    }
     try {
-    const body = {
-      telegram_id: userId.value,
-      interactive_id: selectedInteractives.value.map(id => ({ id })),
-      report_type: selectedOption.value
-    };
+      const body = {
+        telegram_id: userId.value,
+        interactive_id: selectedInteractives.value.map(id => ({ id })),
+        report_type: selectedOption.value
+      };
 
-    const response = await fetch('/api/reports/export', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
+      const response = await fetch('/api/reports/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Ошибка сервера');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка сервера');
+      }
+
+      const data = await response.json()
+
+      if (data.url) {
+        postEvent('web_app_request_file_download', {
+          url: `https://voshod07.ru${data.url}`,
+          file_name: data.userFileName
+        })
+      } else {
+        throw new Error(data.error || 'Не удалось получить ссылку на файл')
+      }
+    } catch (error) {
+      window.Telegram.WebApp.showAlert(`Ошибка при выгрузке отчета: ${error.message}`);
     }
-
-    const data = await response.json()
- 
-    if (data.url) {
-      postEvent('web_app_request_file_download', {
-        url: `https://voshod07.ru${data.url}`,
-        file_name: data.userFileName
-      })
-    } else {
-      throw new Error(data.error || 'Не удалось получить ссылку на файл')
-    }
-  } catch (error) {
-    window.Telegram.WebApp.showAlert(`Ошибка при выгрузке отчета: ${error.message}`);
   }
-  }
-  else{
+  else {
     window.Telegram.WebApp.showAlert(`Выберите хотя бы один интерактив для формирования отчёта!`);
   }
   if (window.Telegram?.WebApp?.expand) {
-  setTimeout(() => {
-    Telegram.WebApp.requestFullscreen()
-  }, 0);
-}
+    setTimeout(() => {
+      Telegram.WebApp.requestFullscreen()
+    }, 0);
+  }
 }
 
 
@@ -117,7 +117,7 @@ onMounted(async () => {
 
 
     userId.value = initDataUnsafe.value?.user?.id
-   
+
     const data = await useFetch('/api/reports/preview', {
 
       query: {
@@ -172,8 +172,7 @@ onUnmounted(() => {
                   Выгрузить
                 </button>
                 <button class="history_content_menu_info_button" @click="selectManyOption"
-                  :class="{ selectManyClass: selectMany, 'hoverable-select': !selectMany , 'hoverable-select_red': selectMany }"
-                  >
+                  :class="{ selectManyClass: selectMany, 'hoverable-select': !selectMany, 'hoverable-select_red': selectMany }">
                   {{ !selectMany ? "Выбрать" : "Отмена" }}
                 </button>
               </div>
@@ -217,7 +216,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- Popup модальное окно -->
+
     <div v-if="showPopup" class="popup-overlay">
       <div class="popup">
         <div class="popup-header">

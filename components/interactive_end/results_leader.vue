@@ -1,4 +1,6 @@
 <script setup lang="ts">
+
+// данные о результатах интерактива: таблица лидеров
 const props = defineProps<{
   title: string
   participantsTotal: string

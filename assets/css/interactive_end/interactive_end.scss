@@ -1,52 +1,48 @@
 .interactive_end_star-wrapper {
-    margin-top:10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-   /* Высота экрана */
-    width: 100%;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 100%;
 }
 
 #interactive_end_vector {
-    position: absolute;
-    height: 50px;width: 50px;;
-    /* Позиционируем по вертикали на 50% от родительского контейнера */
-    right:-25px;
-    /* Позиционируем по горизонтали на 50% от родительского контейнера */
- 
-    z-index: 2;
+  position: absolute;
+  height: 50px;
+  width: 50px;
+
+  right: -25px;
+
+  z-index: 2;
 }
-
-
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    /* Это гарантирует, что padding и border будут учитываться в общем размере элементов */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.interactive_end{
-    width: 100%;
-    height: 100vh;
-    font-family: 'Lato', sans-serif;;
-    background-color: white;
-    
+.interactive_end {
+  width: 100%;
+  height: 100vh;
+  font-family: "Lato", sans-serif;
+  background-color: white;
 }
-
 
 .interactive_end_timer {
-    margin-left: 29px;;
-    margin-right: 29px;
-    background-color: #853cff;
-    height: 60px;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    border-bottom-left-radius: 26px;
-    border-bottom-right-radius: 26px;
+  margin-left: 29px;
+  margin-right: 29px;
+  background-color: #853cff;
+  height: 60px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-bottom-left-radius: 26px;
+  border-bottom-right-radius: 26px;
 }
 
-.interactive_end_logo {position: relative;
-    padding-top: 23px;
-    margin-left: 7px;
+.interactive_end_logo {
+  position: relative;
+  padding-top: 23px;
+  margin-left: 7px;
 }

@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { ref, computed, defineProps, defineEmits, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-
+// пропс для обработки данных от бекенда.
 const props = defineProps<{
   step: number
   mode: string
 }>()
-const id = computed(() => route.params.id as string)
+// для смены окна изменения интерактива
 const emit = defineEmits<{ (e: 'update-step', value: number): void }>()
-
+// для маршрутизации
 const router = useRouter()
 const route = useRoute()
-
+// форма для отправки данных об интерактиве на бекенд
 const form = ref({
   title: '',
   description: '',
@@ -29,16 +29,18 @@ const form = ref({
     }
   ]
 })
-
+// индекс текущего вопроса
 const currentQuestionIndex = ref(0)
+// текст текущего вопроса
 const currentQuestion = computed(() => form.value.questions[currentQuestionIndex.value])
-
+// тип для ответа на заппрос создания интерактива
 type CreateInteractiveResponse = {
   data: {
     interactive_id: number
   }
 
 }
+// данные о пользователе
 const webApp = ref(null)
 const initDataUnsafe = ref(null)
 const userId = ref(null)
@@ -91,7 +93,7 @@ onMounted(async () => {
     }
   }
 })
-
+// добавляет вопрос и добавляет нову запись в форму для него
 function addQuestion() {
   const question = currentQuestion.value
 
@@ -104,7 +106,7 @@ function addQuestion() {
   })
   currentQuestionIndex.value = form.value.questions.length - 1
 }
-
+// удаляет вопрос и запись о нём в форме
 function removeQuestion() {
   if (form.value.questions.length > 1) {
     form.value.questions.splice(currentQuestionIndex.value, 1)
@@ -118,7 +120,7 @@ function removeQuestion() {
     currentQuestionIndex.value = Math.min(currentQuestionIndex.value, form.value.questions.length - 1)
   }
 }
-
+// переход от общих данных к настройке вопросов
 function goToQuestions() {
   const f = form.value
   if (
@@ -140,13 +142,15 @@ function goToQuestions() {
 defineExpose({
   saveInteractive
 })
+
+// записывает является ли ответ правильным
 function markCorrectAnswer(questionIndex: number, answerIndex: number) {
   const answers = form.value.questions[questionIndex].answers
   answers.forEach((ans, idx) => {
     ans.is_correct = idx === answerIndex
   })
 }
-
+// отправляет запрос на создание интерактива и делает проверки
 async function submitInteractive(): Promise<number | null> {
   const f = form.value
 
@@ -271,7 +275,7 @@ async function submitInteractive(): Promise<number | null> {
     return null
   }
 }
-
+// функция для получения id интерактива после создания
 async function saveInteractive(): Promise<boolean> {
   const id = await submitInteractive()
   if (id !== null) {
@@ -279,6 +283,8 @@ async function saveInteractive(): Promise<boolean> {
   }
   return false
 }
+
+// функция которая переводит
 async function saveInteractiveButton() {
   const id = await submitInteractive()
  
@@ -286,6 +292,7 @@ async function saveInteractiveButton() {
     router.push(`/leader/interactives`)
   }
 }
+// функция для старта интерактива
 async function startInteractive() {
   const id = await submitInteractive()
  
@@ -293,11 +300,11 @@ async function startInteractive() {
     router.push(`/leader/${id}`)
   }
 }
+
+// флаг для поп апа с подтвеждением сохранения интерактива
 const showSavePopup = ref(false)
-async function confirmSave() {
-  showSavePopup.value = false
-  await saveInteractive()
-}
+
+
 </script>
 
 <template>
