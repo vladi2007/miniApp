@@ -3,40 +3,30 @@ import { defineProps, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 
-// Получаем данные через props
+// для маршрутизации
 const route = useRouter();
+// подтверждения рассылки
 const showPopup = ref(false);
-const selectedOption = ref("");
-const messageText = ref("")
-// Массив для хранения выбранных интерактивов
-const selectedInteractives = ref([]); // Массив для выбранных интерактивов
 
-// Статус для выбора нескольких интерактивов
+// текст для рассылки - string
+const messageText = ref("") 
+//для выбора участников интерактивов, кому будет отослано сообщение - массив id
+const selectedInteractives = ref([]);
+// флаг для смены кнопок: выбрать интерактива\ отмена
 const selectMany = ref(false);
 
-// Функция для возврата на главную страницу
-function goToMainMenu() {
-    route.push('/leader/main_menu')
-}
 
-function openPopup(interactiveId) {
-    selectedOption.value = null; // Очищаем выбор при открытии попапа
-    selectedInteractives.value = Array.isArray(interactiveId) ? interactiveId : [interactiveId]; // Обновляем выбранные интерактивы
-    showPopup.value = true;
-}
+//функция для вызова попапа с подтверждением отправки сообщения
 function openPopupManySelect() {
-    selectedOption.value = null; // Очищаем выбор при открытии попапа
-
     showPopup.value = true;
 }
-// Функция для закрытия попапа
+// функция для закрытия попапа с подтверждением отправки сообщения
 function closePopup() {
     showPopup.value = false;
-    selectedOption.value = null;
     selfSendButton.value = false
 }
 
-// Функция для выбора нескольких интерактивов
+// для смены кнопок, и очистки массива с выбранными интерактивами, если нажал отмена
 function selectManyOption() {
     selectMany.value = !selectMany.value;
     if (!selectMany.value) {
@@ -44,16 +34,19 @@ function selectManyOption() {
     }
 }
 
-// Функция для выбора интерактива (при выборе нескольких)
+// добавляет id: string, в массив выбранных интерактивов для рассылки
 function toggleInteractiveSelection(id) {
     const index = selectedInteractives.value.indexOf(id);
     if (index === -1) {
-        selectedInteractives.value.push(id); // Добавляем в выбранные
+        selectedInteractives.value.push(id);
     } else {
-        selectedInteractives.value.splice(index, 1); // Убираем из выбранных
+        selectedInteractives.value.splice(index, 1);
     }
 }
+// флажок для ограничения отправки, чтоб только одно сообщение за раз
 const isSending = ref(false);
+
+// асинхронная функция для отправки рассылки участникам: запрос к api, проверки
 async function submitBroadcasts() {
     if (isSending.value) return;
     isSending.value = true;
@@ -61,7 +54,6 @@ async function submitBroadcasts() {
         if (messageText.value === "") {
             window.Telegram.WebApp.showAlert(`Вы не набрали текст для сообщения!`);
             closePopup()
-
         }
         else {
             try {
@@ -103,6 +95,8 @@ async function submitBroadcasts() {
         }, 0);
     }
 }
+
+// асинхронная функция для отправки рассылки себе(тестовое): запрос к api, проверки, показ алертов
 async function submitSelfBroadcasts() {
     if (isSending.value) return;
     isSending.value = true;
@@ -144,8 +138,7 @@ async function submitSelfBroadcasts() {
     }
 }
 
-
-
+//данные для проверки, что telegram подгрузил данные о пользователе: для запросов и т.д.
 const webApp = ref(null)
 const initDataUnsafe = ref(null)
 const userId = ref(null)
@@ -155,39 +148,39 @@ onMounted(async () => {
     if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
         webApp.value = window.Telegram.WebApp
         initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
-
-
         userId.value = initDataUnsafe.value?.user?.id
-       
         const data = await useFetch('/api/reports/preview', {
-
             query: {
                 telegram_id: userId.value
             },
         });
         props.value = data
-
         isReady.value = true
-
     }
 });
 
-
+// функция для смены цвета фона
 onMounted(() => {
     document.body.classList.add('broadcasts-background');
 });
+// функция для смены цвета фона
 onUnmounted(() => {
     document.body.classList.remove('broadcasts-background');
 });
+// флаг для подтверждения выхода со страницы
 const showConfirmPopup = ref(false)
+// поп ап для подтверждения выхода со страницы
 function handleBackClick() {
     showConfirmPopup.value = true
 }
+// флажок
+const selfSendButton = ref(false)
+// функция для показа кнопки отправки рассылки только себе
 function handleSelfSend() {
     selfSendButton.value = true;
     openPopupManySelect();
 }
-const selfSendButton = ref(false)
+// функция для выхода в главное меню
 async function confirmBack(save) {
     if (save) {
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const props = defineProps<{ count: string; context:string}>()
+//данные от бекенда
+const props = defineProps<{ count: string; context: string }>()
 </script>
 
 <template>
@@ -9,6 +10,4 @@ const props = defineProps<{ count: string; context:string}>()
   </div>
 </template>
 
-<style>
-
-</style>
+<style></style>

@@ -8,12 +8,10 @@ function goTo(url: string) {
 
 
 }
-function goBack() {
-  route.push('/leader/interactives')
-}
+// текущий url(нужен для удобства при локальной разработке)
 const currentPath = ref(window.location.pathname)
 
-
+//нужен для удобства при локальной разработке)
 const isMainMenu = computed(() => currentPath.value === "/leader/main_menu" || currentPath.value === "/")
 
 onMounted(() => {

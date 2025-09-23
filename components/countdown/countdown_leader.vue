@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
 import type { CountdownData } from '~/types/stageData'
-// Получаем данные через props
+
+
+// пропс для обработки данных на фазе интерактива: countdown. тип CountdownData описан в файле types/stageData.ts
 const props = defineProps<{
-  data: CountdownData // Используем тип данных WaitingData, который должен быть определен в типах
+  data: CountdownData
 }>()
 </script>
 
 <template>
   <div class="countdown_timer">
     <div class="countdown_logo">
-      
+
       <img src="/images/countdown/Vector_94_leader.svg" id="countdown_vector_leader" />
       <img src="/images/countdown/Vector_92_leader.svg" id="countdown_circle_leader" />
       <img src="/images/countdown/Star_2_leader.svg" id="countdown_star_2_leader" />
@@ -33,6 +35,6 @@ const props = defineProps<{
   </div>
 </template>
 
-<style >
+<style>
 @import url("~/assets/css/countdown/countdown_leader.scss");
 </style>

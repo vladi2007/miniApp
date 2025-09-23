@@ -1,6 +1,6 @@
-
 <script setup lang="ts">
-const props = defineProps<{ title: string; description: string ;context:string}>()
+//данные от бекенда
+const props = defineProps<{ title: string; description: string; context: string }>()
 </script>
 
 <template>
@@ -14,7 +14,4 @@ const props = defineProps<{ title: string; description: string ;context:string}>
   </div>
 </template>
 
-<style>
-
-
-</style>
+<style></style>

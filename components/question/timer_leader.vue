@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-
+// данные от бекенда
 const props = defineProps<{
   stage: string
   timer: string

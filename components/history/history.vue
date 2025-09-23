@@ -1,12 +1,14 @@
 <script setup>
-import { defineProps, ref } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { downloadFile } from '@telegram-apps/sdk';
+
 import { postEvent } from '@telegram-apps/sdk';
 
-// Получаем данные через props
+// для маршрутизации
 const route = useRouter();
+// подтверждения рассылки
 const showPopup = ref(false);
+// для выбора типа отчёта
 const selectedOption = ref("");
 
 // Массив для хранения выбранных интерактивов
@@ -19,12 +21,13 @@ const selectMany = ref(false);
 function goToMainMenu() {
   route.push('/leader/main_menu')
 }
-
+// для скачивания отчёта одного
 function openPopup(interactiveId) {
   selectedOption.value = null; // Очищаем выбор при открытии попапа
   selectedInteractives.value = Array.isArray(interactiveId) ? interactiveId : [interactiveId]; // Обновляем выбранные интерактивы
   showPopup.value = true;
 }
+// для открытия чекбоксов для множественного выбора интерактивов
 function openPopupManySelect() {
   selectedOption.value = null; // Очищаем выбор при открытии попапа
 
@@ -47,13 +50,13 @@ function selectManyOption() {
 // Функция для выбора интерактива (при выборе нескольких)
 function toggleInteractiveSelection(id) {
   const index = selectedInteractives.value.indexOf(id);
-  if (index === -1) {
+  if (index === -1) {а
     selectedInteractives.value.push(id); // Добавляем в выбранные
   } else {
     selectedInteractives.value.splice(index, 1); // Убираем из выбранных
   }
 }
-
+// функция для скачивания отчета: запрос, проверки
 async function submitReport() {
   if (selectedInteractives.value.length > 0) {
     if (selectedOption.value !== 'forAnalise' && selectedOption.value !== 'forLeader') {
@@ -104,7 +107,7 @@ async function submitReport() {
 
 
 
-
+// данные о пользователе 
 const webApp = ref(null)
 const initDataUnsafe = ref(null)
 const userId = ref(null)
@@ -131,7 +134,7 @@ onMounted(async () => {
   }
 });
 
-
+// дл смены цвета фона
 onMounted(() => {
   document.body.classList.add('history-background');
 });

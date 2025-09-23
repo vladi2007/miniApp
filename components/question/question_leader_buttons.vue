@@ -5,12 +5,12 @@ const props = defineProps<{
 
 // Состояние паузы: true — пауза активна, false — неактивна
 const isPaused = ref(false)
-
+// вызов функции от родительского компонента для отправки флага пауза интерактива на бекенд
 function togglePause() {
   isPaused.value = !isPaused.value
   props.onStatus('pause')
 }
-
+// вызов функции от родительского компонента для отправки флага конец интерактива на бекенд
 function endInteractive() {
   props.onStatus('end')
 }
@@ -33,6 +33,4 @@ function endInteractive() {
   </div>
 </template>
 
-<style>
-
-</style>
+<style></style>

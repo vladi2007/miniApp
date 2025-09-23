@@ -1,39 +1,36 @@
-.question_leader{
-   width: 100%;
-  background-color: #853CFF;
-  padding-bottom: 42px;;
-
+.question_leader {
+  width: 100%;
+  background-color: #853cff;
+  padding-bottom: 42px;
 }
 body.question-leader-background {
-  background-color: #853CFF;
+  background-color: #853cff;
 }
 #logo_2 {
-    position: absolute;
-    left: 40px;
-    top: 12px
+  position: absolute;
+  left: 40px;
+  top: 12px;
 }
-.question_leader_list_fone{
-    background-color: white; width: 1318px;
-  
+.question_leader_list_fone {
+  background-color: white;
+  width: 1318px;
+
   border-radius: 26px;
-  margin:0 auto;
-  margin-top:32px;
-  padding-bottom: 32px;;
+  margin: 0 auto;
+  margin-top: 32px;
+  padding-bottom: 32px;
 }
-.question_leader_top-bar { 
-   display: flex;
-   align-items: center;
-             /* расстояние между кнопками и таймером */
- width: 617px;
+.question_leader_top-bar {
+  display: flex;
+  align-items: center;
 
- margin: 0 auto;    
-margin-top:47px;
- /* необязательный отступ сверху */
+  width: 617px;
+
+  margin: 0 auto;
+  margin-top: 47px;
 }
 
-
-.question_leader_timer{
-    margin:auto 0;
-    margin-left: 25px;;
-    
+.question_leader_timer {
+  margin: auto 0;
+  margin-left: 25px;
 }

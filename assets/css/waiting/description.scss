@@ -1,56 +1,49 @@
 body {
-    margin: 0;
-    padding: 0;
-
+  margin: 0;
+  padding: 0;
 }
 
 .waiting_description {
-    display: flex;
-    /* Используем flexbox */
-    justify-content: center;
-    /* Выравнивание по горизонтали */
+  display: flex;
 
+  justify-content: center;
 }
 
 .waiting_desc-content {
-    height: 223px;
-    width: 332px;
-    margin-top: 50px;
+  height: 223px;
+  width: 332px;
+  margin-top: 50px;
 
-    background-image: url("/images/waiting/Vector_100.svg");
-    background-repeat: no-repeat;
-    /* Запрещаем повторение фона */
-
-
+  background-image: url("/images/waiting/Vector_100.svg");
+  background-repeat: no-repeat;
 }
 
 .waiting_interactive-title {
-    font-family: 'Lato', sans-serif;;
-    color: #FFFFFF;
-    font-weight: 500;margin-left: 19px;;
-    font-size: 16px;
-    line-height: 24px;
-    margin-top:28px;
-    width: 300px;;
-    text-align: left;white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
-  word-break: break-word; 
-
+  font-family: "Lato", sans-serif;
+  color: #ffffff;
+  font-weight: 500;
+  margin-left: 19px;
+  font-size: 16px;
+  line-height: 24px;
+  margin-top: 28px;
+  width: 300px;
+  text-align: left;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .waiting_interactive-description {
-    margin-top:24px;
-    font-family: 'Lato', sans-serif;;
-    color: #FFFFFF;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 24px;
-    margin-left: 19px;;
-    max-width: 295px ;
-    white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
-  word-break: break-word; 
-
-    /* Текст выравнивается по левому краю */
+  margin-top: 24px;
+  font-family: "Lato", sans-serif;
+  color: #ffffff;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  margin-left: 19px;
+  max-width: 295px;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
-.waiting_interactive-description > p{
-    text-align: left; 
+.waiting_interactive-description > p {
+  text-align: left;
 }

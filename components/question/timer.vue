@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-
+// данные от бекенда
 const props = defineProps<{
   stage: string
   timer: string
   timer_duration: string
-  question_count:string
+  question_count: string
   question_num: string
 }>()
 
 const timerDuration = ref<number | null>(null)
-const progressWidth = ref(0)
+
 const resetting = ref(false) // Флаг для отслеживания сброса
 
 watch(
@@ -30,18 +30,18 @@ watch(
   (newVal, oldVal) => {
     const numericNew = Number(newVal)
     const numericOld = Number(oldVal)
-    
+
     // Если таймер перешел с 1 на 0
     if (numericOld === 0 && numericNew > 0) {
       resetting.value = true
-      
+
       // Включаем анимацию обратно после небольшой задержки
-      
+
     }
-    if (numericOld!== 0) {
+    if (numericOld !== 0) {
       resetting.value = false
       // Включаем анимацию обратно после небольшой задержки
-      
+
     }
   }
 )
@@ -79,13 +79,10 @@ const timerLabel = computed(() => {
     <!-- Серый фон -->
     <div class="question_grey-line">
       <!-- Прогресс -->
-      <div class="question_green-line" 
-           :style="{ width: progressPercent + '%' }"
-           :class="{ 'no-transition': resetting }" />
+      <div class="question_green-line" :style="{ width: progressPercent + '%' }"
+        :class="{ 'no-transition': resetting }" />
     </div>
   </div>
 </template>
 
-<style>
-
-</style>
+<style></style>

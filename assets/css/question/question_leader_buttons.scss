@@ -1,58 +1,66 @@
-.question_leader_buttons_fon{
-    
- 
-    background-color: white;
-    width: 495px;
-    height: 78px;;
-    border-radius: 26px;;
-
-    
-  
+.question_leader_buttons_fon {
+  background-color: white;
+  width: 495px;
+  height: 78px;
+  border-radius: 26px;
 }
 .question_leader_buttons {
-  
-    display: flex;
-    
+  display: flex;
 }
-.goto_end{font-family: 'Lato', sans-serif;margin-left: 15px;;  margin-top: 20px;cursor: pointer;
-    font-weight: 500;
-    font-size: 32px;
-    vertical-align: middle;
-    background-color: #F0436C;
-    width: 210px;
-    height: 40px;;
-    border-radius: 5px;;
-    border: #F0436C;
-    color: white;
+.goto_end {
+  font-family: "Lato", sans-serif;
+  margin-left: 15px;
+  margin-top: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 32px;
+  vertical-align: middle;
+  background-color: #f0436c;
+  width: 210px;
+  height: 40px;
+  border-radius: 5px;
+  border: #f0436c;
+  color: white;
 }
-.goto_end:hover{
-    background-color: #DE7D94; border:  #DE7D94;
+.goto_end:hover {
+  background-color: #de7d94;
+  border: #de7d94;
 }
-.pause{font-family: 'Lato', sans-serif;margin-left: 43px;;  margin-top: 20px;cursor: pointer;
-    font-weight: 500;
-    font-size: 32px;
-    vertical-align: middle;
-    background-color:#6AB23D;
-    width: 210px;
-    height: 40px;;
-    border-radius: 5px;;
-    border: #6AB23D;
-    color: white;
+.pause {
+  font-family: "Lato", sans-serif;
+  margin-left: 43px;
+  margin-top: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 32px;
+  vertical-align: middle;
+  background-color: #6ab23d;
+  width: 210px;
+  height: 40px;
+  border-radius: 5px;
+  border: #6ab23d;
+  color: white;
 }
-.pause:hover{
-    background-color: #9AC57E;   border: #9AC57E;
+.pause:hover {
+  background-color: #9ac57e;
+  border: #9ac57e;
 }
-.continue{font-family: 'Lato', sans-serif;margin-left: 42px;;  margin-top: 20px;cursor: pointer;
-    font-weight: 500;
-    font-size: 32px;
-    vertical-align: middle;
-    background-color: #853CFF;
-    color: white;
-    width: 210px;
-    height: 40px;;
-    border-radius: 5px;;
-    border: #853CFF;
+.continue {
+  font-family: "Lato", sans-serif;
+  margin-left: 42px;
+  margin-top: 20px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 32px;
+  vertical-align: middle;
+  background-color: #853cff;
+  color: white;
+  width: 210px;
+  height: 40px;
+  border-radius: 5px;
+  border: #853cff;
 }
-.continue:hover{
-    background-color: #AA77FF; border: #AA77FF;
+.continue:hover {
+  background-color: #aa77ff;
+  border: #aa77ff;
 }

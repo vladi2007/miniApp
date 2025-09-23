@@ -1,19 +1,14 @@
 .question_question-list {
   margin-left: 67px;
-  ;
   padding-top: 27px;
   width: 1184px;
-  font-family: 'Lato', sans-serif;
-  
+  font-family: "Lato", sans-serif;
 }
 
 .question_number {
-
   position: relative;
   width: 233px;
-  ;
   height: 73px;
-  ;
   background-image: url("/images/question/Vector_80_leader.svg");
   background-position: center;
   background-repeat: no-repeat;
@@ -23,21 +18,19 @@
   justify-content: center;
 }
 
-
-
 .question_question-num-text {
   font-weight: 500;
   font-size: 32px;
-  font-family: 'Lato', sans-serif;
+  font-family: "Lato", sans-serif;
 }
 
 .question_title {
   margin-top: 40px;
   font-weight: 500;
   font-size: 32px;
-  
-  white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
-  word-break: break-word; 
+
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .question_list {
@@ -54,7 +47,6 @@
   font-size: 32px;
   font-weight: 500;
   border-radius: 5px;
-  ;
   border: 3.5px solid transparent;
   display: flex;
   justify-content: space-between;
@@ -63,10 +55,6 @@
   color: #1d1d1d;
   padding-left: 35px;
 }
-
-
-
-
 
 .question_answer.correct {
   background-color: #6ab23d;
@@ -122,7 +110,7 @@
 }
 
 .question_accepted-banner.hidden {
-  display: none
+  display: none;
 }
 
 .question_accepted-banner.success {
@@ -135,8 +123,8 @@
   font-size: 18px;
 }
 
-#question_mun_star{
+#question_mun_star {
   position: absolute;
-  bottom:45px;
-  right: 11px;;
+  bottom: 45px;
+  right: 11px;
 }

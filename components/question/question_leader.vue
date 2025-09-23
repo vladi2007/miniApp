@@ -6,7 +6,7 @@ import question_leader_buttons from '~/components/question/question_leader_butto
 import { defineProps } from 'vue'
 import type { QuestionData } from '~/types/stageData'
 
-
+// пропс для работы с данными от бекенда
 const props = defineProps<{
   stage: string
   data: QuestionData
@@ -14,6 +14,7 @@ const props = defineProps<{
   onAnswer: () => void
   onStatus: (status: string) => void// Используем тип WaitingData
 }>()
+// для изменения цвета фона
 onMounted(() => {
   document.body.classList.add('question-leader-background');
 });

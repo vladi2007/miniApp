@@ -5,6 +5,8 @@ import { ref, onMounted } from 'vue'
 
 import main_menu from '~/components/main_menu/main_menu.vue'
 
+
+// страница для защиты доступа к функционалу 
 const webApp = ref(null)
 const initDataUnsafe = ref(null)
 const my_interactives = ref(null)

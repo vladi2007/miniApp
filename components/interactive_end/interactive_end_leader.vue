@@ -22,9 +22,7 @@ const props = defineProps<{
      </div>
     
     
-    <!-- <div class="interactive_end_leader_star-wrapper">
-      <img src="/images/interactive_end/Star_7.svg" id="interactive_end_leader_star" />
-    </div> -->
+    
     
     <!-- Передаем данные в компонент WinnersTable -->
     <WinnersTable_leader :winners="props.data.winners"/>

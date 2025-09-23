@@ -2,7 +2,7 @@
 import type { WaitingData } from '~/types/stageData'  // Импортируем тип данных
 import Active from '~/components/waiting/active_users.vue'
 import Description from '~/components/waiting/description.vue'
-
+//данные от бекенда
 const props = defineProps<{
   stage: string
   data: WaitingData 

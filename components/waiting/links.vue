@@ -7,11 +7,13 @@ const route = useRoute()
 // Получаем interactive_id из параметров URL
 const interactiveId = route.params.id as string
 const props = defineProps<{
-    code: string
+  code: string
 }>()
 // Формируем URL
 const participantUrl = `https://t.me/ClikInteractive_Bot?start=${props.code}`
 
+
+//функция для копирования ссылки в буфер обмена
 function copyToClipboard() {
   try {
     // Создаём скрытое поле ввода
@@ -46,11 +48,13 @@ function copyToClipboard() {
 <template>
   <div class="waiting_links_column">
     <div class="waiting_code-text">Код викторины:</div>
-    <div class="waiting_code">{{props.code}}</div>
-    <div class="waiting_qr_code"><QrcodeVue :value="participantUrl" :size="300" /></div>
+    <div class="waiting_code">{{ props.code }}</div>
+    <div class="waiting_qr_code">
+      <QrcodeVue :value="participantUrl" :size="300" />
+    </div>
     <div class="waiting_link">
-      <div><img src='/images/waiting/line-md_link.svg' id="link" @click="copyToClipboard"
-      title="Скопировать ссылку" /></div>
+      <div><img src='/images/waiting/line-md_link.svg' id="link" @click="copyToClipboard" title="Скопировать ссылку" />
+      </div>
       <div class="waiting-link_text"><a href="participantUrl" target="_blank" rel="noopener noreferrer"></a>{{
         participantUrl }}</div>
     </div>

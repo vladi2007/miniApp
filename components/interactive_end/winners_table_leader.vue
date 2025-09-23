@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// таблица лидеров
 const props = defineProps<{
   winners: { position: string, username: string }[]
 }>()

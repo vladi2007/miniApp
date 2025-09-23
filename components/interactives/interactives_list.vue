@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-
+// первичные данные об интерактивах
 const props = defineProps<{
   header: string,
   interactives_list: {
@@ -13,30 +13,41 @@ const props = defineProps<{
   status: string
 }
 >()
-const router = useRouter()
 
+// закрытие поп апа с подтверждением дублирования
 function closePopup() {
   showPopup.value = false;
 
 }
+// для маршрутизации
 const route = useRouter()
+
+// флаг для разделения завершенных интерактивов от не завершенных
 const isEnd = computed(() => props.status === 'end')
 
+// функция старта интерактива и переход на ождиание 
 function start_interactive(id: string) {
   route.push(`/leader/${id}`)
 }
+// вызов попапа с подтверждением дублирования
 function Popup(id: string) {
   currentInteractiveId.value = id
   showPopup.value = true
 }
+
+// переход на редактирование, если пользователь хочет продублированный интерактив сразу изменить
 function dublicate_interactive(id: string) {
   route.push(`/leader/dublicate/${id}`)
 }
 
+// переход на редактирование интерактива
 function edit_interactive(id: string) {
   route.push(`/leader/edit/${id}`)
 }
+// флаг для поп апа  с подтверждением дублирования
 const showPopup = ref(false);
+
+// данные о пользователе 
 const webApp = ref(null)
 const initDataUnsafe = ref(null)
 const userId = ref(null)
@@ -50,6 +61,8 @@ onMounted(async () => {
   }
 })
 
+
+// запрос на дублирование интерактива
 async function duplicateAndSaveInteractive(id: string) {
   try {
 
@@ -95,6 +108,8 @@ async function duplicateAndSaveInteractive(id: string) {
     window.Telegram.WebApp.showAlert('Не удалось продублировать интерактив.')
   }
 }
+
+// константа id текущего интерактива, с которым работаешь
 const currentInteractiveId = ref<string | null>(null)
 </script>
 

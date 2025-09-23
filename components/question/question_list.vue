@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-
+// пропсы для работы с данными от бекенда
 const props = defineProps<{
   questions_count: string
   question: {
@@ -37,9 +37,11 @@ watch(
   },
   { deep: true }
 )
+// текст выбранного ответа
 const selectedAnswer = ref<string | null>()
 const showBanner = ref(false) // Состояние для плашки
 
+//проверка, вопрос еще идёт, или уже показываются результаты
 const isDiscussion = computed(() => props.stage === 'discussion')
 
 // Позволяет выбирать только в режиме "question"
@@ -51,14 +53,16 @@ function selectAnswer(answerId: string) {
 
   // Показываем плашку при выборе ответа
 }
-
+// флаг, правильный ли ответ выбран
 const isCorrect = computed(() => {
   return selectedAnswer.value === String(props.id_correct_answer)
 })
-
+// количество  ответов в процентах
 const getPercentage = (id: string) => {
   return props.percentages.find((p) => p.id === id)?.percentage ?? 0
 }
+
+// отслеживаем смену фазы интерактива
 const currStage = ref(props.stage)
 const prevStage = ref(props.stage)
 
@@ -117,11 +121,9 @@ watch(
       <img src="/public/images/question/Group_1.svg" />
       Правильный ответ
     </div>
-    
+
 
   </div>
 </template>
 
-<style>
-
-</style>
+<style></style>

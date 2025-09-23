@@ -1,4 +1,5 @@
 export interface QuestionData {
+  // данные для фазы question
   questions_count: string
   timer_duration: string
   stage:string
@@ -21,7 +22,7 @@ export interface QuestionData {
   }[]
 }
 
-
+// данные для конца интерактива фаза end
 export interface EndData {
 
   
@@ -34,14 +35,14 @@ export interface EndData {
   
   
 }
-
+// данные для фазы ожидания waiting
 export interface WaitingData {
   title: string
   description: string
   code: string
   participants_active: string
 }
-
+// данные для фазы ожидания countdown
 export interface CountdownData {
   timer: string
 

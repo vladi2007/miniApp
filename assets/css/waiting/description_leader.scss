@@ -1,37 +1,40 @@
-.waiting_description{
+.waiting_description {
   width: 680px;
   margin-top: 87px;
- height: 350px;;
+  height: 350px;
 }
-.waiting_desc-content{
-display: flex;
-  flex-direction: column;       /* Элементы — в столбик */
-        /* Центрирование по горизонтали */
-  justify-content: center;      /* Центрирование по вертикали (если нужно) */
-            
-              
-  
+.waiting_desc-content {
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
 }
-.waiting_interactive-title{
-  font-family: 'Lato';
+.waiting_interactive-title {
+  font-family: "Lato";
   font-size: 40px;
 
   font-weight: 500;
   width: 565px;
-  padding-top:55px;letter-spacing: 1px;;
-  vertical-align:middle;white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
-  word-break: break-word; margin-left: 23px;;
-
+  padding-top: 55px;
+  letter-spacing: 1px;
+  vertical-align: middle;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-left: 23px;
 }
-.waiting_interactive-description{white-space: pre-wrap;      /* сохраняет переводы строк и переносит при необходимости */
-  word-break: break-word; 
+.waiting_interactive-description {
+  white-space: pre-wrap;
+  word-break: break-word;
 
-  letter-spacing: 1px;;
-  width: 632px;margin-left: 23px;;margin-top: 20px;;font-size: 32px;
-  
+  letter-spacing: 1px;
+  width: 632px;
+  margin-left: 23px;
+  margin-top: 20px;
+  font-size: 32px;
 }
-.waiting_interactive-description > p{
-  text-align: left;font-family: 'Lato';
+.waiting_interactive-description > p {
+  text-align: left;
+  font-family: "Lato";
   font-weight: 500;
   font-size: 32px;
   line-height: 40px;

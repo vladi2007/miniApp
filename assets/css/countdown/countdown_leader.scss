@@ -1,275 +1,230 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .countdown_timer {
-    padding: 0px;
-    margin: 0px;
+  padding: 0px;
+  margin: 0px;
 
-    height: 100vh;
-    background-color: #853CFF;
-
+  height: 100vh;
+  background-color: #853cff;
 }
 
 #countdown_ellipse3_leader {
-    position: absolute;
-    top: 86px;
+  position: absolute;
+  top: 86px;
 
-    left: 506px;
+  left: 506px;
 
-
-
-    z-index: 2;
+  z-index: 2;
 }
 
 #countdown_star_4_2_leader {
-    position: absolute;
-    top: 445px;
+  position: absolute;
+  top: 445px;
 
-    right: 70px;
+  right: 70px;
 
-
-
-    z-index: 2;
+  z-index: 2;
 }
 
 #countdown_star_13_leader {
-    position: absolute;
-    top: 55px;
+  position: absolute;
+  top: 55px;
 
-    left: 241px;
+  left: 241px;
 
-
-
-    z-index: 2;
+  z-index: 2;
 }
 
 #countdown_ellipse2_leader {
-    position: absolute;
-    top: 518px;
+  position: absolute;
+  top: 518px;
 
-    left: 68px;
+  left: 68px;
 
-
-
-    z-index: 2;
+  z-index: 2;
 }
 
 #countdown_star_12_leader {
-    position: absolute;
-    top: 5px;
+  position: absolute;
+  top: 5px;
 
-    right: 415px;
+  right: 415px;
 
-
-
-    z-index: 2;
+  z-index: 2;
 }
 
 #countdown_star_6_1_leader {
+  position: absolute;
+  bottom: 244px;
 
-    position: absolute;
-    bottom: 244px;
+  left: 149px;
 
-    left: 149px;
-
-
-
-    z-index: 2;
+  z-index: 2;
 }
 
 #countdown_star_3_2_leader {
-    position: absolute;
-    bottom: 131px;
+  position: absolute;
+  bottom: 131px;
 
-    right: 473px;
+  right: 473px;
 
-
-
-    z-index: 2;
+  z-index: 2;
 }
 
 .countdown_timer-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 128px;
-    font-weight: 700;
-    color: white;
-    /* или черный, если круг светлый */
-    z-index: 3;
-    /* выше, чем у круга */
-    pointer-events: none;
-    /* чтобы не мешать кликам */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 128px;
+  font-weight: 700;
+  color: white;
 
+  z-index: 3;
+
+  pointer-events: none;
 }
 
 #countdown_star_7_2_leader {
-    position: absolute;
-    bottom: 88px;
+  position: absolute;
+  bottom: 88px;
 
-    right: 77px;
+  right: 77px;
 
-
-
-    z-index: 2;
+  z-index: 2;
 }
 
 #countdown_star_9_leader {
-    position: absolute;
-    bottom: 147px;
+  position: absolute;
+  bottom: 147px;
 
-    left: 342px;
+  left: 342px;
 
-
-
-    z-index: 2;
+  z-index: 2;
 }
 
 #countdown_ellipse1_leader {
-    position: absolute;
-    top: 348px;
+  position: absolute;
+  top: 348px;
 
-    right: 20px;
+  right: 20px;
 
-
-
-    z-index: 2;
+  z-index: 2;
 }
 
 #countdown_circle_leader {
-    position: absolute;
-    top: 50%;
+  position: absolute;
+  top: 50%;
 
-    left: 50%;
+  left: 50%;
 
-    transform: translate(-50%, -50%);
-    z-index: 2;
+  transform: translate(-50%, -50%);
+  z-index: 2;
 }
 
 #countdown_circle_line {
-    position: absolute;
-    top: calc(50% + 159px);
-    /* Используем calc для добавления 20px к 50% высоты родительского контейнера */
-    left: calc(50% - 109px);
+  position: absolute;
+  top: calc(50% + 159px);
 
-    transform: translate(-50%, -50%);
+  left: calc(50% - 109px);
+
+  transform: translate(-50%, -50%);
 }
 
 #countdown_circle_star {
-    position: absolute;
-    top: calc(50% + 75px);
-    /* Используем calc для добавления 20px к 50% высоты родительского контейнера */
-    left: calc(50% - 157px);
+  position: absolute;
+  top: calc(50% + 75px);
 
-    transform: translate(-50%, -50%);
-    z-index: 0;
+  left: calc(50% - 157px);
+
+  transform: translate(-50%, -50%);
+  z-index: 0;
 }
 
-
 #countdown_star_2_leader {
+  position: absolute;
+  top: 230px;
 
-    position: absolute;
-    top: 230px;
+  left: 0;
 
-    left: 0;
-    /* Прижимаем к левому краю контейнера */
-    transform: translate(0, -50%);
-    /* Убираем влияние transform на горизонтальное выравнивание */
-    z-index: 0;
+  transform: translate(0, -50%);
+
+  z-index: 0;
 }
 
 #countdown_star_3 {
-    position: absolute;
-    right: 108px;
-    /* Прижимаем к правому краю контейнера */
-    top: 95px;
-    /* По вертикали по центру контейнера */
-    transform: translateY(-50%);
-    /* Корректируем положение по вертикали для идеального центрирования */
-    z-index: 4;
-    /* Устанавливаем z-index, если нужно, чтобы элемент был выше/ниже других */
+  position: absolute;
+  right: 108px;
+
+  top: 95px;
+
+  transform: translateY(-50%);
+
+  z-index: 4;
 }
 
 #countdown_star_6 {
+  position: absolute;
+  bottom: 60px;
 
-    position: absolute;
-    bottom: 60px;
+  left: 28px;
 
-    left: 28px;
-    /* Прижимаем к левому краю контейнера */
-    /* Убираем влияние transform на горизонтальное выравнивание */
-    z-index: 0;
+  z-index: 0;
 }
 
 #countdown_star_7 {
+  position: absolute;
+  bottom: 133px;
 
-    position: absolute;
-    bottom: 133px;
+  right: 13px;
 
-    right: 13px;
-    /* Прижимаем к левому краю контейнера */
-    /* Убираем влияние transform на горизонтальное выравнивание */
-    z-index: 0;
+  z-index: 0;
 }
 
 #countdown_vector {
-    position: absolute;
-    right: 0;
-    /* Прижимаем к правому краю контейнера */
-    top: 130px;
-    /* По вертикали по центру контейнера */
-    transform: translateY(-50%);
-    /* Корректируем положение по вертикали для идеального центрирования */
-    z-index: 2;
-    /* Устанавливаем z-index, если нужно, чтобы элемент был выше/ниже других */
+  position: absolute;
+  right: 0;
+
+  top: 130px;
+
+  transform: translateY(-50%);
+
+  z-index: 2;
 }
 
 #countdown_vector_leader {
-    position: absolute;
-    left: 0;
-    /* Прижимаем к правому краю контейнера */
-    bottom: 0px;
-    /* По вертикали по центру контейнера */
+  position: absolute;
+  left: 0;
+  bottom: 0px;
 
-    /* Корректируем положение по вертикали для идеального центрирования */
-    z-index: 2;
-    /* Устанавливаем z-index, если нужно, чтобы элемент был выше/ниже других */
+  z-index: 2;
 }
 
 #countdown_circle_line_leader {
-    position: absolute;
-    top: calc(50% + 205px);
-    /* Используем calc для добавления 20px к 50% высоты родительского контейнера */
-    left: calc(50% - 249px);
+  position: absolute;
+  top: calc(50% + 205px);
 
-
+  left: calc(50% - 249px);
 }
 
 #countdown_vector2_leader {
-    position: absolute;
-    right: 0;
-    /* Прижимаем к правому краю контейнера */
-    top: 0px;
-    /* По вертикали по центру контейнера */
+  position: absolute;
+  right: 0;
 
-    /* Корректируем положение по вертикали для идеального центрирования */
-    z-index: 2;
-    /* Устанавливаем z-index, если нужно, чтобы элемент был выше/ниже других */
+  top: 0px;
+
+  z-index: 2;
 }
 
 #countdown_star_8_leader {
-    position: absolute;
-    right: 200px;
-    /* Прижимаем к правому краю контейнера */
-    top: 65px;
-    /* По вертикали по центру контейнера */
+  position: absolute;
+  right: 200px;
 
-    /* Корректируем положение по вертикали для идеального центрирования */
-    z-index: 0;
-    /* Устанавливаем z-index, если нужно, чтобы элемент был выше/ниже других */
+  top: 65px;
+
+  z-index: 0;
 }

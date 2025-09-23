@@ -38,19 +38,15 @@ watch(
   { deep: true }
 )
 
-// текст выбранного ответа
-const selectedAnswer = ref<string | null>()
-const showBanner = ref(false) // Состояние для плашки
+
+
 // отслеживаем, что вопрос сменился на обсуждение его и показ правильного ответа
 const isDiscussion = computed(() => props.stage === 'discussion')
 
 
 // Позволяет выбирать только в режиме "question"
 
-// проверяем, правильный ли ответ вы
-const isCorrect = computed(() => {
-  return selectedAnswer.value === props.id_correct_answer
-})
+
 // количество ответов в процентах
 const getPercentage = (id: string) => {
   return props.percentages.find((p) => p.id === id)?.percentage ?? 0
@@ -58,16 +54,7 @@ const getPercentage = (id: string) => {
 
 
 
-// Следим за приходом idCorrectAnswer
-watch(
-  () => props.id_correct_answer,
-  () => {
-    if (selectedAnswer.value && selectedAnswer.value !== props.id_correct_answer) {
-      showBanner.value = false // Скрываем плашку, если ответ неправильный
-    }
-    // Если ответ верный — showBanner остаётся true
-  }
-)
+
 
 </script>
 
@@ -86,19 +73,12 @@ watch(
         wrongOutline: isDiscussion && answer.id !== props.id_correct_answer
       }">
         <span class="question_text">{{ answer.text }}</span>
-        <span v-if="isDiscussion" class="question_percent" :class="{ white: selectedAnswer === answer.id }">
+        <span v-if="isDiscussion" class="question_percent">
           {{ getPercentage(answer.id) }}%
         </span>
       </div>
     </div>
 
-    <div v-if="showBanner && isCorrect" :class="['question_accepted-banner', 'success']">
-      <img src="/public/images/question/Group_1.svg" />
-      Правильный ответ
-    </div>
-    <div v-if="showBanner && !isCorrect" :class="['question_accepted-banner', 'default']">
-      Ответ принят!
-    </div>
 
   </div>
 </template>

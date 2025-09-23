@@ -6,7 +6,8 @@
     <div class="main_menu_description">
         <div class="description">
             <div class="main_menu_description_logo"><img src="/images/main_menu/Clik.svg" /></div>
-            <div class="main_menu_description_text">Функциональный сервис для проведения онлайн-квизов. Сейчас, Вы, находитесь в интерфейсе ведущего, где можете с легкостью начать управлять интерактивами.</div>
+            <div class="main_menu_description_text">Функциональный сервис для проведения онлайн-квизов. Сейчас, Вы,
+                находитесь в интерфейсе ведущего, где можете с легкостью начать управлять интерактивами.</div>
         </div>
         <div class="desc_head_1">
             Назначение и цели создания системы

@@ -1,43 +1,41 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-import nav_bar from '~/components/main_menu/nav_bar.vue'
+import { useRouter } from "vue-router";
+import nav_bar from "~/components/main_menu/nav_bar.vue";
 
-import interactives_list from '~/components/interactives/interactives_list.vue'
-const route= useRouter()
+import interactives_list from "~/components/interactives/interactives_list.vue";
+
+// для маршрутизации
+const route = useRouter();
+
+// возврат на главное меню
 function goToMainMenu() {
-
-    route.push("/leader/main_menu")
-
+    route.push("/leader/main_menu");
 }
+
+// пропс для данных от бекенда
 const props = defineProps<{
     interactives_list: {
         interactives_list_conducted: {
-            title: string,
-            question_count: string,
-            target_audience: string,
-            id: string,
-            date_completed: string
-        }[]
+            title: string;
+            question_count: string;
+            target_audience: string;
+            id: string;
+            date_completed: string;
+        }[];
         interactives_list_not_conducted: {
-            title: string,
-            question_count: string,
-            target_audience: string,
-            id: string,
-            date_completed: string
-        }[]
-    }
+            title: string;
+            question_count: string;
+            target_audience: string;
+            id: string;
+            date_completed: string;
+        }[];
+    };
+}>();
 
-}>()
-
-
-
+//переход на страницу с созданием интерактива
 function create_new_interactive() {
-
-    route.push('/leader/create_interactive')
-
+    route.push("/leader/create_interactive");
 }
-
-
 </script>
 
 <template>
@@ -50,7 +48,7 @@ function create_new_interactive() {
                 </button>
             </div>
             <div class="interactives_top_menu_header">
-                Запуск/<br>
+                Запуск/<br />
                 создание интерактивов
             </div>
             <div class="interactives_top_menu_create_interactive" @click="create_new_interactive()">
@@ -60,14 +58,11 @@ function create_new_interactive() {
         <div class="interactives_lists">
             <img src="/images/interactives/Group_107.svg" id="interactives_line" />
             <img src="/images/interactives/Group_108.svg" id="interactives_line2" />
-            <interactives_list :header="'Непроведенные интерактивы'"
-                :interactives_list="props.interactives_list.interactives_list_not_conducted" :status="'not_end'" />
+            <interactives_list :header="'Непроведенные интерактивы'" :interactives_list="props.interactives_list.interactives_list_not_conducted
+                " :status="'not_end'" />
             <interactives_list :header="'Проведенные интерактивы'" class="interactive_list_second"
                 :interactives_list="props.interactives_list.interactives_list_conducted" :status="'end'" />
         </div>
-
-
-
     </div>
 </template>
 

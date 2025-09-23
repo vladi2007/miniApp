@@ -5,11 +5,14 @@ import nav_bar from '~/components/main_menu/nav_bar.vue'
 import general_settings from '~/components/interactive_editor/general_settings.vue'
 import { ref } from 'vue'
 
+// передача функции для сохранения
 const generalSettingsRef = ref<InstanceType<typeof general_settings> | null>(null)
+
+// для маршрутизации
 const route = useRouter()
-
+// этап редактирования: общие данные, и вопросы
 const step = ref(1)
-
+// для смены этапа редактирования
 function handleBackClick() {
   if (step.value === 1) {
     showConfirmPopup.value = true
@@ -17,12 +20,14 @@ function handleBackClick() {
     step.value = 1
   }
 }
+// для получения параметров из url
 const router = useRoute()
 
 const mode = computed(() => router.params.mode as string)
 const id = computed(() => router.params.id as string)
-
+// флаг для попапа с подтверждением  сохранения
 const showConfirmPopup = ref(false)
+// функция для возвращения на страницу с интерактивами после сохранения
 async function confirmBack(save: boolean) {
   if (save && generalSettingsRef.value) {
     const success = await generalSettingsRef.value.saveInteractive()

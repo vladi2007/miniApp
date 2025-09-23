@@ -1,93 +1,76 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    /* Это гарантирует, что padding и border будут учитываться в общем размере элементов */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .timer {
-    padding: 0px;
-    margin: 0px;
-    background-color: #853CFF;
-    width: 390px;
-    height: 844px;
-
+  padding: 0px;
+  margin: 0px;
+  background-color: #853cff;
+  width: 390px;
+  height: 844px;
 }
 
 .description {
-
-    /* Содержимое контейнера может располагаться в обычном потоке документа */
-
-    position: relative;
-    width: 390px;
-    height: 744px;
-
-
-
+  position: relative;
+  width: 390px;
+  height: 744px;
 }
 
 .logo {
-
-
-
-    padding-top: 23px;
-    margin-left: 36px;
-
+  padding-top: 23px;
+  margin-left: 36px;
 }
 
-
-
 .description-content {
-    margin-top: 115px;
-    background-color: white;
-    width: 100%;
-    height: 744px;
-    border-radius: 26px;
-    /* 70% высоты для белого фона */
-    border-radius: 26px;
+  margin-top: 115px;
+  background-color: white;
+  width: 100%;
+  height: 744px;
+  border-radius: 26px;
 
+  border-radius: 26px;
 }
 
 body {
-    font-family: 'Lato', sans-serif;;
+  font-family: "Lato", sans-serif;
 }
 
-.description-content>p {
-    padding-top: 79px;
-    text-align: center;
-    font-weight: 700;
-    font-size: 16px;
+.description-content > p {
+  padding-top: 79px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 16px;
 }
 
 .grey {
-    height: 739px;
-    background-color: #A9A9A9;
-    top: 140px;
-    /* 30% высоты для серого фона */
-    position: absolute;
-    border-radius: 26px;
-    width: 355px;
-    margin-left: 18px;
+  height: 739px;
+  background-color: #a9a9a9;
+  top: 140px;
+
+  position: absolute;
+  border-radius: 26px;
+  width: 355px;
+  margin-left: 18px;
 }
 
 .grey-line {
-    height: 7px;
-    background-color: #A9A9A9;
-    top: 135px;
-    /* 30% высоты для серого фона */
-    position: absolute;
-    border-radius: 26px;
-    width: 72px;
+  height: 7px;
+  background-color: #a9a9a9;
+  top: 135px;
 
+  position: absolute;
+  border-radius: 26px;
+  width: 72px;
 }
 
 .fixed {
-    position: absolute;
-    /* Эта картинка будет фиксированной */
-    /* Место, где будет находиться картинка */
-    left: 318px;
-    /* Место, где будет находиться картинка */
-    z-index: 0;
-    /* Делаем эту картинку поверх остальных */
-    top: 6px;
+  position: absolute;
+
+  left: 318px;
+
+  z-index: 0;
+
+  top: 6px;
 }

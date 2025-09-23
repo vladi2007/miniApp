@@ -38,18 +38,18 @@
 
 #countdown_circle_line {
   position: absolute;
-  top: calc(50%+159px);
+  top: calc(50% + 159px);
 
-  left: calc(50%-109px);
+  left: calc(50% - 109px);
 
   transform: translate(-50%, -50%);
 }
 
 #countdown_circle_star {
   position: absolute;
-  top: calc(50%+75px);
+  top: calc(50% + 75px);
 
-  left: calc(50%-157px);
+  left: calc(50% - 157px);
 
   transform: translate(-50%, -50%);
   z-index: 0;

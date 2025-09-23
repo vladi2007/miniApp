@@ -1,11 +1,13 @@
 <script setup >
 import interactives from '~/components/interactives/interactives.vue'
 import { ref, onMounted } from 'vue'
-
+// данные о пользователе
 const webApp = ref(null)
 const initDataUnsafe = ref(null)
 const my_interactives = ref(null)
 const userId =ref(null)
+
+// запрос на бекенд для получения списка интерактивов
 onMounted(async () => {
   
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
