@@ -15,7 +15,10 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.MINIAPP_KEY }}
-
+      - name: Add SSH host key to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 45.9.40.96 >> ~/.ssh/known_hosts
       - name: 🚀 SSH into server and deploy
         run: |
           ssh root@45.9.40.96 << EOF
