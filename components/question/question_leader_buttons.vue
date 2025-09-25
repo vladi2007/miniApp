@@ -7,7 +7,7 @@ const interactiveId = route.params.id as string
 const localStorageKey = `isPaused_${interactiveId}`
 // Состояние паузы: true — пауза активна, false — неактивна
 // Читаем состояние из localStorage при инициализации
-const isPaused = ref(localStorage.getItem('isPaused') === 'true')// вызов функции от родительского компонента для отправки флага пауза интерактива на бекенд
+const isPaused = ref(localStorage.getItem(localStorageKey) === 'true')// вызов функции от родительского компонента для отправки флага пауза интерактива на бекенд
 // Функция записи состояния в localStorage
 function savePauseState(state: boolean) {
   localStorage.setItem(localStorageKey, state.toString())
