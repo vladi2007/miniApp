@@ -172,8 +172,9 @@ async function confirmBack(save) {
 
     showConfirmPopup.value = false
     route.push('/leader/main_menu')
-    clearDeviceStorage(SELECT_MANY_KEY)
-    clearDeviceStorage(INTERACTIVES_KEY)
+ 
+    sessionStorage.clear()
+
 
   } else {
     showConfirmPopup.value = false

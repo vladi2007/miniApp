@@ -2,12 +2,19 @@
 const props = defineProps<{
   onStatus: (status: string) => void
 }>()
-
+const route = useRoute()
+const interactiveId = route.params.id as string
+const localStorageKey = `isPaused_${interactiveId}`
 // Состояние паузы: true — пауза активна, false — неактивна
-const isPaused = ref(false)
-// вызов функции от родительского компонента для отправки флага пауза интерактива на бекенд
+// Читаем состояние из localStorage при инициализации
+const isPaused = ref(localStorage.getItem('isPaused') === 'true')// вызов функции от родительского компонента для отправки флага пауза интерактива на бекенд
+// Функция записи состояния в localStorage
+function savePauseState(state: boolean) {
+  localStorage.setItem(localStorageKey, state.toString())
+}
 function togglePause() {
   isPaused.value = !isPaused.value
+  savePauseState(isPaused.value)
   props.onStatus('pause')
 }
 // вызов функции от родительского компонента для отправки флага конец интерактива на бекенд
