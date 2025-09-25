@@ -24,7 +24,18 @@ const props = defineProps<{
 }>()
 // Стейт для хранения ответов
 const answers = ref(props.answers)
-
+const route = useRoute()
+const interactiveId = route.params.id as string
+const ANSWERS_STORAGE_KEY = computed(() => `interactive_answers_${interactiveId}_${props.question.id}`)
+// Загружаем ответы из localStorage, если есть
+onMounted(() => {
+  const savedAnswers = loadFromLocalStorage(ANSWERS_STORAGE_KEY.value)
+  if (Array.isArray(savedAnswers)) {
+    answers.value = savedAnswers
+  } else {
+    answers.value = props.answers
+  }
+})
 // Следим за изменениями в props.answers
 watch(
   () => props.answers,
@@ -32,6 +43,7 @@ watch(
     // Обновляем состояние, только если пришли новые ответы
     if (newAnswers && newAnswers.length > 0) {
       answers.value = newAnswers
+      saveToLocaleStorage(ANSWERS_STORAGE_KEY.value, newAnswers)
     }
     // Если новый массив пустой, не обновляем состояние
   },

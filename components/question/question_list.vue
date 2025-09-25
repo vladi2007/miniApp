@@ -27,8 +27,10 @@ const selectedAnswer = ref<string | null>(null)
 
 const STORAGE_KEY_PREFIX = 'interactive_selected_answer_'
 const storageKey = computed(() => STORAGE_KEY_PREFIX + props.question.id)
-
-
+const ANSWERS_STORAGE_KEY_PREFIX = 'interactive_answers_'
+const answersStorageKey = computed(() => ANSWERS_STORAGE_KEY_PREFIX + props.question.id)
+// Стейт для хранения ответов
+const answers = ref(props.answers)
 onMounted(() => {
   const saved = loadFromLocalStorage(storageKey.value)
   if (saved && typeof saved === 'string') {
@@ -37,9 +39,13 @@ onMounted(() => {
   }
 })
 
+  const savedAnswers = loadFromLocalStorage(answersStorageKey.value)
+  if (Array.isArray(savedAnswers)) {
+    answers.value = savedAnswers
+  } else {
+    answers.value = props.answers
+  }
 
-// Стейт для хранения ответов
-const answers = ref(props.answers)
 
 // Следим за изменениями в props.answers
 watch(
@@ -48,6 +54,7 @@ watch(
     // Обновляем состояние, только если пришли новые ответы
     if (newAnswers && newAnswers.length > 0) {
       answers.value = newAnswers
+      saveToLocaleStorage(answersStorageKey.value, newAnswers)
     }
     // Если новый массив пустой, не обновляем состояние
   },
@@ -67,7 +74,8 @@ function selectAnswer(answerId: string) {
   selectedAnswer.value = answerId
   showBanner.value = true
   props.onAnswer(answerId)
-  saveToLocaleStorage(storageKey.value, answerId)
+  clearLocalStorage(storageKey.value)
+    clearLocalStorage(answersStorageKey.value)
 
   // Показываем плашку при выборе ответа
 }
@@ -121,7 +129,7 @@ watch(
 
     <p class="question_title">{{ props.question.text }}</p>
     
-    <div class="question_list">asdsad
+    <div class="question_list">
       <div v-for="answer in answers" :key="answer.id" class="question_answer" :class="{
         selected: selectedAnswer === String(answer.id) && !isDiscussion,
         correct: isDiscussion && selectedAnswer === String(answer.id) && String(props.id_correct_answer) === String(answer.id),
