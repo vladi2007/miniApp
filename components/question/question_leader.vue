@@ -5,7 +5,7 @@ import question_list_leader from '~/components/question/question_list_leader.vue
 import question_leader_buttons from '~/components/question/question_leader_buttons.vue';
 import { defineProps } from 'vue'
 import type { QuestionData } from '~/types/stageData'
-
+const route = useRoute()
 // пропс для работы с данными от бекенда
 const props = defineProps<{
   stage: string
