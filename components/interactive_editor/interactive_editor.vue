@@ -7,6 +7,10 @@ import { ref } from 'vue'
 
 // передача функции для сохранения
 const generalSettingsRef = ref<InstanceType<typeof general_settings> | null>(null)
+const FORM_STORAGE_KEY = 'interactive_form_draft'
+const CURRENT_INDEX_KEY = 'interactive_current_index'
+const STEP_KEY = 'interactive_editor_step'
+
 
 // для маршрутизации
 const route = useRouter()
@@ -38,9 +42,19 @@ async function confirmBack(save: boolean) {
     else{showConfirmPopup.value = false}
   } else {
     showConfirmPopup.value = false
+    clearDeviceStorage(FORM_STORAGE_KEY)
+    clearDeviceStorage(CURRENT_INDEX_KEY)
+    clearDeviceStorage(STEP_KEY)
+
+
     route.push('/leader/interactives')
   }
-}
+}watch(step, (newStep) => {
+  saveToDeviceStorage(STEP_KEY, newStep)
+})
+
+
+
 </script>
 
 <template>

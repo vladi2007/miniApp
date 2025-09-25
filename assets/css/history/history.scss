@@ -458,3 +458,59 @@ body.history-background {
 .popup-option:hover input[type="radio"] + span::before {
   background-image: url("/public/images/history/circle_hover.svg");
 }
+
+
+.history_edit_popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(29, 29, 29, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.history_edit_popup-content {
+  background-color: white;
+  border-radius: 10px;
+  padding: 32px;
+  width: 600px;
+  text-align: center;
+  font-family: "Lato", sans-serif;
+}
+
+.history_edit_popup-text {
+  font-size: 24px;
+  margin-bottom: 24px;
+}
+
+.history_edit_popup-actions {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.history_edit_popup-btn {
+  padding: 12px 32px;
+  font-size: 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.history_edit_popup-btn.save {
+  background-color: #6ab23d;
+  color: white;
+}
+
+.history_edit_popup-btn.cancel {
+  background-color: #f0436c;
+  color: white;
+}
+
+.history_edit_popup-btn:hover {
+  opacity: 0.9;
+}

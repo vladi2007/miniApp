@@ -1,7 +1,7 @@
 <script setup>
 import { defineProps, ref } from 'vue';
 import { useRouter } from 'vue-router';
-
+import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorage'
 
 // для маршрутизации
 const route = useRouter();
@@ -9,7 +9,7 @@ const route = useRouter();
 const showPopup = ref(false);
 
 // текст для рассылки - string
-const messageText = ref("") 
+const messageText = ref("")
 //для выбора участников интерактивов, кому будет отослано сообщение - массив id
 const selectedInteractives = ref([]);
 // флаг для смены кнопок: выбрать интерактива\ отмена
@@ -42,6 +42,7 @@ function toggleInteractiveSelection(id) {
     } else {
         selectedInteractives.value.splice(index, 1);
     }
+    console.log(selectedInteractives)
 }
 // флажок для ограничения отправки, чтоб только одно сообщение за раз
 const isSending = ref(false);
@@ -51,7 +52,7 @@ async function submitBroadcasts() {
     if (isSending.value) return;
     isSending.value = true;
     if (selectedInteractives.value.length > 0) {
-        if (messageText.value === "") {
+        if (!messageText.value || messageText.value.trim() === "") {
             window.Telegram.WebApp.showAlert(`Вы не набрали текст для сообщения!`);
             closePopup()
         }
@@ -100,7 +101,7 @@ async function submitBroadcasts() {
 async function submitSelfBroadcasts() {
     if (isSending.value) return;
     isSending.value = true;
-    if (messageText.value === "") {
+    if (!messageText.value || messageText.value.trim() === "") {
         window.Telegram.WebApp.showAlert(`Вы не набрали текст для сообщения!`);
         closePopup()
     }
@@ -144,19 +145,50 @@ const initDataUnsafe = ref(null)
 const userId = ref(null)
 const props = ref(null)
 const isReady = ref(false)
+
+const TEXT_MESSAGE_KEY = 'broadcasts_text_message'
+const INTERACTIVES_KEY = 'broadcasts_interactives'
+const SELECT_MANY_KEY = 'broadcasts_select_many'
 onMounted(async () => {
-    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-        webApp.value = window.Telegram.WebApp
-        initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
-        userId.value = initDataUnsafe.value?.user?.id
-        const data = await useFetch('/api/reports/preview', {
-            query: {
-                telegram_id: userId.value
-            },
-        });
-        props.value = data
-        isReady.value = true
+  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+    const savedMessage = loadFromDeviceStorage(TEXT_MESSAGE_KEY);
+    if (savedMessage !== null) {
+      messageText.value = savedMessage;
     }
+
+    const savedSelect = loadFromDeviceStorage(SELECT_MANY_KEY);
+    if (typeof savedSelect === 'boolean') {
+      selectMany.value = savedSelect;
+    }
+
+    const savedInteractives = loadFromDeviceStorage(INTERACTIVES_KEY);
+    if (Array.isArray(savedInteractives)) {
+      if (savedInteractives.length > 0 && typeof savedInteractives[0] === 'object') {
+        selectedInteractives.value = savedInteractives.map(item => Number(item.id));
+      } else {
+        selectedInteractives.value = savedInteractives.map(Number);
+      }
+    } else {
+      selectedInteractives.value = [];
+    }
+
+    if (selectedInteractives.value.length === 0) {
+      selectMany.value = false;
+    }
+
+    webApp.value = window.Telegram.WebApp;
+    initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe;
+    userId.value = initDataUnsafe.value?.user?.id;
+
+    const data = await useFetch('/api/reports/preview', {
+      query: {
+        telegram_id: userId.value
+      },
+    });
+
+    props.value = data;
+    isReady.value = true;
+  }
 });
 
 // функция для смены цвета фона
@@ -186,11 +218,26 @@ async function confirmBack(save) {
 
         showConfirmPopup.value = false
         route.push('/leader/main_menu')
+        clearDeviceStorage(SELECT_MANY_KEY)
+        clearDeviceStorage(TEXT_MESSAGE_KEY)
+        clearDeviceStorage(INTERACTIVES_KEY)
     } else {
         showConfirmPopup.value = false
 
     }
 }
+
+watch(messageText, (newMessageText) => {
+    saveToDeviceStorage(TEXT_MESSAGE_KEY, newMessageText)
+})
+watch(selectMany, (newSelectMany) => {
+    saveToDeviceStorage(SELECT_MANY_KEY, newSelectMany)
+})
+watch(selectedInteractives, (newSelectedInteractives) => {
+    saveToDeviceStorage(INTERACTIVES_KEY, newSelectedInteractives);
+}, { deep: true });
+
+
 </script>
 
 <template>
@@ -274,7 +321,8 @@ async function confirmBack(save) {
 
                                 <label v-if="selectMany" class="select_many_option">
                                     <input type="checkbox" :value="interactive.interactive_id" class="custom-checkbox"
-                                        @change="toggleInteractiveSelection(interactive.interactive_id)" />
+                                        v-model="selectedInteractives" />
+
                                 </label>
                             </div>
                         </div>

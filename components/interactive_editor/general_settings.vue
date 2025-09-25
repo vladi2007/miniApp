@@ -1,17 +1,22 @@
 <script setup lang="ts">
-import { ref, computed, defineProps, defineEmits, onMounted } from 'vue'
+import { ref, computed, defineProps, defineEmits, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-// пропс для обработки данных от бекенда.
+import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorage'
+
+const FORM_STORAGE_KEY = 'interactive_form_draft'
+const CURRENT_INDEX_KEY = 'interactive_current_index'
+
+
 const props = defineProps<{
   step: number
   mode: string
 }>()
-// для смены окна изменения интерактива
+
 const emit = defineEmits<{ (e: 'update-step', value: number): void }>()
-// для маршрутизации
+
 const router = useRouter()
 const route = useRoute()
-// форма для отправки данных об интерактиве на бекенд
+
 const form = ref({
   title: '',
   description: '',
@@ -29,44 +34,41 @@ const form = ref({
     }
   ]
 })
-// индекс текущего вопроса
+
 const currentQuestionIndex = ref(0)
-// текст текущего вопроса
 const currentQuestion = computed(() => form.value.questions[currentQuestionIndex.value])
-// тип для ответа на заппрос создания интерактива
+
 type CreateInteractiveResponse = {
   data: {
     interactive_id: number
   }
-
 }
-// данные о пользователе
+
 const webApp = ref(null)
 const initDataUnsafe = ref(null)
 const userId = ref(null)
 
-// Загрузка данных интерактива при edit или dublicate
+
 onMounted(async () => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
     initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
-
-
     userId.value = initDataUnsafe.value?.user?.id
   }
-  if (props.mode === 'edit' || props.mode === 'dublicate') {
 
-    const id = route.params.id as string
+  const id = route.params.id as string
+  
+
+  if (props.mode === 'edit' || props.mode === 'dublicate') {
     try {
       const data = await $fetch(`/api/get_interactive`, {
         method: 'GET',
         query: {
           telegram_id: userId.value,
-
           id: id
         }
       })
-  
+
       form.value = {
         title: data.title,
         description: data.description,
@@ -91,14 +93,30 @@ onMounted(async () => {
       console.error('Ошибка загрузки интерактива:', err)
       window.Telegram.WebApp.showAlert('Не удалось загрузить данные интерактива.')
     }
+
+    
   }
+  
+
+
+  
+      const savedForm = loadFromDeviceStorage(FORM_STORAGE_KEY)
+      console.log('Loaded form from storage:', savedForm)
+
+      if (savedForm) {
+        form.value = savedForm
+      }
+
+      const savedIndex = loadFromDeviceStorage(CURRENT_INDEX_KEY)
+      console.log('Loaded index from storage:', savedIndex)
+
+      if (typeof savedIndex === 'number') {
+        currentQuestionIndex.value = savedIndex
+      }
+    
 })
-// добавляет вопрос и добавляет нову запись в форму для него
+
 function addQuestion() {
-  const question = currentQuestion.value
-
-
-
   form.value.questions.push({
     text: '',
     position: form.value.questions.length + 1,
@@ -106,21 +124,19 @@ function addQuestion() {
   })
   currentQuestionIndex.value = form.value.questions.length - 1
 }
-// удаляет вопрос и запись о нём в форме
+
 function removeQuestion() {
   if (form.value.questions.length > 1) {
     form.value.questions.splice(currentQuestionIndex.value, 1)
 
-    // Обновляем позиции всех вопросов
     form.value.questions.forEach((q, index) => {
       q.position = index + 1
     })
 
-    // Переносим указатель на предыдущий вопрос, если удалили последний
     currentQuestionIndex.value = Math.min(currentQuestionIndex.value, form.value.questions.length - 1)
   }
 }
-// переход от общих данных к настройке вопросов
+
 function goToQuestions() {
   const f = form.value
   if (
@@ -139,41 +155,23 @@ function goToQuestions() {
     window.Telegram.WebApp.showAlert('Пожалуйста, заполните все обязательные поля')
   }
 }
+
 defineExpose({
   saveInteractive
 })
 
-// записывает является ли ответ правильным
 function markCorrectAnswer(questionIndex: number, answerIndex: number) {
   const answers = form.value.questions[questionIndex].answers
   answers.forEach((ans, idx) => {
     ans.is_correct = idx === answerIndex
   })
 }
-// отправляет запрос на создание интерактива и делает проверки
+
 async function submitInteractive(): Promise<number | null> {
   const f = form.value
 
-
-  // Проверяем обязательные поля
-  if (!f.title) {
-    window.Telegram.WebApp.showAlert('Пожалуйста, введите название интерактива.')
-    return null
-  }
-  if (!f.description) {
-    window.Telegram.WebApp.showAlert('Пожалуйста, введите описание интерактива.')
-    return null
-  }
-  if (!f.target_audience) {
-    window.Telegram.WebApp.showAlert('Пожалуйста, укажите целевую аудиторию.')
-    return null
-  }
-  if (!f.location) {
-    window.Telegram.WebApp.showAlert('Пожалуйста, укажите место проведения.')
-    return null
-  }
-  if (!f.responsible_full_name) {
-    window.Telegram.WebApp.showAlert('Пожалуйста, укажите ФИО ведущего.')
+  if (!f.title || !f.description || !f.target_audience || !f.location || !f.responsible_full_name) {
+    window.Telegram.WebApp.showAlert('Пожалуйста, заполните все обязательные поля.')
     return null
   }
 
@@ -182,7 +180,6 @@ async function submitInteractive(): Promise<number | null> {
     return null
   }
 
-  // Проверяем каждый вопрос
   for (let i = 0; i < f.questions.length; i++) {
     const q = f.questions[i]
     if (!q.text.trim()) {
@@ -205,17 +202,6 @@ async function submitInteractive(): Promise<number | null> {
       return null
     }
   }
-  if (
-    !f.title ||
-    !f.description ||
-    !f.target_audience ||
-    !f.location ||
-    !f.responsible_full_name ||
-    f.questions.length === 0
-  ) {
-    window.Telegram.WebApp.showAlert('Пожалуйста, заполните все обязательные поля и добавьте хотя бы один вопрос.')
-    return null
-  }
 
   const payload = {
     title: f.title,
@@ -236,37 +222,33 @@ async function submitInteractive(): Promise<number | null> {
     }))
   }
 
-
-
-
   try {
     let response: CreateInteractiveResponse
+    const id = route.params.id as string
 
     if (props.mode === 'edit') {
-      
-      const id = route.params.id as string
-
       response = await $fetch<CreateInteractiveResponse>(`/api/edit_interatcive`, {
         method: 'PATCH',
         query: {
           telegram_id: userId.value,
-
           id: id
         },
         body: payload
       })
     } else {
-      const id = route.params.id as string
       response = await $fetch<CreateInteractiveResponse>(`/api/create_interactive`, {
         method: 'POST',
         query: {
           telegram_id: userId.value,
-
           id: id
         },
         body: payload
       })
     }
+
+    clearDeviceStorage(FORM_STORAGE_KEY)
+    clearDeviceStorage(CURRENT_INDEX_KEY)
+
 
     return response.data.interactive_id
   } catch (err) {
@@ -275,34 +257,38 @@ async function submitInteractive(): Promise<number | null> {
     return null
   }
 }
-// функция для получения id интерактива после создания
+
 async function saveInteractive(): Promise<boolean> {
   const id = await submitInteractive()
-  if (id !== null) {
-    return true
-  }
-  return false
+  return id !== null
 }
 
-// функция которая переводит
 async function saveInteractiveButton() {
   const id = await submitInteractive()
- 
   if (id !== null) {
     router.push(`/leader/interactives`)
   }
 }
-// функция для старта интерактива
+
 async function startInteractive() {
   const id = await submitInteractive()
- 
   if (id !== null) {
     router.push(`/leader/${id}`)
   }
 }
 
-// флаг для поп апа с подтвеждением сохранения интерактива
 const showSavePopup = ref(false)
+
+watch(form, (newForm) => {
+  console.log('Saving form to storage', newForm)
+  saveToDeviceStorage(FORM_STORAGE_KEY, newForm)
+}, { deep: true })
+
+watch(currentQuestionIndex, (newIndex) => {
+  console.log('Saving index to storage', newIndex)
+  saveToDeviceStorage(CURRENT_INDEX_KEY, newIndex)
+})
+
 
 
 </script>

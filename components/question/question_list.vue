@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 // пропсы для работы с данными от бекенда
+import { saveToLocaleStorage, loadFromLocalStorage, clearLocalStorage } from '~/utils/deviceStorage'
 const props = defineProps<{
   questions_count: string
-  question: {
+  question: { 
     id: string
     text: string
     position: string
@@ -22,6 +23,21 @@ const props = defineProps<{
   onAnswer: (answerId: string) => void
 }>()
 
+const selectedAnswer = ref<string | null>(null)
+
+const STORAGE_KEY_PREFIX = 'interactive_selected_answer_'
+const storageKey = computed(() => STORAGE_KEY_PREFIX + props.question.id)
+
+
+onMounted(() => {
+  const saved = loadFromLocalStorage(storageKey.value)
+  if (saved && typeof saved === 'string') {
+    selectedAnswer.value = saved
+    showBanner.value = true
+  }
+})
+
+
 // Стейт для хранения ответов
 const answers = ref(props.answers)
 
@@ -38,8 +54,9 @@ watch(
   { deep: true }
 )
 // текст выбранного ответа
-const selectedAnswer = ref<string | null>()
+
 const showBanner = ref(false) // Состояние для плашки
+// Загружаем сохранённый ответ при монтировании
 
 //проверка, вопрос еще идёт, или уже показываются результаты
 const isDiscussion = computed(() => props.stage === 'discussion')
@@ -50,6 +67,7 @@ function selectAnswer(answerId: string) {
   selectedAnswer.value = answerId
   showBanner.value = true
   props.onAnswer(answerId)
+  saveToLocaleStorage(storageKey.value, answerId)
 
   // Показываем плашку при выборе ответа
 }
@@ -73,6 +91,7 @@ watch(
     currStage.value = newVal
     if (oldVal === "discussion" && newVal === "question") {
       selectedAnswer.value = null
+      clearLocalStorage(storageKey.value)
     }
   }
 )
@@ -101,8 +120,8 @@ watch(
     </div>
 
     <p class="question_title">{{ props.question.text }}</p>
-
-    <div class="question_list">
+    
+    <div class="question_list">asdsad
       <div v-for="answer in answers" :key="answer.id" class="question_answer" :class="{
         selected: selectedAnswer === String(answer.id) && !isDiscussion,
         correct: isDiscussion && selectedAnswer === String(answer.id) && String(props.id_correct_answer) === String(answer.id),
@@ -111,6 +130,7 @@ watch(
         wrongOutline: isDiscussion && String(answer.id) !== String(props.id_correct_answer) && String(answer.id) !== selectedAnswer
       }" @click="selectAnswer(String(answer.id))">
         <span class="question_text">{{ answer.text }}</span>
+        
         <span v-if="isDiscussion" class="question_percent" :class="{ white: selectedAnswer === answer.id }">
           {{ getPercentage(answer.id) }}%
         </span>

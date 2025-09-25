@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-
+import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorage'
 import { postEvent } from '@telegram-apps/sdk';
 
 // для маршрутизации
@@ -50,7 +50,8 @@ function selectManyOption() {
 // Функция для выбора интерактива (при выборе нескольких)
 function toggleInteractiveSelection(id) {
   const index = selectedInteractives.value.indexOf(id);
-  if (index === -1) {а
+  if (index === -1) {
+    а
     selectedInteractives.value.push(id); // Добавляем в выбранные
   } else {
     selectedInteractives.value.splice(index, 1); // Убираем из выбранных
@@ -113,11 +114,29 @@ const initDataUnsafe = ref(null)
 const userId = ref(null)
 const props = ref(null)
 const isReady = ref(false)
+
+
+const HISTORY_KEY = 'history_interactives'
+const HISTORY_SELECT_MANY_KEY = 'history_select_many'
 onMounted(async () => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
     initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
+    const savedInteractives = loadFromDeviceStorage(HISTORY_KEY);
+    if (Array.isArray(savedInteractives)) {
+      if (savedInteractives.length > 0 && typeof savedInteractives[0] === 'object') {
+        selectedInteractives.value = savedInteractives.map(item => Number(item.id));
+      } else {
+        selectedInteractives.value = savedInteractives.map(Number);
+      }
+    } else {
+      selectedInteractives.value = [];
+    }
 
+    const savedSelectMany = loadFromDeviceStorage(HISTORY_SELECT_MANY_KEY);
+    if (savedSelectMany && selectedInteractives.value.length > 0) {
+      selectMany.value = savedSelectMany;
+    }
 
     userId.value = initDataUnsafe.value?.user?.id
 
@@ -141,8 +160,33 @@ onMounted(() => {
 onUnmounted(() => {
   document.body.classList.remove('history-background');
 });
+// флаг для подтверждения выхода со страницы
+const showConfirmPopup = ref(false)
+// поп ап для подтверждения выхода со страницы
+function handleBackClick() {
+  showConfirmPopup.value = true
+}
+// функция для выхода в главное меню
+async function confirmBack(save) {
+  if (save) {
 
+    showConfirmPopup.value = false
+    route.push('/leader/main_menu')
+    clearDeviceStorage(SELECT_MANY_KEY)
+    clearDeviceStorage(INTERACTIVES_KEY)
 
+  } else {
+    showConfirmPopup.value = false
+
+  }
+}
+
+watch(selectedInteractives, (newSelectedInteractives) => {
+  saveToDeviceStorage(HISTORY_KEY, newSelectedInteractives);
+}, { deep: true });
+watch(selectMany, (newSelectMany) => {
+  saveToDeviceStorage(HISTORY_SELECT_MANY_KEY, newSelectMany)
+})
 </script>
 
 <template>
@@ -155,7 +199,7 @@ onUnmounted(() => {
       <div class="history_content-fon">
         <div class="history_content">
           <div>
-            <button class="history_backButton" @click="goToMainMenu()">
+            <button class="history_backButton" @click="handleBackClick()">
               Вернуться
             </button>
           </div>
@@ -210,7 +254,7 @@ onUnmounted(() => {
                 </button>
                 <label v-if="selectMany" class="select_many_option">
                   <input type="checkbox" :value="interactive.interactive_id" class="custom-checkbox"
-                    @change="toggleInteractiveSelection(interactive.interactive_id)" />
+                    v-model=selectedInteractives />
                 </label>
               </div>
             </div>
@@ -238,6 +282,17 @@ onUnmounted(() => {
         </div>
         <div class="popup-footer">
           <button @click="submitReport" class="popup-submit">Выгрузить</button>
+        </div>
+      </div>
+    </div>
+    <div v-if="showConfirmPopup" class="history_edit_popup-overlay">
+      <div class="history_edit_popup-content">
+        <div class="history_edit_popup-text">Вы действительно хотите вернуться на главное меню?
+
+        </div>
+        <div class="history_edit_popup-actions">
+          <button @click="confirmBack(true)" class="history_edit_popup-btn save">Да</button>
+          <button @click="confirmBack(false)" class="history_edit_popup-btn cancel">Нет</button>
         </div>
       </div>
     </div>

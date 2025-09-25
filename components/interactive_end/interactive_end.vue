@@ -3,6 +3,11 @@ import { defineProps } from 'vue'
 import type { EndData } from '~/types/stageData'
 import Results from '~/components/interactive_end/results.vue'
 import WinnersTable from '~/components/interactive_end/winners_table.vue'
+import { clearDeviceStorage } from '~/utils/deviceStorage'
+onMounted(() => {
+  sessionStorage.clear()
+
+})
 
 // Получаем данные через props
 const props = defineProps<{

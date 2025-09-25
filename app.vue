@@ -11,7 +11,7 @@
 <script setup>
 window.Telegram.WebApp.expand()
 import { onMounted } from 'vue'
-
+import * as bridge from "@telegram-apps/sdk"
 // разворачиваем mini app на весь экран
 onMounted(() => {
   if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
@@ -22,7 +22,9 @@ onMounted(() => {
   }
     
   }
-
+  bridge.postEvent('web_app_setup_closing_behavior', {
+  need_confirmation: true,
+});
   
 })
 </script>

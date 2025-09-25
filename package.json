@@ -17,6 +17,7 @@
     "@nuxtjs/axios": "^5.13.6",
     "@paranoidphantom/tgauth": "^1.2.1",
     "@pinia/nuxt": "^0.11.0",
+    "@telegram-apps/bridge": "^2.11.0",
     "@telegram-apps/init-data-node": "^2.0.7",
     "@telegram-apps/sdk": "^3.10.0",
     "@vueuse/core": "^13.2.0",
