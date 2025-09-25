@@ -74,8 +74,9 @@ function selectAnswer(answerId: string) {
   selectedAnswer.value = answerId
   showBanner.value = true
   props.onAnswer(answerId)
-  clearLocalStorage(storageKey.value)
-    clearLocalStorage(answersStorageKey.value)
+
+  saveToLocaleStorage(storageKey.value, answerId)
+  saveToLocaleStorage(answersStorageKey.value, answers.value)
 
   // Показываем плашку при выборе ответа
 }

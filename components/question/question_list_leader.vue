@@ -43,7 +43,6 @@ watch(
     // Обновляем состояние, только если пришли новые ответы
     if (newAnswers && newAnswers.length > 0) {
       answers.value = newAnswers
-      saveToLocaleStorage(ANSWERS_STORAGE_KEY.value, newAnswers)
     }
     // Если новый массив пустой, не обновляем состояние
   },
