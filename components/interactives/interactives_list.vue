@@ -114,7 +114,7 @@ async function duplicateAndSaveInteractive(id: string) {
 const currentInteractiveId = ref<string | null>(null)
 
 const showDeletePopap = ref(false)
-// вызов попапа с подтверждением дублирования
+
 function deletePopup(id: string) {
   currentInteractiveId.value = id
   showDeletePopap.value = true
