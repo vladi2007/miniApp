@@ -110,7 +110,7 @@ async function duplicateAndSaveInteractive(id: string) {
   }
 }
 
-// константа id текущего интерактива, с которым работаешь
+
 const currentInteractiveId = ref<string | null>(null)
 
 const showDeletePopap = ref(false)
