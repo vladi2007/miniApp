@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup >
 import interactives from '~/components/interactives/interactives.vue'
 import { ref, onMounted } from 'vue'
 // данные о пользователе
@@ -6,7 +6,6 @@ const webApp = ref(null)
 const initDataUnsafe = ref(null)
 const my_interactives = ref(null)
 const userId = ref(null)
-
 // запрос на бекенд для получения списка интерактивов
 onMounted(async () => {
 
@@ -17,7 +16,7 @@ onMounted(async () => {
 
     userId.value = initDataUnsafe.value?.user?.id
     console.log(userId.value)
-    if (userId) {
+    if (userId.value) {
       const { data, error } = await useFetch(`/api/get_interactives`, {
 
         query: {
@@ -30,7 +29,7 @@ onMounted(async () => {
 
       if (data.value) {
         // Приводим числовые поля к строкам
-        const mapList = (list: any) =>
+        const mapList = (list) =>
           Array.isArray(list)
             ? list.map(item => ({
               title: item.title,
@@ -43,8 +42,8 @@ onMounted(async () => {
 
 
         my_interactives.value = {
-          interactives_list_conducted: mapList(data?.value?.interactives_list_conducted),
-          interactives_list_not_conducted: mapList(data?.value?.interactives_list_not_conducted)
+          interactives_list_conducted: mapList(data.value.interactives_list_conducted),
+          interactives_list_not_conducted: mapList(data.value.interactives_list_not_conducted)
         }
       }
     }
