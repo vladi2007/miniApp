@@ -10,13 +10,17 @@ const userId = ref(null)
 onMounted(async () => {
 
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-    webApp.value = window.Telegram.WebApp
+
+ 
+
+     webApp.value = window.Telegram.WebApp
     initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
 
-
     userId.value = initDataUnsafe.value?.user?.id
+    
+  
     console.log(userId.value)
-    if (userId.value) {
+    if (userId ) {
       const { data, error } = await useFetch(`/api/get_interactives`, {
 
         query: {

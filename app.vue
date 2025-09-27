@@ -1,6 +1,7 @@
 <template>
 
   <head>
+    <meta src='https://telegram.org/js/telegram-web-app.js?57' ></meta>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
   <div>
@@ -12,7 +13,7 @@
 <script setup>
 
 import { onMounted } from 'vue'
-
+import * as bridge from "@telegram-apps/sdk"
 // разворачиваем mini app на весь экран
 onMounted(() => {
   if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
@@ -29,7 +30,9 @@ if (parseFloat(version) >= 6.1 && Telegram.WebApp.requestFullscreen) {
     }
   
   }
-
+ bridge.postEvent('web_app_setup_closing_behavior', {
+  need_confirmation: true,
+});
 
 })
 </script>
