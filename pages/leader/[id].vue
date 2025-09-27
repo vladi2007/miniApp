@@ -10,7 +10,7 @@ import InteractiveEnd_leader from '~/components/interactive_end/interactive_end_
 const route = useRoute()
 const interactiveId = route.params.id
 const webApp = ref(null)
-const initDataUnsafe = ref(null)
+
 const userId = ref(null)
 
 const data = ref(null)
@@ -34,8 +34,9 @@ function createWebSocket(interactiveId, telegramId) {
 onMounted(() => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
-    initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
-    userId.value = initDataUnsafe.value?.user?.id
+     //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
+    const initDataUnsafe = JSON.parse(sessionStorage.getItem('telegram_init_data'));
+    userId.value = initDataUnsafe?.user?.id;
   }
 })
 

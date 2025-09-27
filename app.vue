@@ -23,11 +23,12 @@ onMounted(() => {
     const tg = Telegram.WebApp
 
     tg.setBackgroundColor('#ffffff')
-
+    const initData = tg.initDataUnsafe;
     const userId = tg.initDataUnsafe?.user?.id
     const platform = Telegram.WebApp.platform
-    sessionStorage.setItem('telegram_id', String(userId))
-    console.log(userId + "sssssssss")
+    // Сохраняем весь объект как JSON-строку
+    sessionStorage.setItem('telegram_init_data', JSON.stringify(initData));
+    console.log("initDataUnsafe saved:", initData);
     if (platform !== 'android' && platform !== 'ios') {
       const version = Telegram.WebApp?.version || "0.0";
       console.log(parseFloat(version))

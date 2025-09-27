@@ -8,10 +8,10 @@ import main_menu from '~/components/main_menu/main_menu.vue'
 
 // страница для защиты доступа к функционалу 
 const webApp = ref(null)
-const initDataUnsafe = ref(null)
-const my_interactives = ref(null)
 
-const isLoading = ref(true) // <- новый флаг
+
+
+
 
 const isReady = ref(false)
 const role = ref(null)
@@ -19,9 +19,9 @@ const userId = ref(null)
 onMounted(async () => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
-    initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
-
-    userId.value = initDataUnsafe.value?.user?.id
+     //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
+    const initDataUnsafe = JSON.parse(sessionStorage.getItem('telegram_init_data'));
+    userId.value = initDataUnsafe?.user?.id;
     console.log(userId.value)
     if (userId.value) {
       const  data = await useFetch('/api/role', {
@@ -41,7 +41,7 @@ onMounted(async () => {
 
 </script>
 
-<template>dsdsd
+<template>
   <!-- Показываем только когда данные загружены -->
   <div v-if="isReady">
     <main_menu v-if="role === 'leader'" />

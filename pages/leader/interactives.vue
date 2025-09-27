@@ -3,7 +3,7 @@ import interactives from '~/components/interactives/interactives.vue'
 import { ref, onMounted } from 'vue'
 // данные о пользователе
 const webApp = ref(null)
-const initDataUnsafe = ref(null)
+
 const my_interactives = ref(null)
 const userId = ref(null)
 // запрос на бекенд для получения списка интерактивов
@@ -14,9 +14,9 @@ onMounted(async () => {
  
 
      webApp.value = window.Telegram.WebApp
-    initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
-
-    userId.value = sessionStorage.getItem('telegram_id')
+    //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
+    const initDataUnsafe = JSON.parse(sessionStorage.getItem('telegram_init_data'));
+    userId.value = initDataUnsafe?.user?.id;
     
   
     console.log(userId.value)

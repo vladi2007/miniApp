@@ -110,7 +110,7 @@ async function submitReport() {
 
 // данные о пользователе 
 const webApp = ref(null)
-const initDataUnsafe = ref(null)
+
 const userId = ref(null)
 const props = ref(null)
 const isReady = ref(false)
@@ -121,7 +121,9 @@ const HISTORY_SELECT_MANY_KEY = 'history_select_many'
 onMounted(async () => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
-    initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
+     //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
+    const initDataUnsafe = JSON.parse(sessionStorage.getItem('telegram_init_data'));
+    userId.value = initDataUnsafe?.user?.id;
     const savedInteractives = loadFromDeviceStorage(HISTORY_KEY);
     if (Array.isArray(savedInteractives)) {
       if (savedInteractives.length > 0 && typeof savedInteractives[0] === 'object') {
@@ -138,7 +140,7 @@ onMounted(async () => {
       selectMany.value = savedSelectMany;
     }
 
-    userId.value = initDataUnsafe.value?.user?.id
+   
 
     const data = await useFetch('/api/reports/preview', {
 

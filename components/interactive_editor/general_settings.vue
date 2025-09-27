@@ -45,15 +45,16 @@ type CreateInteractiveResponse = {
 }
 
 const webApp = ref(null)
-const initDataUnsafe = ref(null)
+
 const userId = ref(null)
 
 
 onMounted(async () => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
-    initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
-    userId.value = initDataUnsafe.value?.user?.id
+     //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
+    const initDataUnsafe = JSON.parse(sessionStorage.getItem('telegram_init_data'));
+    userId.value = initDataUnsafe?.user?.id;
   }
 
   const id = route.params.id as string
