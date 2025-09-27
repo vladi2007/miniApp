@@ -11,7 +11,7 @@ const webApp = ref(null)
 
 
 
-
+const initDataUnsafe=ref(null)
 
 const isReady = ref(false)
 const role = ref(null)
@@ -20,9 +20,9 @@ onMounted(async () => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
      //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
-    const initDataUnsafe = JSON.parse(sessionStorage.getItem('telegram_init_data'));
-    userId.value = initDataUnsafe?.user?.id;
-    console.log(userId.value)
+    const { $telegram } = useNuxtApp();
+    userId.value = $telegram.initDataUnsafe.value?.user?.id;
+    
     if (userId.value) {
       const  data = await useFetch('/api/role', {
         query: {

@@ -52,9 +52,9 @@ const userId = ref(null)
 onMounted(async () => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
-     //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
-    const initDataUnsafe = JSON.parse(sessionStorage.getItem('telegram_init_data'));
-    userId.value = initDataUnsafe?.user?.id;
+    //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
+    const { $telegram } = useNuxtApp();
+    userId.value = $telegram.initDataUnsafe.value?.user?.id;
   }
 
   const id = route.params.id as string

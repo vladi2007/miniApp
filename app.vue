@@ -16,18 +16,20 @@
 import { onMounted } from 'vue'
 import * as bridge from "@telegram-apps/sdk"
 // разворачиваем mini app на весь экран
-onMounted(() => {
+onMounted(async () => {
   if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
 
 
     const tg = Telegram.WebApp
 
     tg.setBackgroundColor('#ffffff')
-    const initData = tg.initDataUnsafe;
-    const userId = tg.initDataUnsafe?.user?.id
+    const initData = tg.initDataUnsafe
+  
     const platform = Telegram.WebApp.platform
     // Сохраняем весь объект как JSON-строку
     sessionStorage.setItem('telegram_init_data', JSON.stringify(initData));
+
+    
     console.log("initDataUnsafe saved:", initData);
     if (platform !== 'android' && platform !== 'ios') {
       const version = Telegram.WebApp?.version || "0.0";
