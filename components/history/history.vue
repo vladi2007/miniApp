@@ -173,7 +173,9 @@ async function confirmBack(save) {
     showConfirmPopup.value = false
     route.push('/leader/main_menu')
  
-    sessionStorage.clear()
+    sessionStorage.removeItem('history_interactives');
+    sessionStorage.removeItem('history_select_many');
+
 
 
   } else {

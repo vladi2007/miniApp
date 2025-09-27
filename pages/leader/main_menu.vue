@@ -22,9 +22,8 @@ onMounted(async () => {
     initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
 
     userId.value = initDataUnsafe.value?.user?.id
-    console.log(userId.value + "asdasds")
+    console.log(userId.value)
     if (userId.value) {
-      console.log(userId)
       const  data = await useFetch('/api/role', {
         query: {
           telegram_id: userId.value,
