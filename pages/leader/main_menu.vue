@@ -24,6 +24,7 @@ onMounted(async () => {
     userId.value = initDataUnsafe.value?.user?.id
 
     if (userId) {
+      console.log(userId)
       const  data = await useFetch('/api/role', {
         query: {
           telegram_id: userId.value,

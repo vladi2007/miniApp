@@ -119,11 +119,23 @@ function deletePopup(id: string) {
   currentInteractiveId.value = id
   showDeletePopap.value = true
 }
+const localInteractives = ref([...props.interactives_list])
 
-async function deleteInteractive(id: string){
+async function deleteInteractive(id: string) {
+  const response = await $fetch(`/api/delete_interactive`, {
+    method: 'DELETE',
+    query: {
+      telegram_id: userId.value,
+      id: id
+    },
 
+  })
+  if (response) {
+    window.Telegram.WebApp.showAlert('Интерактив успешно удалён')
+      localInteractives.value = localInteractives.value.filter(item => item.id !== id)
+     showDeletePopap.value = false;
+  }
 
-showDeletePopap.value = false;
 }
 </script>
 
@@ -134,7 +146,7 @@ showDeletePopap.value = false;
     </div>
     <div class="interactive_list_content">
       <div class="date" v-if="isEnd">Дата проведения</div>
-      <div class="interactive_list_content_list" v-for="interactive in props.interactives_list"
+      <div class="interactive_list_content_list" v-for="interactive in localInteractives"
         :class="{ margin: !isEnd }">
         <div class="interactive_description">
           <div class="interactive_title">
@@ -152,7 +164,7 @@ showDeletePopap.value = false;
               @click="Popup(interactive.id)">
               <img src="/images/interactives/dublicate.svg" id="dublicate" />
             </div>
-            <div class="interactive_delete" v-if="!isEnd" title="Удалить интерактив" 
+            <div class="interactive_delete" v-if="!isEnd" title="Удалить интерактив"
               @click="deletePopup(interactive.id)">
               <img src="/images/interactives/vector.png" id="delete" />
             </div>
@@ -192,18 +204,18 @@ showDeletePopap.value = false;
       </div>
     </div>
 
-    <div  v-if="showDeletePopap" class="interactives_delete_popup-overlay">
+    <div v-if="showDeletePopap" class="interactives_delete_popup-overlay">
       <div class="interactives_delete_popup">
         <div class="interactives_delete_popup-header">
           <div class="interactives_delete_popup-header-text">Вы действительно хотите удалить?</div>
-         
+
         </div>
         <div class="interactives_delete_popup-body">
 
           <button class="interactives_delete_popup-button"
             @click="deleteInteractive(String(currentInteractiveId))">Удалить</button>
           <button class="interactives_delete_popup-button" @click="closePopup()">Отмена</button>
-          
+
         </div>
       </div>
     </div>
@@ -211,6 +223,5 @@ showDeletePopap.value = false;
 </template>
 
 <style>
-
 @import url("~/assets/css/interactives/interactives_list.scss");
 </style>
