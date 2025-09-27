@@ -17,6 +17,7 @@ const props = defineProps<{
 // закрытие поп апа с подтверждением дублирования
 function closePopup() {
   showPopup.value = false;
+  showDeletePopap.value = false;
 
 }
 // для маршрутизации
@@ -109,8 +110,33 @@ async function duplicateAndSaveInteractive(id: string) {
   }
 }
 
-// константа id текущего интерактива, с которым работаешь
+
 const currentInteractiveId = ref<string | null>(null)
+
+const showDeletePopap = ref(false)
+
+function deletePopup(id: string) {
+  currentInteractiveId.value = id
+  showDeletePopap.value = true
+}
+const localInteractives = ref([...props.interactives_list])
+
+async function deleteInteractive(id: string) {
+  const response = await $fetch(`/api/delete_interactive`, {
+    method: 'DELETE',
+    query: {
+      telegram_id: userId.value,
+      id: id
+    },
+
+  })
+  if (response) {
+    window.Telegram.WebApp.showAlert('Интерактив успешно удалён')
+      localInteractives.value = localInteractives.value.filter(item => item.id !== id)
+     showDeletePopap.value = false;
+  }
+
+}
 </script>
 
 <template>
@@ -120,7 +146,7 @@ const currentInteractiveId = ref<string | null>(null)
     </div>
     <div class="interactive_list_content">
       <div class="date" v-if="isEnd">Дата проведения</div>
-      <div class="interactive_list_content_list" v-for="interactive in props.interactives_list"
+      <div class="interactive_list_content_list" v-for="interactive in localInteractives"
         :class="{ margin: !isEnd }">
         <div class="interactive_description">
           <div class="interactive_title">
@@ -137,6 +163,10 @@ const currentInteractiveId = ref<string | null>(null)
             <div class="interactive_dublicate" :class="{ hidden: isEnd }" title="Дублировать интерактив"
               @click="Popup(interactive.id)">
               <img src="/images/interactives/dublicate.svg" id="dublicate" />
+            </div>
+            <div class="interactive_delete" v-if="!isEnd" title="Удалить интерактив"
+              @click="deletePopup(interactive.id)">
+              <img src="/images/interactives/vector.png" id="delete" />
             </div>
             <div class="interactive_edit" v-if="!isEnd" @click="edit_interactive(String(interactive.id))"
               title="Редактировать интерактив">
@@ -170,6 +200,22 @@ const currentInteractiveId = ref<string | null>(null)
           <button class="interactives_popup-button" @click="closePopup()">Нет</button>
           <button class="interactives_popup-button" @click="dublicate_interactive(String(currentInteractiveId))">Да, и
             хочу его сразу отредактировать</button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="showDeletePopap" class="interactives_delete_popup-overlay">
+      <div class="interactives_delete_popup">
+        <div class="interactives_delete_popup-header">
+          <div class="interactives_delete_popup-header-text">Вы действительно хотите удалить?</div>
+
+        </div>
+        <div class="interactives_delete_popup-body">
+
+          <button class="interactives_delete_popup-button"
+            @click="deleteInteractive(String(currentInteractiveId))">Удалить</button>
+          <button class="interactives_delete_popup-button" @click="closePopup()">Отмена</button>
+
         </div>
       </div>
     </div>

@@ -67,5 +67,6 @@ function create_new_interactive() {
 </template>
 
 <style>
+
 @import url("~/assets/css/interactives/interactives.scss");
 </style>
