@@ -23,7 +23,7 @@ onMounted(async () => {
 
     userId.value = initDataUnsafe.value?.user?.id
     console.log(userId.value)
-    if (userId) {
+    if (userId.value) {
       const  data = await useFetch('/api/role', {
         query: {
           telegram_id: userId.value,
@@ -41,7 +41,7 @@ onMounted(async () => {
 
 </script>
 
-<template>
+<template>dsdsd
   <!-- Показываем только когда данные загружены -->
   <div v-if="isReady">
     <main_menu v-if="role === 'leader'" />

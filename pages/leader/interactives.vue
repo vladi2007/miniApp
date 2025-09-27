@@ -16,11 +16,11 @@ onMounted(async () => {
      webApp.value = window.Telegram.WebApp
     initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
 
-    userId.value = initDataUnsafe.value?.user?.id
+    userId.value = sessionStorage.getItem('telegram_id')
     
   
     console.log(userId.value)
-    if (userId ) {
+    if (userId.value ) {
       const { data, error } = await useFetch(`/api/get_interactives`, {
 
         query: {
