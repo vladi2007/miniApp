@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
   onStatus: (status: string) => void
+  pause:string
 }>()
 const route = useRoute()
 const interactiveId = route.params.id as string
@@ -21,6 +22,13 @@ function togglePause() {
 function endInteractive() {
   props.onStatus('end')
 }
+
+watch(() => props.pause, (newWal) => {
+  isPaused.value = newWal ==="nonPause"
+  savePauseState(isPaused.value)
+  
+}, {immediate:true}
+) 
 </script>
 
 <template>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { WaitingData } from '~/types/stageData'  // Импортируем тип данных
+import type { WaitingData, Pause } from '~/types/stageData'  // Импортируем тип данных
 import Active from '~/components/waiting/active_users.vue'
 import Description from '~/components/waiting/description.vue'
 import Links from '~/components/waiting/links.vue'
@@ -22,8 +22,31 @@ const props = defineProps<{
     data: WaitingData
     context: string
     onStatus: (status: string) => void
+    pause:Pause
 }>()
+const pausePopUp=ref('no')
 
+function morePause() {
+    pausePopUp.value='no'
+    props.onStatus('more_pause')
+}
+
+function startBeforePause(){
+    pausePopUp.value='no'
+    props.onStatus('going')
+}
+watch( () => props.pause.state, (newWal) => {
+    pausePopUp.value = newWal
+})
+
+watch( () => props.pause.timer_n, (newWal) => {
+    if (newWal === 0){
+        router.push("/leader/interactives").then(() => {
+        // Перезагрузка после успешной навигации
+        window.location.reload()
+    })
+    }
+})
 </script>
 
 <template>
@@ -67,7 +90,17 @@ const props = defineProps<{
             </div>
 
         </div>
+        <div v-if="pausePopUp==='yes'" class="waiting_edit_popup-overlay">
+            <div class="waiting_edit_popup-content">
+                <div class="waiting_edit_popup-text">Вы слишком долго бездействовали, запустите интерактив или через n секунд он будет закрыт
 
+                </div>
+                <div class="waiting_edit_popup-actions">
+                    <button @click="startBeforePause()" class="waiting_edit_popup-btn save">Запустить интерактив</button>
+                    <button @click=morePause() class="waiting_edit_popup-btn cancel">Еще подождать</button>
+                </div>
+            </div>
+        </div>
 
 
 
@@ -76,6 +109,9 @@ const props = defineProps<{
 </template>
 
 <style>
+
+
+
 @import url("/assets/css/waiting/active_users_leader.scss");
 @import url("/assets/css/waiting/description_leader.scss");
 @import url("/assets/css/waiting/waiting_leader.scss");

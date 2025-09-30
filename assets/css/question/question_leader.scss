@@ -34,3 +34,60 @@ body.question-leader-background {
   margin: auto 0;
   margin-left: 25px;
 }
+
+
+
+.question_leader_popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(29, 29, 29, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.question_leader_popup-content {
+  background-color: white;
+  border-radius: 10px;
+  padding: 32px;
+  width: 600px;
+  text-align: center;
+  font-family: "Lato", sans-serif;
+}
+
+.question_leader_popup-text {
+  font-size: 24px;
+  margin-bottom: 24px;
+}
+
+.question_leader_popup-actions {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.question_leader_popup-btn {
+  padding: 12px 32px;
+  font-size: 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.question_leader_popup-btn.save {
+  background-color: #6ab23d;
+  color: white;
+}
+
+.question_leader_popup-btn.cancel {
+  background-color: #f0436c;
+  color: white;
+}
+
+.question_leader_popup-btn:hover {
+  opacity: 0.9;
+}

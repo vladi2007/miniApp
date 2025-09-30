@@ -4,7 +4,7 @@ import timer_leader from '~/components/question/timer_leader.vue';
 import question_list_leader from '~/components/question/question_list_leader.vue';
 import question_leader_buttons from '~/components/question/question_leader_buttons.vue';
 import { defineProps } from 'vue'
-import type { QuestionData } from '~/types/stageData'
+import type { Pause, QuestionData } from '~/types/stageData'
 const route = useRoute()
 // пропс для работы с данными от бекенда
 const props = defineProps<{
@@ -13,6 +13,7 @@ const props = defineProps<{
   context: string
   onAnswer: () => void
   onStatus: (status: string) => void// Используем тип WaitingData
+  pause:Pause
 }>()
 // для изменения цвета фона
 onMounted(() => {
@@ -21,6 +22,21 @@ onMounted(() => {
 onUnmounted(() => {
   document.body.classList.remove('question-leader-background');
 });
+const pause =ref("")
+const pausePopUp=ref('no')
+function removeFromPause(){
+  pausePopUp.value='no'
+  props.onStatus('going')
+  pause.value="nonPause"
+}
+watch(() => props.pause.state, (newWal) => {
+  pausePopUp.value=newWal
+})
+function morePause() {
+    pausePopUp.value='no'
+    props.onStatus('more_pause')
+    pause.value="morePause"
+}
 </script>
 
 <template>
@@ -29,7 +45,7 @@ onUnmounted(() => {
     <!-- Горизонтальный блок -->
     <div class="question_leader_top-bar">
       <div>
-        <question_leader_buttons :onStatus="onStatus" />
+        <question_leader_buttons :onStatus="onStatus"  :pause="pause"/>
       </div>
       <div class='question_leader_timer'>
         <timer_leader :timer="data.timer" :stage="stage" :timer_duration="data.timer_duration" :context="context"
@@ -41,7 +57,17 @@ onUnmounted(() => {
         :id_correct_answer="data.id_correct_answer" :percentages="data.percentages" :stage="stage" :onAnswer="onAnswer"
         :questions_count="data.questions_count" :context="context" />
     </div>
+    <div v-if="pausePopUp==='yes'" class="question_leader_popup-overlay">
+            <div class="question_leader_popup-content">
+                <div class="question_leader_popup-text">Вы слишком долго бездействовали, запустите интерактив или через n секунд он будет закрыт
 
+                </div>
+                <div class="question_leader_popup-actions">
+                    <button @click="removeFromPause()" class="question_leader_popup-btn save">Снять с паузы</button>
+                    <button @click="morePause()" class="question_leader_popup-btn cancel">Еще подождать</button>
+                </div>
+            </div>
+        </div>
 
   </div>
 </template>
