@@ -285,19 +285,19 @@ watch(selectedInteractives, (newSelectedInteractives) => {
                                 <button v-if="!selectMany" class="selectManyDownload" @click="handleSelfSend()">
                                     Отправить только себе
                                 </button>
-                                <button class="broadcasts_content_menu_info_button" @click="selectManyOption()"
+                                <button v-if="props.data.interactives_list.length > 0" class="broadcasts_content_menu_info_button" @click="selectManyOption()"
                                     :class="{ selectManyClass: selectMany, 'hoverable-select': !selectMany, 'hoverable-select_red': selectMany }">
-                                    {{ !selectMany ? "Выбрать" : "Отмена" }}
+                                    {{ !selectMany ? "Выбрать" : "Отмена" }} 
                                 </button>
                             </div>
 
                         </div>
-
+                            
 
                     </div>
 
-                    <div class="broadcasts_content_list">
-                        <div v-for="interactive in props.data.interactives_list" :key="interactive.interactive_id">
+                    <div class="broadcasts_content_list" :class="{ 'overflow-y-hidden': props.data.interactives_list.length === 0 }">
+                        <div v-for="interactive in props.data.interactives_list" :key="interactive.interactive_id" >
                             <div class="broadcasts_interactive">
                                 <div class="broadcasts_header">
                                     <div class="broadcasts_date-fon">
@@ -327,6 +327,9 @@ watch(selectedInteractives, (newSelectedInteractives) => {
                                 </label>
                             </div>
                         </div>
+                        <div  class ="broadcasts_content_list_warn"  v-if="props.data.interactives_list.length=== 0">
+                            Вы не провели ни один интерактив!
+                            </div>
                     </div>
                 </div>
             </div>

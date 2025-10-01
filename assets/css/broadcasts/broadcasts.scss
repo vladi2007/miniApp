@@ -670,3 +670,16 @@ body.broadcasts-background {
 .popup-option:hover input[type="radio"] + span::before {
   background-image: url("/public/images/history/circle_hover.svg");
 }
+.broadcasts_content_list_warn {
+  font-family: "Lato", sans-serif;
+  display: flex;
+  font-weight: 700;
+  font-size: 36px;
+  margin: 0 auto;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+.overflow-y-hidden {
+  overflow-y: hidden;
+}

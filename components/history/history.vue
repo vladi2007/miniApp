@@ -224,7 +224,7 @@ watch(selectMany, (newSelectMany) => {
                   Выгрузить
                 </button>
                 <button class="history_content_menu_info_button" @click="selectManyOption"
-                  :class="{ selectManyClass: selectMany, 'hoverable-select': !selectMany, 'hoverable-select_red': selectMany }">
+                  :class="{ selectManyClass: selectMany, 'hoverable-select': !selectMany, 'hoverable-select_red': selectMany }" v-if="props.data.interactives_list.length > 0">
                   {{ !selectMany ? "Выбрать" : "Отмена" }}
                 </button>
               </div>
@@ -232,7 +232,7 @@ watch(selectMany, (newSelectMany) => {
           </div>
 
           <div class="history_content_list">
-            <div v-for="interactive in props.data.interactives_list" :key="interactive.interactive_id">
+            <div v-if="props.data.interactives_list.length > 0" v-for="interactive in props.data.interactives_list" :key="interactive.interactive_id" >
               <div class="history_interactive">
                 <div class="history_header">
                   <div class="history_date-fon">
@@ -262,6 +262,9 @@ watch(selectMany, (newSelectMany) => {
                     v-model=selectedInteractives />
                 </label>
               </div>
+            </div>
+            <div  class ="history_content_list_warn"  v-if="props.data.interactives_list.length ===0">
+              Вы не провели ни один интерактив!
             </div>
           </div>
         </div>

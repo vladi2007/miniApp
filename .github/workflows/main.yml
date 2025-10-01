@@ -26,14 +26,21 @@ jobs:
           ssh root@45.9.40.96 << EOF
             set -e
             cd /root/miniApp
-      
+            
+            echo "🛑 Stopping Docker containers..."
+            docker compose down
+
+            echo "🧹 Cleaning up Docker system..."
+            docker system prune --volumes -f
+            docker builder prune -f
+            docker system prune -f
+
             echo "📦 Checking out branch: $BRANCH"
             git fetch origin
             git checkout -B $BRANCH origin/$BRANCH
             git pull
-      
+
             echo "🔧 Rebuilding and restarting container..."
-            docker compose down
             docker compose build --no-cache
             docker compose up -d
           EOF
