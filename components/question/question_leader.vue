@@ -22,7 +22,7 @@ onMounted(() => {
 onUnmounted(() => {
   document.body.classList.remove('question-leader-background');
 });
-const pause =ref("")
+const pause =ref("nonPause")
 const pausePopUp=ref('no')
 function removeFromPause(){
   pausePopUp.value='no'
