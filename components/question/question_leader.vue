@@ -22,20 +22,26 @@ onMounted(() => {
 onUnmounted(() => {
   document.body.classList.remove('question-leader-background');
 });
-const pause =ref("nonPause")
-const pausePopUp=ref('no')
+const pause =ref("no")
+const pausePopUp=ref('')
 function removeFromPause(){
   pausePopUp.value='no'
-  props.onStatus('going')
-  pause.value="nonPause"
+  props.onStatus('pause')
+  pause.value="no"
 }
 watch(() => props.pause.state, (newWal) => {
-  pausePopUp.value=newWal
+
+if (newWal==="timer_n"){
+  pausePopUp.value='yes'
+}
+else{
+  pause.value=newWal
+}
 })
 function morePause() {
     pausePopUp.value='no'
     props.onStatus('more_pause')
-    pause.value="morePause"
+    pause.value="yes"
 }
 </script>
 

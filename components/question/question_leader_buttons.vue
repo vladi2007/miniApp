@@ -24,7 +24,14 @@ function endInteractive() {
 }
 
 watch(() => props.pause, (newWal) => {
-  isPaused.value = newWal ==="morePause"
+  if (newWal==="yes"){
+    isPaused.value=true
+  }
+  else if(newWal ==="no"){
+    isPaused.value=false
+  }
+  
+
   savePauseState(isPaused.value)
   
 }, {immediate:true}

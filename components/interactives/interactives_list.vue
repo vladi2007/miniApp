@@ -147,7 +147,7 @@ async function deleteInteractive(id: string) {
     <div class="interactive_list_content" >
       <div class="date" v-if="isEnd">Дата проведения</div>
       <div class="interactive_list_content_list" v-for="interactive in localInteractives"
-        :class="{ margin: !isEnd }" v-if="props.interactives_list.length > 0">
+        :class="{ margin: !isEnd }" v-if="localInteractives.length > 0">
         <div class="interactive_description">
           <div class="interactive_title">
             {{ interactive.title }}
@@ -185,10 +185,10 @@ async function deleteInteractive(id: string) {
         </div>
 
       </div>
-      <div  class ="interactive_list_content_warn"  v-if="props.interactives_list.length ===0 && isEnd">
+      <div  class ="interactive_list_content_warn"  v-if="localInteractives.length ===0 && isEnd">
               Вы не провели ни один интерактив!
             </div>
-      <div  class ="interactive_list_content_warn"  v-if="props.interactives_list.length ===0 && !isEnd">
+      <div  class ="interactive_list_content_warn"  v-if="localInteractives.length ===0 && !isEnd">
               Вы не создали ни один интерактив!
             </div>
     </div>

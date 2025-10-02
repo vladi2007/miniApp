@@ -2,6 +2,9 @@
 import { ref, computed, defineProps, defineEmits, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorage'
+import { nextTick } from 'vue'
+
+const questionButtonsRefs = ref<HTMLElement[]>([])
 
 const FORM_STORAGE_KEY = 'interactive_form_draft'
 const CURRENT_INDEX_KEY = 'interactive_current_index'
@@ -47,7 +50,9 @@ type CreateInteractiveResponse = {
 const webApp = ref(null)
 
 const userId = ref(null)
+const questionNavRef = ref<HTMLElement | null>(null)
 
+const SCROLL_POSITION_KEY = 'question_nav_scroll_position'
 
 onMounted(async () => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
@@ -56,6 +61,23 @@ onMounted(async () => {
     const { $telegram } = useNuxtApp();
     userId.value = $telegram.initDataUnsafe.value?.user?.id;
   }
+
+    // Подождём до отрисовки DOM
+  nextTick(() => {
+    const el = questionNavRef.value
+    if (el) {
+      // Восстановить скролл
+      const savedScroll = loadFromDeviceStorage(SCROLL_POSITION_KEY)
+      if (typeof savedScroll === 'number') {
+        el.scrollTop = savedScroll
+      }
+
+      // Сохранять скролл при изменениях
+      el.addEventListener('scroll', () => {
+        saveToDeviceStorage(SCROLL_POSITION_KEY, el.scrollTop)
+      })
+    }
+  })
 
   const id = route.params.id as string
   
@@ -113,17 +135,32 @@ onMounted(async () => {
 
       if (typeof savedIndex === 'number') {
         currentQuestionIndex.value = savedIndex
+
+            // Подождать и проскроллить к нужной кнопке
+        await nextTick()
+        const el = questionButtonsRefs.value[savedIndex]
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+        }
       }
     
 })
 
-function addQuestion() {
+async function addQuestion() {
   form.value.questions.push({
     text: '',
     position: form.value.questions.length + 1,
     answers: Array(4).fill(null).map(() => ({ text: '', is_correct: false }))
   })
   currentQuestionIndex.value = form.value.questions.length - 1
+
+  await nextTick()
+
+  // Прокрутка к новой кнопке
+  const el = questionButtonsRefs.value[currentQuestionIndex.value]
+  if (el && typeof el.scrollIntoView === 'function') {
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+  }
 }
 
 function removeQuestion() {
@@ -347,8 +384,8 @@ watch(currentQuestionIndex, (newIndex) => {
         <!-- Панель навигации по вопросам -->
         <div class="question-nav">
           <div class="question_nav_header">Навигатор по вопросам</div>
-          <div class="question-buttons">
-            <button class="quest-nav-button" v-for="(q, index) in form.questions" :key="index"
+          <div class="question-buttons" ref="questionNavRef">
+            <button class="quest-nav-button" v-for="(q, index) in form.questions" :key="index" :ref="el => questionButtonsRefs[index] = el"
               :class="{ active: index === currentQuestionIndex }" @click="currentQuestionIndex = index">
               {{ index + 1 }}
             </button>
