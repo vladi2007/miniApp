@@ -37,7 +37,7 @@ function Popup(id: string) {
 }
 
 // переход на редактирование, если пользователь хочет продублированный интерактив сразу изменить
-function dublicate_interactive(id: string) {
+function dublicate_interactive(id: string) {showPopup.value=false
   route.push(`/leader/dublicate/${id}`)
 }
 
@@ -64,10 +64,10 @@ onMounted(async () => {
 
 
 // запрос на дублирование интерактива
-async function duplicateAndSaveInteractive(id: string) {
+async function duplicateAndSaveInteractive(id: string) {showPopup.value=false
   try {
 
-
+    
     const data = await $fetch(`/api/get_interactive`, {
       method: 'GET',
       query: {
@@ -122,6 +122,7 @@ function deletePopup(id: string) {
 const localInteractives = ref([...props.interactives_list])
 
 async function deleteInteractive(id: string) {
+  showDeletePopap.value=false
   const response = await $fetch(`/api/delete_interactive`, {
     method: 'DELETE',
     query: {

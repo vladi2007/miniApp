@@ -117,10 +117,10 @@
 .interactives_delete_popup-button {
   width: 638px;
   height: 62px;
-  border-radius: 5px;
+  border-radius: 8px;
   font-family: "Lato", sans-serif;
-  font-size: 24px;
-  font-weight: 500;
+  font-size: 32px;
+  font-weight: 400;
   border: none;
   cursor: pointer;
   transition: 0.3s ease;
@@ -131,7 +131,7 @@
   color: white;
 }
 .interactives_delete_popup-button:nth-child(1):hover {
-  background-color: #9ac57e;
+  background-color: #559130;
 }
 .interactives_delete_popup-button:nth-child(2) {
   background-color: white;
@@ -140,7 +140,8 @@
   border-color: #6AB23D;
 }
 .interactives_delete_popup-button:nth-child(2):hover {
-  background-color:  #f7f7f7;
+  background-color:  #9AC57E;
+  color: white;
 }
 .interactives_popup-button:nth-child(2) {
   background-color: #f0436c;

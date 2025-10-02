@@ -53,7 +53,7 @@ const userId = ref(null)
 const questionNavRef = ref<HTMLElement | null>(null)
 
 const SCROLL_POSITION_KEY = 'question_nav_scroll_position'
-
+const STEP_KEY = 'interactive_editor_step'
 onMounted(async () => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
@@ -206,6 +206,7 @@ function markCorrectAnswer(questionIndex: number, answerIndex: number) {
 }
 
 async function submitInteractive(): Promise<number | null> {
+  showSavePopup.value=false
   const f = form.value
 
   if (!f.title || !f.description || !f.target_audience || !f.location || !f.responsible_full_name) {
@@ -303,13 +304,17 @@ async function saveInteractive(): Promise<boolean> {
 
 async function saveInteractiveButton() {
   const id = await submitInteractive()
+  showSavePopup.value=false
   if (id !== null) {
     router.push(`/leader/interactives`)
+    clearDeviceStorage(SCROLL_POSITION_KEY)
+    clearDeviceStorage(STEP_KEY)
   }
 }
 
 async function startInteractive() {
   const id = await submitInteractive()
+  showSavePopup.value=false
   if (id !== null) {
     router.push(`/leader/${id}`)
   }

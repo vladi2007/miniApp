@@ -37,6 +37,9 @@ function openPopupManySelect() {
 function closePopup() {
   showPopup.value = false;
   selectedOption.value = null;
+  selectedInteractives.value=[];
+ 
+      
 }
 
 // Функция для выбора нескольких интерактивов
@@ -59,6 +62,7 @@ function toggleInteractiveSelection(id) {
 }
 // функция для скачивания отчета: запрос, проверки
 async function submitReport() {
+  showPopup.value=false
   if (selectedInteractives.value.length > 0) {
     if (selectedOption.value !== 'forAnalise' && selectedOption.value !== 'forLeader') {
       window.Telegram.WebApp.showAlert(`Выберите тип отчета!`);
