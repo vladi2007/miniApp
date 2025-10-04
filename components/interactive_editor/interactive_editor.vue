@@ -4,7 +4,7 @@ import type { CountdownData } from '~/types/stageData'
 import nav_bar from '~/components/main_menu/nav_bar.vue'
 import general_settings from '~/components/interactive_editor/general_settings.vue'
 import { ref } from 'vue'
-
+import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorage'
 // передача функции для сохранения
 const generalSettingsRef = ref<InstanceType<typeof general_settings> | null>(null)
 const FORM_STORAGE_KEY = 'interactive_form_draft'
@@ -22,6 +22,7 @@ function handleBackClick() {
     showConfirmPopup.value = true
   } else {
     step.value = 1
+
   }
 }
 // для получения параметров из url
@@ -39,7 +40,7 @@ async function confirmBack(save: boolean) {
       showConfirmPopup.value = false
       route.push('/leader/interactives')
     }
-    else{showConfirmPopup.value = false}
+    else { showConfirmPopup.value = false }
   } else {
     showConfirmPopup.value = false
     clearDeviceStorage(FORM_STORAGE_KEY)
@@ -49,10 +50,20 @@ async function confirmBack(save: boolean) {
 
     route.push('/leader/interactives')
   }
-}watch(step, (newStep) => {
-  saveToDeviceStorage(STEP_KEY, newStep)
+}
+watch(step, (newStep) => {
+  saveToDeviceStorage(STEP_KEY, newStep.toString())
 })
+onMounted(() => {
+  const storedStep = loadFromDeviceStorage(STEP_KEY)
 
+  if (storedStep !== null && !isNaN(Number(storedStep))) {
+    step.value = Number(storedStep)
+    console.log('Загружен step из хранилища:', storedStep)
+  } else {
+    console.log('Step не найден в хранилище или невалиден:', storedStep)
+  }
+})
 
 
 </script>
@@ -76,15 +87,15 @@ async function confirmBack(save: boolean) {
 
     </div>
     <div v-if="showConfirmPopup" class="interactive_edit_popup-overlay">
-  <div class="interactive_edit_popup-content">
-    <div class="interactive_edit_popup-text">Сохранить настройки перед выходом из редактирования викторины?</div>
-    <div class="interactive_edit_popup-actions">
-      <button @click="confirmBack(true)" class="interactive_edit_popup-btn save">Да</button>
-      <button @click="confirmBack(false)" class="interactive_edit_popup-btn cancel">Нет</button>
+      <div class="interactive_edit_popup-content">
+        <div class="interactive_edit_popup-text">Сохранить настройки перед выходом из редактирования викторины?</div>
+        <div class="interactive_edit_popup-actions">
+          <button @click="confirmBack(true)" class="interactive_edit_popup-btn save">Да</button>
+          <button @click="confirmBack(false)" class="interactive_edit_popup-btn cancel">Нет</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
-    <general_settings  ref="generalSettingsRef" :step="step" @update-step="step = $event" :mode="mode" />
+    <general_settings ref="generalSettingsRef" :step="step" @update-step="step = $event" :mode="mode"  :key="step"/>
   </div>
 </template>
 

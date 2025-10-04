@@ -47,3 +47,7 @@ export interface CountdownData {
   timer: string
 
 }
+export interface Pause{
+  state:string
+  timer_n:number
+}

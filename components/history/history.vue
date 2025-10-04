@@ -37,6 +37,9 @@ function openPopupManySelect() {
 function closePopup() {
   showPopup.value = false;
   selectedOption.value = null;
+  selectedInteractives.value=[];
+ 
+      
 }
 
 // Функция для выбора нескольких интерактивов
@@ -59,6 +62,7 @@ function toggleInteractiveSelection(id) {
 }
 // функция для скачивания отчета: запрос, проверки
 async function submitReport() {
+  showPopup.value=false
   if (selectedInteractives.value.length > 0) {
     if (selectedOption.value !== 'forAnalise' && selectedOption.value !== 'forLeader') {
       window.Telegram.WebApp.showAlert(`Выберите тип отчета!`);
@@ -110,7 +114,7 @@ async function submitReport() {
 
 // данные о пользователе 
 const webApp = ref(null)
-const initDataUnsafe = ref(null)
+
 const userId = ref(null)
 const props = ref(null)
 const isReady = ref(false)
@@ -121,7 +125,9 @@ const HISTORY_SELECT_MANY_KEY = 'history_select_many'
 onMounted(async () => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
-    initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
+      //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
+    const { $telegram } = useNuxtApp();
+    userId.value = $telegram.initDataUnsafe.value?.user?.id;
     const savedInteractives = loadFromDeviceStorage(HISTORY_KEY);
     if (Array.isArray(savedInteractives)) {
       if (savedInteractives.length > 0 && typeof savedInteractives[0] === 'object') {
@@ -138,7 +144,7 @@ onMounted(async () => {
       selectMany.value = savedSelectMany;
     }
 
-    userId.value = initDataUnsafe.value?.user?.id
+   
 
     const data = await useFetch('/api/reports/preview', {
 
@@ -173,7 +179,9 @@ async function confirmBack(save) {
     showConfirmPopup.value = false
     route.push('/leader/main_menu')
  
-    sessionStorage.clear()
+    sessionStorage.removeItem('history_interactives');
+    sessionStorage.removeItem('history_select_many');
+
 
 
   } else {
@@ -220,7 +228,7 @@ watch(selectMany, (newSelectMany) => {
                   Выгрузить
                 </button>
                 <button class="history_content_menu_info_button" @click="selectManyOption"
-                  :class="{ selectManyClass: selectMany, 'hoverable-select': !selectMany, 'hoverable-select_red': selectMany }">
+                  :class="{ selectManyClass: selectMany, 'hoverable-select': !selectMany, 'hoverable-select_red': selectMany }" v-if="props.data.interactives_list.length > 0">
                   {{ !selectMany ? "Выбрать" : "Отмена" }}
                 </button>
               </div>
@@ -228,7 +236,7 @@ watch(selectMany, (newSelectMany) => {
           </div>
 
           <div class="history_content_list">
-            <div v-for="interactive in props.data.interactives_list" :key="interactive.interactive_id">
+            <div v-if="props.data.interactives_list.length > 0" v-for="interactive in props.data.interactives_list" :key="interactive.interactive_id" >
               <div class="history_interactive">
                 <div class="history_header">
                   <div class="history_date-fon">
@@ -258,6 +266,9 @@ watch(selectMany, (newSelectMany) => {
                     v-model=selectedInteractives />
                 </label>
               </div>
+            </div>
+            <div  class ="history_content_list_warn"  v-if="props.data.interactives_list.length ===0">
+              Вы не провели ни один интерактив!
             </div>
           </div>
         </div>

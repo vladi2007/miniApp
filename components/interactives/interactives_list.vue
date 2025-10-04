@@ -17,6 +17,7 @@ const props = defineProps<{
 // закрытие поп апа с подтверждением дублирования
 function closePopup() {
   showPopup.value = false;
+  showDeletePopap.value = false;
 
 }
 // для маршрутизации
@@ -37,6 +38,7 @@ function Popup(id: string) {
 
 // переход на редактирование, если пользователь хочет продублированный интерактив сразу изменить
 function dublicate_interactive(id: string) {
+  showPopup.value = false
   route.push(`/leader/dublicate/${id}`)
 }
 
@@ -64,6 +66,7 @@ onMounted(async () => {
 
 // запрос на дублирование интерактива
 async function duplicateAndSaveInteractive(id: string) {
+  showPopup.value = false
   try {
 
 
@@ -109,8 +112,51 @@ async function duplicateAndSaveInteractive(id: string) {
   }
 }
 
-// константа id текущего интерактива, с которым работаешь
+
 const currentInteractiveId = ref<string | null>(null)
+
+const showDeletePopap = ref(false)
+
+
+const isRunning = ref(false)
+
+async function deletePopup(id: string) {
+  try {
+    const data = await $fetch(`/api/get_state_interactive`, {
+      method: 'GET',
+      query: {
+
+        id: Number(id)
+      }
+    })
+    isRunning.value = data.data
+  }
+  catch (err) {
+    console.error('Ошибка удаления', err)
+    window.Telegram.WebApp.showAlert('Не удалось получить состояние интерактива!')
+  }
+  currentInteractiveId.value = id
+  showDeletePopap.value = true
+}
+const localInteractives = ref([...props.interactives_list])
+
+async function deleteInteractive(id: string) {
+  showDeletePopap.value = false
+  const response = await $fetch(`/api/delete_interactive`, {
+    method: 'DELETE',
+    query: {
+      telegram_id: userId.value,
+      id: id
+    },
+
+  })
+  if (response) {
+    window.Telegram.WebApp.showAlert('Интерактив успешно удалён')
+    localInteractives.value = localInteractives.value.filter(item => item.id !== id)
+    showDeletePopap.value = false;
+  }
+
+}
 </script>
 
 <template>
@@ -120,8 +166,8 @@ const currentInteractiveId = ref<string | null>(null)
     </div>
     <div class="interactive_list_content">
       <div class="date" v-if="isEnd">Дата проведения</div>
-      <div class="interactive_list_content_list" v-for="interactive in props.interactives_list"
-        :class="{ margin: !isEnd }">
+      <div class="interactive_list_content_list" v-for="interactive in localInteractives" :class="{ margin: !isEnd }"
+        v-if="localInteractives.length > 0">
         <div class="interactive_description">
           <div class="interactive_title">
             {{ interactive.title }}
@@ -137,6 +183,10 @@ const currentInteractiveId = ref<string | null>(null)
             <div class="interactive_dublicate" :class="{ hidden: isEnd }" title="Дублировать интерактив"
               @click="Popup(interactive.id)">
               <img src="/images/interactives/dublicate.svg" id="dublicate" />
+            </div>
+            <div class="interactive_delete" v-if="!isEnd" title="Удалить интерактив"
+              @click="deletePopup(interactive.id)">
+              <img src="/images/interactives/vector.png" id="delete" />
             </div>
             <div class="interactive_edit" v-if="!isEnd" @click="edit_interactive(String(interactive.id))"
               title="Редактировать интерактив">
@@ -155,7 +205,12 @@ const currentInteractiveId = ref<string | null>(null)
         </div>
 
       </div>
-
+      <div class="interactive_list_content_warn" v-if="localInteractives.length === 0 && isEnd">
+        Вы не провели ни один интерактив!
+      </div>
+      <div class="interactive_list_content_warn" v-if="localInteractives.length === 0 && !isEnd">
+        Вы не создали ни один интерактив!
+      </div>
     </div>
     <div v-if="showPopup" class="interactives_popup-overlay">
       <div class="interactives_popup">
@@ -173,6 +228,25 @@ const currentInteractiveId = ref<string | null>(null)
         </div>
       </div>
     </div>
+
+    <div v-if="showDeletePopap" class="interactives_delete_popup-overlay">
+      <div class="interactives_delete_popup">
+        <div class="interactives_delete_popup-header">
+          <div class="interactives_delete_popup-header-text">
+            {{ isRunning
+              ? 'Интерактив запущен! Все данные интерактива будут удалены!'
+              : 'Вы действительно хотите удалить?' }}
+          </div>
+        </div>
+        <div class="interactives_delete_popup-body">
+          <button class="interactives_delete_popup-button" @click="deleteInteractive(String(currentInteractiveId))">
+            {{ isRunning ? 'Закончить и удалить интерактив' : 'Удалить' }}
+          </button>
+          <button class="interactives_delete_popup-button" @click="closePopup()">Отмена</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 

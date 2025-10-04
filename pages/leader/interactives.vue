@@ -3,41 +3,47 @@ import interactives from '~/components/interactives/interactives.vue'
 import { ref, onMounted } from 'vue'
 // данные о пользователе
 const webApp = ref(null)
-const initDataUnsafe = ref(null)
-const my_interactives = ref(null)
-const userId =ref(null)
 
+const my_interactives = ref(null)
+const userId = ref(null)
 // запрос на бекенд для получения списка интерактивов
 onMounted(async () => {
-  
+
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-    webApp.value = window.Telegram.WebApp
-    initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
+
+ 
+
+     webApp.value = window.Telegram.WebApp
+     //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
+    const { $telegram } = useNuxtApp();
+    userId.value = $telegram.initDataUnsafe.value?.user?.id;
     
-
-    userId.value = initDataUnsafe.value?.user?.id
-
-    if (userId) {
-      const  {data, error}  = await useFetch(`/api/get_interactives`, {
   
+    console.log(userId.value)
+    if (userId.value ) {
+      const { data, error } = await useFetch(`/api/get_interactives`, {
+
         query: {
           telegram_id: userId.value,
-          
-          
+
+
         },
-        
+
       })
-      
+
       if (data.value) {
         // Приводим числовые поля к строкам
         const mapList = (list) =>
-          list.map(item => ({
-            title: item.title,
-            question_count: String(item.question_count),
-            target_audience: item.target_audience,
-            id: String(item.id),
-            date_completed: item.date_completed
-          }))
+          Array.isArray(list)
+            ? list.map(item => ({
+              title: item.title,
+              question_count: String(item.question_count),
+              target_audience: item.target_audience,
+              id: String(item.id),
+              date_completed: item.date_completed
+            }))
+            : [];
+
 
         my_interactives.value = {
           interactives_list_conducted: mapList(data.value.interactives_list_conducted),
@@ -56,6 +62,4 @@ onMounted(async () => {
   </div>
 </template>
 
-<style >
-
-</style>
+<style></style>

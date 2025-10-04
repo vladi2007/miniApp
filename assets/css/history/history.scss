@@ -514,3 +514,12 @@ body.history-background {
 .history_edit_popup-btn:hover {
   opacity: 0.9;
 }
+.history_content_list_warn{
+font-family: "Lato", sans-serif;
+display: flex;
+  font-weight: 700;
+  font-size: 36px;
+  height: 100%;
+  justify-content: center;
+  align-items: center;  
+}
