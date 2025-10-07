@@ -34,7 +34,7 @@ function createWebSocket(interactiveId, telegramId) {
 onMounted(() => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
-      //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
+    //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
     const { $telegram } = useNuxtApp();
     userId.value = $telegram.initDataUnsafe.value?.user?.id;
   }
@@ -50,7 +50,8 @@ watch(userId, (newUserId) => {
 // props для компонента
 const data_props = ref({
   stage: '',
-  data: {}
+  data: {},
+  pause: {}
 })
 
 // Парсим и обновляем data_props при изменении data.value
@@ -60,6 +61,7 @@ watch(data, (newVal) => {
     const parsedData = JSON.parse(newVal)
     data_props.value.stage = parsedData.stage || ''
     data_props.value.data = parsedData.data || {}
+    data_props.value.pause = parsedData.pause || {}
   } catch (error) {
     console.error("Ошибка при разборе данных WebSocket:", error)
   }
@@ -80,13 +82,6 @@ const componentMap = {
 }
 </script>
 <template>
-  <component
-    :is="componentMap[data_props.stage]"
-    v-if="data_props.stage"   
-    :data="data_props.data"
-    :stage="data_props.stage"
-    context="leader"
-    class="component"
-    :onStatus="sendStatus"
-  />
+  <component :is="componentMap[data_props.stage]" v-if="data_props.stage" :data="data_props.data"
+    :stage="data_props.stage" context="leader" class="component" :onStatus="sendStatus" :pause="data_props.pause" />
 </template>

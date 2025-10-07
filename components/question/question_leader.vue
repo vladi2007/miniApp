@@ -4,8 +4,10 @@ import timer_leader from '~/components/question/timer_leader.vue';
 import question_list_leader from '~/components/question/question_list_leader.vue';
 import question_leader_buttons from '~/components/question/question_leader_buttons.vue';
 import { defineProps } from 'vue'
+import { saveToLocaleStorage, loadFromLocalStorage, clearLocalStorage } from '~/utils/deviceStorage'
 import type { Pause, QuestionData } from '~/types/stageData'
 const route = useRoute()
+const interactiveId = route.params.id as string
 // пропс для работы с данными от бекенда
 const props = defineProps<{
   stage: string
@@ -22,30 +24,33 @@ onMounted(() => {
 onUnmounted(() => {
   document.body.classList.remove('question-leader-background');
 });
-const pause = ref("no")
-const pausePopUp = ref('')
+
+const pauseRef = ref("no")
 function removeFromPause() {
-  pausePopUp.value = 'no'
+
   props.onStatus('pause')
-  pause.value = "no"
+  pauseRef.value = "no"
 }
 watch(() => props.pause.state, (newWal) => {
 
 
   if (newWal === "timer_n") {
-    pausePopUp.value = 'yes'
+
+
   }
   else {
-    pause.value = newWal
+    pauseRef.value = newWal
   }
 
 
 })
 function morePause() {
-  pausePopUp.value = 'no'
+
   props.onStatus('more_pause')
-  pause.value = "yes"
+  pauseRef.value = "yes"
 }
+
+
 </script>
 
 <template>
@@ -54,7 +59,7 @@ function morePause() {
     <!-- Горизонтальный блок -->
     <div class="question_leader_top-bar">
       <div>
-        <question_leader_buttons :onStatus="onStatus" :pause="pause" />
+        <question_leader_buttons :onStatus="onStatus" :pause="pauseRef" />
       </div>
       <div class='question_leader_timer'>
         <timer_leader :timer="data.timer" :stage="stage" :timer_duration="data.timer_duration" :context="context"
@@ -66,9 +71,10 @@ function morePause() {
         :id_correct_answer="data.id_correct_answer" :percentages="data.percentages" :stage="stage" :onAnswer="onAnswer"
         :questions_count="data.questions_count" :context="context" />
     </div>
-    <div v-if="pausePopUp === 'yes'" class="question_leader_popup-overlay">
+    <div v-if="props.pause.state = 'timer_n'" class="question_leader_popup-overlay">
       <div class="question_leader_popup-content">
-        <div class="question_leader_popup-text">Вы слишком долго бездействовали, запустите интерактив или через n секунд
+        <div class="question_leader_popup-text">Вы слишком долго бездействовали, запустите интерактив или через {{
+          props.pause.timer_n }} секунд
           он будет закрыт
 
         </div>

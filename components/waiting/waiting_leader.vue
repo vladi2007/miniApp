@@ -16,35 +16,32 @@ function goBack() {
         window.location.reload()
     })
 
-}//данные от бекенда
+}
+//данные от бекенда
 const props = defineProps<{
     stage: string
     data: WaitingData
     context: string
     onStatus: (status: string) => void
-    pause:Pause
+    pause: Pause
 }>()
-const pausePopUp=ref('no')
+
 
 function morePause() {
-    pausePopUp.value='no'
     props.onStatus('more_pause')
 }
 
-function startBeforePause(){
-    pausePopUp.value='no'
+function startBeforePause() {
     props.onStatus('going')
 }
-watch( () => props.pause.state, (newWal) => {
-    pausePopUp.value = newWal
-})
 
-watch( () => props.pause.timer_n, (newWal) => {
-    if (newWal === 0){
+
+watch(() => props.pause.timer_n, (newWal) => {
+    if (newWal === 0) {
         router.push("/leader/interactives").then(() => {
-        // Перезагрузка после успешной навигации
-        window.location.reload()
-    })
+            // Перезагрузка после успешной навигации
+            window.location.reload()
+        })
     }
 })
 </script>
@@ -90,13 +87,16 @@ watch( () => props.pause.timer_n, (newWal) => {
             </div>
 
         </div>
-        <div v-if="pausePopUp==='yes'" class="waiting_edit_popup-overlay">
+        <div v-if="props.pause.state === 'timer_n'" class="waiting_edit_popup-overlay">
             <div class="waiting_edit_popup-content">
-                <div class="waiting_edit_popup-text">Вы слишком долго бездействовали, запустите интерактив или через n секунд он будет закрыт
+                <div class="waiting_edit_popup-text">Вы слишком долго бездействовали, запустите интерактив или через
+                    {{ props.pause.timer_n }}
+                    секунд он будет закрыт
 
                 </div>
                 <div class="waiting_edit_popup-actions">
-                    <button @click="startBeforePause()" class="waiting_edit_popup-btn save">Запустить интерактив</button>
+                    <button @click="startBeforePause()" class="waiting_edit_popup-btn save">Запустить
+                        интерактив</button>
                     <button @click=morePause() class="waiting_edit_popup-btn cancel">Еще подождать</button>
                 </div>
             </div>
@@ -109,9 +109,6 @@ watch( () => props.pause.timer_n, (newWal) => {
 </template>
 
 <style>
-
-
-
 @import url("/assets/css/waiting/active_users_leader.scss");
 @import url("/assets/css/waiting/description_leader.scss");
 @import url("/assets/css/waiting/waiting_leader.scss");

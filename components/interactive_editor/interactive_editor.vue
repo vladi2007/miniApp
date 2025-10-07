@@ -95,7 +95,7 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <general_settings ref="generalSettingsRef" :step="step" @update-step="step = $event" :mode="mode"  :key="step"/>
+    <general_settings ref="generalSettingsRef" :step="step" @update-step="step = $event" :mode="mode" :key="step" />
   </div>
 </template>
 
