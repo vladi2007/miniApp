@@ -15,8 +15,8 @@
 
 import { onMounted } from 'vue'
 import * as bridge from "@telegram-apps/sdk"
-// разворачиваем mini app на весь экран
-onMounted(async () => {
+window.Telegram.WebApp.expand()
+onMounted(() => {
   if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
 
 
@@ -32,19 +32,16 @@ onMounted(async () => {
     
     console.log("initDataUnsafe saved:", initData);
     if (platform !== 'android' && platform !== 'ios') {
-      const version = Telegram.WebApp?.version || "0.0";
-      console.log(parseFloat(version))
-      if (parseFloat(version) >= 6.1 && Telegram.WebApp.requestFullscreen) {
-        Telegram.WebApp.requestFullscreen();
-      } else {
-        console.log(`Fullscreen not supported. WebApp version: ${version}`);
-      }
+      window.TelegramWebviewProxy.postEvent('web_app_request_fullscreen', JSON.stringify({}))
+      Telegram.WebApp.requestFullscreen();
+      bridge.postEvent('web_app_request_fullscreen');
     }
 
   }
   bridge.postEvent('web_app_setup_closing_behavior', {
     need_confirmation: true,
   });
+  
 
 })
 </script>
