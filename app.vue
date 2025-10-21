@@ -32,9 +32,8 @@ onMounted(() => {
     
     console.log("initDataUnsafe saved:", initData);
     if (platform !== 'android' && platform !== 'ios') {
-      window.TelegramWebviewProxy.postEvent('web_app_request_fullscreen', JSON.stringify({}))
       Telegram.WebApp.requestFullscreen();
-      bridge.postEvent('web_app_request_fullscreen');
+     bridge.postEvent('web_app_request_fullscreen');
     }
 
   }

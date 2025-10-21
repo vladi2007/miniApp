@@ -1,67 +1,64 @@
-
 <script setup>
-
-import { ref, onMounted } from 'vue'
-
-import main_menu from '~/components/main_menu/main_menu.vue'
-
-
-// страница для защиты доступа к функционалу 
-const webApp = ref(null)
-
-
-
-const initDataUnsafe=ref(null)
-
-const isReady = ref(false)
-const role = ref(null)
-const userId = ref(null)
-onMounted(async () => {
-  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-    webApp.value = window.Telegram.WebApp
-     //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
-    const { $telegram } = useNuxtApp();
-    userId.value = $telegram.initDataUnsafe.value?.user?.id;
-    
-    if (userId.value) {
-      const  data = await useFetch('/api/role', {
-        query: {
-          telegram_id: userId.value,
-        },
-      })
-
-
-      role.value = data.data.value.role
-      
-    }
-
-    isReady.value = true
-  }
-})
-
+import Settings from '~/components/interactive_editor/settings.vue'
 </script>
 
 <template>
-  <!-- Показываем только когда данные загружены -->
-  <div v-if="isReady">
-    <main_menu v-if="role === 'leader'" />
-    
-    <div v-else class="you_are_not_leader">
-      <div>У вас нет прав ведущего!</div>
+  <div class="interactive_editor">
+    <div class="intreractive_editor_header">
+      <img src="/public/images/interactive_editor/logo.svg" id="interactive_editor_logo" />
+      <div>
+        <div class="intreractive_editor_header_back_text">
+        Управление интерактивами
+      </div>
+      <img src="/public/images/interactive_editor/Vector.svg" id="interactive_editor_back" />
+      </div>
+      
     </div>
+    <Settings />
   </div>
 </template>
 
-<style >
-.you_are_not_leader {
-
-  
-  display: flex;                /* Используем Flexbox */
-  justify-content: center;     /* Центр по горизонтали */
-  align-items: center;         /* Центр по вертикали */
-  text-align: center;          /* Центрируем текст внутри блока */
-  font-family: 'Lato', sans-serif;
-  font-size: 64px;
-  font-weight: 500;
+<style>
+.intreractive_editor_header {
+  background-color: #853CFF;
+  height: calc((71/832)*100dvh);
+  width: 100dvw;
+  position: relative;
 }
+
+#interactive_editor_logo {
+  height: calc((50/832)*100dvh);
+  width: calc((123/1280)*100dvw);
+  position: absolute;
+  top: calc((21 / 1664) * 100dvh);
+  right: calc((40 / 1280) * 100dvw);
+}
+
+.intreractive_editor_header_back_text {
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-style: Medium;
+  color: white;
+  line-height: 120%;
+  letter-spacing: 0.2px;
+  vertical-align: middle;
+  position: absolute;
+  bottom: calc((5 / 832) * 100dvh);
+  left: calc((38 / 1280) * 100dvw);
+
+  font-size: clamp(12px, calc((20 / 1280) * 100dvw), 34px);
+  cursor: pointer;
+
+}
+
+#interactive_editor_back {
+ 
+  width: calc((10 / 1280) * 100dvw);
+  position: absolute;
+  bottom: calc((8 / 832) * 100dvh);
+  left: calc((23 / 1280) * 100dvw);
+  cursor: pointer;
+}
+
+
 </style>
