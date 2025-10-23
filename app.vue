@@ -37,9 +37,7 @@ onMounted(() => {
     }
 
   }
-  bridge.postEvent('web_app_setup_closing_behavior', {
-    need_confirmation: true,
-  });
+  bridge.postEvent('web_app_setup_closing_behavior', {need_confirmation: true,});
   
 
 })

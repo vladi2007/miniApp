@@ -1,10 +1,20 @@
 <script setup>
+import { deviceOptions, VueDevice } from 'vue-devices'
+import question from '../question/check_qestion.vue'
+import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorage'
+
+
+const FORM_STORAGE_KEY = 'interactive_form_draft'
+const CURRENT_INDEX_KEY = 'interactive_current_index'
+const SCROLL_POSITION_KEY = 'question_nav_scroll_position'
+const STEP_KEY = 'interactive_editor_step'
+const currentQuestionIndex = ref(0);
 const form = ref({
-    title: '123',
-    description: '123',
-    target_audience: '123',
-    location: '123',
-    responsible_full_name: '123',
+    title: '',
+    description: '',
+    target_audience: '',
+    location: '',
+    responsible_full_name: '',
     answer_duration: 10,
     discussion_duration: 5,
     countdown_duration: 5,
@@ -22,13 +32,52 @@ const form = ref({
 
     ]
 })
-
+const route = useRouter()
 const active_step = ref("main")
+onMounted(async () => {
+    const savedForm = loadFromDeviceStorage(FORM_STORAGE_KEY)
+    console.log('Loaded form from storage:', savedForm)
+
+    if (savedForm) {
+        form.value = savedForm
+    }
+
+    const savedIndex = loadFromDeviceStorage(CURRENT_INDEX_KEY)
+    console.log('Loaded index from storage:', savedIndex)
+
+    if (typeof savedIndex === 'number') {
+        currentQuestionIndex.value = savedIndex
+
+
+    }
+    const storedStep = loadFromDeviceStorage(STEP_KEY)
+
+    if (storedStep !== null) {
+        active_step.value = storedStep
+        console.log('Загружен step из хранилища:', storedStep)
+    } else {
+        console.log('Step не найден в хранилище или невалиден:', storedStep)
+    }
+})
+
+watch(form, (newForm) => {
+    console.log('Saving form to storage', newForm)
+    saveToDeviceStorage(FORM_STORAGE_KEY, newForm)
+}, { deep: true })
+
+watch(currentQuestionIndex, (newIndex) => {
+    console.log('Saving index to storage', newIndex)
+    saveToDeviceStorage(CURRENT_INDEX_KEY, newIndex)
+})
+
+watch(active_step, (newStep) => {
+    saveToDeviceStorage(STEP_KEY, newStep.toString())
+})
 
 function take_step(value) {
     active_step.value = value
 }
-const currentQuestionIndex = ref(0);
+
 
 // Проверка: все ли поля заполнены (текстовые поля не пустые, числовые > 0)
 const isFormComplete = computed(() => {
@@ -76,9 +125,63 @@ watch(form, (newVal) => {
         }
     }
 }, { deep: true })
+
+watch(
+    () => form.value.questions,
+    (newQuestions) => {
+        newQuestions.forEach((qWrap, index) => {
+            const q = qWrap.question;
+
+            // Если ошибка уже была, проверяем — нужно ли её снять
+            if (questionErrors.value[index]) {
+                const error = questionErrors.value[index];
+
+                // Текст вопроса
+                if (q.text.trim()) {
+                    error.text = false;
+                }
+
+                // Баллы
+                if (+q.score >= 1 && +q.score <= 5) {
+                    error.score = false;
+                }
+
+                // Тип вопроса
+                if (['one', 'many', 'text'].includes(q.type)) {
+                    error.type = false;
+                }
+
+                // Ответы
+                q.answers.forEach((a, i) => {
+                    if (a.text.trim()) {
+                        error.answers[i] = false;
+                    }
+                });
+
+                // Корректные ответы
+                if (q.type === 'one') {
+                    const correct = q.answers.filter(a => a.is_correct);
+                    if (correct.length === 1) {
+                        error.correctAnswers = false;
+                    }
+                }
+
+                if (q.type === 'many') {
+                    const correct = q.answers.filter(a => a.is_correct);
+                    if (correct.length >= 2 && correct.length <= 5) {
+                        error.correctAnswers = false;
+                    }
+                }
+            }
+        });
+    },
+    { deep: true }
+);
+
+
 const visibleCount = 3
 const visibleStartIndex = ref(0)
-
+const showSavePopup = ref(false)
 const visibleQuestions = computed(() => {
     const total = form.value.questions.length;
     const result = [];
@@ -116,6 +219,13 @@ function addQuestion() {
                 ).fill(null).map(() => ({ text: '', is_correct: false }))
             }
         })
+        questionErrors.value[form.value.questions.length - 1] = {
+            text: false,
+            score: false,
+            type: false,
+            answers: [],
+            correctAnswers: false
+        };
         currentQuestionIndex.value = form.value.questions.length - 1;
 
         // Сдвигаем видимую область, если нужно
@@ -126,22 +236,26 @@ function addQuestion() {
 
 }
 function deleteQuestion() {
-    // Проверяем, что в списке больше одного вопроса
     if (form.value.questions.length > 1) {
-        // Удаляем вопрос по текущему индексу
         form.value.questions.splice(currentQuestionIndex.value, 1);
 
-        // Сдвигаем индексы оставшихся вопросов
+        // Обновляем позиции
         form.value.questions.forEach((q, index) => {
-            q.question.position = index;  // Обновляем позицию каждого вопроса
+            q.question.position = index;
         });
 
-        // Если удалённый вопрос был последним, сдвигаем индекс текущего вопроса на предыдущий
         if (currentQuestionIndex.value >= form.value.questions.length) {
             currentQuestionIndex.value = form.value.questions.length - 1;
         }
+
+        // Обновляем visibleStartIndex, чтобы сохранялось 3 видимых
+        const maxStartIndex = Math.max(0, form.value.questions.length - visibleCount);
+        if (visibleStartIndex.value > maxStartIndex) {
+            visibleStartIndex.value = maxStartIndex;
+        }
     }
 }
+
 
 function scrollUp() {
     if (currentQuestionIndex.value > 0) {
@@ -197,6 +311,13 @@ async function handleFileChange(event) {
 
     console.log(form.value.questions)
 }
+const isImagePopupOpen = ref(false); // Показывает/скрывает попап
+function openImagePopup() {
+    isImagePopupOpen.value = true;
+}
+function closeImagePopup() {
+    isImagePopupOpen.value = false;
+}
 
 function removeImage() {
     form.value.questions[currentQuestionIndex.value].question.image = '';
@@ -215,46 +336,65 @@ const typeMap = {
 // Функция для отображения текста
 const selectedText = computed(() => typeMap[form.value.questions[currentQuestionIndex.value].question.type]);
 // Переключаем состояние открытия/закрытия списка
+import { onMounted, onUnmounted, ref } from 'vue'
+import New_qestion from '../question/check_qestion.vue';
+
+
+// Реф на dropdown DOM-элемент
+const dropdownRef = ref(null)
+
+function handleClickOutside(event) {
+    if (isOpen.value && dropdownRef.value && !dropdownRef.value.contains(event.target)) {
+        isOpen.value = false
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside)
+})
 
 
 function toggleDropdown() {
     isOpen.value = !isOpen.value;
 }
 function selectOption(option) {
-    // Находим тип в маппинге по значению опции
     const type = Object.keys(typeMap).find(key => typeMap[key] === option);
-
-    // Сохраняем текущий тип, чтобы сравнить его с новым
     const previousType = form.value.questions[currentQuestionIndex.value].question.type;
 
-    // Если тип не изменился (выбран тот же тип), просто закрываем всплывающий список
     if (previousType === type) {
-        isOpen.value = false; // Закрываем список
+        isOpen.value = false;
         return;
     }
 
     // Обновляем тип вопроса
     form.value.questions[currentQuestionIndex.value].question.type = type;
 
-    // Обработка изменения типа вопроса
+    // ❗ Обнуляем ошибки при смене типа
+    if (questionErrors.value[currentQuestionIndex.value]) {
+        questionErrors.value[currentQuestionIndex.value].correctAnswers = false;
+
+        const answersLength = form.value.questions[currentQuestionIndex.value].question.answers.length;
+        questionErrors.value[currentQuestionIndex.value].answers = Array(answersLength).fill(false);
+    }
+
+    // Обновляем ответы в зависимости от типа
     if (previousType === 'one' || previousType === 'many') {
         if (type === 'one' || type === 'many') {
-            // Смена с 'one' на 'many' или с 'many' на 'one' => оставляем массив, убираем правильные ответы
             form.value.questions[currentQuestionIndex.value].question.answers.forEach(answer => {
-                answer.is_correct = false; // Убираем правильные ответы
+                answer.is_correct = false;
             });
-
-            // Дополняем массив до 3 элементов, если их меньше
             while (form.value.questions[currentQuestionIndex.value].question.answers.length < 3) {
                 form.value.questions[currentQuestionIndex.value].question.answers.push({ text: '', is_correct: false });
             }
         } else if (type === 'text') {
-            // Смена с 'one' или 'many' на 'text' => очищаем массив и добавляем один ответ
             form.value.questions[currentQuestionIndex.value].question.answers = [{ text: '', is_correct: true }];
         }
     } else if (previousType === 'text') {
         if (type === 'one' || type === 'many') {
-            // Смена с 'text' на 'one' или 'many' => очищаем массив и возвращаем 3 пустых ответа с is_correct: false
             form.value.questions[currentQuestionIndex.value].question.answers = [
                 { text: '', is_correct: false },
                 { text: '', is_correct: false },
@@ -263,8 +403,7 @@ function selectOption(option) {
         }
     }
 
-    // Закрываем список после изменения типа
-    isOpen.value = false; // Закрываем выпадающий список
+    isOpen.value = false;
 }
 
 
@@ -273,14 +412,14 @@ function selectOption(option) {
 
 const score = ref(1); // Изначальное значение баллов
 
-// Ваш метод updateScore
-function updateScore() {
-    // Ограничиваем значение от 1 до 5
+function validateScore() {
     if (score.value < 1) {
         score.value = 1;
     } else if (score.value > 5) {
         score.value = 5;
     }
+
+    currentQuestion.value.question.score = score.value;
 }
 
 
@@ -294,13 +433,13 @@ const getAnswerCount = (type) => {
 function deleteAnswer(index) {
     const question = currentQuestion.value?.question;
     if (!question || !question.answers) return;
-    if (question.type === 'many' && question.answers.length < 3){
+    if (question.type === 'many' && question.answers.length < 3) {
         return;
     }
-    else{
+    else {
         question.answers.splice(index, 1);
     }
-    
+
 }
 
 
@@ -338,10 +477,10 @@ function addAnswer() {
     if (!question || !question.answers) return;
 
     // Добавление нового ответа в зависимости от типа вопроса
-    if ((question.type === 'one' || question.type === 'many') && question.answers.length <5) {
+    if ((question.type === 'one' || question.type === 'many') && question.answers.length < 5) {
         // Для 'one' и 'many' добавляем новый ответ без is_correct
         question.answers.push({ text: '', is_correct: false });
-    } else if (question.type === 'text' && question.answers.length <3) {
+    } else if (question.type === 'text' && question.answers.length < 3) {
         // Для 'text' добавляем один правильный ответ
         question.answers.push({ text: '', is_correct: true });
     }
@@ -364,6 +503,143 @@ const limit_answers = computed(() => {
 
     return false;
 });
+const questionErrors = ref([])
+
+function validateQuestions() {
+    active_step.value
+    let isValid = true;
+    questionErrors.value = [];
+
+    for (let i = 0; i < form.value.questions.length; i++) {
+        const q = form.value.questions[i].question;
+        const error = {
+            text: false,
+            score: false,
+            type: false,            // ✅ добавили
+            answers: [],
+            correctAnswers: false
+        };
+
+        if (!q.text.trim()) {
+            error.text = true;
+            isValid = false;
+        }
+
+        if (!(+q.score >= 1 && +q.score <= 5)) {
+            error.score = true;
+            isValid = false;
+        }
+
+        // ✅ проверка типа
+        if (!q.type || !['one', 'many', 'text'].includes(q.type)) {
+            error.type = true;
+            isValid = false;
+        }
+
+        q.answers.forEach((a, index) => {
+            if (!a.text.trim()) {
+                error.answers[index] = true;
+                isValid = false;
+            } else {
+                error.answers[index] = false;
+            }
+        });
+
+        if (q.type === 'one') {
+            const correct = q.answers.filter(a => a.is_correct);
+            if (correct.length !== 1) {
+                error.correctAnswers = true;
+                isValid = false;
+            }
+        }
+
+        if (q.type === 'many') {
+            const correct = q.answers.filter(a => a.is_correct);
+            if (correct.length < 2 || correct.length > 5) {
+                error.correctAnswers = true;
+                isValid = false;
+            }
+        }
+
+        questionErrors.value[i] = error;
+
+        // Переключаемся на первый вопрос с ошибкой
+        if (!isValid) {
+            currentQuestionIndex.value = i;
+            break;
+        }
+    }
+    if (!isValid && active_step.value === 'main') {
+        active_step.value = 'questions';
+    }
+    return isValid;
+}
+defineExpose({
+  handleSave
+})
+function handleSave() {
+    const isMainValid = validateForm();
+    showSavePopup.value = false
+    if (!isMainValid) {
+        active_step.value = 'main';
+        
+        return false;
+    }
+
+    const isQuestionsValid = validateQuestions();
+
+    if (!isQuestionsValid) {
+        active_step.value = 'questions';
+        return false;
+    }
+    route.push('/leader/interactives')
+    return true;
+}
+
+
+function handleStart() {
+    if (!validateQuestions()) {
+        return;
+    }
+
+    // Тут ваш код запуска...
+    console.log("Интерактив запущен");
+}
+function getIconSrcWithValidation(type, isCorrect, hasError, index, question) {
+    const errorIcons = {
+        one: "/images/interactive_editor/answer_circle_red.svg",
+        many: "/images/interactive_editor/answer_square_red.svg",
+    };
+
+    // Тип "один из списка" — всё просто
+    if (type === 'one') {
+        if (hasError) {
+            return errorIcons.one;
+        }
+
+        return isCorrect
+            ? "/images/interactive_editor/answer_circle_pick.svg"
+            : "/images/interactive_editor/answer_circle.svg";
+    }
+
+    // Тип "несколько из списка"
+    if (type === 'many') {
+        const correctCount = question.answers.filter(a => a.is_correct).length;
+
+        if (hasError && !isCorrect && correctCount < 2) {
+            // Ошибка: слишком мало выбранных, и этот конкретный не выбран — показываем красный
+            return errorIcons.many;
+        }
+
+        // Показываем обычную иконку в остальных случаях
+        return isCorrect
+            ? "/images/interactive_editor/answer_square_picked.svg"
+            : "/images/interactive_editor/answer_square_gray.svg";
+    }
+
+    return '';
+}
+
 
 </script>
 
@@ -409,13 +685,13 @@ const limit_answers = computed(() => {
 
             <div class="settings_main_second">
                 <div class="settings_input"> <label>Время ответа (сек.)*<textarea type="number"
-                            v-model.number="form.answer_duration" maxlength="2"
+                            v-model.number="form.answer_duration" maxlength="2" placeholder="10"
                             :class="{ 'field-error': errors.answer_duration }" /></label></div>
-                <div class="settings_input"> <label>Время на показ ответа (сек.)*<textarea type="number"
+                <div class="settings_input"> <label>Время на показ ответа (сек.)*<textarea type="number" placeholder="5"
                             v-model.number="form.discussion_duration" maxlength="2"
                             :class="{ 'field-error': errors.discussion_duration }" /></label></div>
                 <div class="settings_input"> <label>Обратный отсчет перед стартом (сек.)*<textarea type="number"
-                            v-model.number="form.countdown_duration" maxlength="2"
+                            placeholder="5" v-model.number="form.countdown_duration" maxlength="2"
                             :class="{ 'field-error': errors.countdown_duration }" /></label></div>
             </div>
 
@@ -444,7 +720,8 @@ const limit_answers = computed(() => {
                 <div class="question_header">
                     <div class="question_header_text">
                         <span> Вопрос {{ currentQuestionIndex + 1 }}</span>
-                        <img src="/public/images/interactive_editor/delete.svg" id="question_edit_delete"  @click="deleteQuestion"/>
+                        <img src="/public/images/interactive_editor/delete.svg" id="question_edit_delete"
+                            @click="deleteQuestion" />
                     </div>
                 </div>
 
@@ -452,7 +729,8 @@ const limit_answers = computed(() => {
                 <div class="input-group">
 
                     <textarea v-model="currentQuestion.question.text" maxlength="100" placeholder="Вопрос*"
-                        id="question_text"></textarea>
+                        id="question_text" :class="{ 'field-error': questionErrors[currentQuestionIndex]?.text }" />
+
                 </div>
 
                 <!-- В вашем шаблоне, для отображения имени файла -->
@@ -478,9 +756,10 @@ const limit_answers = computed(() => {
 
                 <!-- Тип вопроса и Балл -->
                 <div class="input-group_row">
-                    <div class="input-group_type">
+                    <div class="input-group_type" ref="dropdownRef">
                         <!-- Кастомный выпадающий список -->
-                        <div class="custom-dropdown" @click="toggleDropdown">
+                        <div class="custom-dropdown" @click="toggleDropdown"
+                            :class="{ 'field-error': questionErrors[currentQuestionIndex]?.type }">
                             <div class="custom-dropdown-selected">{{ selectedText }}</div>
                             <div class="custom-arrow" :class="{ open: isOpen }">
                                 <img src="/public/images/interactive_editor/list_close.svg" v-if="isOpen" />
@@ -515,7 +794,9 @@ const limit_answers = computed(() => {
                     <!-- Поле для ввода баллов с "Баллы:" внутри -->
                     <div class="input-group_score">
                         <div>Баллы:</div>
-                        <input type="text" v-model="score" @input="updateScore"  />
+                        <input type="number" v-model.number="score" @change="validateScore()" min="1" max="5"
+                            :class="{ 'field-error': questionErrors[currentQuestionIndex]?.score }" />
+
                     </div>
 
                 </div>
@@ -524,17 +805,27 @@ const limit_answers = computed(() => {
                     <div v-for="(answer, index) in currentQuestion.question.answers" :key="index" class="answer-item">
                         <div class="answer-input-wrapper">
                             <!-- Обёртка с иконкой и инпутом -->
-                            <div class="custom-answer-input">
+                            <div class="custom-answer-input" :class="{
+                                'field-error': questionErrors[currentQuestionIndex]?.answers?.[index]
+                            }">
                                 <!-- Показать иконку, если тип не 'text' -->
                                 <div v-if="currentQuestion.question.type !== 'text'" class="custom-dropdown-circle"
                                     @click="toggleCorrect(index)">
-                                    <img :src="getIconSrc(currentQuestion.question.type, answer.is_correct)" />
+                                    <img :src="getIconSrcWithValidation(
+                                        currentQuestion.question.type,
+                                        answer.is_correct,
+                                        questionErrors[currentQuestionIndex]?.correctAnswers,
+                                        index,
+                                        currentQuestion.question
+                                    )" />
+
                                 </div>
 
-                                <!-- Инпут, убираем отступ слева для типа 'text' -->
                                 <input class="custom-input-field" type="text" v-model="answer.text"
                                     :placeholder="currentQuestion.question.type === 'text' ? 'Поле для ввода правильного ответа' : 'Поле для ввода'"
-                                    maxlength="30" :class="{ 'text-type': currentQuestion.question.type === 'text' }" />
+                                    maxlength="30" :class="{
+                                        'text-type': currentQuestion.question.type === 'text',
+                                    }" />
                             </div>
 
                             <!-- Удаление ответа -->
@@ -544,827 +835,66 @@ const limit_answers = computed(() => {
                         </div>
                     </div>
                     <div class="answers-section-add_question" @click="addAnswer()" v-if="!limit_answers">
-                            <img class="add_question_icon"
-                 src="/public/images/interactive_editor/add_question.svg">
+                        <img class="add_question_icon" src="/public/images/interactive_editor/add_question.svg">
                     </div>
                 </div>
 
-
+                <div class="settings_questions_editor_buttons">
+                    <div class="settings_questions_editor_buttons_start" @click="handleStart">
+                        Запуск
+                    </div>
+                    <div class="settings_questions_editor_buttons_save"@click="showSavePopup = true">
+                        Сохранить
+                    </div>
+                </div>
 
             </div>
 
             <div class="settings_questions_mobile">
-                
+                <VueDevice :device="'iphone-14'" :showHeader="false">
+                    <new_qestion :timer="form.answer_duration" :questions_count="form.questions.length"
+                        :question="currentQuestion.question.text" :answers="currentQuestion.question.answers"
+                        :score="currentQuestion.question.score" :currentIndex="currentQuestionIndex"
+                        :type="currentQuestion.question.type" />
+                </VueDevice>
+
+
+
             </div>
+
+
         </div>
+        <!-- Попап загрузки изображения -->
+        <teleport to="body">
+            <div class="popup-backdrop" v-if="isImagePopupOpen" @click.self="closeImagePopup">
+                <div class="popup-content">
+                    <div class="popup-content-header">Добавить файл</div>
+                    <div class="popup-content-uploader">
+                        <img src="/public/images/interactive_editor/uploader.svg" />
+                        <input type="file" accept="image/*" id="fileInput" hidden @change="handleFileChangeAndClose" />
+                        <label for="fileInput" class="upload-button">Выбрать файл</label>
+                    </div>
+
+                    <button @click="closeImagePopup">Отмена</button>
+                </div>
+            </div>
+        </teleport>
+        <div v-if="showSavePopup" class="settings_popup-overlay">
+      <div class="settings_popup-content">
+        <div class="settings_popup-text">Сохранить интерактив и перейти к списку всех интерактивов?</div>
+        <div class="settings_popup-buttons">
+          <button class="settings_popup-btn confirm" @click="handleSave">Да</button>
+          <button class="settings_popup-btn cancel" @click="showSavePopup = false">Нет</button>
+        </div>
+      </div>
+    </div>
+        
     </div>
 
 </template>
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-}
+@import url("/assets/css/interactive_editor/settings.scss");
+@import url("/assets/css/interactive_editor/settings_media.scss");
 
-.settings {
-    height: calc((640 / 832) * 100dvh);
-    width: calc((1114 / 1280) * 100dvw);
-
-    margin-top: calc((28 / 832) * 100dvh);
-    position: relative;
-
-}
-
-.settings_nav {
-    margin-left: calc((112 / 1280) * 100dvw);
-    z-index: 0;
-}
-
-.settings_nav_main {
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-style: Medium;
-    color: #A9A9A9;
-    vertical-align: middle;
-    cursor: pointer;
-    height: calc((26 / 832) * 100dvh);
-    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 34px);
-    letter-spacing: 0.2px;
-    margin-top: calc((8 / 832) * 100dvh);
-    letter-spacing: 0.2px;
-    ;
-    height: calc((26 / 832) * 100dvh);
-
-
-}
-
-
-.settings_nav {
-    display: flex;
-    height: calc((53/832)*100dvh);
-}
-
-
-
-
-.settings_nav_questions_button {
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    height: calc((26 / 832) * 100dvh);
-    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 34px);
-    color: #A9A9A9;
-    width: max-content;
-    letter-spacing: 0.2px;
-    height: calc((26 / 832) * 100dvh);
-    vertical-align: middle;
-    cursor: pointer;
-    margin-left: calc((20 / 1280) * 100dvw);
-    margin-top: calc((8 / 832) * 100dvh);
-}
-
-.settings_nav_main:hover,
-.settings_nav_questions_button:hover {
-    color: #1D1D1D;
-}
-
-.settings_nav_main:not(.settings_active_nav):hover::after,
-.settings_nav_questions_button:not(.settings_active_nav):hover::after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 2px;
-    margin-top: 0px;
-    background-color: #853CFF;
-}
-
-.settings_nav_questions_info {
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-style: Medium;
-    color: #7D7D7D;
-    margin-left: calc((44 / 1280) * 100vw);
-    vertical-align: middle;
-    height: calc((53 / 832) * 100dvh);
-    border-radius: calc((8 /832) * 100dvh);
-
-}
-
-.settings_nav_questions_info>div {
-
-    padding-left: calc((10 / 1280) * 100dvw);
-    padding-top: calc((5 / 832) * 100dvh);
-    padding-right: calc((10 / 1280) * 100dvw);
-    padding-bottom: calc((5 / 832) * 100dvh);
-    font-size: clamp(10px, calc((14 / 1280) * 100dvw), 24px);
-    letter-spacing: 0.2px;
-    height: calc((43/832) * 100dvh);
-    line-height: calc((22/832)*100dvh);
-    background-color: #E0E0E0;
-    border-radius: 8px;
-    ;
-}
-
-.settings_active_nav {
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-style: Medium;
-    color: #1D1D1D;
-
-    vertical-align: middle;
-    display: grid;
-    width: fit-content;
-}
-
-.settings_active_nav::after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 2px;
-    /* Толщина линии */
-
-    /* Цом как у текста */
-    margin-top: 0px;
-    background-color: #853CFF;
-    /* Цвет для активного состояния */
-}
-
-
-#lock {
-
-    height: calc((24 / 832) * 100dvh);
-    height: calc((24 / 1280) * 100dvw);
-    margin-top: calc((8/832)*100dvh);
-
-}
-
-.settings_line {}
-
-.settings_main {
-    margin-left: calc((112 / 1280) * 100dvw);
-    margin-top: calc((20 / 832) * 100dvh);
-    width: calc((1114 / 1280) * 100dvw);
-    height: calc((568 / 832) * 100dvh);
-    display: grid;
-    grid-template-columns: calc((510 / 1280) * 100dvw) calc((510 / 1280) * 100dvw);
-    gap: calc((30 / 1280) * 100dvw);
-    position: relative;
-}
-
-.settings_main_first {
-
-    height: calc((567 / 832) * 100dvh);
-
-}
-
-.settings_main_second {
-
-    height: calc((567 / 832) * 100dvh);
-}
-
-.settings_input {
-    margin-bottom: calc((5 / 832) * 100dvh);
-}
-
-
-.settings_input label {
-    display: flex;
-    flex-direction: column;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-style: Medium;
-
-    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 34px);
-    line-height: 120%;
-    letter-spacing: 0.2px;
-    ;
-    vertical-align: middle;
-
-}
-
-.settings_input textarea {
-    width: calc((510/1280) * 100dvw);
-    height: calc((56 / 832) * 100dvh);
-    margin-top: calc((2 / 832) * 100dvh);
-    vertical-align: middle;
-    ;
-}
-
-.field-error {
-    border: 1.5px solid red !important;
-}
-
-.settings_input textarea::placeholder {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 34px);
-    width: calc((480/1280) * 100dvw);
-    height: calc((26 / 832) * 100dvh);
-
-
-    vertical-align: middle;
-
-}
-
-.settings_input textarea {
-    width: calc((510 / 1280) * 100dvw);
-    height: calc((56 / 832) * 100dvh);
-    padding: calc((15 / 832) * 100dvh) calc((15 / 1280) * 100dvw);
-    box-sizing: border-box;
-    margin-top: calc((2 / 832) * 100dvh);
-
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 34px);
-    line-height: 1.2;
-
-    color: #1d1d1d;
-
-
-    resize: none;
-    overflow-x: hidden;
-    overflow-y: hidden;
-    /* Убираем лишнее */
-    border: none;
-    outline: none;
-    border-radius: 8px;
-    ;
-    border: 1.5px solid #E0E0E0;
-    scrollbar-width: none;
-    /* Firefox */
-    -ms-overflow-style: none;
-    /* IE и Edge */
-}
-
-.settings_input textarea::-webkit-scrollbar {
-    display: none;
-    /* Chrome, Safari, Edge */
-}
-
-#description_input {
-    height: calc((131 / 832) * 100dvh);
-}
-
-.settings_go_to_questions {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    height: calc((24 / 832) * 100dvh);
-    width: auto;
-    padding: 0 calc((10 / 1280) * 100dvw);
-
-    cursor: pointer;
-
-    display: flex;
-    align-items: center;
-    /* ← выравниваем по центру */
-    justify-content: center;
-    gap: calc((10 / 1280) * 100dvw);
-    /* расстояние между текстом и стрелкой */
-}
-
-.settings_go_to_questions_text {
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 34px);
-    color: #7D7D7D;
-    line-height: 1;
-    /* минимальный отступ по вертикали */
-}
-
-#goto {
-    height: calc((18 / 832) * 100dvh);
-    width: calc((10 / 1280) * 100dvw);
-    object-fit: contain;
-    margin-top: calc((4 / 832) * 100dvh);
-}
-
-/* Hover */
-.settings_go_to_questions:hover .settings_go_to_questions_text {
-    color: #1D1D1D;
-}
-
-.settings_go_to_questions:hover #goto {
-    content: url("/public/images/interactive_editor/goto_active.svg");
-    margin-top: calc((4 / 832) * 100dvh);
-}
-
-.settings_questions {
-    position: relative;
-
-    width: calc((1138 / 1280) * 100dvw);
-    height: calc((649 / 832) * 100dvh);
-    margin-left: calc((39 / 1280) * 100dvw);
-    display: flex;
-}
-
-.settings_questions_nav {
-    margin-top: calc((21 / 832) * 100dvh);
-    width: calc((42 / 1280) * 100dvw);
-    height: calc((649 / 832) * 100dvh);
-    display: flex;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    /* Центрирует кнопки по горизонтали */
-
-
-
-}
-
-.question_buttons_list div {
-    width: calc((42 / 1280) * 100dvw);
-    height: calc((42 / 832) * 100dvh);
-
-    border-radius: 8px;
-    border: 1.52px solid #E0E0E0;
-    background-color: #FFFFFF;
-    margin-bottom: calc((5 / 832) * 100dvh);
-    ;
-}
-
-
-.quest-nav-button {
-    display: flex;
-    align-items: center;
-    /* вертикальное центрирование */
-    justify-content: center;
-    /* горизонтальное центрирование */
-    width: 40px;
-    /* или другая подходящая ширина */
-    height: 40px;
-    /* или аналогично */
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 34px);
-
-    line-height: 120%;
-    letter-spacing: 1%;
-    text-align: center;
-    vertical-align: middle;
-
-}
-
-.quest-nav-button.active {
-    border: 1.5px solid #853CFF
-        /* или другой фиолетовый */
-
-        /* опционально — текст */
-}
-
-.question_button_plus {
-    width: calc((42 / 1280) * 100dvw);
-    height: calc((42 / 832) * 100dvh);
-    position: relative;
-    border-radius: 8px;
-    border: 1.52px solid #E0E0E0;
-    background-color: #FFFFFF;
-    margin-top: calc((12 / 832) * 100dvh);
-    ;
-}
-
-#plus {
-    width: calc((35 / 2/ 1280) * 100dvw);
-    height: calc((35 / 2 / 832) * 100dvh);
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    left: 0;
-    right: 0;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-#down {
-    width: calc((19/ 1280) * 100dvw);
-    height: calc((10 / 832) * 100dvh);
-}
-
-#up {
-    margin-bottom: calc((5 / 832) * 100dvh);
-    width: calc((19/ 1280) * 100dvw);
-    height: calc((10 / 832) * 100dvh);
-}
-
-.settings_questions_editor {
-    width: calc((483 / 1280) * 100dvw);
-    height: calc((483 / 832) * 100dvh);
-    margin-left: calc((31 / 1280) * 100dvw);
-}
-
-.question_header_text {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-style: Medium;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 34px);
-    line-height: 120%;
-    letter-spacing: 0.1px;
-
-    width: calc((483/ 1280) * 100dvw);
-    height: calc((26/ 832) * 100dvh);
-    margin-bottom: calc((10 / 832) * 100dvh);
-
-}
-
-#question_text {
-    border-radius: 8px;
-    border: 1.5px solid #E0E0E0;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 34px);
-    padding: calc((12 / 832) * 100dvh) calc((12 / 1280) * 100dvw);
-    box-sizing: border-box;
-    letter-spacing: 0.1px;
-    height: calc((74/ 832) * 100dvh);
-
-}
-
-#question_text::placeholder {
-
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 34px);
-
-}
-
-.input-group textarea {
-    overflow: auto;
-    /* Чтобы прокрутка была доступна, но полоски скрыты */
-    resize: none;
-    width: calc((483/ 1280) * 100dvw);
-    height: calc((74/ 832) * 100dvh);
-}
-
-/* Скрыть полоски прокрутки, но оставить прокручивание доступным */
-.input-group textarea::-webkit-scrollbar {
-    width: 0px;
-    /* Скрыть вертикальную полоску */
-    height: 0px;
-    /* Скрыть горизонтальную полоску */
-}
-
-.input-group textarea::-webkit-scrollbar-thumb {
-    background-color: transparent;
-    /* Делаем скроллбар невидимым */
-}
-
-.input-group textarea::-webkit-scrollbar-track {
-    background-color: transparent;
-    /* Делаем трек скроллбара невидимым */
-}
-
-#question_edit_delete {
-    width: calc((14 / 1280) * 100dvw);
-    height: calc((18 / 832) * 100dvh);
-}
-
-.settings_questions_mobile {
-    margin-left: calc((227 / 1280) * 100dvw);
-    background-color: aquamarine;
-    width: calc((355 / 1280) * 100dvw);
-    height: calc((684 / 832) * 100dvh);
-    /* ВАЖНО: поднимаем выше и немного залезаем на навигацию */
-
-
-    /* Опционально — если нужно быть поверх */
-    position: absolute;
-    z-index: 2;
-    right: 0px;
-    bottom: 0px;
-}
-
-.custom-file-upload {
-    width: calc((483 / 1280) * 100dvw);
-    height: calc((42 / 832) * 100dvh);
-    padding: calc((12 / 832) * 100dvh) calc((12 / 1280) * 100dvw);
-    font-family: "Lato", sans-serif;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 34px);
-    border: 1.5px solid #E0E0E0;
-    border-radius: 8px;
-    background-color: white;
-    color: #1D1D1D;
-    box-sizing: border-box;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    margin-top: calc((15 / 832) * 100dvh);
-    margin-bottom: calc((15 / 832) * 100dvh);
-}
-
-.file-status {
-    margin-top: calc((5 / 832) * 100dvh);
-    font-family: "Lato", sans-serif;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 24px);
-    color: #7D7D7D;
-}
-
-.file-uploaded {
-    border-color: #6AB23D !important;
-    /* Зелёный */
-    color: #1D1D1D;
-    color: #6AB23D;
-    margin-bottom: calc((15 / 832) * 100dvh);
-}
-
-.remove-icon {
-    width: calc((14 / 1280) * 100dvw);
-    height: calc((18 / 832) * 100dvh);
-    margin-left: auto;
-    cursor: pointer;
-}
-
-
-.input-group_type select {
-    appearance: none;
-    /* Убираем стандартную стрелку */
-    -webkit-appearance: none;
-    /* Для Safari */
-    -moz-appearance: none;
-    /* Для Firefox */
-    width: calc((287 / 1280) * 100dvw);
-    height: calc((42 / 832) * 100dvh);
-    border-radius: 8px;
-    border: 1.5px solid #E0E0E0;
-    box-sizing: border-box;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-}
-
-.input-group_row {
-    display: flex;
-    width: calc((483 / 1280) * 100dvw);
-    align-items: center;
-    height: calc((42 / 832) * 100dvh);
-
-
-}
-
-
-
-/* Кастомный выпадающий список */
-.custom-dropdown {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: calc((287 / 1280) * 100dvw);
-    border-radius: 8px;
-    border: 1.5px solid#E0E0E0;
-    box-sizing: border-box;
-    cursor: pointer;
-    position: relative;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-    height: calc((42 / 832) * 100dvh);
-
-    letter-spacing: 0.1px;
-    vertical-align: middle;
-    box-sizing: border-box;
-    padding: calc((12 / 832) * 100dvh) calc((12 / 1280) * 100dvw);
-
-}
-
-
-.custom-arrow {
-    width: calc((17 / 1280) * 100dvw);
-    height: calc((8 / 832) * 100dvh);
-    display: flex;
-
-}
-
-
-
-/* Стили для списка */
-.custom-dropdown-options {
-    position: absolute;
-    background-color: white;
-    border: 1.5px solid #E0E0E0;
-    border-radius: 8px;
-    width: calc((287 / 1280) * 100dvw);
-    height: calc((146 / 832) * 100dvh);
-    margin-top: calc((15 / 832) * 100dvh);
-    z-index: 10;
-    /* Добавляем высокий z-index */
-}
-
-.custom-dropdown-option-list {
-    margin-top: calc((10 / 832) * 100dvh);
-    margin-left: calc((15 / 1280) * 100dvw);
-    z-index: 2;
-}
-
-.custom-dropdown-options_header {
-    font-family: "Lato", sans-serif;
-    font-weight: 600;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-    line-height: 120%;
-    letter-spacing: 0.1px;
-    vertical-align: middle;
-    margin-top: calc((7 / 832) * 100dvh);
-    margin-left: calc((41 / 1280) * 100dvw);
-}
-.custom-dropdown-selected{
-
-}
-.custom-dropdown-option {
-    display: flex;
-    align-items: center;
-
-
-    margin-top: calc((5 / 832) * 100dvh);
-    width: calc((245 / 1280) * 100dvw);
-    height: calc((26 / 832) * 100dvh);
-
-    cursor: pointer;
-
-}
-
-
-
-.custom-dropdown-circle {
-    width: calc((18 / 1280) * 100dvw);
-    height: calc((18 / 832) * 100dvh);
-    display: flex;
-    cursor: pointer;
-    justify-content: center;
-
-
-}
-
-.custom-dropdown-circle>img {
-    width: calc((16 / 1280) * 100dvw);
-    height: calc((16 / 832) * 100dvh);
-}
-
-.custom-dropdown-text {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-    line-height: 120%;
-    letter-spacing: 0.1px;
-    vertical-align: middle;
-    margin-left: calc((10 / 1280) * 100dvw);
-
-    display: flex;
-    align-items: center;
-
-}
-
-.input-group_score {
-
-    display: flex;
-    align-items: center;
-    margin-left: calc((58 / 1280) * 100dvw);
-}
-
-.input-group_score>input {
-    margin-left: calc((10 / 1280) * 100dvw);
-    width: calc((73 / 1280) * 100dvw);
-    height: calc((42 / 832) * 100dvh);
-    border: 1.5px solid #E0E0E0;
-    box-sizing: border-box;
-    border-radius: 8px;
-    box-sizing: border-box;
-    padding: calc((12 / 832) * 100dvh) calc((12 / 1280) * 100dvw);
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-
-}
-
-.input-group_score>div {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-    width: calc((55 / 1280) * 100dvw);
-
-    line-height: 120%;
-    letter-spacing: 1%;
-    vertical-align: middle;
-
-}
-
-.answers-section {
-    margin-top: calc((15 / 832) * 100dvh);
-    z-index: 0;
-}
-
-
-/* Общие стили для инпута */
-.answer-item-input {
-  flex-grow: 1;
-  font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-  width: calc((483 / 1280) * 100dvw);
-  height: calc((42 / 832) * 100dvh);
-  border: 1.5px solid #E0E0E0;
-  box-sizing: border-box;
-  border-radius: 8px;
-  color: #1D1D1D;
-  padding: calc((12 / 832) * 100dvh) calc((12 / 1280) * 100dvw);
-}
-
-.answer-item-input::placeholder {
-  font-family: "Lato", sans-serif;
-  font-weight: 400;
-  font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-  color: #A9A9A9;
-  vertical-align: middle;
-  padding: calc((38 / 832) * 100dvh) 0;
-  letter-spacing: calc((16px / 100));
-}
-
-.answer-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  margin-bottom: calc((8 / 832) * 100dvh);
-}
-
-/* Удаление ответа */
-.delete-answer-icon {
-  position: absolute;
-  width: calc((35 / 2 / 1280) * 100dvw);
-  height: calc((35 / 2 / 832) * 100dvh);
-  
-  right: calc((14 / 1280) * 100dvw);
-  cursor: pointer;
-}
-
-/* Обертка с инпутом и картинкой */
-.custom-answer-input {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: calc((42 / 832) * 100dvh);
-  border: 1.5px solid #E0E0E0;
-  border-radius: 8px;
-  padding-left: calc((12 / 1280) * 100dvw);
-  box-sizing: border-box;
-  background-color: white;
-}
-
-/* Для типа "text" убираем отступ слева */
-.custom-answer-input.text-type {
-  padding-left: 0;
-}
-
-/* Стили для иконки, показываем ее только если тип не "text" */
-.custom-dropdown-circle {
-  width: calc((16 / 1280) * 100dvw);
-  height: calc((16 / 832) * 100dvh);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-}
-
-.custom-dropdown-circle img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* Для инпута текстового типа (когда класс "text-type") убираем отступ слева */
-.custom-input-field {
-  flex: 1;
-  border: none;
-  outline: none;
-  padding-left: calc((10 / 1280) * 100dvw); /* Для обычных типов вопросов */
-  font-family: "Lato", sans-serif;
-  font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-  height: 90%;
-  box-sizing: border-box;
-  max-width: 95%;
- 
-}
-
-/* Для типа "text" убираем отступ слева */
-.custom-input-field.text-type {
-  padding-left: 0px;;
-}
-
-
-.answers-section-add_question{
-    width: calc((42 / 1280) * 100dvw);
-  height: calc((42 / 832) * 100dvh);
-  border: 1.5px solid #E0E0E0;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.add_question_icon{
-    width: calc((30 / 1280) * 100dvw);
-  height: calc((30 / 832) * 100dvh);
-
-}
 </style>

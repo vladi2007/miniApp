@@ -30,6 +30,8 @@
     "qrcode.vue": "^3.6.0",
     "tweetnacl": "^1.0.3",
     "vue": "^3.5.13",
+    "vue-device": "^0.5.5",
+    "vue-devices": "^1.2.0",
     "vue-router": "^4.5.1",
     "vue-tg": "^0.8.0",
     "vuese": "^1.4.7",

@@ -21,14 +21,12 @@ const props = defineProps<{
     <img src="/images/question/Star_2.svg" id="question_star_2" />
     <img src="/images/question/Vector_89.svg" id="question_vector_2" />
 
-    <!-- Компонент Timer -->
-    <timer :timer="data.timer" :stage="stage" :timer_duration="data.timer_duration" :context="context"
-      :question_num="data.question.position" :question_count="data.questions_count" />
+    <!-- <timer :timer="data.timer" :stage="stage" :timer_duration="data.timer_duration" :context="context"
+      :question_num="data.question.position" :question_count="data.questions_count" /> -->
 
-    <!-- В зависимости от типа данных, отображаем различные компоненты -->
-    <question_list :timer="data.timer" :question="data.question" :answers="data.answers"
+    <!-- <question_list :timer="data.timer" :question="data.question" :answers="data.answers"
       :id_correct_answer="data.id_correct_answer" :percentages="data.percentages" :stage="stage" :onAnswer="onAnswer"
-      :questions_count="data.questions_count" :context="context" />
+      :questions_count="data.questions_count" :context="context" /> -->
 
 
   </div>
