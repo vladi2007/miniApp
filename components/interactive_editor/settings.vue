@@ -908,7 +908,7 @@ function getIconSrcWithValidation(type, isCorrect, hasError, index, question) {
             </div>
 
             <div class="settings_questions_mobile">
-                <VueDevice :device="'iphone-14'" :showHeader="false">
+                <VueDevice :device="'iphone-14'" :showHeader="false" :showSensors="false">
                     <check_qestion :timer="form.answer_duration" :questions_count="form.questions.length"
                         :question="currentQuestion.question.text" :answers="currentQuestion.question.answers"
                         :score="currentQuestion.question.score" :currentIndex="currentQuestionIndex"
