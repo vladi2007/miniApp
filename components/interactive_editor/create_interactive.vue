@@ -5,6 +5,7 @@ const route = useRouter()
 const FORM_STORAGE_KEY = 'interactive_form_draft'
 const CURRENT_INDEX_KEY = 'interactive_current_index'
 const STEP_KEY = 'interactive_editor_step'
+const IMAGE_STATE_KEY = 'interactive_image_state'
 async function confirmBack(save) {
   if (save ) {
     const success = await settings.value.handleSave()
@@ -14,6 +15,7 @@ async function confirmBack(save) {
       clearDeviceStorage(FORM_STORAGE_KEY)
     clearDeviceStorage(CURRENT_INDEX_KEY)
     clearDeviceStorage(STEP_KEY)
+    clearDeviceStorage(IMAGE_STATE_KEY)
     }
     else { showConfirmPopup.value = false }
   } else {
@@ -22,7 +24,7 @@ async function confirmBack(save) {
     clearDeviceStorage(CURRENT_INDEX_KEY)
     clearDeviceStorage(STEP_KEY)
 
-
+    clearDeviceStorage(IMAGE_STATE_KEY)
     route.push('/leader/interactives')
   }
 }

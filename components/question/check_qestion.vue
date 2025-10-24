@@ -5,18 +5,17 @@ import question_list from '~/components/question/question_list.vue';
 import { defineProps } from 'vue'
 import type { QuestionData } from '~/types/stageData'
 
-// Данные от бекенда
 const props = defineProps<{
   timer: string,
   questions_count: string,
   question: string,
-  answers: {
-    answer: string
-  }[],
+  answers: { text: string }[],
   score: string,
   currentIndex: string,
   type: string,
+  image?: string // base64
 }>()
+
 const type_text = computed(() => {
   if (props.type === 'one')
     return 'Один правильный ответ'
@@ -62,6 +61,10 @@ watch(type_text, (newWalue) => {
 
       <div class="check_question_title">{{ props.question ? props.question : 'Вопрос*' }} </div>
       <div class="check_question_title_score">{{ type_text }}<br />Балл: {{ props.score }} </div>
+      <div v-if="props.image" class="check_question_image">
+        <img :src="props.image" alt="Изображение вопроса" class="question-image" />
+      </div>
+
       <div class="check_question_list">
         <div v-for="answer in answers" class="check_question_answer">
           <span class="check_question_text">{{ answer.text ? answer.text : 'Поле для ввода' }}</span>
@@ -78,4 +81,9 @@ watch(type_text, (newWalue) => {
 
 <style scoped>
 @import url("/assets/css/question/check_question.scss");
+
+.check_question_image > img{
+  width: 100%;
+  aspect-ratio: 16/ 9;
+}
 </style>

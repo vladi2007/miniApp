@@ -2,12 +2,13 @@
 import { deviceOptions, VueDevice } from 'vue-devices'
 import question from '../question/check_qestion.vue'
 import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorage'
-
-
+import check_qestion from '../question/check_qestion.vue'
 const FORM_STORAGE_KEY = 'interactive_form_draft'
 const CURRENT_INDEX_KEY = 'interactive_current_index'
 const SCROLL_POSITION_KEY = 'question_nav_scroll_position'
 const STEP_KEY = 'interactive_editor_step'
+const IMAGE_STATE_KEY = 'interactive_image_state'
+
 const currentQuestionIndex = ref(0);
 const form = ref({
     title: '',
@@ -57,6 +58,15 @@ onMounted(async () => {
         console.log('Загружен step из хранилища:', storedStep)
     } else {
         console.log('Step не найден в хранилище или невалиден:', storedStep)
+    }
+
+    const imageState = loadFromDeviceStorage(IMAGE_STATE_KEY)
+    if (imageState && imageState.index === currentQuestionIndex.value) {
+        const currentImage = form.value.questions[currentQuestionIndex.value]?.question.image
+        if (currentImage && currentImage !== '') {
+            imageUploaded.value = true
+            uploadedFileName.value = imageState.name
+        }
     }
 })
 
@@ -204,6 +214,21 @@ watch(currentQuestionIndex, (newIndex) => {
         visibleStartIndex.value = newIndex - visibleCount + 1
     }
 })
+watch(currentQuestionIndex, (newIndex) => {
+  saveToDeviceStorage(CURRENT_INDEX_KEY, newIndex)
+
+  const image = form.value.questions[newIndex]?.question.image
+  const imageState = loadFromDeviceStorage(IMAGE_STATE_KEY)
+
+  if (image && image !== '') {
+    imageUploaded.value = true
+    uploadedFileName.value =
+      imageState && imageState.index === newIndex ? imageState.name : 'изображение.png'
+  } else {
+    imageUploaded.value = false
+    uploadedFileName.value = ''
+  }
+})
 
 function addQuestion() {
     if (form.value.questions.length < 20) {
@@ -297,20 +322,37 @@ watch(currentQuestionIndex, (newIndex, oldIndex) => {
     }
     // Проверяем, есть ли изображение у нового вопроса
     imageUploaded.value = form.value.questions[newIndex].question.image !== '';
-});
+})
+const uploadedFileName = ref(''); // <-- просто локально храним имя для UI
+
 async function handleFileChange(event) {
-    const file = event.target.files[0];
-    if (file.name) {
+    const file = event.target.files[0]
+    if (file) {
+        uploadedFileName.value = file.name
+        const reader = new FileReader()
 
-        form.value.questions[currentQuestionIndex.value].question.image = file.name;
-        imageUploaded.value = true;
+        reader.onload = () => {
+            form.value.questions[currentQuestionIndex.value].question.image = reader.result // base64
+            imageUploaded.value = true
+
+            // 🟢 Сохраняем состояние
+            saveToDeviceStorage(IMAGE_STATE_KEY, {
+                index: currentQuestionIndex.value,
+                name: file.name
+            })
+        }
+
+        reader.readAsDataURL(file)
     } else {
-        form.value.questions[currentQuestionIndex.value].question.image = '';
-        imageUploaded.value = false;
-    }
+        form.value.questions[currentQuestionIndex.value].question.image = ''
+        uploadedFileName.value = ''
+        imageUploaded.value = false
 
-    console.log(form.value.questions)
+        // 🟢 Удаляем состояние
+        saveToDeviceStorage(IMAGE_STATE_KEY, null)
+    }
 }
+
 const isImagePopupOpen = ref(false); // Показывает/скрывает попап
 function openImagePopup() {
     isImagePopupOpen.value = true;
@@ -320,9 +362,13 @@ function closeImagePopup() {
 }
 
 function removeImage() {
-    form.value.questions[currentQuestionIndex.value].question.image = '';
-    imageUploaded.value = false;
+    form.value.questions[currentQuestionIndex.value].question.image = ''
+    uploadedFileName.value = ''
+    imageUploaded.value = false
+    saveToDeviceStorage(IMAGE_STATE_KEY, null)
 }
+
+
 
 const isOpen = ref(false); // Состояние, открыто ли меню
 const options = ['Один из списка', 'Ввод текста', 'Несколько из списка']; // Возможные опции
@@ -335,9 +381,7 @@ const typeMap = {
 };
 // Функция для отображения текста
 const selectedText = computed(() => typeMap[form.value.questions[currentQuestionIndex.value].question.type]);
-// Переключаем состояние открытия/закрытия списка
-import { onMounted, onUnmounted, ref } from 'vue'
-import New_qestion from '../question/check_qestion.vue';
+
 
 
 // Реф на dropdown DOM-элемент
@@ -575,14 +619,14 @@ function validateQuestions() {
     return isValid;
 }
 defineExpose({
-  handleSave
+    handleSave
 })
 function handleSave() {
     const isMainValid = validateForm();
     showSavePopup.value = false
     if (!isMainValid) {
         active_step.value = 'main';
-        
+
         return false;
     }
 
@@ -593,16 +637,31 @@ function handleSave() {
         return false;
     }
     route.push('/leader/interactives')
+    console.log(form.value)
+    clearDeviceStorage(FORM_STORAGE_KEY)
+    clearDeviceStorage(CURRENT_INDEX_KEY)
+    clearDeviceStorage(STEP_KEY)
     return true;
 }
 
 
 function handleStart() {
-    if (!validateQuestions()) {
-        return;
+    const isMainValid = validateForm();
+    showSavePopup.value = false
+    if (!isMainValid) {
+        active_step.value = 'main';
+
+        return false;
     }
 
-    // Тут ваш код запуска...
+    const isQuestionsValid = validateQuestions();
+
+    if (!isQuestionsValid) {
+        active_step.value = 'questions';
+        return false;
+    }
+    
+    console.log(form.value)
     console.log("Интерактив запущен");
 }
 function getIconSrcWithValidation(type, isCorrect, hasError, index, question) {
@@ -639,8 +698,6 @@ function getIconSrcWithValidation(type, isCorrect, hasError, index, question) {
 
     return '';
 }
-
-
 </script>
 
 <template>
@@ -740,18 +797,18 @@ function getIconSrcWithValidation(type, isCorrect, hasError, index, question) {
                     <input ref="fileInput" type="file" accept="image/*" hidden @change="handleFileChange" />
 
                     <template v-if="imageUploaded">
-                        <!-- Выводим имя файла, если оно загружено -->
-                        <span>{{ currentQuestion.question.image }}</span>
+                        <!-- показываем только имя файла -->
+                        <span>{{ uploadedFileName }}</span>
                         <img src="/public/images/interactive_editor/delete.svg" @click.stop="removeImage"
                             class="remove-icon" />
                     </template>
 
                     <template v-else>
-                        <span style="color: #1D1D1D; ">Загрузите изображение</span>
-                        <span style="margin-left: auto; color:#A9A9A9; letter-spacing: calc((16px / 100));">Не
-                            выбрано</span>
+                        <span style="color: #1D1D1D;">Загрузите изображение</span>
+                        <span style="margin-left: auto; color:#A9A9A9;">Не выбрано</span>
                     </template>
                 </div>
+
 
 
                 <!-- Тип вопроса и Балл -->
@@ -843,7 +900,7 @@ function getIconSrcWithValidation(type, isCorrect, hasError, index, question) {
                     <div class="settings_questions_editor_buttons_start" @click="handleStart">
                         Запуск
                     </div>
-                    <div class="settings_questions_editor_buttons_save"@click="showSavePopup = true">
+                    <div class="settings_questions_editor_buttons_save" @click="showSavePopup = true">
                         Сохранить
                     </div>
                 </div>
@@ -852,10 +909,11 @@ function getIconSrcWithValidation(type, isCorrect, hasError, index, question) {
 
             <div class="settings_questions_mobile">
                 <VueDevice :device="'iphone-14'" :showHeader="false">
-                    <new_qestion :timer="form.answer_duration" :questions_count="form.questions.length"
+                    <check_qestion :timer="form.answer_duration" :questions_count="form.questions.length"
                         :question="currentQuestion.question.text" :answers="currentQuestion.question.answers"
                         :score="currentQuestion.question.score" :currentIndex="currentQuestionIndex"
-                        :type="currentQuestion.question.type" />
+                        :type="currentQuestion.question.type" :image="currentQuestion.question.image"></check_qestion>/>
+
                 </VueDevice>
 
 
@@ -880,15 +938,15 @@ function getIconSrcWithValidation(type, isCorrect, hasError, index, question) {
             </div>
         </teleport>
         <div v-if="showSavePopup" class="settings_popup-overlay">
-      <div class="settings_popup-content">
-        <div class="settings_popup-text">Сохранить интерактив и перейти к списку всех интерактивов?</div>
-        <div class="settings_popup-buttons">
-          <button class="settings_popup-btn confirm" @click="handleSave">Да</button>
-          <button class="settings_popup-btn cancel" @click="showSavePopup = false">Нет</button>
+            <div class="settings_popup-content">
+                <div class="settings_popup-text">Сохранить интерактив и перейти к списку всех интерактивов?</div>
+                <div class="settings_popup-buttons">
+                    <button class="settings_popup-btn confirm" @click="handleSave">Да</button>
+                    <button class="settings_popup-btn cancel" @click="showSavePopup = false">Нет</button>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-        
+
     </div>
 
 </template>
@@ -896,5 +954,4 @@ function getIconSrcWithValidation(type, isCorrect, hasError, index, question) {
 <style>
 @import url("/assets/css/interactive_editor/settings.scss");
 @import url("/assets/css/interactive_editor/settings_media.scss");
-
 </style>
