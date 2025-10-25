@@ -6,6 +6,14 @@ const FORM_STORAGE_KEY = 'interactive_form_draft'
 const CURRENT_INDEX_KEY = 'interactive_current_index'
 const STEP_KEY = 'interactive_editor_step'
 const IMAGE_STATE_KEY = 'interactive_image_state'
+
+function clearAllImageStates() {
+  for (let key in localStorage) {
+    if (key.startsWith(IMAGE_STATE_KEY)) {
+      localStorage.removeItem(key)
+    }
+  }
+}
 async function confirmBack(save) {
   if (save ) {
     const success = await settings.value.handleSave()
@@ -23,8 +31,7 @@ async function confirmBack(save) {
     clearDeviceStorage(FORM_STORAGE_KEY)
     clearDeviceStorage(CURRENT_INDEX_KEY)
     clearDeviceStorage(STEP_KEY)
-
-    clearDeviceStorage(IMAGE_STATE_KEY)
+    clearAllImageStates()
     route.push('/leader/interactives')
   }
 }

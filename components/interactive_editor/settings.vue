@@ -8,8 +8,9 @@ const CURRENT_INDEX_KEY = 'interactive_current_index'
 const SCROLL_POSITION_KEY = 'question_nav_scroll_position'
 const STEP_KEY = 'interactive_editor_step'
 const IMAGE_STATE_KEY = 'interactive_image_state'
-
 const currentQuestionIndex = ref(0);
+
+
 const form = ref({
     title: '',
     description: '',
@@ -218,17 +219,18 @@ watch(currentQuestionIndex, (newIndex) => {
   saveToDeviceStorage(CURRENT_INDEX_KEY, newIndex)
 
   const image = form.value.questions[newIndex]?.question.image
-  const imageState = loadFromDeviceStorage(IMAGE_STATE_KEY)
+  const imageKey = `${IMAGE_STATE_KEY}_${newIndex}`
+  const imageState = loadFromDeviceStorage(imageKey)
 
   if (image && image !== '') {
     imageUploaded.value = true
-    uploadedFileName.value =
-      imageState && imageState.index === newIndex ? imageState.name : 'изображение.png'
+    uploadedFileName.value = imageState?.name || 'изображение.png'
   } else {
     imageUploaded.value = false
     uploadedFileName.value = ''
   }
 })
+
 
 function addQuestion() {
     if (form.value.questions.length < 20) {
@@ -327,6 +329,8 @@ const uploadedFileName = ref(''); // <-- просто локально хран�
 
 async function handleFileChange(event) {
     const file = event.target.files[0]
+    const index = currentQuestionIndex.value
+    const imageKey = `${IMAGE_STATE_KEY}_${index}` // формируем динамически!
     if (file) {
         uploadedFileName.value = file.name
         const reader = new FileReader()
@@ -336,7 +340,7 @@ async function handleFileChange(event) {
             imageUploaded.value = true
 
             // 🟢 Сохраняем состояние
-            saveToDeviceStorage(IMAGE_STATE_KEY, {
+            saveToDeviceStorage(imageKey , {
                 index: currentQuestionIndex.value,
                 name: file.name
             })
@@ -349,7 +353,7 @@ async function handleFileChange(event) {
         imageUploaded.value = false
 
         // 🟢 Удаляем состояние
-        saveToDeviceStorage(IMAGE_STATE_KEY, null)
+        saveToDeviceStorage(imageKey, null)
     }
 }
 
@@ -362,10 +366,14 @@ function closeImagePopup() {
 }
 
 function removeImage() {
-    form.value.questions[currentQuestionIndex.value].question.image = ''
-    uploadedFileName.value = ''
-    imageUploaded.value = false
-    saveToDeviceStorage(IMAGE_STATE_KEY, null)
+  const index = currentQuestionIndex.value
+  const imageKey = `${IMAGE_STATE_KEY}_${index}`
+
+  form.value.questions[index].question.image = ''
+  uploadedFileName.value = ''
+  imageUploaded.value = false
+
+  clearDeviceStorage(imageKey)
 }
 
 
