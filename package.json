@@ -36,7 +36,8 @@
     "vue-router": "^4.5.1",
     "vue-tg": "^0.8.0",
     "vuese": "^1.4.7",
-    "ws": "^8.18.2"
+    "ws": "^8.18.2",
+    "ydb": "^1.4.1"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
