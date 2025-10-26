@@ -1,13 +1,11 @@
 <script setup>
 import { deviceOptions, VueDevice } from 'vue-devices'
-import question from '../question/check_qestion.vue'
-import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorage'
+import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorageIndexedDB'
+import { FORM_STORAGE_KEY, CURRENT_INDEX_KEY, STEP_KEY, IMAGE_STATE_KEY } from '~/constants/interactiveKeys'
 import check_qestion from '../question/check_qestion.vue'
-const FORM_STORAGE_KEY = 'interactive_form_draft'
-const CURRENT_INDEX_KEY = 'interactive_current_index'
-const SCROLL_POSITION_KEY = 'question_nav_scroll_position'
-const STEP_KEY = 'interactive_editor_step'
-const IMAGE_STATE_KEY = 'interactive_image_state'
+
+
+
 const currentQuestionIndex = ref(0);
 
 
@@ -37,47 +35,42 @@ const form = ref({
 const route = useRouter()
 const active_step = ref("main")
 onMounted(async () => {
-    const savedForm = loadFromDeviceStorage(FORM_STORAGE_KEY)
-    console.log('Loaded form from storage:', savedForm)
 
+    const savedForm = await loadFromDeviceStorage(FORM_STORAGE_KEY);
     if (savedForm) {
-        form.value = savedForm
-    }
+        form.value = savedForm;
+    } 
 
-    const savedIndex = loadFromDeviceStorage(CURRENT_INDEX_KEY)
-    console.log('Loaded index from storage:', savedIndex)
-
+    const savedIndex = await loadFromDeviceStorage(CURRENT_INDEX_KEY);
     if (typeof savedIndex === 'number') {
-        currentQuestionIndex.value = savedIndex
-
-
+        currentQuestionIndex.value = savedIndex;
     }
-    const storedStep = loadFromDeviceStorage(STEP_KEY)
+    const storedStep = await loadFromDeviceStorage(STEP_KEY);
+    if (storedStep) {
+        active_step.value = storedStep;
+    }
 
-    if (storedStep !== null) {
-        active_step.value = storedStep
-        console.log('Загружен step из хранилища:', storedStep)
+    const imageKey = `${IMAGE_STATE_KEY}_${currentQuestionIndex.value}`;
+    const imageState = await loadFromDeviceStorage(imageKey);
+    const currentImage = form.value.questions[currentQuestionIndex.value]?.question.image;
+
+    if (imageState && currentImage && currentImage !== '') {
+        imageUploaded.value = true;
+        uploadedFileName.value = imageState.name;
     } else {
-        console.log('Step не найден в хранилище или невалиден:', storedStep)
+        imageUploaded.value = false;
+        uploadedFileName.value = '';
     }
 
-    const imageState = loadFromDeviceStorage(IMAGE_STATE_KEY)
-    if (imageState && imageState.index === currentQuestionIndex.value) {
-        const currentImage = form.value.questions[currentQuestionIndex.value]?.question.image
-        if (currentImage && currentImage !== '') {
-            imageUploaded.value = true
-            uploadedFileName.value = imageState.name
-        }
-    }
-})
+});
 
-watch(form, (newForm) => {
-    console.log('Saving form to storage', newForm)
-    saveToDeviceStorage(FORM_STORAGE_KEY, newForm)
-}, { deep: true })
 
+
+watch(() => form.value, async (newForm) => {
+    const plainForm = toRaw(newForm); // убираем Proxy
+    await saveToDeviceStorage(FORM_STORAGE_KEY, plainForm);
+}, { deep: true });
 watch(currentQuestionIndex, (newIndex) => {
-    console.log('Saving index to storage', newIndex)
     saveToDeviceStorage(CURRENT_INDEX_KEY, newIndex)
 })
 
@@ -215,21 +208,19 @@ watch(currentQuestionIndex, (newIndex) => {
         visibleStartIndex.value = newIndex - visibleCount + 1
     }
 })
-watch(currentQuestionIndex, (newIndex) => {
-  saveToDeviceStorage(CURRENT_INDEX_KEY, newIndex)
+watch(currentQuestionIndex, async (newIndex) => {
+    const imageKey = `${IMAGE_STATE_KEY}_${newIndex}`;
+    const imageState = await loadFromDeviceStorage(imageKey);
+    const currentImage = form.value.questions[newIndex]?.question.image;
 
-  const image = form.value.questions[newIndex]?.question.image
-  const imageKey = `${IMAGE_STATE_KEY}_${newIndex}`
-  const imageState = loadFromDeviceStorage(imageKey)
-
-  if (image && image !== '') {
-    imageUploaded.value = true
-    uploadedFileName.value = imageState?.name || 'изображение.png'
-  } else {
-    imageUploaded.value = false
-    uploadedFileName.value = ''
-  }
-})
+    if (currentImage && currentImage !== '') {
+        imageUploaded.value = true;
+        uploadedFileName.value = imageState?.name || 'изображение.png';
+    } else {
+        imageUploaded.value = false;
+        uploadedFileName.value = '';
+    }
+});
 
 
 function addQuestion() {
@@ -259,6 +250,11 @@ function addQuestion() {
         if (currentQuestionIndex.value >= visibleStartIndex.value + visibleCount) {
             visibleStartIndex.value = currentQuestionIndex.value - visibleCount + 1;
         }
+    }
+    else{
+    currentQuestionIndex.value = form.value.questions.length - 1;
+
+    visibleStartIndex.value = Math.max(0, form.value.questions.length - visibleCount);
     }
 
 }
@@ -335,15 +331,19 @@ async function handleFileChange(event) {
         uploadedFileName.value = file.name
         const reader = new FileReader()
 
-        reader.onload = () => {
-            form.value.questions[currentQuestionIndex.value].question.image = reader.result // base64
+        reader.onload = async () => {
+            const base64 = `${reader.result}#${Date.now()}`;
+            form.value.questions[currentQuestionIndex.value].question.image = '';
+            await nextTick();
+            form.value.questions[currentQuestionIndex.value].question.image = base64;
+
             imageUploaded.value = true
 
-            // 🟢 Сохраняем состояние
-            saveToDeviceStorage(imageKey , {
-                index: currentQuestionIndex.value,
-                name: file.name
-            })
+            await saveToDeviceStorage(`${IMAGE_STATE_KEY}_${currentQuestionIndex.value}`, {
+                name: file.name,
+                data: base64,
+            });
+            event.target.value = '';
         }
 
         reader.readAsDataURL(file)
@@ -352,7 +352,6 @@ async function handleFileChange(event) {
         uploadedFileName.value = ''
         imageUploaded.value = false
 
-        // 🟢 Удаляем состояние
         saveToDeviceStorage(imageKey, null)
     }
 }
@@ -366,14 +365,14 @@ function closeImagePopup() {
 }
 
 function removeImage() {
-  const index = currentQuestionIndex.value
-  const imageKey = `${IMAGE_STATE_KEY}_${index}`
+    const index = currentQuestionIndex.value
+    const imageKey = `${IMAGE_STATE_KEY}_${index}`
 
-  form.value.questions[index].question.image = ''
-  uploadedFileName.value = ''
-  imageUploaded.value = false
+    form.value.questions[index].question.image = ''
+    uploadedFileName.value = ''
+    imageUploaded.value = false
 
-  clearDeviceStorage(imageKey)
+    clearDeviceStorage(imageKey)
 }
 
 
@@ -392,7 +391,6 @@ const selectedText = computed(() => typeMap[form.value.questions[currentQuestion
 
 
 
-// Реф на dropdown DOM-элемент
 const dropdownRef = ref(null)
 
 function handleClickOutside(event) {
@@ -425,7 +423,6 @@ function selectOption(option) {
     // Обновляем тип вопроса
     form.value.questions[currentQuestionIndex.value].question.type = type;
 
-    // ❗ Обнуляем ошибки при смене типа
     if (questionErrors.value[currentQuestionIndex.value]) {
         questionErrors.value[currentQuestionIndex.value].correctAnswers = false;
 
@@ -567,7 +564,7 @@ function validateQuestions() {
         const error = {
             text: false,
             score: false,
-            type: false,            // ✅ добавили
+            type: false,           
             answers: [],
             correctAnswers: false
         };
@@ -582,7 +579,6 @@ function validateQuestions() {
             isValid = false;
         }
 
-        // ✅ проверка типа
         if (!q.type || !['one', 'many', 'text'].includes(q.type)) {
             error.type = true;
             isValid = false;
@@ -668,7 +664,7 @@ function handleStart() {
         active_step.value = 'questions';
         return false;
     }
-    
+
     console.log(form.value)
     console.log("Интерактив запущен");
 }
