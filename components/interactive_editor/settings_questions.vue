@@ -64,15 +64,14 @@ const props = defineProps<{
     handleSave: () => void
 }>()
 
-
-const emit = defineEmits(["update:score", "updateCurrentQuestionIndex"])
-
+const emit = defineEmits(['update:score', 'updateCurrentQuestionIndex'])
 
 function updateScore(event: Event) {
-    const value = Number((event.target as HTMLInputElement).value)
-    emit("update:score", value)
-    props.validateScore()
+  const value = Number((event.target as HTMLInputElement).value)
+  emit('update:score', value)
+  props.validateScore()
 }
+
 </script>
 
 
@@ -169,7 +168,7 @@ function updateScore(event: Event) {
                 <!-- Поле для ввода баллов с "Баллы:" внутри -->
                 <div class="input-group_score">
                     <div>Баллы:</div>
-                    <input type="number" :value="score" @input="updateScore" min="1" max="5"
+                    <input type="number" v-model="currentQuestion.question.score" @input="updateScore" min="1" max="5"
                         :class="{ 'field-error': questionErrors[currentQuestionIndex]?.score }" />
 
                 </div>
@@ -241,3 +240,14 @@ function updateScore(event: Event) {
 
     </div>
 </template>
+<style>
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+</style>

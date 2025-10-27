@@ -27,7 +27,7 @@ const { questionErrors, isFormComplete, errors, validateQuestions, validateForm,
 const { visibleCount, visibleStartIndex, visibleQuestions, addQuestion, deleteQuestion, scrollUp, scrollDown, handleWheelScroll } = useQuestionNavigator(form, currentQuestionIndex, questionErrors, errors)
 const { imageUploaded, uploadedFileName, loadImageDB, handleFileChange, removeImage } = useImage(currentQuestionIndex, form)
 const { isOpen, options, typeMap, selectedText, dropdownRef, toggleDropdown, handleClickOutside, selectOption } = useTypeQuestion(form, currentQuestionIndex, questionErrors)
-const { score, validateScore } = useScoreQuestion()
+const { score, validateScore } = useScoreQuestion(currentQuestion)
 const { getAnswerCount, deleteAnswer, toggleCorrect, getIconSrc, addAnswer, limit_answers } = useAnswerQuestion(currentQuestion)
 const { showSavePopup, handleSave, handleStart } = useSave(route, active_step, form, validateForm, validateQuestions)
 
