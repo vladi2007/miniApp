@@ -65,7 +65,8 @@ const props = defineProps<{
 }>()
 
 
-const emit = defineEmits(["update:score"])
+const emit = defineEmits(["update:score", "updateCurrentQuestionIndex"])
+
 
 function updateScore(event: Event) {
     const value = Number((event.target as HTMLInputElement).value)
@@ -81,7 +82,7 @@ function updateScore(event: Event) {
             <img src="/public/images/interactive_editor/question_up.svg" id="up" @click="scrollUp()" />
             <div class="question_buttons_list" @wheel="handleWheelScroll">
                 <div v-for="(q, idx) in visibleQuestions" :key="q.question.position"
-                    @click="currentQuestionIndex = visibleStartIndex + idx" class="quest-nav-button"
+                    @click="emit('updateCurrentQuestionIndex', visibleStartIndex + idx)" class="quest-nav-button"
                     :class="{ active: currentQuestionIndex === (visibleStartIndex + idx) }">
                     {{ visibleStartIndex + idx + 1 }}
                 </div>

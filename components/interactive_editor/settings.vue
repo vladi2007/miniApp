@@ -88,7 +88,7 @@ defineExpose({
             :typeMap="typeMap" :score="score" :validateScore="validateScore" :addAnswer="addAnswer"
             :deleteAnswer="deleteAnswer" :toggleCorrect="toggleCorrect"
             :getIconSrcWithValidation="getIconSrcWithValidation" :limit_answers="limit_answers"
-            :handleStart="handleStart" :showSavePopup="showSavePopup" :handleSave="handleSave" />
+            :handleStart="handleStart" :showSavePopup="showSavePopup" :handleSave="handleSave" @updateCurrentQuestionIndex="currentQuestionIndex = $event" />
 
         <settings_save_popup :showSavePopup="showSavePopup" :handleSave="handleSave"/>
         
