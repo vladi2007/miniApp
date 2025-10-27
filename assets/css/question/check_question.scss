@@ -1,6 +1,6 @@
 .check_question {
   height: 100%;
-  overflow-y: hidden;
+  overflow-y: hidden !important;
   background-color: white;
   font-family: "Lato", sans-serif;
   letter-spacing: clamp(calc(10px /100), calc((14 / 1280 / 100) * 100dvw), calc(24px / 100));
@@ -11,7 +11,7 @@
 .check_question_question-list {
   margin-left: 22px !important;
   margin-right: 22px !important;
-  position: relative;
+  position: relative;overflow-y: hidden;
 }
 
 .check_question_timer {

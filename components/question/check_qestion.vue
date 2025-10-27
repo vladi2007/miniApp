@@ -81,9 +81,22 @@ watch(type_text, (newWalue) => {
 
 <style scoped>
 @import url("/assets/css/question/check_question.scss");
-
+.check_question{
+  overflow-y: hidden !important;
+}
 .check_question_image > img{
   width: 100%;
   aspect-ratio: 16/ 9;
+}
+
+/* Отключаем вертикальную прокрутку внутри устройства */
+:deep(.check_question) {
+  overflow-y: hidden !important;
+}
+
+/* Также можно убрать горизонтальный запас */
+:deep(.check_question > div) {
+  overflow-y: hidden !important;
+  overflow-x: hidden !important;
 }
 </style>

@@ -19,7 +19,6 @@ window.Telegram.WebApp.expand()
 onMounted(() => {
   if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
 
-    clearInteractiveSessionData()
     const tg = Telegram.WebApp
 
     tg.setBackgroundColor('#ffffff')

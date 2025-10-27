@@ -36,6 +36,9 @@ const props = defineProps<{
 function create_new_interactive() {
     route.push("/leader/create_interactive");
 }
+onMounted(() => {
+    clearInteractiveSessionData()
+})
 </script>
 
 <template>
