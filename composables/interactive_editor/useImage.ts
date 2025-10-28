@@ -1,97 +1,80 @@
 import {
-  FORM_STORAGE_KEY,
-  CURRENT_INDEX_KEY,
-  STEP_KEY,
   IMAGE_STATE_KEY,
 } from "~/constants/interactiveKeys";
-export function useImage(currentQuestionIndex, form) {
-  const imageUploaded = ref(false);
-  const uploadedFileName = ref("");
+export function useImage(currentQuestionIndex, form, currentQuestion) {
+  const imageUrls = ref({});
   async function loadImageDB() {
+    const index = currentQuestionIndex.value;
     const imageKey = `${IMAGE_STATE_KEY}_${currentQuestionIndex.value}`;
     const imageState = await loadFromDeviceStorage(imageKey);
-    const currentImage =
-      form.value.questions[currentQuestionIndex.value]?.question.image;
-
-    if (imageState && currentImage && currentImage !== "") {
-      imageUploaded.value = true;
-      uploadedFileName.value = imageState.name;
+    if (imageState?.file && imageState?.name) {
+      // создаём blob url для отображения
+      const blobUrl = URL.createObjectURL(imageState.file);
+      imageUrls.value[index] = blobUrl;
+      form.value.questions[index].question.uploadedFileName = imageState.name;
+      form.value.questions[index].question.image = "image";
     } else {
-      imageUploaded.value = false;
-      uploadedFileName.value = "";
+      form.value.questions[index].question.image = "";
+      form.value.questions[index].question.uploadedFileName = "";
     }
   }
-  watch(currentQuestionIndex, async (newIndex) => {
-    const imageKey = `${IMAGE_STATE_KEY}_${newIndex}`;
-    const imageState = await loadFromDeviceStorage(imageKey);
-    const currentImage = form.value.questions[newIndex]?.question.image;
+  watch(currentQuestionIndex, async (newIndex, oldIndex) => {
+  // Удаляем старую ссылку, если была
+  if (oldIndex !== undefined && imageUrls.value[oldIndex]) {
+    URL.revokeObjectURL(imageUrls.value[oldIndex]);
+  }
 
-    if (currentImage && currentImage !== "") {
-      imageUploaded.value = true;
-      uploadedFileName.value = imageState?.name || "изображение.png";
-    } else {
-      imageUploaded.value = false;
-      uploadedFileName.value = "";
-    }
-  });
+  // Проверяем, есть ли изображение у нового вопроса
+  const question = form.value.questions[newIndex]?.question;
+  if (!question) return;
 
-  watch(currentQuestionIndex, (newIndex, oldIndex) => {
-    if (oldIndex !== undefined) {
-      imageUploaded.value = false; // Сбрасываем статус для предыдущего вопроса
+  const imageKey = `${IMAGE_STATE_KEY}_${newIndex}`;
+  const imageState = await loadFromDeviceStorage(imageKey);
+
+  if (question.image && question.image !== "") {
+    if (imageState?.file) {
+      imageUrls.value[newIndex] = URL.createObjectURL(imageState.file);
     }
-    // Проверяем, есть ли изображение у нового вопроса
-    imageUploaded.value = form.value.questions[newIndex].question.image !== "";
-  });
+  } else {
+    imageUrls.value[newIndex] = "";
+  }
+});
 
   async function handleFileChange(event) {
     const file = event.target.files[0];
     const index = currentQuestionIndex.value;
-    const imageKey = `${IMAGE_STATE_KEY}_${index}`; // формируем динамически!
+    const imageKey = `${IMAGE_STATE_KEY}_${index}`;
     if (file) {
-      uploadedFileName.value = file.name;
-      const reader = new FileReader();
-
-      reader.onload = async () => {
-        const base64 = `${reader.result}#${Date.now()}`;
-        form.value.questions[currentQuestionIndex.value].question.image = "";
-        await nextTick();
-        form.value.questions[currentQuestionIndex.value].question.image =
-          base64;
-
-        imageUploaded.value = true;
-
-        await saveToDeviceStorage(
-          `${IMAGE_STATE_KEY}_${currentQuestionIndex.value}`,
-          {
-            name: file.name,
-            data: base64,
-          }
-        );
-        event.target.value = "";
-      };
-
-      reader.readAsDataURL(file);
+      const blobUrl = URL.createObjectURL(file);
+      form.value.questions[index].question.image = "image";
+      form.value.questions[index].question.uploadedFileName = file.name
+      imageUrls.value[index] = blobUrl;
+      await saveToDeviceStorage(imageKey, {
+        name: file.name,
+        file,
+      });
+      event.target.value = "";
     } else {
-      form.value.questions[currentQuestionIndex.value].question.image = "";
-      uploadedFileName.value = "";
-      imageUploaded.value = false;
-
+      form.value.questions[index].question.image = "";
+      delete imageUrls.value[index];
       saveToDeviceStorage(imageKey, null);
     }
   }
-  function removeImage() {
+    async function removeImage() {
     const index = currentQuestionIndex.value;
     const imageKey = `${IMAGE_STATE_KEY}_${index}`;
 
-    form.value.questions[index].question.image = "";
-    uploadedFileName.value = "";
-    imageUploaded.value = false;
+    if (imageUrls.value[index]) {
+      URL.revokeObjectURL(imageUrls.value[index]);
+      delete imageUrls.value[index];
+    }
 
-    clearDeviceStorage(imageKey);
+    form.value.questions[index].question.image = "";
+    form.value.questions[index].question.uploadedFileName = "";
+    await clearDeviceStorage(imageKey);
   }
   return {
-    imageUploaded,
-    uploadedFileName,
+    imageUrls, // теперь у нас словарь blob-url'ов
     loadImageDB,
     handleFileChange,
     removeImage,

@@ -26,7 +26,6 @@ const type_text = computed(() => {
 
 }
 )
-console.log('type:', props.type);
 
 watch(type_text, (newWalue) => {
   type_text

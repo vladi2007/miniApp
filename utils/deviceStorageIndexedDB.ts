@@ -15,6 +15,8 @@ async function getDB() {
   });
 }
 
+
+
 // Сохранение значения (аналог saveToDeviceStorage)
 export async function saveToDeviceStorage(key: string, value: any) {
   try {

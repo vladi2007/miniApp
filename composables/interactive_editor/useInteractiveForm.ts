@@ -2,9 +2,7 @@ import {
   FORM_STORAGE_KEY,
   CURRENT_INDEX_KEY,
   STEP_KEY,
-  IMAGE_STATE_KEY,
 } from "~/constants/interactiveKeys";
-
 export function useInteractiveForm() {
   const form = ref({
     title: "",
@@ -20,6 +18,7 @@ export function useInteractiveForm() {
         question: {
           type: "one",
           image: "",
+          uploadedFileName: '',
           score: 1,
           position: 0,
           text: "",
@@ -50,9 +49,8 @@ export function useInteractiveForm() {
   }
 
   function take_step(value: string) {
-    active_step.value = value
-}
-
+    active_step.value = value;
+  }
 
   const currentQuestionIndex = ref(0);
   const active_step = ref("main");
@@ -63,18 +61,26 @@ export function useInteractiveForm() {
   watch(
     () => form.value,
     async (newForm) => {
-      const plainForm = toRaw(newForm); 
+      const plainForm = toRaw(newForm);
       await saveToDeviceStorage(FORM_STORAGE_KEY, plainForm);
     },
     { deep: true }
   );
   watch(currentQuestionIndex, (newIndex) => {
-    saveToDeviceStorage(CURRENT_INDEX_KEY, newIndex)
-})
+    saveToDeviceStorage(CURRENT_INDEX_KEY, newIndex);
+  });
 
-
-watch(active_step, (newStep) => {
-    saveToDeviceStorage(STEP_KEY, newStep)
-})
-  return { form, active_step, currentQuestion, currentQuestionIndex, loadDB, take_step };
+  watch(active_step, (newStep) => {
+    saveToDeviceStorage(STEP_KEY, newStep);
+  });
+  
+  
+  return {
+    form,
+    active_step,
+    currentQuestion,
+    currentQuestionIndex,
+    loadDB,
+    take_step,
+  };
 }

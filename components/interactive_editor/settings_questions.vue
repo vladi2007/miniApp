@@ -8,7 +8,7 @@ const props = defineProps<{
     form: any
     errors: any
     isFormComplete: boolean
-
+    imageUrls: any
     // навигация между шагами
     take_step: (step: string) => void
     validateForm: () => boolean
@@ -64,7 +64,7 @@ const props = defineProps<{
     handleSave: () => void
 }>()
 
-const emit = defineEmits(['update:score', 'updateCurrentQuestionIndex'])
+const emit = defineEmits(['update:score', 'updateCurrentQuestionIndex', 'showSave'])
 
 function updateScore(event: Event) {
   const value = Number((event.target as HTMLInputElement).value)
@@ -109,14 +109,14 @@ function updateScore(event: Event) {
             </div>
 
             <!-- В вашем шаблоне, для отображения имени файла -->
-            <div class="custom-file-upload" :class="{ 'file-uploaded': imageUploaded }"
-                @click="!imageUploaded && $refs.fileInput.click()">
+            <div class="custom-file-upload" :class="{ 'file-uploaded': uploadedFileName }"
+                @click="!uploadedFileName && $refs.fileInput.click()">
 
                 <input ref="fileInput" type="file" accept="image/*" hidden @change="handleFileChange" />
 
-                <template v-if="imageUploaded">
+                <template v-if="uploadedFileName">
                     <!-- показываем только имя файла -->
-                    <span>{{ uploadedFileName }}</span>
+                    <span> {{ uploadedFileName }} </span>
                     <img src="/public/images/interactive_editor/delete.svg" @click.stop="removeImage"
                         class="remove-icon" />
                 </template>
@@ -217,7 +217,7 @@ function updateScore(event: Event) {
                 <div class="settings_questions_editor_buttons_start" @click="handleStart">
                     Запуск
                 </div>
-                <div class="settings_questions_editor_buttons_save" @click="showSavePopup = true">
+                <div class="settings_questions_editor_buttons_save" @click="emit('showSave')">
                     Сохранить
                 </div>
             </div>
@@ -229,7 +229,7 @@ function updateScore(event: Event) {
                 <check_qestion :timer="form.answer_duration" :questions_count="form.questions.length"
                     :question="currentQuestion.question.text" :answers="currentQuestion.question.answers"
                     :score="currentQuestion.question.score" :currentIndex="currentQuestionIndex"
-                    :type="currentQuestion.question.type" :image="currentQuestion.question.image"></check_qestion>
+                    :type="currentQuestion.question.type" :image="imageUrls[currentQuestionIndex] || currentQuestion.question.image"></check_qestion>
 
             </VueDevice>
 

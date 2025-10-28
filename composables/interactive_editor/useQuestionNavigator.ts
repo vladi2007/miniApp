@@ -1,3 +1,5 @@
+import { clearDeviceStorage, getAllDeviceStorageKeys } from '~/utils/deviceStorageIndexedDB'
+import { IMAGE_STATE_KEY } from '~/constants/interactiveKeys'
 export function useQuestionNavigator(
   form,
   currentQuestionIndex,
@@ -67,10 +69,17 @@ export function useQuestionNavigator(
     }
   }
 
-  function deleteQuestion() {
+  async function deleteQuestion() {
     if (form.value.questions.length > 1) {
       form.value.questions.splice(currentQuestionIndex.value, 1);
+      const indexToDelete = currentQuestionIndex.value
 
+      // 🧹 1. Удаляем изображение из IndexedDB
+      const imageKey = `${IMAGE_STATE_KEY}_${indexToDelete}`
+      await clearDeviceStorage(imageKey)
+      if (form.value.questions[indexToDelete]) {
+        form.value.questions[indexToDelete].question.image = ''
+      }
       // Обновляем позиции
       form.value.questions.forEach((q, index) => {
         q.question.position = index;
