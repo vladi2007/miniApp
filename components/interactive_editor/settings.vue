@@ -52,6 +52,11 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 
+//flag
+
+const isLoading=ref(false)
+
+
 //onMounted
 onMounted(async () => {
   await Promise.all([loadDB(), loadImageDB()]);
@@ -75,6 +80,7 @@ onMounted(async () => {
         }
       })
     );
+    isLoading.value=true
   }
 });
 
@@ -95,7 +101,7 @@ defineExpose({
 </script>
 
 <template>
-  <div class="settings">
+  <div class="settings" v-if="mode !== 'edit' || isLoading">
     <settings_nav :take_step="take_step" :active_step="active_step" :isFormComplete="isFormComplete"
       :validateForm="validateForm" />
     <settings_main :take_step="take_step" :active_step="active_step" :errors="errors" :form="form"
@@ -130,6 +136,7 @@ defineExpose({
       </div>
     </teleport>
   </div>
+  
 </template>
 <style>
 @import url("/assets/css/interactive_editor/settings.scss");
