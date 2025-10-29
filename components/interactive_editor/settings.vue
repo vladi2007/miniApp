@@ -1,4 +1,7 @@
 <script setup>
+// import keys for IndexedDB
+import { FORM_STORAGE_KEY, CURRENT_INDEX_KEY, STEP_KEY, IMAGE_STATE_KEY } from '~/constants/interactiveKeys'
+
 // import components and utils
 import settings_nav from './settings_nav.vue'
 import settings_main from './settings_main.vue'
@@ -52,10 +55,8 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 
-//flag
-
+//flags
 const isLoading=ref(false)
-
 
 //onMounted
 onMounted(async () => {
@@ -66,13 +67,20 @@ onMounted(async () => {
     const { $telegram } = useNuxtApp();
     userId.value = $telegram.initDataUnsafe.value?.user?.id;
   }
+  const savedForm = await loadFromDeviceStorage(FORM_STORAGE_KEY);
+  if (savedForm) {
+    form.value = savedForm;
+    console.log('✅ Форма восстановлена из IndexedDB');
+    isLoading.value = true;
+    return; 
+  }
   if (mode.value === 'edit' || mode.value === 'duplicate') {
     await loadFromBackend(userId);
     await Promise.all(
       form.value.questions.map(async (q) => {
         const imageUrl = q.question.image;
         if (imageUrl) {
-          // получаем оригинальное имя из метаданных
+      
           q.question.uploadedFileName = await getOriginalFileNameFromMeta(
             imageUrl
           );
@@ -81,6 +89,9 @@ onMounted(async () => {
       })
     );
     isLoading.value=true
+    await saveToDeviceStorage(FORM_STORAGE_KEY, toRaw(form.value));
+    console.log('💾 Форма сохранена после загрузки с бэкенда');
+    isLoading.value = true;
   }
 });
 
