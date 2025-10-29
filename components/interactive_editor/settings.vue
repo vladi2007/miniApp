@@ -34,7 +34,7 @@ const { loadFromBackend, getOriginalFileNameFromMeta } = useEdit(mode.value, use
 const { isOpen, options, typeMap, selectedText, toggleDropdown, handleClickOutside, selectOption } = useTypeQuestion(form, currentQuestionIndex, questionErrors)
 const { score, validateScore } = useScoreQuestion(currentQuestion)
 const { deleteAnswer, toggleCorrect, getIconSrc, addAnswer, limit_answers } = useAnswerQuestion(currentQuestion)
-const { showSavePopup, handleSave, handleStart } = useSave(route, active_step, form, validateForm, validateQuestions, mode, userId, id)
+const { showSavePopup, handleSave, handleStart } = useSave(route, active_step, form, validateForm, validateQuestions, mode, userId, id.value)
 
 // save form to IndexedDB
 async function handleBeforeUnload() {

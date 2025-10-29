@@ -1,6 +1,4 @@
-import {
-  IMAGE_STATE_KEY,
-} from "~/constants/interactiveKeys";
+import { IMAGE_STATE_KEY } from "~/constants/interactiveKeys";
 import { toRaw, isRef } from "vue";
 export function useSave(
   route,
@@ -14,15 +12,15 @@ export function useSave(
 ) {
   const showSavePopup = ref(false);
   function cleanFormBeforeSave(formValue) {
-  const cleaned = JSON.parse(JSON.stringify(formValue)); // делаем копию
-  cleaned.questions = cleaned.questions.map(q => {
-    if (q.question) {
-      delete q.question.uploadedFileName; 
-    }
-    return q;
-  });
-  return cleaned;
-}
+    const cleaned = JSON.parse(JSON.stringify(formValue)); // делаем копию
+    cleaned.questions = cleaned.questions.map((q) => {
+      if (q.question) {
+        delete q.question.uploadedFileName;
+      }
+      return q;
+    });
+    return cleaned;
+  }
   async function collectImagesFromDB() {
     const allKeys = await getAllDeviceStorageKeys();
     const imageKeys = allKeys.filter((key) => key.startsWith(IMAGE_STATE_KEY));
@@ -36,7 +34,7 @@ export function useSave(
   }
 
   async function handleSave() {
-    showSavePopup.value = false
+    showSavePopup.value = false;
     const isMainValid = validateForm();
     if (!isMainValid) {
       active_step.value = "main";
@@ -51,7 +49,6 @@ export function useSave(
 
     const plainForm = structuredClone(toRaw(form.value));
 
-    // убираем "question" обёртку
     if (Array.isArray(plainForm.questions)) {
       plainForm.questions = plainForm.questions.map((q) => q.question || q);
       plainForm.questions.forEach((q, index) => {
@@ -64,7 +61,7 @@ export function useSave(
 
     const formData = new FormData();
 
-    const cleanedForm = cleanFormBeforeSave(plainForm)
+    const cleanedForm = cleanFormBeforeSave(plainForm);
     formData.append("telegram_id", String(userId?.value || 0));
     formData.append("interactive", JSON.stringify(cleanedForm));
 
@@ -73,16 +70,34 @@ export function useSave(
         formData.append("images", file);
       }
     }
-    const response = await $fetch("/api/create_interactive", {
-      method: "POST",
-      query: {
-        telegram_id: userId?.value || 0,
-      },
-      body: formData
-    });
-    route.push('/leader/interactives')
-    return response;
-    
+
+    if (mode.value === "edit") {
+      console.log("mode");
+      const response = await $fetch("/api/edit_interatcive", {
+        
+        method: "PATCH",
+        query: {
+          telegram_id: userId?.value || 0,
+          interactive_id: id
+        },
+        body: formData,
+        
+      });
+      route.push("/leader/interactives");
+      console.log(response);
+      return response;
+      
+    } else {
+      const response = await $fetch("/api/create_interactive", {
+        method: "POST",
+        query: {
+          telegram_id: userId?.value || 0,
+        },
+        body: formData,
+      });
+      route.push("/leader/interactives");
+      return response;
+    }
   }
 
   function handleStart() {
