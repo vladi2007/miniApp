@@ -39,7 +39,7 @@ function Popup(id: string) {
 // переход на редактирование, если пользователь хочет продублированный интерактив сразу изменить
 function dublicate_interactive(id: string) {
   showPopup.value = false
-  route.push(`/leader/dublicate/${id}`)
+  route.push(`/leader/duplicate/${id}`)
 }
 
 // переход на редактирование интерактива
@@ -77,34 +77,51 @@ async function duplicateAndSaveInteractive(id: string) {
         id: id
       }
     })
-
+    const plain = JSON.parse(JSON.stringify(data));
     const payload = {
-      title: data.title,
-      description: data.description,
-      target_audience: data.target_audience,
-      location: data.location,
-      responsible_full_name: data.responsible_full_name,
-      answer_duration: data.answer_duration,
-      discussion_duration: data.discussion_duration,
-      countdown_duration: data.countdown_duration,
-      questions: data.questions.map((q: any, index: number) => ({
-        text: q.text,
-        position: index + 1,
-        answers: q.answers.map((a: any) => ({
-          text: a.text,
-          is_correct: a.is_correct
-        }))
-      }))
-    }
+      title: plain.title ?? "",
+      description: plain.description ?? "",
+      target_audience: plain.target_audience ?? "",
+      location: plain.location ?? "",
+      responsible_full_name: plain.responsible_full_name ?? "",
+      answer_duration: plain.answer_duration ?? 10,
+      discussion_duration: plain.discussion_duration ?? 5,
+      countdown_duration: plain.countdown_duration ?? 5,
+      questions: await Promise.all(
+        (plain.questions ?? []).map(async (q: any, index: number) => {
+          const imageUrl = q.image || "";
 
-    const response = await $fetch<CreateInteractiveResponse>(`/api/create_interactive`, {
-      method: 'POST',
-      query: {
-        telegram_id: userId.value,
-      },
-      body: payload
-    })
+          
 
+          return {
+            question: {
+              type: q.type || "one",
+              image: imageUrl,
+              score: q.score || 1,
+              position: index + 1,
+              text: q.text || "",
+              answers:
+                q.answers?.map((a: any) => ({
+                  text: a.text || "",
+                  is_correct: a.is_correct || false,
+                })) ?? [],
+            },
+          };
+        })
+      ),
+    };
+    const formData = new FormData();
+
+    
+    formData.append("telegram_id", String(userId?.value || 0));
+    formData.append("interactive", JSON.stringify(plain));
+    const response = await $fetch("/api/create_interactive", {
+        method: "POST",
+        query: {
+          telegram_id: userId?.value || 0,
+        },
+        body: formData,
+      });
     window.location.reload()
   } catch (err) {
     console.error('Ошибка дублирования:', err)

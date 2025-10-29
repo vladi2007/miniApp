@@ -66,7 +66,7 @@ onMounted(async () => {
     const { $telegram } = useNuxtApp();
     userId.value = $telegram.initDataUnsafe.value?.user?.id;
   }
-  if (mode.value === 'edit' || mode.value === "dublicate") {
+  if (mode.value === 'edit' || mode.value === 'duplicate') {
     await loadFromBackend(userId);
     await Promise.all(
       form.value.questions.map(async (q) => {

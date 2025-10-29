@@ -26,7 +26,7 @@ export function useEdit(
   }
 
   async function loadFromBackend(userId) {
-    if (!id || (mode !== "edit" && mode !== "duplicate")) return;
+    if (!id ) return;
 
     try {
       const data = await $fetch(`/api/get_interactive`, {
