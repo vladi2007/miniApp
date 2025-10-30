@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 // import keys for IndexedDB
 import { FORM_STORAGE_KEY, CURRENT_INDEX_KEY, STEP_KEY, IMAGE_STATE_KEY } from '~/constants/interactiveKeys'
 
@@ -27,6 +27,7 @@ import { useAnswerQuestion } from '~/composables/interactive_editor/useAnswerQue
 import { useSave } from '~/composables/interactive_editor/useSave'
 import { useEdit } from '~/composables/interactive_editor/useInteractiveEdit'
 import { saveToDeviceStorage } from '~/utils/deviceStorageIndexedDB'
+import { Confirm } from 'vue-tg'
 
 // constants
 const { form, active_step, currentQuestion, currentQuestionIndex, loadDB, take_step, } = useInteractiveForm(mode.value, userId, id)
@@ -109,12 +110,18 @@ function closeImagePopup() {
 defineExpose({
   handleSave
 })
+
+const props = defineProps<{confirmBack: () => void}>()
+
+
+
+
 </script>
 
 <template>
   <div class="settings" v-if="mode !== 'edit' || isLoading">
     <settings_nav :take_step="take_step" :active_step="active_step" :isFormComplete="isFormComplete"
-      :validateForm="validateForm" />
+      :validateForm="validateForm" :confirmBack="confirmBack"/>
     <settings_main :take_step="take_step" :active_step="active_step" :errors="errors" :form="form"
       :isFormComplete="isFormComplete" :validateForm="validateForm" />
     <settings_questions v-model:score="score" :active_step="active_step" :form="form" :errors="errors"
@@ -150,9 +157,13 @@ defineExpose({
   
 </template>
 <style>
-@import url("/assets/css/interactive_editor/settings.scss");
-@import url("/assets/css/interactive_editor/settings_media.scss");
+
+
+
+
 .no-scroll-device {
   overflow-y: hidden !important;
 }
+
+
 </style>

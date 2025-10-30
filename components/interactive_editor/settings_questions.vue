@@ -224,7 +224,7 @@ function updateScore(event: Event) {
 
         </div>
 
-        <div class="settings_questions_mobile">
+        <div class="settings_questions_mobile" >
             <VueDevice :device="'iphone-14'" :showHeader="false" :showSensors="false" class="no-scroll-device">
                 <check_qestion :timer="form.answer_duration" :questions_count="form.questions.length"
                     :question="currentQuestion.question.text" :answers="currentQuestion.question.answers"
@@ -250,4 +250,7 @@ input[type="number"]::-webkit-outer-spin-button {
 input[type="number"] {
     -moz-appearance: textfield;
 }
+
+
+
 </style>

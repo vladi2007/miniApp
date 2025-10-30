@@ -1,6 +1,76 @@
+
+@media (min-height: 901px){
+  .check_question_answer{
+    height: clamp(5px, calc((60/834)*100dvh), 30px);
+    padding-left: clamp(10px, calc((30 / 1280) * 100dvw), 50px) !important;
+    padding-top: clamp(5px, calc((20 / 1280) * 100dvw), 25px)!important;
+    padding-bottom: clamp(5px, calc((20 / 1280) * 100dvw), 25px)!important;
+    padding-right: clamp(10px, calc((30 / 1280) * 100dvw), 50px)!important;
+  }
+  .check_question_list{
+    gap:10px !important;
+  }
+  
+}
+@media (max-height: 901px){
+  
+  .check_question_list{
+    gap:10px !important;
+  }
+  
+}
+
+@media (max-height: 864px){
+  .check_question_answer{
+    height: clamp(5px, calc((60/834)*100dvh), 30px);
+    padding-left: clamp(10px, calc((30 / 1280) * 100dvw), 50px) !important;
+    padding-top: clamp(5px, calc((17 / 1280) * 100dvw), 25px)!important;
+    padding-bottom: clamp(5px, calc((17 / 1280) * 100dvw), 25px)!important;
+    padding-right: clamp(10px, calc((30 / 1280) * 100dvw), 50px)!important;
+  }
+  .check_question_list{
+    gap:10px !important;
+  }
+}
+@media (max-height: 766px){
+  .check_question_answer{
+    height: clamp(5px, calc((60/834)*100dvh), 30px);
+    padding-left: clamp(10px, calc((30 / 1280) * 100dvw), 50px) !important;
+    padding-top: clamp(5px, calc((12 / 1280) * 100dvw), 15px)!important;
+    padding-bottom: clamp(5px, calc((12 / 1280) * 100dvw), 15px)!important;
+    padding-right: clamp(10px, calc((30 / 1280) * 100dvw), 50px)!important;
+  }
+  .check_question_list{
+    gap:10px !important;
+  }
+}
+
+@media (max-width: 1366px) and (max-height: 768px){
+  .check_question_answer{
+    height: clamp(5px, calc((60/834)*100dvh), 30px);
+    padding-left: clamp(10px, calc((30 / 1280) * 100dvw), 50px) !important;
+    padding-top: clamp(5px, calc((15 / 1280) * 100dvw), 15px)!important;
+    padding-bottom: clamp(5px, calc((15 / 1280) * 100dvw), 15px)!important;
+    padding-right: clamp(10px, calc((30 / 1280) * 100dvw), 50px)!important;
+  }
+  .check_question_list{
+    gap:10px !important;
+  }
+}
+@media (max-width: 1920px) and (max-height: 901px){
+  .check_question_answer{
+    height: clamp(5px, calc((60/834)*100dvh), 30px);
+    padding-left: clamp(10px, calc((30 / 1280) * 100dvw), 50px) !important;
+    padding-top: clamp(5px, calc((15 / 1280) * 100dvw), 20px)!important;
+    padding-bottom: clamp(5px, calc((15 / 1280) * 100dvw), 20px)!important;
+    padding-right: clamp(10px, calc((30 / 1280) * 100dvw), 50px)!important;
+  }
+  .check_question_list{
+    gap:10px !important;
+  }
+}
 .check_question {
   height: 100%;
-  overflow-y: hidden !important;
   background-color: white;
   font-family: "Lato", sans-serif;
   letter-spacing: clamp(calc(10px /100), calc((14 / 1280 / 100) * 100dvw), calc(24px / 100));
@@ -11,7 +81,7 @@
 .check_question_question-list {
   margin-left: 22px !important;
   margin-right: 22px !important;
-  position: relative;overflow-y: hidden;
+  position: relative;
 }
 
 .check_question_timer {
@@ -60,7 +130,8 @@
   margin-top: 2%;
 
 }
-
+.question-image{
+}
 
 .check_no-transition {
   transition: none !important;
@@ -151,7 +222,9 @@
 .check_question_list {
   display: flex;
   flex-direction: column;
-  gap: clamp(5px, calc((12 / 1280) * 100dvw), 15px);
+  .check_question_list{
+    gap:10px !important;
+  }
 
   margin-top: 3%;
 }
@@ -159,7 +232,7 @@
 .check_question_answer {
   background-color: #f7f7f7;
   border-radius: calc((8/834)*100dvh);
-  height: clamp(5px, calc((40/834)*100dvh), 60px);
+  height: clamp(5px, calc((20/834)*100dvh), 90px) !important;
 
 
   border: 2px solid transparent;
@@ -177,8 +250,9 @@
   font-family: "Lato", sans-serif;
   font-size: clamp(10px, calc((14 / 1280) * 100dvw), 24px);
   box-sizing: border-box;
-  padding-left: clamp(10px, calc((30 / 1280) * 100dvw), 50px);
-    padding-top: clamp(5px, calc((10 / 1280) * 100dvw), 25px);
-    padding-bottom: clamp(5px, calc((10 / 1280) * 100dvw), 25px);
-    padding-right: clamp(10px, calc((30 / 1280) * 100dvw), 50px);
+  padding-left: clamp(10px, calc((30 / 1280) * 100dvw), 50px) ;
+    padding-top: clamp(5px, calc((17 / 1280) * 100dvw), 25px);
+    padding-bottom: clamp(5px, calc((17 / 1280) * 100dvw), 25px) ;
+    padding-right: clamp(10px, calc((30 / 1280) * 100dvw), 50px) ;
 }
+

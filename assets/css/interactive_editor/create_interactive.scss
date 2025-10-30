@@ -1,3 +1,4 @@
+
 .intreractive_editor_header {
   background-color: #853CFF;
   height: calc((71/832)*100dvh);
@@ -38,7 +39,6 @@
   left: calc((23 / 1280) * 100dvw);
   cursor: pointer;
 }
-
 .interactive_edit_popup-overlay {
   position: fixed;
   top: 0;
@@ -97,3 +97,5 @@ background-color: rgba(0, 0, 0, 0.32);
 .interactive_edit_popup-btn:hover {
   opacity: 0.9;
 }
+
+

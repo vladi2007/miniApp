@@ -33,7 +33,7 @@ function handleBackClick() {
       </div>
       
     </div>
-    <Settings  ref="settings"/>
+    <Settings  ref="settings" :confirmBack="handleBackClick"/>
     <div v-if="showConfirmPopup" class="interactive_edit_popup-overlay">
             <div class="interactive_edit_popup-content">
                 <div class="interactive_edit_popup-text">Сохранить настройки перед выходом из редактирования викторины?
@@ -48,6 +48,10 @@ function handleBackClick() {
 </template>
 
 <style>
-
+@import url("/assets/css/interactive_editor/settings.scss");
+@import url("/assets/css/interactive_editor/settings_media.scss");
 @import url("/assets/css/interactive_editor/create_interactive.scss");
+
+
+@import url("/assets/css/interactive_editor/settings_static.scss");
 </style>

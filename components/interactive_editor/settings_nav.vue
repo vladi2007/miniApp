@@ -5,13 +5,21 @@ const props = defineProps<{
     active_step: string,
     isFormComplete: boolean,
     validateForm: () => boolean
-
+    confirmBack: () => void
 
 }>()
 </script>
 
 <template>
     <div class="settings_nav">
+        <div class ='settings_nav_backbutton' @click="confirmBack">
+            <img src="/public/images/interactive_editor/Vector_static.svg"  />
+         <div >
+          Управление интерактивами
+         </div>
+            
+      </div>
+      
         <div class="settings_nav_main" :class="{ settings_active_nav: active_step === 'main' }"
             @click='take_step("main")'>
             Общие настройки
@@ -30,3 +38,11 @@ const props = defineProps<{
 
     </div>
 </template>
+
+
+<style>
+.settings_nav_backbutton{
+    display: none;
+}
+
+</style>

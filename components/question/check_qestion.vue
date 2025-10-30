@@ -80,6 +80,8 @@ watch(type_text, (newWalue) => {
 
 <style scoped>
 @import url("/assets/css/question/check_question.scss");
+
+@import url("/assets/css/question/check_question_static.scss");
 .check_question{
   overflow-y: hidden !important;
 }
@@ -98,4 +100,6 @@ watch(type_text, (newWalue) => {
   overflow-y: hidden !important;
   overflow-x: hidden !important;
 }
+
+
 </style>
