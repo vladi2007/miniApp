@@ -2,7 +2,7 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   
 
-  const { telegram_id, x_key, id } = query
+  const { telegram_id, id } = query
 
 
 

@@ -1,0 +1,1106 @@
+
+@media (min-width: 1919px) and (min-height: 1079px){
+  
+  .intreractive_editor_header{
+    width: 100dvw;
+    height: 71px;
+    background-color: #853CFF;
+    display: flex;
+    align-items: center;
+    
+  }
+
+   .intreractive_editor_header > div{
+    display: none;
+   }
+   #interactive_editor_logo{
+    width: 123px;
+    height: 50px;;
+    margin-left: auto;
+    margin-right: 165px;;
+     margin-right: calc((165 / 1920) *100%);
+   }
+   .interactive_edit_popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+background-color: rgba(0, 0, 0, 0.32);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.interactive_edit_popup-content {
+  background-color: white;
+  border-radius: 10px;
+  width: 500px;
+
+  height: 195px;
+  text-align: center;
+  font-family: "Lato", sans-serif;
+  
+}
+
+.interactive_edit_popup-text {
+  font-size: 20px;
+  margin-bottom: 24px;
+  margin-top: 48px;
+}
+
+.interactive_edit_popup-actions {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.interactive_edit_popup-btn {
+   font-size: 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 140px;
+  
+  height: 30px;
+}
+
+.interactive_edit_popup-btn.save {
+  background-color: #6ab23d;
+  color: white;
+}
+
+.interactive_edit_popup-btn.cancel {
+  background-color: #f0436c;
+  color: white;
+}
+.interactive_edit_popup-btn:hover {
+  opacity: 0.9;
+}
+
+.settings_nav{
+        width: 890px;
+        height: 53px;
+        margin-left: 260px;;
+        margin-top:49px;
+        display: flex;
+        font-family: "Lato", sans-serif;
+    }
+  .settings_nav_backbutton{
+   display: flex;
+   width: 278px;
+   height: 24px;;
+    cursor: pointer;
+   align-items: center;
+   font-family: "Lato", sans-serif;
+   color:#7D7D7D;
+font-weight: 500;
+font-style: Medium;
+font-size: 20px;
+line-height: 120%;
+letter-spacing: 1%;
+text-align: center;
+vertical-align: middle;
+margin-top:6px;
+
+  }
+  .settings_nav_backbutton > img{
+    width: 10px;
+    height: 18px;;
+  }
+  .settings_nav_backbutton > div{
+    margin-left: 5px;;
+  }
+
+  
+.settings_nav_main{
+   font-family: "Lato", sans-serif;
+font-weight: 500;
+font-style: Medium;
+font-size: 20px;
+margin-left: 40px;
+margin-top:6px;;
+height: 26px;;
+line-height: 120%;
+letter-spacing: 1%;
+vertical-align: middle;
+cursor: pointer;
+}
+
+
+
+
+.settings_nav_questions_button{
+    margin-left: 20px;;
+font-weight: 500;
+font-style: Medium;
+font-size: 20px;
+line-height: 120%;
+letter-spacing: 1%;
+vertical-align: middle;
+height: 26px;;
+margin-top:6px;cursor: pointer;
+color: #A9A9A9;
+}
+
+#lock{
+    height: 24px;
+    width: 24px;;
+    margin-top:8px;
+}
+.settings_nav_main:hover,
+.settings_nav_questions_button:hover {
+    color: #1D1D1D;
+    font-family: "Lato", sans-serif;
+}
+
+.settings_nav_main:not(.settings_active_nav):hover::after,
+.settings_nav_questions_button:not(.settings_active_nav):hover::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 2px;
+    font-family: "Lato", sans-serif;
+    margin-top: 0px;
+    background-color: #853CFF;
+}
+.settings_nav_questions_info{
+    margin-left:30px;
+    color: #A9A9A9;
+  
+}
+
+.settings_nav_questions_info>div {
+    
+    background-color: #E0E0E0;
+
+
+font-weight: 500;
+font-style: Medium;
+font-size: 14px;
+line-height: 22px;
+letter-spacing: 1%;
+vertical-align: middle;
+
+padding-left: 10px;;
+padding-right: 10px;;
+padding-top: 5px;;
+padding-bottom: 5px;
+color: #7D7D7D;
+border-radius: 8px;
+}
+
+.settings_active_nav {
+    font-family: "Lato", sans-serif;
+
+}
+
+.settings_active_nav::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 2px;
+    /* Толщина линии */
+
+    /* Цом как у текста */
+    margin-top: 0px;
+    background-color: #853CFF;
+    /* Цвет для активного состояния */
+}
+ .settings_main{
+    height: 685px;
+    width: 600px;
+    margin-left: 590px;
+    margin-top:40px;;
+    position: relative;
+  }
+
+  .settings_main_first{
+   display: grid;
+  }
+
+
+  .settings_input > label {
+    display: flex;
+    flex-direction: column;
+    font-style: Medium;
+    vertical-align: middle;
+    font-family: "Lato", sans-serif;
+
+font-weight: 500;
+font-style: Medium;
+font-size: 16px;
+line-height: 120%;
+letter-spacing: 1%;
+vertical-align: middle;
+
+
+}
+
+
+.settings_input textarea {
+    width: 483px;
+    height: 42px;
+    vertical-align: middle;
+    margin-top: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+
+   
+font-weight: 400;
+font-style: Regular;
+font-size: 16px;
+line-height: 120%;
+letter-spacing: 1%;
+vertical-align: middle;
+display: flex;
+}
+
+.field-error {
+    border: 1.5px solid red !important;
+}
+
+.settings_input textarea::placeholder {
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: Regular;
+
+color: #A9A9A9;
+    vertical-align: middle;
+font-weight: 400;
+font-size: 16px;
+line-height: 120%;
+letter-spacing: 1%;
+vertical-align: middle;
+
+}
+
+.settings_input textarea {
+   
+    box-sizing: border-box;
+
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    line-height: 1.2;
+
+    color: #1d1d1d;
+
+
+    resize: none;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    /* Убираем лишнее */
+    border: none;
+    outline: none;
+    border-radius: 8px;
+    ;
+    border: 1.5px solid #E0E0E0;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE и Edge */
+}
+
+.settings_input textarea::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Edge */
+}
+
+#description_input{
+    width: 483px;
+    height: 97px;;
+}
+
+.settings_go_to_questions{
+    position: absolute;
+    top:672px;
+    right: 0px;
+    height: 24px;
+    width: 77px;;
+    display: flex;
+    align-items: center;
+
+
+font-weight: 500;
+font-style: Medium;
+font-size: 20px;
+line-height: 120%;
+letter-spacing: 1%;
+vertical-align: middle;
+color: #7D7D7D;
+cursor: pointer;
+
+}
+#goto{
+    width: 10px;
+    height: 18px;;
+    margin-left: 7px;
+}
+
+
+/* Hover */
+.settings_go_to_questions:hover .settings_go_to_questions_text {
+    color: #1D1D1D;
+}
+
+.settings_go_to_questions:hover #goto {
+    content: url("/public/images/interactive_editor/goto_active.svg");
+}
+
+.settings_questions{
+        width: 960px;
+        height: 684px;
+        margin-left: 517px;
+        display: flex;
+        position: relative;
+    }
+   
+
+.settings_questions_nav {
+    width: 42px;
+    display: flex;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Центрирует кнопки по горизонтали */
+    margin-top: 66px;;
+
+
+}
+
+.question_buttons_list div {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 8px;
+    border: 1.52px solid #E0E0E0;
+    background-color: #FFFFFF;
+    margin-bottom: 5px;
+    ;
+}
+
+
+.quest-nav-button {
+    display: flex;
+    align-items: center;
+    /* вертикальное центрирование */
+    justify-content: center;
+    /* горизонтальное центрирование */
+    width: 19px;
+    /* или другая подходящая ширина */
+    height: 19px;
+    /* или аналогично */
+font-family: 'Lato', sans-serif;
+font-weight: 400;
+font-style: Regular;
+font-size: 16px;
+line-height: 120%;
+letter-spacing: 1%;
+text-align: center;
+vertical-align: middle;
+
+}
+
+.quest-nav-button.active {
+    border: 1.5px solid #853CFF
+        /* или другой фиолетовый */
+
+        /* опционально — текст */
+}
+
+.question_button_plus {
+    width: 42px;
+    height: 42px;
+    position: relative;
+    border-radius: 8px;
+    border: 1.52px solid #E0E0E0;
+    background-color: #FFFFFF;
+    margin-top: 12px;
+    ;
+    cursor: pointer;
+}
+
+#plus {
+    width: 17.5px;
+    height: 17.5px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#down {
+    height: 10px;;
+    width: 19px;;
+    cursor: pointer;
+}
+
+#up {
+    margin-bottom: 5px;
+    cursor: pointer;
+    height: 10px;;
+    width: 19px;;
+}
+
+.settings_questions_editor {
+    width: 483px;
+    height: 553px;
+    margin-left: 32px;
+    margin-top:38px;
+    position: relative;
+}
+
+.question_header_text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+font-family: 'Lato', sans-serif;
+font-weight: 500;
+font-style: Medium;
+font-size: 16px;
+line-height: 120%;
+letter-spacing: 1%;
+vertical-align: middle;
+
+margin-top: 5px;;
+
+
+}
+
+#question_text {
+    border-radius: 8px;
+    border: 1.5px solid #E0E0E0;
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 16px;
+    padding: 12px;
+    box-sizing: border-box;
+    letter-spacing: 0.1px;
+    height: 74px;
+    width: 483px;
+    margin-top:10px;
+
+}
+
+#question_text::placeholder {
+
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: Regular;
+        font-size: 16px;
+
+}
+
+.input-group textarea {
+
+    overflow: auto;
+    /* Чтобы прокрутка была доступна, но полоски скрыты */
+    resize: none;
+    height: 74px;
+    width: 483px;
+}
+
+/* Скрыть полоски прокрутки, но оставить прокручивание доступным */
+.input-group textarea::-webkit-scrollbar {
+    width: 0px;
+    /* Скрыть вертикальную полоску */
+    height: 0px;
+    /* Скрыть горизонтальную полоску */
+}
+
+.input-group textarea::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    /* Делаем скроллбар невидимым */
+}
+
+.input-group textarea::-webkit-scrollbar-track {
+    background-color: transparent;
+    /* Делаем трек скроллбара невидимым */
+}
+
+#question_edit_delete {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+
+
+.custom-file-upload {
+    height: 42px;;
+    width: 483px;
+    padding: 12px;
+    font-family: "Lato", sans-serif;
+    font-size: 16px;
+    border: 1.5px solid #E0E0E0;
+    border-radius: 8px;
+    background-color: white;
+    color: #1D1D1D;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.popup-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.32);
+    /* <- вот нужная прозрачность */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background: white;
+    width: calc((818 / 1280) * 100dvw);
+    height: calc((512 / 832) * 100dvh);
+    border-radius: 35px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.popup-content-header {
+    font-family: "Lato", sans-serif;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: clamp(20px, calc((32 / 1280) * 100dvw), 72px);
+
+    margin-top: calc((45 / 832) * 100dvh);
+    text-align: center;
+
+}
+
+.popup-content-uploader {
+    margin: 0 auto;
+    width: calc((473 / 1280) * 100dvw);
+    height: calc((266 / 832) * 100dvh);
+    margin-top: calc((35 / 832) * 100dvh);
+    background-color: #1d1d1d;
+    display: grid;
+}
+
+.popup-content-uploader .upload-button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #1d1d1d;
+    color: #ffffff;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.2s;
+    font-size: 14px;
+}
+
+.upload-button:hover {
+    background-color: #333;
+}
+
+.cancel-button {
+    margin-top: 20px;
+    background: none;
+    border: none;
+    color: #555;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: underline;
+}
+
+.file-status {
+    margin-top: calc((5 / 832) * 100dvh);
+    font-family: "Lato", sans-serif;
+    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 24px);
+    color: #7D7D7D;
+}
+
+.file-uploaded {
+    border-color: #6AB23D !important;
+    /* Зелёный */
+    color: #1D1D1D;
+    color: #6AB23D;
+}
+
+.remove-icon {
+    width: 14px;
+    height: 18px;
+    margin-left: auto;
+    cursor: pointer;
+}
+
+
+.input-group_type select {
+    appearance: none;
+    /* Убираем стандартную стрелку */
+    -webkit-appearance: none;
+    /* Для Safari */
+    -moz-appearance: none;
+    /* Для Firefox */
+    width: 287px;
+    height:  42px;;
+    border-radius: 8px;
+    border: 1.5px solid #E0E0E0;
+    box-sizing: border-box;
+    font-size:16px;
+}
+
+.input-group_row {
+    display: flex;
+    width: 483px;
+    align-items: center;
+    height: 42px;
+
+
+}
+
+
+
+/* Кастомный выпадающий список */
+.custom-dropdown {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 287px;
+    border-radius: 8px;
+    border: 1.5px solid#E0E0E0;
+    box-sizing: border-box;
+    cursor: pointer;
+    position: relative;
+    height: 42px;
+
+    box-sizing: border-box;
+    padding: 12px;
+
+    font-family: "Lato", sans-serif;
+font-weight: 400;
+font-style: Regular;
+font-size: 16px;
+line-height: 120%;
+letter-spacing: 1%;
+vertical-align: middle;
+
+}
+
+
+.custom-arrow {
+    width: 17px;
+    height: 9px;
+    display: flex;
+
+}
+
+
+
+/* Стили для списка */
+.custom-dropdown-options {
+    position: absolute;
+    background-color: white;
+    border: 1.5px solid #E0E0E0;
+    border-radius: 8px;
+    width: 287px;
+    height: 146px;
+    margin-top: 15px;
+    z-index: 10;
+    /* Добавляем высокий z-index */
+}
+
+.custom-dropdown-option-list {
+   
+    z-index: 2;
+}
+
+.custom-dropdown-options_header {
+    font-family: "Lato", sans-serif;
+    font-weight: 600;
+    font-size:16px;
+    line-height: 120%;
+    letter-spacing: 0.1px;
+    vertical-align: middle;
+    margin-left: 41px;
+    margin-top:7px;
+}
+
+.custom-dropdown-selected {}
+
+.custom-dropdown-option {
+    display: flex;
+    align-items: center;
+
+
+    margin-top: 5px;
+    width: 245px;
+    height: 26px;
+margin-left: 15px;;
+    cursor: pointer;
+
+}
+
+
+
+.custom-dropdown-circle {
+    width: 18px;
+    height:18px;
+    display: flex;
+    cursor: pointer;
+    justify-content: center;
+
+
+}
+
+.custom-dropdown-circle>img {
+    width: 18px;
+    height:18px;
+}
+
+.custom-dropdown-text {
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 16px;
+    line-height: 120%;
+    letter-spacing: 0.1px;
+    vertical-align: middle;
+    margin-left: 10px;;
+    display: flex;
+    align-items: center;
+
+}
+
+.input-group_score {
+
+    display: flex;
+    align-items: center;
+    margin-left: 58px;
+}
+textarea:focus,
+input:focus {
+  border-color: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+.input-group_score>input {
+    margin-left: 10px;
+    width: 73px;
+    height: 42px;
+    border: 1.5px solid #E0E0E0;
+    box-sizing: border-box;
+    border-radius: 8px;
+    box-sizing: border-box;
+    padding: 12px;
+    font-size: 16px;
+
+}
+
+.input-group_score>div {
+  
+font-family: "Lato", sans-serif;
+font-weight: 400;
+font-style: Regular;
+font-size: 16px;
+line-height: 120%;
+letter-spacing: 1%;
+vertical-align: middle;
+
+
+}
+
+.answers-section {
+    margin-top: 15px;
+    z-index: 0;
+}
+
+
+/* Общие стили для инпута */
+.answer-item-input {
+    flex-grow: 1;
+    width: 483px;
+    height: 42px;
+    border: 1.5px solid #E0E0E0;
+    box-sizing: border-box;
+    border-radius: 8px;
+    color: #1D1D1D;
+    padding: 12px;
+    vertical-align: middle;
+   
+}
+
+.answer-item-input::placeholder {
+    font-family: "Lato", sans-serif;
+font-weight: 400;
+font-style: Regular;
+line-height: 120%;
+letter-spacing: 1%;
+vertical-align: middle;
+
+    color: #A9A9A9;
+}
+
+.answer-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+/* Удаление ответа */
+.delete-answer-icon {
+    position: absolute;
+    width: 17.5px;
+    height: 17.5px;
+
+    right: 14px;
+    cursor: pointer;
+}
+
+/* Обертка с инпутом и картинкой */
+.custom-answer-input {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 42px;
+    border: 1.5px solid #E0E0E0;
+    border-radius: 8px;
+    padding-left: 12px;
+    box-sizing: border-box;
+    background-color: white; 
+}
+
+/* Для типа "text" убираем отступ слева */
+.custom-answer-input.text-type {
+    padding-left: 0;
+}
+
+/* Стили для иконки, показываем ее только если тип не "text" */
+.custom-dropdown-circle {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.custom-dropdown-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Для инпута текстового типа (когда класс "text-type") убираем отступ слева */
+.custom-input-field {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding-left: 10px;
+    /* Для обычных типов вопросов */
+    font-family: "Lato", sans-serif;
+    font-size: 16px;
+    height: 90%;
+    box-sizing: border-box;
+    max-width: 95%;
+
+}
+
+/* Для типа "text" убираем отступ слева */
+.custom-input-field.text-type {
+    padding-left: 0px;
+    ;
+}
+
+.settings_questions_editor_buttons {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    display: flex;
+    width: 382px;
+    height: 44px;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: "Lato", sans-serif;
+    font-weight: 500;
+    font-style: Medium;
+    line-height: 120%;
+    color: #6AB23D;
+    letter-spacing: 1%;
+    text-align: center;
+    vertical-align: middle;
+
+}
+
+.settings_questions_editor_buttons_start {
+    width: 181px;
+    height: 44px;
+    border: 1px solid #6AB23D;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.settings_questions_editor_buttons_save {
+    width: 181px;
+    height: 44px;
+    background-color: #6AB23D;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.settings_questions_editor_buttons_start:hover {
+ 
+    border: 1px solid #6AB23D;
+    
+    background-color: #9AC57E;
+    color: #FFFFFF;
+}
+
+.settings_questions_editor_buttons_save:hover  {
+    width: 181px;
+    height: 44px;
+    background-color:#559130;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.answers-section-add_question {
+    width: 44px;
+    height: 44px;
+    border: 1.5px solid #E0E0E0;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add_question_icon {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+
+.settings_questions_mobile{
+    margin-left: 50px !important;;
+}
+#mobile_model {}
+
+.device-screen {
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden;
+}
+
+.device-screen-inner {
+    width: 100% !important;
+    height: 100%;
+    overflow: auto;
+}
+
+/* Hide scrollbar for Chrome, Safari, and Opera */
+.device-screen-inner::-webkit-scrollbar {
+    display: none;
+}
+
+.device-screen-inner {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+.device-content {
+    padding: 20px;
+}
+
+.device {
+    max-width: none;
+    max-height: none;
+}
+
+
+.settings_popup-overlay {
+  font-family: "Lato", sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.settings_popup-content {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  width: 400px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.settings_popup-text {
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 30px;
+}
+
+.settings_popup-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.settings_popup-btn {
+  width: 120px;
+  height: 45px;
+  font-size: 20px;
+  font-family: "Lato", sans-serif;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.settings_popup-btn.confirm {
+  background-color: #6ab23d;
+  border: 2px solid #6ab23d;
+  color: white;
+}
+
+.settings_popup-btn.confirm:hover {
+  background-color: #9ac57e;
+  border: 2px solid #9ac57e;
+}
+
+.settings_popup-btn.cancel {
+  background-color: #f0436c;
+  border: 2px solid #f0436c;
+  color: white;
+}
+
+.settings_popup-btn.cancel:hover {
+  background-color: #de7d94;
+  border: 2px solid #de7d94;
+}
+}

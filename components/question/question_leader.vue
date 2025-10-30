@@ -71,7 +71,7 @@ function morePause() {
         :id_correct_answer="data.id_correct_answer" :percentages="data.percentages" :stage="stage" :onAnswer="onAnswer"
         :questions_count="data.questions_count" :context="context" />
     </div>
-    <div v-if="props.pause.state = 'timer_n'" class="question_leader_popup-overlay">
+    <div v-if="props.pause.state === 'timer_n'" class="question_leader_popup-overlay">
       <div class="question_leader_popup-content">
         <div class="question_leader_popup-text">Вы слишком долго бездействовали, запустите интерактив или через {{
           props.pause.timer_n }} секунд
