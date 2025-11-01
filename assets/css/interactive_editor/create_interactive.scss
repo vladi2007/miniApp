@@ -26,7 +26,7 @@
   bottom: calc((5 / 832) * 100dvh);
   left: calc((38 / 1280) * 100dvw);
 
-  font-size: clamp(12px, calc((20 / 1280) * 100dvw), 34px);
+  font-size: clamp(10px, calc((20 / 1280) * 100dvw), 34px);
   cursor: pointer;
 
 }

@@ -32,7 +32,7 @@ const props = defineProps<{
             </div>
 
             <div class="settings_main_second">
-                <div class="settings_input"> <label>Время ответа (сек.)*<textarea type="number"
+                <div class="settings_input"> <label>Время ответа на вопрос (сек.)*<textarea type="number"
                             v-model.number="form.answer_duration" maxlength="2" placeholder="10"
                             :class="{ 'field-error': errors.answer_duration }" /></label></div>
                 <div class="settings_input"> <label>Время на показ ответа (сек.)*<textarea type="number" placeholder="5"
