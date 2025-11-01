@@ -136,13 +136,13 @@
 
 .settings_main {
     margin-left: calc((112 / 1280) * 100dvw);
-    margin-top: calc((20 / 832) * 100dvh);
     width: calc((1114 / 1280) * 100dvw);
     height: calc((568 / 832) * 100dvh);
     display: grid;
     grid-template-columns: calc((510 / 1280) * 100dvw) calc((510 / 1280) * 100dvw);
     gap: calc((30 / 1280) * 100dvw);
     position: relative;
+    margin-top: calc((9 / 832) * 100dvh);;
 }
 
 .settings_main_first {
@@ -157,7 +157,9 @@
 }
 
 .settings_input {
-    margin-bottom: calc((5 / 832) * 100dvh);
+    margin-bottom: calc((10 / 832) * 100dvh);
+    width: calc((483 / 1280) * 100dvw) !important   ;
+    
 }
 
 
@@ -168,21 +170,13 @@
     font-weight: 500;
     font-style: Medium;
 
-    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 34px);
-    line-height: 120%;
-    letter-spacing: 0.2px;
+    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 27.2px);
     ;
     vertical-align: middle;
 
 }
 
-.settings_input textarea {
-    width: calc((510/1280) * 100dvw);
-    height: calc((56 / 832) * 100dvh);
-    margin-top: calc((2 / 832) * 100dvh);
-    vertical-align: middle;
-    ;
-}
+
 
 .field-error {
     border: 1.5px solid red !important;
@@ -192,30 +186,27 @@
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
-    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 34px);
+    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 27.2px);
     width: calc((480/1280) * 100dvw);
-    height: calc((26 / 832) * 100dvh);
-
+     height: calc((42 / 832) * 100dvh);
 
     vertical-align: middle;
 
 }
 
 .settings_input textarea {
-    width: calc((510 / 1280) * 100dvw);
-    height: calc((56 / 832) * 100dvh);
-    padding: calc((15 / 832) * 100dvh) calc((15 / 1280) * 100dvw);
+    width: calc((483 / 1280) * 100dvw) !important ;
+    height: calc((42 / 832) * 100dvh);
+    padding: calc((0 / 832) * 100dvh) calc((12 / 1280) * 100dvw);
     box-sizing: border-box;
-    margin-top: calc((2 / 832) * 100dvh);
+    margin-top: calc((10 / 832) * 100dvh);
 
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: normal;
-    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 34px);
-    line-height: 1.2;
+    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 27.2px);
 
     color: #1d1d1d;
-
 
     resize: none;
     overflow-x: hidden;
@@ -229,8 +220,14 @@
     scrollbar-width: none;
     /* Firefox */
     -ms-overflow-style: none;
+    line-height: calc((42 / 832) * 100dvh); /* = высоте поля */
+  padding-top: 0;
+  padding-bottom: 0;
+  vertical-align: middle;
+        
     /* IE и Edge */
 }
+
 
 .settings_input textarea::-webkit-scrollbar {
     display: none;
@@ -238,7 +235,7 @@
 }
 
 #description_input {
-    height: calc((131 / 832) * 100dvh);
+    height: calc((97 / 832) * 100dvh);
 }
 
 .settings_go_to_questions {
@@ -287,11 +284,11 @@
 
 .settings_questions {
     position: relative;
-
     width: calc((1138 / 1280) * 100dvw);
     height: calc((649 / 832) * 100dvh);
     margin-left: calc((39 / 1280) * 100dvw);
     display: flex;
+    margin-top: calc((9 / 832) * 100dvh);
 }
 
 .settings_questions_nav {
@@ -311,7 +308,6 @@
 .question_buttons_list div {
     width: calc((42 / 1280) * 100dvw);
     height: calc((42 / 832) * 100dvh);
-
     border-radius: 8px;
     border: 1.52px solid #E0E0E0;
     background-color: #FFFFFF;
@@ -333,7 +329,7 @@
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 34px);
+    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 27.2px);
 
     line-height: 120%;
     letter-spacing: 1%;
@@ -396,17 +392,13 @@
 .question_header_text {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-
+    
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 34px);
-    line-height: 120%;
+    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 27.2px);
     letter-spacing: 0.1px;
-
     width: calc((483/ 1280) * 100dvw);
-    height: calc((26/ 832) * 100dvh);
     margin-bottom: calc((10 / 832) * 100dvh);
 
 }
@@ -417,7 +409,7 @@
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 34px);
+    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 27.2px);
     padding: calc((12 / 832) * 100dvh) calc((12 / 1280) * 100dvw);
     box-sizing: border-box;
     letter-spacing: 0.1px;
@@ -430,7 +422,7 @@
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 34px);
+    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 27.2px);
 
 }
 
@@ -439,7 +431,7 @@
     /* Чтобы прокрутка была доступна, но полоски скрыты */
     resize: none;
     width: calc((483/ 1280) * 100dvw);
-    height: calc((74/ 832) * 100dvh);
+    height: calc((42/ 832) * 100dvh);
 }
 
 /* Скрыть полоски прокрутки, но оставить прокручивание доступным */
@@ -610,7 +602,6 @@
     width: calc((483 / 1280) * 100dvw);
     align-items: center;
     height: calc((42 / 832) * 100dvh);
-
 
 }
 

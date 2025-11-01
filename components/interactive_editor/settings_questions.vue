@@ -94,7 +94,7 @@ function updateScore(event: Event) {
         <div class="settings_questions_editor">
             <div class="question_header">
                 <div class="question_header_text">
-                    <span> Вопрос {{ currentQuestionIndex + 1 }}</span>
+                    <div> Вопрос {{ currentQuestionIndex + 1 }}</div>
                     <img src="/public/images/interactive_editor/delete.svg" id="question_edit_delete"
                         @click="deleteQuestion" />
                 </div>
