@@ -1,38 +1,41 @@
 .question_leader {
-  width: 100%;
-  background-color: #853cff;
-  padding-bottom: 42px;
+  width: 100dvw;
+  height: 100dvh;
 }
-body.question-leader-background {
-  background-color: #853cff;
+.question_leader_logo{
+  width: 100dvw;
+  height: calc((71 / 832) * 100dvh);
+  background-color: #853CFF;
+  display: flex;
+  align-items: center;
+}
+.question_leader_content{
+  width: calc((1138
+   / 1280) * 100dvw);
+  height: calc((695 / 832) * 100dvh);
+margin-left: calc((59 / 1280) * 100dvw);;
+margin-top: calc((8 / 832) * 100dvh);;
 }
 #logo_2 {
-  position: absolute;
-  left: 40px;
-  top: 12px;
+ width: calc((123 / 1280) * 100dvw);
+  height: calc((50 / 832) * 100dvh);
+  margin-left: auto;
+  margin-right: calc((40 / 1280) * 100dvw);;
 }
 .question_leader_list_fone {
-  background-color: white;
-  width: 1318px;
 
-  border-radius: 26px;
-  margin: 0 auto;
-  margin-top: 32px;
-  padding-bottom: 32px;
 }
 .question_leader_top-bar {
   display: flex;
   align-items: center;
 
-  width: 617px;
 
   margin: 0 auto;
-  margin-top: 47px;
 }
 
 .question_leader_timer {
-  margin: auto 0;
-  margin-left: 25px;
+ background-color: #6ab23d;
+ display: flex;
 }
 
 

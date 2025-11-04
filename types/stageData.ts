@@ -10,12 +10,19 @@ export interface QuestionData {
     id: string
     text: string
     position: string
+    type:string
+    question_weight:string
+     image:string
   }
   answers: {
     id: string
     text: string
   }[]
-  id_correct_answer: string
+  data_answers:{
+    text:string,
+    percentage:string
+  }[]
+  id_correct_answer: string | string[]
   percentages: {
     id: string
     percentage: number

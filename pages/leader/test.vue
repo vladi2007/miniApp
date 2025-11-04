@@ -53,10 +53,10 @@ const questions = [
       image:'https://carclicker.ru/images/b70c3c0b-772b-4a36-adf9-9cf881223d2a.svg'
     },
     answers: [
-      { id: '3', text: 'asd' },
-      { id: '6', text: 'asd' },
-      { id: '7', text: 'sdsdsds' },
-      { id: '5', text: '333333333333333333333333333333' },
+      { id: '1', text: '5555555555555555555555' },
+      { id: '2', text: '555555555555555555555555555' },
+      { id: '3', text: '55555555555555555555555555' },
+      { id: '4', text: '555555555555555555555555555' },
     ],
     correct: ['3','2'],
     percentages: [

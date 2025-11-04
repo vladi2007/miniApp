@@ -1,41 +1,43 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 .waiting_description {
-  width: 680px;
-  margin-top: 87px;
-  height: 350px;
+  min-height: calc((283 / 832) * 100dvh);
+  margin: 0 auto;
 }
 .waiting_desc-content {
   display: flex;
   flex-direction: column;
-
-  justify-content: center;
+  width: calc((589 / 1280) * 100dvw);
+  min-height: calc((243 / 832) * 100dvh);
+  margin: 0 auto;
 }
-.waiting_interactive-title {
-  font-family: "Lato";
-  font-size: 40px;
-
+.waiting_interactive-title {  min-height: calc((47 / 832) * 100dvh);
+ white-space: normal;     /* Разрешить перенос строк */
+  word-wrap: break-word;   /* Переносить длинные слова */
+  overflow-wrap: break-word; /* Современный аналог */
+  margin-top: calc((40 / 832) * 100dvh);
+  font-family: "Lato", sans-serif;
   font-weight: 500;
-  width: 565px;
-  padding-top: 55px;
-  letter-spacing: 1px;
-  vertical-align: middle;
-  white-space: pre-wrap;
-  word-break: break-word;
-  margin-left: 23px;
+  font-size: clamp(10px, calc((40 / 1280) * 100dvw), 80px);
+  letter-spacing: clamp(0.3px, calc((40 /100 / 1280) * 100dvw), 0.8px);
+}.waiting_interactive-description > * {
+  margin: 0;
+  padding: 0;
 }
-.waiting_interactive-description {
-  white-space: pre-wrap;
-  word-break: break-word;
+.waiting_interactive-description {  min-height: calc((160 / 832) * 100dvh);
+  white-space: normal;     /* Разрешить перенос строк */
+  word-wrap: break-word;   /* Переносить длинные слова */
+  overflow-wrap: break-word; /* Современный аналог */
+  width: calc((589 / 1280) * 100dvw);
+  margin-top: calc((36 / 832) * 100dvh);
 
-  letter-spacing: 1px;
-  width: 632px;
-  margin-left: 23px;
-  margin-top: 20px;
-  font-size: 32px;
-}
-.waiting_interactive-description > p {
-  text-align: left;
-  font-family: "Lato";
+  font-family: "Lato", sans-serif;
   font-weight: 500;
-  font-size: 32px;
-  line-height: 40px;
+  font-size: clamp(10px, calc((32 / 1280) * 100dvw), 64px);
+  letter-spacing: clamp(0.3px, calc((32 /100 / 1280) * 100dvw), 0.64px);
 }
+
+

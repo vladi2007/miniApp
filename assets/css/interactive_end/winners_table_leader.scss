@@ -1,100 +1,97 @@
 .winners_table {
-  font-family: "Lato", sans-serif;
-  margin-top: 50px;
-  display: grid;
-
-  justify-content: center;
-
-  padding-bottom: 129px;
+  width: calc((1115 / 1280) * 100dvw);
+  margin: 0 auto;
+  margin-top: calc((47 / 832) * 100dvh);
+  position: relative;
+  z-index: 40;
 }
-
 .table {
   font-family: "Lato", sans-serif;
-  margin-top: 5px;
-  width: 1380px;
-  height: 452px;
-  border: 4px solid #d9d9d9;
-  border-radius: 30px;
+  width: calc((1147 / 1280) * 100dvw);
+height: calc((487 / 832) * 100dvh);
 }
 
 .title {
   font-family: "Lato", sans-serif;
-  font-family: "Lato", sans-serif;
   text-align: center;
-  margin-top: 31px;
-  font-weight: 700;
-  font-size: 32px;
-  line-height: 24px;
+  font-weight: 500;
+  font-size: clamp(10px, calc(24 / 1280 * 100dvw), 48px);
+  font-style: Medium;
+  letter-spacing: clamp(0.1px, calc(calc(24 / 100) / 1280 * 100dvw), 0.48px);
+  vertical-align: middle;
 }
 
 .winners_list {
   font-family: "Lato", sans-serif;
   display: grid;
-  grid-template-rows: repeat(3, 1fr);
+  width: calc((1097 / 1280) * 100dvw);
 
-  gap: 31px;
-
-  margin-top: 31px;
-  padding: 0 16px;
+  gap: calc((10 / 832) * 100dvh);
+  font-weight: 500;
+  height:calc((318 / 832) * 100dvh);
+  font-style: Medium;
+  font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
+  letter-spacing: clamp(0.1px, calc(calc(20 / 100) / 1280 * 100dvw), 0.4px);
+  vertical-align: middle;
+  
 }
+
 
 #first {
 }
-
+.position{
+  width: calc((91 / 1280) * 100dvw) !important;
+}
 .winner {
   font-family: "Lato", sans-serif;
-  width: 100%;
-  vertical-align: middle;
-  background-color: #f7f7f7;
-  padding: 33px;
-  border-radius: 5px;
+  width: calc((1096 / 1280) * 100dvw);
   font-weight: 500;
-
-  font-size: 32px;
-  line-height: 24px;
-  text-align: left;
-
-  display: flex;
-  align-items: center;
+ display: flex;
+ height: calc((30.63/832)*100dvh);
+   letter-spacing: clamp(0.1px, calc(calc(20 / 100) / 1280 * 100dvw), 0.4px);
 }
-
+.Line {
+  background-color: #e9e9e9 !important;
+  height: calc((1 / 832) * 100dvh) !important;
+    width: calc((1096 / 1280) * 100dvw) !important;
+}
+.time{
+width: calc((121 / 1280) * 100dvw) !important; margin-left: calc((24 / 1280) * 100dvw);
+}
+.score{
+  margin-left: calc((115 / 1280) * 100dvw);
+}
 .name {
-  margin-left: 41px;
+  margin-left: calc((48 / 1280) * 100dvw);
+   width: calc((544 / 1280) * 100dvw);
 }
 
-.goto_main_menu {
-  margin-left: auto;
-  margin-right: 34px;
-  margin-top: 50px;
-  cursor: pointer;
+
+.simplebar-scrollbar{
+}
+.simplebar-scrollbar::before { 
+  background: #853CFF !important;
+    border-radius: calc((5/832)*100dvh) !important;
+  opacity: 1 !important;
+}.simplebar-track.simplebar-vertical {
+  background: #E9E9E9 !important;
+  width: calc((7/1280)*100dvw)!important;
+  border-radius: calc((5/832)*100dvh) !important;
+}
+/* трек (фон скролла) */
+.simplebar-track.simplebar-vertical {
+  background: #E9E9E9 !important;
+  width: clamp(7px, calc((10/1280)*100dvw), 10px) !important; /* 🟣 адаптивная ширина */
+  border-radius: 8px;
+  right: 0 !important;
+}
+.simplebar-track {
+  visibility: visible !important; /* чтобы скролл всегда виден */
 }
 
-.goto_main_menu_button {
-  cursor: pointer;
-  background-color: white;
-  width: 280px;
-  height: 65px;
-  border: 2px solid #853cff;
-  border-radius: 5px;
+.simplebar-scrollbar.simplebar-visible::before {
+  opacity: 1 !important;
+}
 
-  font-weight: 500;
-  font-size: 24px;
-  vertical-align: middle;
-  color: #853cff;
-}
-.goto_main_menu_button:hover {
-  cursor: pointer;
-  background-color: #853cff;
-  width: 280px;
-  height: 65px;
-  border-radius: 5px;
-  border: 2px #853cff;
-  font-weight: 500;
-  font-size: 24px;
-  vertical-align: middle;
-  color: white;
-}
-.winner-position {
-  margin-right: 46px;
-  margin-left: auto;
-}
+
+

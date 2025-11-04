@@ -14,17 +14,13 @@ const props = defineProps<{
 <template>
   <div class="interactive_leader_end">
     
-    
-    <!-- Передаем данные в компонент Results -->
+ 
      <div class ='interactive_end_leader_results'>
         <img src="/images/waiting/Group_7055.svg" id="logo_leader" />
+        <div style="height: 0px; font-size: 0.01px; color: blueviolet;">sd</div>
         <Results_leader :title="props.data.title" :participantsTotal="props.data.participants_total" :stage="props.stage" />
      </div>
-    
-    
-    
-    
-    <!-- Передаем данные в компонент WinnersTable -->
+
     <WinnersTable_leader :winners="props.data.winners"/>
   </div>
 </template>

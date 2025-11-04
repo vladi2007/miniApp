@@ -48,13 +48,25 @@ watch(() => props.pause.timer_n, (newWal) => {
 
 <template>
     <div class="waiting_participant_waiting">
-        <img src="/images/waiting/Vector_95.svg" id="waiting_vector_1" />
-        <img src="/images/waiting/Vector_94.svg" id="waiting_vector_2" />
-        <img src="/images/waiting/Star_4_(1).svg" id="waiting_star1" />
+       
         <div>
             <Links :code="props.data.code" />
         </div>
         <div class="waiting_description_column">
+            <div style="
+    background-color: #853cff;
+    width: calc((749 / 1280) * 100dvw);
+    min-height: calc((516 / 832) * 100dvh);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Белый блок — сверху */
+    padding-bottom: calc((20 / 832) * 100dvh); /* отступ снизу */
+    border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+  ">
+
+            
             <div class="waiting_logo">
                 <div class="waiting_logo_img">
                     <img src="/images/waiting/Group_7055.svg" id="logo" />
@@ -67,20 +79,12 @@ watch(() => props.pause.timer_n, (newWal) => {
 
                 <div class="waiting_desc-comp">
                     <Description :title="props.data?.title || ''" :description="props.data?.description || ''"
-                        :context="context" />
-                    <div class="waiting_leader_buttons">
-                        <button class="waiting_back" @click="goBack">
-                            Вернуться
-                        </button>
-                        <button class="waiting_start" @click="onStatus('going')">
-                            Запустить
-                        </button>
-
-                    </div>
+                        :context="context" :goBack="goBack" :onStatus="props.onStatus" />
+                    
                 </div>
-                <!-- Передаем тестовые данные в компоненты -->
 
 
+            </div>
             </div>
             <div>
                 <Active :count="props.data.participants_active" :context="context" />
@@ -109,7 +113,14 @@ watch(() => props.pause.timer_n, (newWal) => {
 </template>
 
 <style>
+
+
 @import url("/assets/css/waiting/active_users_leader.scss");
 @import url("/assets/css/waiting/description_leader.scss");
 @import url("/assets/css/waiting/waiting_leader.scss");
+@import url("/assets/css/waiting/waiting_leader.scss");
+* {
+    margin: 0;
+    padding: 0;
+}
 </style>

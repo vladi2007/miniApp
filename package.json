@@ -29,6 +29,7 @@
     "nuxt-telegram-auth": "^1.2.3",
     "pinia": "^3.0.2",
     "qrcode.vue": "^3.6.0",
+    "simplebar-vue": "^2.4.2",
     "tweetnacl": "^1.0.3",
     "vue": "^3.5.13",
     "vue-device": "^0.5.5",

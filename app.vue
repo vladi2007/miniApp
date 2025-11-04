@@ -29,7 +29,6 @@ onMounted(() => {
     sessionStorage.setItem('telegram_init_data', JSON.stringify(initData));
 
     
-    console.log("initDataUnsafe saved:", initData);
     if (platform !== 'android' && platform !== 'ios') {
       Telegram.WebApp.requestFullscreen();
     }

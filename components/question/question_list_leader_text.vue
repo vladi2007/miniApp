@@ -7,7 +7,13 @@ const props = defineProps<{
     id: string
     text: string
     position: string
+    question_weight: string
+    type: string
   }
+  data_answers:{
+    text:string,
+    percentage:string
+  }[]
   answers: {
     id: string
     text: string
@@ -16,11 +22,12 @@ const props = defineProps<{
     id: string
     percentage: number
   }[]
-  id_correct_answer: string
+  id_correct_answer: string | string[]
   timer: string
   stage: string
   context: string
   onAnswer: (answerId: string) => void
+  type: string
 }>()
 // Стейт для хранения ответов
 const answers = ref(props.answers)
@@ -65,30 +72,33 @@ const getPercentage = (id: string) => {
 }
 
 
-
-
+const correctAnswers = computed<string[]>(() => {
+  const val = props.id_correct_answer
+  if (Array.isArray(val)) return val.map(String)
+  if (val == null) return []
+  return [String(val)]
+})
 
 </script>
 
 <template>
   <div class="question_question-list">
-    <div class="question_number">
-      <img src="/public/images/question/question_mun_star.svg" id="question_mun_star">
-      <p class="question_question-num-text">Вопрос {{ props.question.position }}/{{ props.questions_count }}</p>
-    </div>
 
-    <p class="question_title">{{ props.question.text }}</p>
 
+    <div class="question_question_type">{{ props.type }}</div>
+    <div class="question_question_weight">баллов за вопрос: {{ props.question.question_weight }}</div>
     <div class="question_list">
-      <div v-for="answer in answers" :key="answer.id" class="question_answer" :class="{
-        correct: answer.id === props.id_correct_answer,
-        wrongOutline: isDiscussion && answer.id !== props.id_correct_answer
-      }">
+
+      <div v-if="stage==='discussion'" v-for="answer in data_answers" :key="answer.text" class="question_answer text_answer" 
+      >
         <span class="question_text">{{ answer.text }}</span>
-        <span v-if="isDiscussion" class="question_percent">
-          {{ getPercentage(answer.id) }}%
+
+        <span v-if="isDiscussion" class="question_percent"
+          :class="{ question_percent_white: correctAnswers.includes(String(answer.id)) }">
+          {{ answer.percentage }}%
         </span>
       </div>
+
     </div>
 
 
