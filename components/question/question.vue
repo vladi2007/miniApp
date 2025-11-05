@@ -1,11 +1,10 @@
 <script setup lang="ts">
-// Путь может отличаться в зависимости от структуры проекта
-import timer from '~/components/question/timer.vue';
-import question_list from '~/components/question/question_list.vue';
+
+// imports
 import { defineProps } from 'vue'
 import type { QuestionData } from '~/types/stageData'
 
-// Данные от бекенда
+// data from backend
 const props = defineProps<{
   stage: string
   data: QuestionData

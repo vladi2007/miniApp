@@ -1,10 +1,9 @@
 <script setup lang="ts">
-// Путь может отличаться в зависимости от структуры проекта
-import timer from '~/components/question/timer.vue';
-import question_list from '~/components/question/question_list.vue';
-import { defineProps } from 'vue'
-import type { QuestionData } from '~/types/stageData'
 
+// imports
+import { defineProps } from 'vue'
+
+// data from backend
 const props = defineProps<{
   timer: string,
   questions_count: string,
@@ -16,20 +15,10 @@ const props = defineProps<{
   image?: string // base64
 }>()
 
-const type_text = computed(() => {
-  if (props.type === 'one')
-    return 'Один правильный ответ'
-  else if (props.type === 'many')
-    return 'Несколько правильных ответов'
-  else
-    return 'Введите правильный ответ'
+// composables
+import { useTimer } from '~/composables/interactive/timer';
+const { type } = useTimer( toRef(props, 'type'))
 
-}
-)
-
-watch(type_text, (newWalue) => {
-  type_text
-})
 </script>
 
 <template>
@@ -38,17 +27,9 @@ watch(type_text, (newWalue) => {
     <div class="check_question_timer">
       <div class="check_question_logo">
         <img src="/public/images/interactive_editor/logo.svg" />
-
       </div>
-
       <div class="check_question_timer-text">Время на ответ: {{ props.timer }}</div>
-
       <div class="check_question_green-line"></div>
-
-
-
-
-
     </div>
     <div class="check_question_question-list">
       <div class="check_question_number">
@@ -59,7 +40,7 @@ watch(type_text, (newWalue) => {
       </div>
 
       <div class="check_question_title">{{ props.question ? props.question : 'Вопрос*' }} </div>
-      <div class="check_question_title_score">{{ type_text }}<br />Балл: {{ props.score }} </div>
+      <div class="check_question_title_score">{{ type }}<br />Балл: {{ props.score }} </div>
       <div v-if="props.image" class="check_question_image">
         <img :src="props.image" alt="Изображение вопроса" class="question-image" />
       </div>
@@ -69,9 +50,6 @@ watch(type_text, (newWalue) => {
           <span class="check_question_text">{{ answer.text ? answer.text : 'Поле для ввода' }}</span>
         </div>
       </div>
-
-
-
 
     </div>
 

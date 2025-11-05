@@ -1,0 +1,97 @@
+.waiting_links_column {
+
+  font-family: 'Lato', sans-serif;
+
+  display: flex;
+  flex-direction: column;
+  /* Элементы идут вертикально */
+  align-items: center;
+  /* Центрирование по горизонтали */
+  /* Центрирование по вертикали */
+  width: calc((483 / 1280) * 100dvw);
+  height: calc((636 / 832) * 100dvh);
+  margin-left: calc((40 / 1280) * 100dvw);
+  margin-top:calc((80 / 832) * 100dvh);
+  border-radius: 30px;
+  border: 3px solid #853CFF;
+box-sizing: border-box;
+
+
+display: flex;
+  flex-direction: column;
+
+  /* Чтобы контент не прилипал вплотную к краям */
+  box-sizing: border-box;
+}
+
+
+
+.waiting_code-text {
+  font-family: 'Lato', sans-serif;
+  font-size: clamp(10px, calc((32 / 1280) * 100dvw), 64px);
+  margin-top:calc((47 / 832) * 100dvh);
+
+font-weight: 700;
+
+}
+
+.waiting_code {
+  margin: 0 auto;  margin-top:calc((15 / 832) * 100dvh);
+  color: #853CFFB2;
+  font-size: clamp(20px, calc((64 / 1280) * 100dvw), 128px);
+  min-height: calc((44 / 832) * 100dvh);;
+  font-family: "Work Sans", sans-serif;
+font-weight: 700;
+font-style: Bold;
+vertical-align: middle;box-sizing: border-box;
+
+}
+
+.waiting_qr_code {margin-top:calc((15 / 832) * 100dvh);
+  width: calc((300 / 1280) * 100dvw);
+  height: calc((300 / 832) * 100dvh);
+  font-family: 'Lato', sans-serif;
+  display: flex;
+  align-self: center;box-sizing: border-box;
+  justify-content: center;
+}
+
+.waiting_link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Lato', sans-serif;box-sizing: border-box;
+  border-radius: 14px;
+  border: 3px solid #853CFF;
+margin-top:calc((52 / 832) *100dvh);
+min-height: calc((52 / 832) *100dvh);;
+  width: calc((428 / 1280) * 100dvw);
+
+}
+.waiting_qr_code .qr {
+  width: 100%; box-sizing: border-box;
+  height: 100%;box-sizing: border-box;
+}
+.waiting-link_text {
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  white-space: nowrap;
+  /* Запрещает перенос строк */
+  overflow: hidden;
+  /* Обрезает содержимое */
+  text-overflow: ellipsis;
+    font-size: clamp(20px, calc((32 / 1280) * 100dvw), 64px);
+  font-family: Lato;
+font-weight: 500;
+font-style: Medium;
+vertical-align: middle;box-sizing: border-box;
+  margin-left: calc((10 / 1280) * 100dvw);
+}
+
+#link {  margin-left: calc((10 / 1280) * 100dvw);
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  vertical-align: middle;
+   background-size: contain;height: calc((30 / 832) *100dvh);;
+  width: calc((30 / 1280) * 100dvw);
+}

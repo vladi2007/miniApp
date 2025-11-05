@@ -1,6 +1,9 @@
 <script setup lang="ts">
+
+// imports
 import { ref, computed, watch } from 'vue'
-// пропсы для работы с данными от бекенда
+
+// data from backend
 import { saveToLocaleStorage, loadFromLocalStorage, clearLocalStorage } from '~/utils/deviceStorage'
 const props = defineProps<{
   questions_count: string
@@ -22,6 +25,7 @@ const props = defineProps<{
   stage: string
   onAnswer: (answerId: string) => void
 }>()
+
 
 const selectedAnswer = ref<string | null>(null)
 

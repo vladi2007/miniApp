@@ -1,6 +1,9 @@
 <script setup lang="ts">
+
+// imports
 import { ref, computed, watch } from 'vue'
-// пропс для работы с данными от бекенда
+
+// data from backend
 const props = defineProps<{
   questions_count: string
   question: {
@@ -25,12 +28,16 @@ const props = defineProps<{
   onAnswer: (answerId: string) => void
   type: string
 }>()
-// Стейт для хранения ответов
+
+// ref for Props.answers
 const answers = ref(props.answers)
+
+// key for localStorage
 const route = useRoute()
 const interactiveId = route.params.id as string
 const ANSWERS_STORAGE_KEY = computed(() => `interactive_answers_${interactiveId}_${props.question.id}`)
-// Загружаем ответы из localStorage, если есть
+
+// load props.answers from localStorage
 onMounted(() => {
   const savedAnswers = loadFromLocalStorage(ANSWERS_STORAGE_KEY.value)
   if (Array.isArray(savedAnswers)) {
@@ -39,35 +46,28 @@ onMounted(() => {
     answers.value = props.answers
   }
 })
-// Следим за изменениями в props.answers
+
+// watcher for props.answers
 watch(
   () => props.answers,
   (newAnswers) => {
-    // Обновляем состояние, только если пришли новые ответы
     if (newAnswers && newAnswers.length > 0) {
       answers.value = newAnswers
       saveToLocaleStorage(ANSWERS_STORAGE_KEY.value, newAnswers)
     }
-    // Если новый массив пустой, не обновляем состояние
   },
   { deep: true }
 )
 
-
-
-// отслеживаем, что вопрос сменился на обсуждение его и показ правильного ответа
+// flag for styles props.answers on stage==='discussion'
 const isDiscussion = computed(() => props.stage === 'discussion')
 
-
-// Позволяет выбирать только в режиме "question"
-
-
-// количество ответов в процентах
+// find answer`s percentage
 const getPercentage = (id: string) => {
   return props.percentages.find((p) => p.id === id)?.percentage ?? 0
 }
 
-
+// return array of answers id 
 const correctAnswers = computed<string[]>(() => {
   const val = props.id_correct_answer
   if (Array.isArray(val)) return val.map(String)
@@ -79,12 +79,9 @@ const correctAnswers = computed<string[]>(() => {
 
 <template>
   <div class="question_question-list">
-
-
     <div class="question_question_type">{{ props.type }}</div>
     <div class="question_question_weight">баллов за вопрос: {{ props.question.question_weight }}</div>
     <div class="question_list">
-
       <div v-for="answer in answers" :key="answer.id" class="question_answer" :class="{
         correct: isDiscussion && correctAnswers.includes(String(answer.id)),
         wrongOutline: isDiscussion && !correctAnswers.includes(String(answer.id))
@@ -96,10 +93,7 @@ const correctAnswers = computed<string[]>(() => {
           {{ getPercentage(answer.id) }}%
         </span>
       </div>
-
     </div>
-
-
   </div>
 </template>
 

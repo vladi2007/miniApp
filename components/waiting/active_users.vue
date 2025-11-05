@@ -1,6 +1,8 @@
 <script setup lang="ts">
-//данные от бекенда
+
+// data from backend
 const props = defineProps<{ count: string; context: string }>()
+
 </script>
 
 <template>

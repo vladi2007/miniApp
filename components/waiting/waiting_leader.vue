@@ -1,23 +1,12 @@
 <script setup lang="ts">
-import type { WaitingData, Pause } from '~/types/stageData'  // Импортируем тип данных
+
+// imports
+import type { WaitingData, Pause } from '~/types/stageData'  
 import Active from '~/components/waiting/active_users.vue'
 import Description from '~/components/waiting/description.vue'
 import Links from '~/components/waiting/links.vue'
 
-import { useRouter } from 'vue-router'
-
-// Получаем экземпляр маршрутизатора
-const router = useRouter()
-
-// Функция возврата на предыдущую страницу
-function goBack() {
-    router.push("/leader/interactives").then(() => {
-        // Перезагрузка после успешной навигации
-        window.location.reload()
-    })
-
-}
-//данные от бекенда
+// data from backend
 const props = defineProps<{
     stage: string
     data: WaitingData
@@ -26,70 +15,36 @@ const props = defineProps<{
     pause: Pause
 }>()
 
+// composables
+import { UseGoBack } from '~/composables/go_back'
+import { UseWaitingLeader } from '~/composables/interactive/interactive_leader/waiting_leader/waiting_leader'
+const { router, go_Back } = UseGoBack()
+const { morePause, startBeforePause } = UseWaitingLeader(props.pause.timer_n, router, props.onStatus)
 
-function morePause() {
-    props.onStatus('more_pause')
-}
-
-function startBeforePause() {
-    props.onStatus('going')
-}
-
-
-watch(() => props.pause.timer_n, (newWal) => {
-    if (newWal === 0) {
-        router.push("/leader/interactives").then(() => {
-            // Перезагрузка после успешной навигации
-            window.location.reload()
-        })
-    }
-})
 </script>
 
 <template>
     <div class="waiting_participant_waiting">
-       
         <div>
             <Links :code="props.data.code" />
         </div>
         <div class="waiting_description_column">
-            <div style="
-    background-color: #853cff;
-    width: calc((749 / 1280) * 100dvw);
-    min-height: calc((516 / 832) * 100dvh);
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start; /* Белый блок — сверху */
-    padding-bottom: calc((20 / 832) * 100dvh); /* отступ снизу */
-    border-bottom-left-radius: 24px;
-  border-bottom-right-radius: 24px;
-  ">
-
-            
-            <div class="waiting_logo">
-                <div class="waiting_logo_img">
-                    <img src="/images/waiting/Group_7055.svg" id="logo" />
-
+            <div class="waiting_description_column_style">
+                <div class="waiting_logo">
+                    <div class="waiting_logo_img">
+                        <img src="/images/waiting/Group_7055.svg" id="logo" />
+                    </div>
                 </div>
-
-
-            </div>
-            <div class="waiting_description-content">
-
-                <div class="waiting_desc-comp">
-                    <Description :title="props.data?.title || ''" :description="props.data?.description || ''"
-                        :context="context" :goBack="goBack" :onStatus="props.onStatus" />
-                    
+                <div class="waiting_description-content">
+                    <div class="waiting_desc-comp">
+                        <Description :title="props.data?.title || ''" :description="props.data?.description || ''"
+                            :context="context" :goBack="go_Back" :onStatus="props.onStatus" />
+                    </div>
                 </div>
-
-
-            </div>
             </div>
             <div>
                 <Active :count="props.data.participants_active" :context="context" />
             </div>
-
         </div>
         <div v-if="props.pause.state === 'timer_n'" class="waiting_edit_popup-overlay">
             <div class="waiting_edit_popup-content">
@@ -105,20 +60,15 @@ watch(() => props.pause.timer_n, (newWal) => {
                 </div>
             </div>
         </div>
-
-
-
-
     </div>
 </template>
 
 <style>
-
-
 @import url("/assets/css/waiting/active_users_leader.scss");
 @import url("/assets/css/waiting/description_leader.scss");
 @import url("/assets/css/waiting/waiting_leader.scss");
-@import url("/assets/css/waiting/waiting_leader.scss");
+@import url("/assets/css/waiting/waiting_links.scss");
+
 * {
     margin: 0;
     padding: 0;

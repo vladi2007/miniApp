@@ -1,70 +1,29 @@
 <script setup lang="ts">
+
+// imports
 import { ref, computed, watch } from 'vue'
-// данные от бекенда
+
+// data from backend
 const props = defineProps<{
   stage: string
   timer: string
   timer_duration: string
   question_count: string
   question_num: string
+  type:string
 }>()
 
-const timerDuration = ref<number | null>(null)
-
-const resetting = ref(false) // Флаг для отслеживания сброса
-
-watch(
-  () => props.timer_duration,
-  (newVal) => {
-    const numeric = Number(newVal)
-    if (!isNaN(numeric) && timerDuration.value === null) {
-      timerDuration.value = numeric
-    }
-  },
-  { immediate: true }
+// composables
+import { useTimer } from '~/composables/interactive/timer';
+const { timerLabel, type, progressPercent, resetting } = useTimer(
+  computed(() => props.stage),
+  computed(() => props.question_count),
+  computed(() => props.question_num),
+  computed(() => props.type),
+  computed(() => props.timer),
+  computed(() => props.timer_duration)
 )
 
-// Отслеживаем момент, когда таймер достигает 0
-watch(
-  () => props.timer,
-  (newVal, oldVal) => {
-    const numericNew = Number(newVal)
-    const numericOld = Number(oldVal)
-
-    // Если таймер перешел с 1 на 0
-    if (numericOld === 0 && numericNew > 0) {
-      resetting.value = true
-
-      // Включаем анимацию обратно после небольшой задержки
-
-    }
-    if (numericOld !== 0) {
-      resetting.value = false
-      // Включаем анимацию обратно после небольшой задержки
-
-    }
-  }
-)
-
-// Вычисляем прогресс в процентах
-const progressPercent = computed(() => {
-  const time = Number(props.timer)
-  if (isNaN(time) || !Number(props.timer_duration)) return 0
-  return 100 - (time / Number(props.timer_duration)) * 100
-})
-
-// Метка таймера
-const timerLabel = computed(() => {
-  if (props.stage === 'discussion') {
-    if (props.question_count === props.question_num) {
-      return 'Конец интерактива через:'
-    } else {
-      return 'Следующий вопрос через:'
-    }
-  } else {
-    return 'Времени осталось:'
-  }
-})
 </script>
 
 <template>
@@ -76,9 +35,7 @@ const timerLabel = computed(() => {
 
     <p class="question_timer-text">{{ timerLabel }} {{ timer }}</p>
 
-    <!-- Серый фон -->
     <div class="question_grey-line">
-      <!-- Прогресс -->
       <div class="question_green-line" :style="{ width: progressPercent + '%' }"
         :class="{ 'no-transition': resetting }" />
     </div>

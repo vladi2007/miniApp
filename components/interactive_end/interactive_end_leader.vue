@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
-import type { EndData } from '~/types/stageData'
+import type { EndData, EndWinners } from '~/types/stageData'
 import Results_leader from '~/components/interactive_end/results_leader.vue'
 import WinnersTable_leader from '~/components/interactive_end/winners_table_leader.vue'
 
 // Получаем данные через props
 const props = defineProps<{
     stage: string,
-    data: EndData // Используем тип данных EndData
+    data: EndData
+    winners:{ position: string, username: string, time: string, score: string }[]
 }>()
 </script>
 
@@ -21,7 +22,7 @@ const props = defineProps<{
         <Results_leader :title="props.data.title" :participantsTotal="props.data.participants_total" :stage="props.stage" />
      </div>
 
-    <WinnersTable_leader :winners="props.data.winners"/>
+    <WinnersTable_leader :winners="props.winners"/>
   </div>
 </template>
 

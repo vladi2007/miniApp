@@ -1,6 +1,8 @@
 <script setup lang="ts">
-//данные от бекенда
-const props = defineProps<{ title: string; description: string; context: string, goBack: () => void, onStatus: any }>()
+
+// data from backend
+const props = defineProps<{ title: string; description: string; context: string, goBack?: () => void, onStatus?: any }>()
+
 </script>
 
 <template>
@@ -23,4 +25,5 @@ const props = defineProps<{ title: string; description: string; context: string,
   </div>
 </template>
 
-<style></style>
+<style>
+</style>

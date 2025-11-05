@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts">import type { EndData, EndWinners } from '~/types/stageData'
 // таблица лидеров
 const props = defineProps<{
   winners: { position: string, username: string, time: string, score: string }[]

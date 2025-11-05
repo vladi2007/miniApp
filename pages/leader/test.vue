@@ -53,10 +53,10 @@ const questions = [
       image:'https://carclicker.ru/images/b70c3c0b-772b-4a36-adf9-9cf881223d2a.svg'
     },
     answers: [
-      { id: '1', text: '5555555555555555555555' },
-      { id: '2', text: '555555555555555555555555555' },
-      { id: '3', text: '55555555555555555555555555' },
-      { id: '4', text: '555555555555555555555555555' },
+      { id: '3', text: 'asd' },
+      { id: '6', text: 'asd' },
+      { id: '7', text: 'sdsdsds' },
+      { id: '5', text: '333333333333333333333333333333' },
     ],
     correct: ['3','2'],
     percentages: [
@@ -258,7 +258,9 @@ const showEndScreen = () => {
     data: {
       title: 'Интересные факты про УрФУ',
       participants_total: '45',
-      winners: [
+      
+    },
+    winners:  [
         { position: '1', username: 'Иван123', score:'asdasd', time:'940'},
         { position: '2', username: 'Maria_K', score:'asdasd', time:'13112' },
         { position: '3', username: 'AlexDev' , score:'asdasd', time:'245'},
@@ -296,11 +298,10 @@ const showEndScreen = () => {
         { position: '2', username: 'Maria_K', score:'asdasd', time:'13112' },
         { position: '3', username: 'AlexDev' , score:'asdasd', time:'245'},
       ],
-    },
   }
 
   currentQuestionIndex = 0
-  setTimeout(() => startWaitingCycle(), 5000)
+  setTimeout(() => startWaitingCycle(), 6000)
 }
 
 // Старт с экрана ожидания

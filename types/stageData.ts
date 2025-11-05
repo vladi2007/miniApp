@@ -35,12 +35,20 @@ export interface EndData {
   
     title: string
     participants_total: string
-    winners: {
-    position: string
-    username: string
-  }[]
+   
   
   
+}
+export interface EndWinners{
+  position:string,
+  username:string,
+  score:string,
+  time:string
+}
+export interface QuestionWinners{
+  position:string,
+  username:string,
+  score:string
 }
 // данные для фазы ожидания waiting
 export interface WaitingData {

@@ -155,3 +155,16 @@ font-size: clamp(10px, calc((24 / 1280) * 100dvw), 48px);
 .waiting_edit_popup-btn:hover {
   opacity: 0.9;
 }
+
+.waiting_description_column_style{
+  background-color: #853cff;
+    width: calc((749 / 1280) * 100dvw);
+    min-height: calc((516 / 832) * 100dvh);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; 
+    padding-bottom: calc((20 / 832) * 100dvh); 
+    border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+}

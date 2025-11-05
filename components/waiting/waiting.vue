@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import type { WaitingData } from '~/types/stageData'  // Импортируем тип данных
+
+// imports
+import type { WaitingData } from '~/types/stageData'
 import Active from '~/components/waiting/active_users.vue'
 import Description from '~/components/waiting/description.vue'
-//данные от бекенда
+
+// data from backend
 const props = defineProps<{
   stage: string
-  data: WaitingData 
-   context:string
-   // Используем тип WaitingData
+  data: WaitingData
+  context: string
+
 }>()
 
 </script>
@@ -26,13 +29,11 @@ const props = defineProps<{
       <div class="waiting_grey-line"></div>
     </div>
 
-    <!-- Основной контент -->
     <div class="waiting_description-content">
       <p>Ждём участников, скоро начнём.</p>
-    
-      <!-- Передаем тестовые данные в компоненты -->
-      <Active :count="props.data.participants_active " :context="context"/>
-      <Description :title="props.data?.title || ''" :description="props.data?.description || ''" :context="context"/>
+
+      <Active :count="props.data.participants_active" :context="context" />
+      <Description :title="props.data?.title || ''" :description="props.data?.description || ''" :context="context" />
     </div>
   </div>
 </template>
@@ -41,6 +42,4 @@ const props = defineProps<{
 @import url("/assets/css/waiting/active_users.scss");
 @import url("/assets/css/waiting/description.scss");
 @import url("/assets/css/waiting/waiting.scss");
-
-
 </style>

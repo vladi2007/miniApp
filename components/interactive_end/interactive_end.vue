@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
-import type { EndData } from '~/types/stageData'
+import type { EndData, EndWinners } from '~/types/stageData'
 import Results from '~/components/interactive_end/results.vue'
 import WinnersTable from '~/components/interactive_end/winners_table.vue'
 import { clearDeviceStorage } from '~/utils/deviceStorage'
@@ -12,7 +12,8 @@ onMounted(() => {
 // Получаем данные через props
 const props = defineProps<{
     stage: string,
-    data: EndData // Используем тип данных EndData
+    data: EndData,
+    winners:EndWinners[]  // Используем тип данных EndData
 }>()
 </script>
 
@@ -34,7 +35,7 @@ const props = defineProps<{
     </div>
     
     <!-- Передаем данные в компонент WinnersTable -->
-    <WinnersTable :winners="props.data.winners" />
+    <WinnersTable :winners="props.winners" />
   </div>
 </template>
 

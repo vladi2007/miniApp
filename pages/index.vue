@@ -258,7 +258,9 @@ const showEndScreen = () => {
     data: {
       title: 'Интересные факты про УрФУ',
       participants_total: '45',
-      winners: [
+      
+    },
+    winners:  [
         { position: '1', username: 'Иван123', score:'asdasd', time:'940'},
         { position: '2', username: 'Maria_K', score:'asdasd', time:'13112' },
         { position: '3', username: 'AlexDev' , score:'asdasd', time:'245'},
@@ -296,11 +298,10 @@ const showEndScreen = () => {
         { position: '2', username: 'Maria_K', score:'asdasd', time:'13112' },
         { position: '3', username: 'AlexDev' , score:'asdasd', time:'245'},
       ],
-    },
   }
 
   currentQuestionIndex = 0
-  setTimeout(() => startWaitingCycle(), 5000)
+  setTimeout(() => startWaitingCycle(), 6000)
 }
 
 // Старт с экрана ожидания
