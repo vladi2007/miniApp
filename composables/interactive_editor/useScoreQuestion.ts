@@ -1,16 +1,16 @@
 export function useScoreQuestion(currentQuestion) {
-  const score = ref(1); // Изначальное значение баллов
+  const score = ref(1);
 
+  // Вызывается при потере фокуса или Enter
   function validateScore() {
-    if (score.value < 1) {
-      score.value = 1;
-    } else if (score.value > 5) {
-      score.value = 5;
-    }
-
-    currentQuestion.value.question.score = score.value;
+    let v = Number(score.value);
+    if (isNaN(v) || v < 1) v = 1;
+    if (v > 5) v = 5;
+    score.value = v;
+    currentQuestion.value.question.score = v;
   }
 
+  // Следим за сменой вопроса
   watch(
     () => currentQuestion.value,
     (newQuestion) => {
@@ -18,17 +18,13 @@ export function useScoreQuestion(currentQuestion) {
       const val = Number(newQuestion.question.score);
       score.value = !isNaN(val) && val > 0 ? val : 1;
     },
-    { immediate: true } 
+    { immediate: true }
   );
 
-  
+  // Следим за обновлением из вне (но не вмешиваемся в ввод)
   watch(score, (newVal) => {
     if (!currentQuestion.value?.question) return;
-    let v = Number(newVal);
-    if (isNaN(v) || v < 1) v = 1;
-    if (v > 5) v = 5;
-    score.value = v;
-    currentQuestion.value.question.score = v;
+    currentQuestion.value.question.score = newVal;
   });
 
   return { score, validateScore };

@@ -112,7 +112,7 @@ function updateScore(event: Event) {
             <div class="custom-file-upload" :class="{ 'file-uploaded': uploadedFileName }"
                 @click="!uploadedFileName && $refs.fileInput.click()">
 
-                <input ref="fileInput" type="file" accept="image/*" hidden @change="handleFileChange" />
+                <input ref="fileInput" type="file"  accept="image/jpeg,image/png,image/gif,image/webp,image/bmp,image/tiff,image/svg+xml" hidden @change="handleFileChange" />
 
                 <template v-if="uploadedFileName">
                     <!-- показываем только имя файла -->
@@ -168,7 +168,7 @@ function updateScore(event: Event) {
                 <!-- Поле для ввода баллов с "Баллы:" внутри -->
                 <div class="input-group_score">
                     <div>Баллы:</div>
-                    <input type="number" v-model="currentQuestion.question.score" @input="updateScore" min="1" max="5"
+                    <input type="number" v-model="currentQuestion.question.score" @blur="updateScore" min="1" max="5" @keyup.enter="updateScore"
                         :class="{ 'field-error': questionErrors[currentQuestionIndex]?.score }" />
 
                 </div>
@@ -241,15 +241,6 @@ function updateScore(event: Event) {
     </div>
 </template>
 <style>
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-input[type="number"] {
-    -moz-appearance: textfield;
-}
 
 
 

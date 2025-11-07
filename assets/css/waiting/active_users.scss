@@ -4,30 +4,44 @@
   display: flex; 
   align-items: center; 
   justify-content: center; 
-  font-size: 16px;
-  margin-top: 65px;
-  gap:26px;
    font-weight: 700;
   font-family: 'Lato', sans-serif;
+
+gap:calc((10 / 390) * 100dvw);
+font-weight: 500;
+font-style: Medium;
+font-size: clamp(10px, calc((16 / 390) * 100dvw),32px);
+letter-spacing:  clamp(0.10px, calc((16 / 100 / 390) * 100dvw),0.32px);
+text-align: center;
+vertical-align: middle;
+  margin-top: calc((51 / 844) * 100dvh);
+
 }
 
 .waiting_active_number {font-family: 'Work Sans';
 background-image: url('/images/waiting/Ellipse_46.svg');
 background-position: center center; 
   background-repeat: no-repeat; 
-  background-size: cover; 
-  font-size: 24px;
-  width: 50px;
-  height: 50px;
+  background-size: contain; 
   font-weight: 500;
-
+    width: calc((70 / 390) * 100dvw);
+  height: calc((70 / 844) * 100dvh);
   
   display: flex;
   align-items: center;  
   justify-content: center; 
+  font-family:" Work Sans", sans-serif;
+font-weight: 500;
+font-style: Medium;
+font-size: clamp(10px, calc((24 / 390) * 100dvw),48px);
+letter-spacing:  clamp(0.10px, calc((24 / 100 / 390) * 100dvw),0.48px);
+vertical-align: middle;
+
 }
 
 .waiting_active_text {
   font-weight: 500;
-  line-height: 24px;
+  font-family: 'Lato', sans-serif;
+font-size: clamp(10px, calc((16 / 390) * 100dvw),32px);
+letter-spacing:  clamp(0.10px, calc((16 / 100 / 390) * 100dvw),0.32px);
 }

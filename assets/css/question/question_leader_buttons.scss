@@ -28,6 +28,9 @@ vertical-align: middle;
   border-radius: calc((5/832) * 100dvh);
   border: calc((2 / 832) * 100dvh) solid #853CFF;
   color: #853CFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 
@@ -41,6 +44,9 @@ vertical-align: middle;
   border-radius: calc((5/832) * 100dvh);
   border: calc((2 / 832) * 100dvh) solid #853CFF;
   background-color:  #853CFF;;  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .continue{
@@ -51,4 +57,7 @@ vertical-align: middle;
   border-radius: calc((5/832) * 100dvh);
   border: calc((2 / 832) * 100dvh) solid #853CFF;
   color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

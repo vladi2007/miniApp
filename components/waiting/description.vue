@@ -6,14 +6,15 @@ const props = defineProps<{ title: string; description: string; context: string,
 </script>
 
 <template>
-  <div class="waiting_description">
+  <div class="waiting_description" >
     <div class="waiting_desc-content">
       <div class="waiting_interactive-title">{{ title }}</div>
+      <div class="waiting_interactive-title_line"/>
       <div class="waiting_interactive-description">
         {{ description }}
       </div>
     </div>
-    <div class="waiting_leader_buttons">
+    <div class="waiting_leader_buttons" v-if="context==='leader'">
       <button class="waiting_back" @click="goBack">
         Вернуться
       </button>

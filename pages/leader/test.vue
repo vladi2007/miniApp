@@ -14,16 +14,16 @@ const questions = [
       id: '1',
       text: 'Какая компания является партнёром программ магистратуры ИРИТ-РТФ?',
       position: '1',
-      type:'text',
-      question_weight:'5',
-      image:'https://carclicker.ru/images/b70c3c0b-772b-4a36-adf9-9cf881223d2a.svg'
+      type: 'text',
+      question_weight: '5',
+      image: 'https://carclicker.ru/images/3359a87d-a883-4c9d-b3a7-6cbd4615eb81.jpg'
     },
     data_answers: [
-      { text:"asdasd", percentage: 10 },
-      { text:"asdasd", percentage: 20 },
-      { text:"asdasd", percentage: 60 },
-      {text:"asdasd", percentage: 10 },
-    ],answers: [
+      { text: "Контур", percentage: 10 },
+      { text: "Яндекс", percentage: 20 },
+      { text: "Очень интересно", percentage: 60 },
+      { text: "ArtSoft", percentage: 10 },
+    ], answers: [
       { id: '1', percentage: 10 },
       { id: '2', percentage: 20 },
       { id: '3', percentage: 60 },
@@ -35,40 +35,40 @@ const questions = [
       { id: '2', percentage: 20 },
       { id: '3', percentage: 60 },
       { id: '4', percentage: 10 },
-    ],winners:[
-      {position:'1', username:"123", score:"1"},
-        {position:'2', username:"123", score:"4"},
-          {position:'3', username:"123", score:"10"}
+    ], winners: [
+      { position: '1', username: "@menchik", score: "5" },
+      { position: '2', username: "@tehas", score: "0" },
+      { position: '3', username: "@teamproject", score: "0" }
     ]
   },
- {
+  {
     id: '2',
     title: 'Кто был первым ректором УрФУ?',
     question: {
       id: '2',
-      text: 'Как называется одно из направлений магистратуры ИР123123ИТ-РТФ, связанное с ИИ?',
+      text: 'Как называется одно из направлений магистратуры ИРИТ-РТФ, связанное с ИИ?',
       position: '2',
-      type:'many',
-      question_weight:'5',
-      image:'https://carclicker.ru/images/b70c3c0b-772b-4a36-adf9-9cf881223d2a.svg'
+      type: 'many',
+      question_weight: '5',
+      image: 'https://carclicker.ru/images/012790ad-b310-4566-bcc0-469793c9b6f7.jpg'
     },
     answers: [
-      { id: '3', text: 'asd' },
-      { id: '6', text: 'asd' },
-      { id: '7', text: 'sdsdsds' },
-      { id: '5', text: '333333333333333333333333333333' },
+      { id: '3', text: 'IT в бизнесе' },
+      { id: '6', text: 'Инфобез ИСПДн и КИИ' },
+      { id: '7', text: 'Полиграфия и упаковка' },
+      { id: '5', text: 'Радиоэлектронная инж' },
     ],
-    correct: ['3','2'],
+    correct: ['3', '5'],
     percentages: [
       { id: '1', percentage: 25 },
       { id: '2', percentage: 20 },
       { id: '3', percentage: 40 },
       { id: '4', percentage: 15 },
     ],
-    winners:[
-      {position:'1', username:"123", score:"1"},
-        {position:'2', username:"213", score:"4"},
-          {position:'3', username:"123", score:"10"}
+    winners: [
+      { position: '1', username: "@tehas", score: "10" },
+      { position: '2', username: "@teamproject", score: "5" },
+      { position: '3', username: "@menchik", score: "5" }
     ]
   },
   {
@@ -76,17 +76,17 @@ const questions = [
     title: 'Кто был первым ректором УрФУ?',
     question: {
       id: '3',
-      text: 'Как называется одно из направлений магистратуры ИРИТ-РТФ, связанное с ИИ?',
+      text: 'Сколько абитуриентов поступило в 2025 году?',
       position: '3',
-      type:'one',
-      question_weight:'2',
-      image:''
+      type: 'one',
+      question_weight: '2',
+      image: 'https://carclicker.ru/images/2f0aba5c-e9e3-43d3-8efd-744661137a8f.jpg'
     },
     answers: [
-      { id: '1', text: 'Робототехника и мехатроника' },
-      { id: '2', text: 'Программная инженерия' },
-      { id: '3', text: 'Искусственный интеллекn' },
-      { id: '4', text: 'Сетевое администрирование' },
+      { id: '1', text: '1023' },
+      { id: '2', text: '2643' },
+      { id: '3', text: '1941' },
+      { id: '4', text: '1723' },
     ],
     correct: '3',
     percentages: [
@@ -94,13 +94,13 @@ const questions = [
       { id: '2', percentage: 20 },
       { id: '3', percentage: 40 },
       { id: '4', percentage: 15 },
-    ],winners:[
-      {position:'1', username:"123", score:"1"},
-        {position:'2', username:"123", score:"4"},
-          {position:'3', username:"123", score:"10"}
+    ], winners: [
+      { position: '1', username: "@tehas", score: "10" },
+      { position: '2', username: "@teamproject", score: "7" },
+      { position: '3', username: "@menchik", score: "5" }
     ]
   },
-  
+
 ]
 const componentMap = {
   waiting: Waiting,
@@ -136,11 +136,12 @@ const startWaitingCycle = () => {
       code: 'QUIZ2025',
       participants_active: '23',
     },
-    pause:{
-      timer_n : Number(123123),
-      state:  "yes"
+    pause: {
+      timer_n: Number(123123),
+      state: "yes"
 
     },
+    context:"leader"
   }
 
   setTimeout(() => startCountdownCycle(), 5000)
@@ -154,9 +155,9 @@ const startCountdownCycle = () => {
     data: {
       timer: String(time),
     },
-    pause:{
-      timer_n : Number(123123),
-      state:  "yes"
+    pause: {
+      timer_n: Number(123123),
+      state: "yes"
 
     },
   }
@@ -176,7 +177,7 @@ let questions_count = questions.length;
 const startQuestionCycle = () => {
   const q = questions[currentQuestionIndex]
   time = 10
-  timer_duration=10
+  timer_duration = 10
   currentComponentKey.value = 'question'
   timerData.value = {
     stage: 'question',
@@ -188,11 +189,11 @@ const startQuestionCycle = () => {
       code: 'ABC123',
       question: q.question,
       answers: q.answers,
-      data_answers:q.data_answers
+      data_answers: q.data_answers
     },
-    pause:{
-      timer_n : Number(123123),
-      state:  "yes"
+    pause: {
+      timer_n: Number(123123),
+      state: "yes"
 
     },
   }
@@ -211,12 +212,12 @@ const startQuestionCycle = () => {
 const startDiscussionCycle = () => {
   const q = questions[currentQuestionIndex]
   time = 10
-  timer_duration=10
+  timer_duration = 10
   currentComponentKey.value = 'discussion'
   timerData.value = {
     stage: 'discussion',
     data: {
-      timer_duration:String(timer_duration),
+      timer_duration: String(timer_duration),
       questions_count: String(questions_count),
       timer: String(time),
       title: q.title,
@@ -225,14 +226,14 @@ const startDiscussionCycle = () => {
       answers: q.answers,
       id_correct_answer: Array.isArray(q.correct) ? q.correct : [q.correct],
       percentages: q.percentages,
-       data_answers:q.data_answers
+      data_answers: q.data_answers
     },
-    pause:{
-      timer_n : Number(123123),
-      state:  "yes"
+    pause: {
+      timer_n: Number(123123),
+      state: "yes"
 
     },
-    winners:q.winners
+    winners: q.winners
   }
 
   clearInterval(intervalId)
@@ -257,47 +258,34 @@ const showEndScreen = () => {
     stage: 'end',
     data: {
       title: 'Интересные факты про УрФУ',
-      participants_total: '45',
-      
+      participants_total: '23',
+
     },
-    winners:  [
-        { position: '1', username: 'Иван123', score:'asdasd', time:'940'},
-        { position: '2', username: 'Maria_K', score:'asdasd', time:'13112' },
-        { position: '3', username: 'AlexDev' , score:'asdasd', time:'245'},
-        { position: '1', username: 'Иван123', score:'asdasd', time:'940'},
-        { position: '2', username: 'Maria_K', score:'asdasd', time:'13112' },
-        { position: '3', username: 'AlexDev' , score:'asdasd', time:'245'},
-        { position: '1', username: 'Иван123', score:'asdasd', time:'940'},
-        { position: '2', username: 'Maria_K', score:'asdasd', time:'13112' },
-        { position: '3', username: 'AlexDev' , score:'asdasd', time:'245'},
-        { position: '1', username: 'Иван123', score:'asdasd', time:'940'},
-        { position: '2', username: 'Maria_K', score:'asdasd', time:'13112' },
-        { position: '3', username: 'AlexDev' , score:'asdasd', time:'245'},
-        { position: '1', username: 'Иван123', score:'asdasd', time:'940'},
-        { position: '2', username: 'Maria_K', score:'asdasd', time:'13112' },
-        { position: '3', username: 'AlexDev' , score:'asdasd', time:'245'},
-        { position: '1', username: 'Иван123', score:'asdasd', time:'940'},
-        { position: '2', username: 'Maria_K', score:'asdasd', time:'13112' },
-        { position: '3', username: 'AlexDev' , score:'asdasd', time:'245'},
-        { position: '1', username: 'Иван123', score:'asdasd', time:'940'},
-        { position: '2', username: 'Maria_K', score:'asdasd', time:'13112' },
-        { position: '3', username: 'AlexDev' , score:'asdasd', time:'245'},
-        { position: '1', username: 'Иван123', score:'asdasd', time:'940'},
-        { position: '2', username: 'Maria_K', score:'asdasd', time:'13112' },
-        { position: '3', username: 'AlexDev' , score:'asdasd', time:'245'},
-        { position: '1', username: 'Иван123', score:'asdasd', time:'940'},
-        { position: '2', username: 'Maria_K', score:'asdasd', time:'13112' },
-        { position: '3', username: 'AlexDev' , score:'asdasd', time:'245'},
-        { position: '1', username: 'Иван123', score:'asdasd', time:'940'},
-        { position: '2', username: 'Maria_K', score:'asdasd', time:'13112' },
-        { position: '3', username: 'AlexDev' , score:'asdasd', time:'245'},
-        { position: '1', username: 'Иван123', score:'asdasd', time:'940'},
-        { position: '2', username: 'Maria_K', score:'asdasd', time:'13112' },
-        { position: '3', username: 'AlexDev' , score:'asdasd', time:'245'},
-        { position: '1', username: 'Иван123', score:'asdasd', time:'940'},
-        { position: '2', username: 'Maria_K', score:'asdasd', time:'13112' },
-        { position: '3', username: 'AlexDev' , score:'asdasd', time:'245'},
-      ],
+    winners: [
+      { position: '1', username: '@tehas', time: '90', score: '10' },       // 1:30 → 90
+      { position: '2', username: '@teamproject', time: '88', score: '9' },  // 1:28 → 88
+      { position: '3', username: '@menchik', time: '86', score: '9' },      // 1:26 → 86
+      { position: '4', username: '@artemdev', time: '85', score: '8' },     // 1:25 → 85
+      { position: '5', username: '@viktorpro', time: '84', score: '8' },    // 1:24 → 84
+      { position: '6', username: '@luna_code', time: '82', score: '8' },    // 1:22 → 82
+      { position: '7', username: '@dariatech', time: '81', score: '7' },    // 1:21 → 81
+      { position: '8', username: '@mrxcode', time: '80', score: '7' },      // 1:20 → 80
+      { position: '9', username: '@sergey_io', time: '78', score: '7' },    // 1:18 → 78
+      { position: '10', username: '@frontendcat', time: '77', score: '6' }, // 1:17 → 77
+      { position: '11', username: '@ai_master', time: '76', score: '6' },   // 1:16 → 76
+      { position: '12', username: '@olegjs', time: '75', score: '6' },      // 1:15 → 75
+      { position: '13', username: '@mashabot', time: '73', score: '5' },    // 1:13 → 73
+      { position: '14', username: '@vladpython', time: '72', score: '5' },  // 1:12 → 72
+      { position: '15', username: '@denisdev', time: '71', score: '5' },    // 1:11 → 71
+      { position: '16', username: '@nina_ml', time: '70', score: '4' },     // 1:10 → 70
+      { position: '17', username: '@romaa', time: '68', score: '4' },       // 1:08 → 68
+      { position: '18', username: '@anastasia_q', time: '67', score: '4' }, // 1:07 → 67
+      { position: '19', username: '@andrew_data', time: '66', score: '3' }, // 1:06 → 66
+      { position: '20', username: '@codewolf', time: '65', score: '3' },    // 1:05 → 65
+      { position: '21', username: '@alexfast', time: '64', score: '3' },    // 1:04 → 64
+      { position: '22', username: '@yuliana', time: '63', score: '2' },     // 1:03 → 63
+      { position: '23', username: '@pavelr', time: '62', score: '2' }       // 1:02 → 62
+    ]
   }
 
   currentQuestionIndex = 0
@@ -312,8 +300,8 @@ startWaitingCycle()
 <template>
   <div>
 
-   
+
     <component v-if="timerData" :is="componentMap[timerData.stage]" :data="timerData.data" :stage="timerData.stage"
-      :onAnswer="sendAnswer" :pause="timerData.pause" :winners="timerData.winners"/>
+      :onAnswer="sendAnswer" :pause="timerData.pause" :winners="timerData.winners" :context="timerData.context"/>
   </div>
-</template> 
+</template>

@@ -1,6 +1,4 @@
-import {
-  IMAGE_STATE_KEY,
-} from "~/constants/interactiveKeys";
+import { IMAGE_STATE_KEY } from "~/constants/interactiveKeys";
 export function useImage(currentQuestionIndex, form, currentQuestion) {
   const imageUrls = ref({});
   async function loadImageDB() {
@@ -19,35 +17,53 @@ export function useImage(currentQuestionIndex, form, currentQuestion) {
     }
   }
   watch(currentQuestionIndex, async (newIndex, oldIndex) => {
-  // Удаляем старую ссылку, если была
-  if (oldIndex !== undefined && imageUrls.value[oldIndex]) {
-    URL.revokeObjectURL(imageUrls.value[oldIndex]);
-  }
-
-  // Проверяем, есть ли изображение у нового вопроса
-  const question = form.value.questions[newIndex]?.question;
-  if (!question) return;
-
-  const imageKey = `${IMAGE_STATE_KEY}_${newIndex}`;
-  const imageState = await loadFromDeviceStorage(imageKey);
-
-  if (question.image && question.image !== "") {
-    if (imageState?.file) {
-      imageUrls.value[newIndex] = URL.createObjectURL(imageState.file);
+    // Удаляем старую ссылку, если была
+    if (oldIndex !== undefined && imageUrls.value[oldIndex]) {
+      URL.revokeObjectURL(imageUrls.value[oldIndex]);
     }
-  } else {
-    imageUrls.value[newIndex] = "";
-  }
-});
 
+    // Проверяем, есть ли изображение у нового вопроса
+    const question = form.value.questions[newIndex]?.question;
+    if (!question) return;
+
+    const imageKey = `${IMAGE_STATE_KEY}_${newIndex}`;
+    const imageState = await loadFromDeviceStorage(imageKey);
+
+    if (question.image && question.image !== "") {
+      if (imageState?.file) {
+        imageUrls.value[newIndex] = URL.createObjectURL(imageState.file);
+      }
+    } else {
+      imageUrls.value[newIndex] = "";
+    }
+  });
+
+  const mime_to_ext = {
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/gif": "gif",
+    "image/webp": "webp",
+    "image/bmp": "bmp",
+    "image/tiff": "tiff",
+    "image/svg+xml": "svg",
+  };
   async function handleFileChange(event) {
     const file = event.target.files[0];
     const index = currentQuestionIndex.value;
     const imageKey = `${IMAGE_STATE_KEY}_${index}`;
     if (file) {
+      if (!Object.keys(mime_to_ext).includes(file.type)) {
+        if (window.Telegram && window.Telegram.WebApp) {
+          window.Telegram.WebApp.showAlert(
+            "Неверный формат файла. Разрешены только изображения (jpg, png, gif, webp, bmp, tiff, svg)."
+          );
+        }
+        event.target.value = "";
+        return;
+      }
       const blobUrl = URL.createObjectURL(file);
       form.value.questions[index].question.image = "image";
-      form.value.questions[index].question.uploadedFileName = file.name
+      form.value.questions[index].question.uploadedFileName = file.name;
       imageUrls.value[index] = blobUrl;
       await saveToDeviceStorage(imageKey, {
         name: file.name,
@@ -60,7 +76,7 @@ export function useImage(currentQuestionIndex, form, currentQuestion) {
       saveToDeviceStorage(imageKey, null);
     }
   }
-    async function removeImage() {
+  async function removeImage() {
     const index = currentQuestionIndex.value;
     const imageKey = `${IMAGE_STATE_KEY}_${index}`;
 

@@ -20,15 +20,14 @@ const props = defineProps<{
     <div class="waiting_grey"></div>
 
     <div class="waiting_logo">
-      <img src="/images/waiting/Clik.svg" />
-      <img src="/images/waiting/Group.svg" />
-      <img src="/images/waiting/Vector_88.svg" class="waiting_fixed" />
+      <img src="/public/images/waiting/Group 7067.svg" id = "_waiting_logo"/>
+      <img src="/public/images/waiting/Group 7095 (2).svg" class="waiting_fixed" />
     </div>
 
     <div class="waiting_description">
-      <div class="waiting_grey-line"></div>
+     
     </div>
-
+     <div class="waiting_grey-line"></div>
     <div class="waiting_description-content">
       <p>Ждём участников, скоро начнём.</p>
 
