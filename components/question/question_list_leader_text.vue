@@ -17,10 +17,7 @@ const props = defineProps<{
     text:string,
     percentage:string
   }[]
-  answers: {
-    id: string
-    text: string
-  }[]
+  answers: any
   percentages: {
     id: string
     percentage: number
@@ -35,7 +32,7 @@ const props = defineProps<{
 
 
 // ref for Props.answers
-const answers = ref(props.answers)
+const answers = ref(props.answers.correct_answers)
 
 // key for localStorage
 const route = useRoute()
@@ -48,13 +45,13 @@ onMounted(() => {
   if (Array.isArray(savedAnswers)) {
     answers.value = savedAnswers
   } else {
-    answers.value = props.answers
+    answers.value = props.answers.correct_answers
   }
 })
 
 // watcher for props.answers
 watch(
-  () => props.answers,
+  () => props.answers.correct_answers,
   (newAnswers) => {
     if (newAnswers && newAnswers.length > 0) {
       answers.value = newAnswers
@@ -77,8 +74,7 @@ const isDiscussion = computed(() => props.stage === 'discussion')
     <div class="question_question_weight">баллов за вопрос: {{ props.question.question_weight }}</div>
     <div class="question_list">
 
-      <div v-if="stage==='discussion'" v-for="answer in data_answers" :key="answer.text" class="question_answer text_answer" 
-      >
+      <div v-if="stage==='discussion'" v-for="answer in answers"  class="question_answer text_answer">
         <span class="question_text">{{ answer.text }}</span>
 
         <span v-if="isDiscussion" class="question_percent">

@@ -35,9 +35,25 @@ export interface EndData {
   
     title: string
     participants_total: string
-   
+     winners: { position: number, username: string, time: number, score: number }[]
   
   
+}
+
+export interface QuestionTextCorrect {
+  is_correct:boolean
+    answer:string
+    percentage:string
+}
+
+
+export interface QuestionTextNotCorrect {
+    is_correct:boolean
+    answers:{
+answer:string
+    percentage:string
+    }[]
+     
 }
 export interface EndWinners{
   position:string,

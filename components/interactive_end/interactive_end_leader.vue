@@ -8,8 +8,13 @@ import WinnersTable_leader from '~/components/interactive_end/winners_table_lead
 const props = defineProps<{
     stage: string,
     data: EndData
-    winners:{ position: string, username: string, time: string, score: string }[]
+    winners:{ position: number, username: string, time: number, score: number }[]
 }>()
+
+onMounted(() => {
+ clearAllDeviceStorage()
+
+})
 </script>
 
 <template>
@@ -22,7 +27,7 @@ const props = defineProps<{
         <Results_leader :title="props.data.title" :participantsTotal="props.data.participants_total" :stage="props.stage" />
      </div>
 
-    <WinnersTable_leader :winners="props.winners"/>
+    <WinnersTable_leader :winners="props.data.winners"/>
   </div>
 </template>
 

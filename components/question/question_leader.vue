@@ -17,6 +17,7 @@ const props = defineProps<{
   onStatus: (status: string) => void
   pause: Pause
   winners: QuestionWinners[]
+  data_answers:any
 }>()
 
 // composables
@@ -46,6 +47,7 @@ const { timerLabel, type, progressPercent, resetting } = useTimer(
           <div style="display: flex;">Вопрос {{ data.question.position }}<div style="color: #A9A9A9;">
               /{{ data.questions_count }}</div>
           </div>
+     
         </div>
         <div class="question_leader_top_timer">
           {{ timerLabel }} {{ data.timer }}
@@ -59,11 +61,11 @@ const { timerLabel, type, progressPercent, resetting } = useTimer(
       <div class="question_leader_answers_image">
         <div class="question_leader_list_fone">
           <question_list_leader_one v-if="props.data.question.type === 'one' || props.data.question.type === 'many'"
-            :timer="data.timer" :question="data.question" :answers="data.answers"
-            :id_correct_answer="data.id_correct_answer" :percentages="data.percentages" :stage="stage"
+            :timer="data.timer" :question="data.question" :answers="props.data_answers"
+            :id_correct_answer="props.data_answers.id_correct_answer" :percentages="props.data_answers.percentages" :stage="stage"
             :onAnswer="onAnswer" :questions_count="data.questions_count" :context="context" :type="type" />
           <question_list_leader_text v-if="props.data.question.type === 'text'" :timer="data.timer"
-            :question="data.question" :answers="data.answers" :id_correct_answer="data.id_correct_answer"
+            :question="data.question" :answers="props.data_answers" :id_correct_answer="data.id_correct_answer"
             :percentages="data.percentages" :stage="stage" :onAnswer="onAnswer" :questions_count="data.questions_count"
             :context="context" :type="type" :data_answers="data.data_answers" />
         </div>
@@ -71,7 +73,7 @@ const { timerLabel, type, progressPercent, resetting } = useTimer(
         <div class="question_leader_image">
           <img class="question_leader_image_image" :src="props.data.question.image"
             v-if="props.data.question.image !== ''" />
-          <div class="question_leader_winners" v-if="props.winners"
+          <div class="question_leader_winners" v-if="stage==='discussion'"
             :class="{ no_image: props.data.question.image === '' }">
             <div class="question_leader_winners_header">
               Лидеры: <div class="winners_table_score">баллы</div>

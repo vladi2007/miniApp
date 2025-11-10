@@ -13,14 +13,8 @@ const props = defineProps<{
     question_weight: string
     type: string
   }
-  answers: {
-    id: string
-    text: string
-  }[]
-  percentages: {
-    id: string
-    percentage: number
-  }[]
+  answers: any
+  percentages: any
   id_correct_answer: string | string[]
   timer: string
   stage: string

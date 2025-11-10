@@ -154,7 +154,7 @@ margin-top: calc((8 / 832) * 100dvh);;
   transition: width 1s linear;
 }
 
-.question_title {
+.question_title {  white-space: pre-wrap; word-break: break-word;
   width: 100%;
   padding-left: calc((12 / 1280) * 100dvw);
   font-size: clamp(10px, calc((36 / 1280) * 100dvw), 72px);
@@ -162,7 +162,7 @@ margin-top: calc((8 / 832) * 100dvh);;
   font-family: "Lato", sans-serif;
   font-weight: 500;
   margin-top: calc((29 / 832) * 100dvh);
-  line-height: clamp(10px, calc((36 / 1280) * 100dvw), 72px);
+  line-height: clamp(10px, calc((40 / 1280) * 100dvw),80px);
   ;
 }
 
@@ -183,12 +183,9 @@ margin-top: calc((8 / 832) * 100dvh);;
 
 .question_leader_image_image {
   width: calc((473/1280) * 100dvw);
-  height: calc((266 / 832) * 100dvh);
+  max-height: calc((266 / 832) * 100dvh);
   background-color: #E0E0E0;
-  object-fit: cover;
-  /* делает, чтобы изображение полностью заполняло блок без искажений */
-  object-position: center;
-  /* центрирует */
+   aspect-ratio: 16 / 9;
 
 }
 

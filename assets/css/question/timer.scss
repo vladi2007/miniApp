@@ -1,41 +1,64 @@
+:root {
+  --app-height: 100vh;
+}
+
 .question_timer {
-  margin-left: 22px;
-  margin-right: 22px;
+  margin-left: calc((22 / 390) * 100dvw);
+  margin-right: calc((22 / 390) * 100dvw);
   background-color: #853cff;
-  height: 110px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   border-bottom-left-radius: 26px;
   border-bottom-right-radius: 26px;
-}
-
-.question_logo {
-  padding-top: 23px;
-  margin-left: 14px;
-}
-
-.question_timer-text {
-  font-family: "Lato";
-  color: white;
-  font-weight: 700;
-  line-height: 120%;
-  font-size: 16px;
-  text-align: center;
-  margin-top: 21px;
-}
-
-.question_grey-line {
-  height: 7px;
-  background-color: white;
-  margin: 0 auto;
-  border-radius: 26px;
-  width: 90%;
-  margin-top: 12px;
+  height: calc((95 / 844) *  var(--app-height));
   position: relative;
 }
 
-.question_green-line {
-  height: 100%;
+.question_logo {
+  position: absolute;
+  top: calc((10 / 844) * var(--app-height));
+  margin-left: calc((14 / 390) * 100dvw); 
+ 
+}
+.question_logo > img{
+ height: calc((20 / 844) * var(--app-height));
+  width: calc((50 / 390) * 100dvw);;
+  
+
+}
+.question_timer-text {   width: calc((256 / 390) * 100dvw);; height: calc((18 / 844) * var(--app-height));
+  font-family: "Lato", sans-serif;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+font-weight: 700;
+font-size: clamp(10px, calc((16 / 390) * 100dvw),32px);
+letter-spacing:  clamp(0.10px, calc((16 / 100 / 390) * 100dvw),0.32px);
+text-align: center;
+vertical-align: middle;
+ position: absolute; 
+  top: calc((40 / 844) * var(--app-height));
+  margin-left: calc((45 / 390) * 100dvw);
+}
+
+.question_grey-line {
+  height: calc((7 / 844) *var(--app-height));
+  background-color: white;
+  margin: 0 auto;
+  border-radius: 26px; 
+  width: calc((318 / 390) * 100dvw);;
+ position: absolute;
+  top: calc((63 / 844) * var(--app-height));
+ margin-left: calc((14 / 390) * 100dvw);
+
+}
+
+.question_green-line { 
+   height: calc((7 / 844) *var(--app-height));
+   background-color: #6ab23d;
+   top: calc((63 / 844) * var(--app-height));
+
   background-color: #6ab23d;
   border-radius: 26px;
   transition: width 1s linear;
@@ -43,4 +66,23 @@
 
 .no-transition {
   transition: none !important;
+}
+
+.question_timer_score{ position: absolute;
+    width: calc((216 / 390) * 100dvw);;height: calc((18 / 844) *var(--app-height));
+  font-family: "Lato", sans-serif;
+font-weight: 700;
+font-style: Bold;
+font-size: clamp(10px, calc((16 / 390) * 100dvw),32px);
+letter-spacing:  clamp(0.10px, calc((16 / 100 / 390) * 100dvw),0.32px);
+color:white;
+text-align: center;
+vertical-align: middle;
+display: flex;
+align-items: center;
+justify-content: center;
+   top: calc((73 / 844) * var(--app-height));
+ left: calc((65 / 390) * 100dvw);
+  position: relative;
+  
 }

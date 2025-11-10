@@ -70,7 +70,7 @@ export function useSave(
         formData.append("images", file);
       }
     }
-
+     let response: CreateInteractiveResponse
     if (mode.value === "edit") {
       console.log("mode");
       const response = await $fetch("/api/edit_interatcive", {
@@ -85,10 +85,10 @@ export function useSave(
       });
       route.push("/leader/interactives");
       console.log(response);
-      return response;
+      return response.data.interactive_id;
       
     } else {
-      const response = await $fetch("/api/create_interactive", {
+       response = await $fetch("/api/create_interactive", {
         method: "POST",
         query: {
           telegram_id: userId?.value || 0,
@@ -96,13 +96,18 @@ export function useSave(
         body: formData,
       });
       route.push("/leader/interactives");
-      return response;
+       console.log(response.data)
+      return response.data;
+     
     }
   }
-
-  function handleStart() {
+type CreateInteractiveResponse = {
+  data: {
+    interactive_id: number
+  }
+}
+ async function handleStart() {
     const isMainValid = validateForm();
-    showSavePopup.value = false;
     if (!isMainValid) {
       active_step.value = "main";
       return false;
@@ -112,6 +117,9 @@ export function useSave(
       active_step.value = "questions";
       return false;
     }
+    const response = await handleSave();
+    
+    route.push(`/leader/${response}`)
   }
 
   return { showSavePopup, handleSave, handleStart };

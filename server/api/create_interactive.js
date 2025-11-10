@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
       return { success: false, error: data };
     }
 
-    return { success: true, data };
+    return { success: true, data:data.interactive_id };
   } catch (error) {
     console.error("Ошибка при отправке интерактива:", error);
     return { success: false, error: String(error) };

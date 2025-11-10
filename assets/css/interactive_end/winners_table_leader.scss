@@ -85,9 +85,6 @@ width: calc((121 / 1280) * 100dvw) !important; margin-left: calc((24 / 1280) * 1
   border-radius: 8px;
   right: 0 !important;
 }
-.simplebar-track {
-  visibility: visible !important; /* чтобы скролл всегда виден */
-}
 
 .simplebar-scrollbar.simplebar-visible::before {
   opacity: 1 !important;

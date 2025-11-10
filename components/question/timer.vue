@@ -11,6 +11,7 @@ const props = defineProps<{
   question_count: string
   question_num: string
   type:string
+  score:string
 }>()
 
 // composables
@@ -23,21 +24,26 @@ const { timerLabel, type, progressPercent, resetting } = useTimer(
   computed(() => props.timer),
   computed(() => props.timer_duration)
 )
-
+const isValidScore = computed(() => {
+  return typeof props.score === 'number' || 
+         (typeof props.score === 'string' && props.score.trim() !== '')
+})
 </script>
 
 <template>
   <div class="question_timer">
     <div class="question_logo">
-      <img src="/images/waiting/Clik.svg" />
-      <img src="/images/waiting/Group.svg" />
+      <img src="/public/images/question/Group 7067 (1).svg" />
     </div>
 
-    <p class="question_timer-text">{{ timerLabel }} {{ timer }}</p>
+    <div class="question_timer-text">{{ timerLabel }} {{ timer }}</div>
 
     <div class="question_grey-line">
       <div class="question_green-line" :style="{ width: progressPercent + '%' }"
         :class="{ 'no-transition': resetting }" />
+    </div>
+    <div v-if="score && props.stage==='discussion'" class="question_timer_score">
+Ваш результат: {{ isValidScore ? score : 0 }}
     </div>
   </div>
 </template>

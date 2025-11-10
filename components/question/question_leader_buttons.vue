@@ -52,12 +52,12 @@ onMounted(() => {
   <div class="question_leader_buttons_fon">
     <div class="question_leader_buttons">
       <div>
-        <div class="goto_end" @click="endInteractive">
+        <div class="goto_end" @click="endInteractive" style="cursor: pointer;">
           Завершить
         </div>
       </div>
       <div>
-        <div :class="isPaused ? 'continue' : 'pause'" @click="togglePause">
+        <div :class="isPaused ? 'continue' : 'pause'" @click="togglePause" style="cursor: pointer;">
           {{ isPaused ? 'Продолжить' : 'Пауза' }}
         </div>
       </div>

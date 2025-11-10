@@ -8,11 +8,40 @@ import InteractiveEnd from '~/components/interactive_end/interactive_end.vue'
 
 const questions = [
   {
-    id: '1',
-    title: 'Когда основали УрФУ?',
+    id: '3323232',
+    title: 'Кто был первым ректором УрФУ?',
     question: {
-      id: '1',
-      text: 'Какая компания является партнёром программ магистратуры ИРИТ-РТФ?',
+      id: 'asdas3',
+      text: 'Сколько абитуриентов поступило в 2025 году?',
+      position: '3',
+      type: 'one',
+      question_weight: '2',
+      image: 'https://carclicker.ru/images/2f0aba5c-e9e3-43d3-8efd-744661137a8f.jpg'
+    },
+    answers: [
+      { id: '1', text: '1023' },
+      { id: '2', text: '2643' },
+      { id: '3', text: '1941' },
+      { id: '4', text: '1723' },
+    ],
+    correct: '3',
+    percentages: [
+      { id: '1', percentage: 25 },
+      { id: '2', percentage: 20 },
+      { id: '3', percentage: 40 },
+      { id: '4', percentage: 15 },
+    ], winners: [
+      { position: '1', username: "@tehas", score: "10" },
+      { position: '2', username: "@teamproject", score: "7" },
+      { position: '3', username: "@menchik", score: "5" }
+    ]
+  },
+  {
+    id: '1',
+    title: 'Когда оснsdsdsdsdsdsdsdsовали УрФУ?',
+    question: {
+      id: 'asdasdasdsas',
+      text: 'Интересные факты про УрФУ?',
       position: '1',
       type: 'text',
       question_weight: '5',
@@ -42,7 +71,7 @@ const questions = [
     ]
   },
   {
-    id: '2',
+    id: '2323232323232',
     title: 'Кто был первым ректором УрФУ?',
     question: {
       id: '2',
@@ -58,7 +87,7 @@ const questions = [
       { id: '7', text: 'Полиграфия и упаковка' },
       { id: '5', text: 'Радиоэлектронная инж' },
     ],
-    correct: ['3', '2'],
+    correct: ['3', '5'],
     percentages: [
       { id: '1', percentage: 25 },
       { id: '2', percentage: 20 },
@@ -72,7 +101,7 @@ const questions = [
     ]
   },
   {
-    id: '3',
+    id: '3323232',
     title: 'Кто был первым ректором УрФУ?',
     question: {
       id: '3',
@@ -119,11 +148,9 @@ let timer_duration = 10
 
 
 
-const { open, close, send, data } = useWebSocket(`ws://localhost:4000/ws?huy=123`)
+const { open, close, send, data } = useWebSocket(`ws://localhost:4000/ws`)
 
-function sendAnswer(answerId) {
-  send(JSON.stringify({ answer_id: answerId }))
-}
+
 
 // Этап ожидания
 const startWaitingCycle = () => {
@@ -143,7 +170,7 @@ const startWaitingCycle = () => {
     },
   }
 
-  setTimeout(() => startCountdownCycle(), 1000000)
+  setTimeout(() => startCountdownCycle(), 1000)
 }
 
 const startCountdownCycle = () => {
@@ -195,6 +222,7 @@ const startQuestionCycle = () => {
       state: "yes"
 
     },
+    
   }
 
   clearInterval(intervalId)
@@ -232,8 +260,26 @@ const startDiscussionCycle = () => {
       state: "yes"
 
     },
-    winners: q.winners
-  }
+    winners: q.winners,
+    score:"123",
+    data_answers:{
+      is_correct: correct,
+      percentage:100,
+      answers:[
+{
+  text:"123123",
+   percentage:"23",
+},{
+  text:"123123",
+   percentage:"23",
+},{
+  text:"123123",
+   percentage:"23",
+}
+      
+      
+    
+  ]}}
 
   clearInterval(intervalId)
   intervalId = setInterval(() => {
@@ -248,7 +294,7 @@ const startDiscussionCycle = () => {
         showEndScreen()
       }
     }
-  }, 1000)
+  }, 10000000)
 }
 
 const showEndScreen = () => {
@@ -256,7 +302,7 @@ const showEndScreen = () => {
   timerData.value = {
     stage: 'end',
     data: {
-      title: 'Интересные факты про УрФУ',
+      title: '123sssssssssssssssssssssssssssssssssssss',
       participants_total: '23',
 
     },
@@ -288,9 +334,20 @@ const showEndScreen = () => {
   }
 
   currentQuestionIndex = 0
-  setTimeout(() => startWaitingCycle(), 6000)
+  setTimeout(() => startWaitingCycle(), 1000)
 }
-
+function sendAnswer(answer) {
+  if (timerData.value.data.question.type ==='one'){
+      send(JSON.stringify({ answer_id: answer }))
+  }
+  else if (timerData.value.data.question.type ==='many')
+  {
+    send(JSON.stringify({ answer_ids: answer }))
+  }
+  else{
+    send(JSON.stringify({ answer_text: answer }))
+  }
+}
 // Старт с экрана ожидания
 startWaitingCycle()
 </script>
@@ -301,6 +358,6 @@ startWaitingCycle()
 
 
     <component v-if="timerData" :is="componentMap[timerData.stage]" :data="timerData.data" :stage="timerData.stage"
-      :onAnswer="sendAnswer" :pause="timerData.pause" :winners="timerData.winners" />
+      :onAnswer="sendAnswer" :pause="timerData.pause" :winners="timerData.winners" :score="timerData.score" :data_answers="timerData.data_answers"/>
   </div>
 </template>

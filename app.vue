@@ -30,11 +30,11 @@ onMounted(() => {
 
     
     if (platform !== 'android' && platform !== 'ios') {
-      Telegram.WebApp.requestFullscreen();
+    //  Telegram.WebApp.requestFullscreen();
     }
 
   }
-  bridge.postEvent('web_app_setup_closing_behavior', {need_confirmation: true,});
+ // bridge.postEvent('web_app_setup_closing_behavior', {need_confirmation: true,});
   
 
 })

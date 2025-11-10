@@ -1,7 +1,7 @@
 <script setup lang="ts">import type { EndData, EndWinners } from '~/types/stageData'
 // таблица лидеров
 const props = defineProps<{
-  winners: { position: string, username: string, time: string, score: string }[]
+  winners: { position: number, username: string, time: number, score: number }[]
 }>()
 
 import { useRouter } from 'vue-router'
@@ -16,9 +16,9 @@ function goToMainMenu() {
 
 }
 // форматируем секунды → мм:сс
-function formatTime(secondsStr: string): string {
+function formatTime(secondsStr: number): string {
   const seconds = Number(secondsStr)
-  if (isNaN(seconds)) return secondsStr // защита от нечисловых значений
+  if (isNaN(seconds)) return String(secondsStr) // защита от нечисловых значений
 
   const minutes = Math.floor(seconds / 60)
   const secs = seconds % 60
@@ -35,7 +35,7 @@ import 'simplebar-vue/dist/simplebar.min.css';
       <div class="title">
         Лидерборд
       </div>
-      <simplebar data-simplebar-auto-hide="false"
+      <simplebar 
         style="height: calc((318 / 832) * 100dvh);   margin-top: calc((22 / 832) * 100dvh); margin-right: calc((25/1280)*100dvw);">
         <div class="winners_list">
           <div v-for="(winner, index) in props.winners" :key="index" class="winner_row">
@@ -51,7 +51,7 @@ import 'simplebar-vue/dist/simplebar.min.css';
         </div>
       </simplebar>
       <div class="goto_main_menu_end">
-        <button class="goto_main_menu_button_end" @click="goToMainMenu()">
+        <button class="goto_main_menu_button_end" @click="goToMainMenu()" style="cursor: pointer;">
           Главная страница
         </button>
       </div>
