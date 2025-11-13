@@ -62,7 +62,7 @@ onMounted(async () => {
     userId.value = $telegram.initDataUnsafe.value?.user?.id;
   }
 
-    // Подождём до отрисовки DOM
+  // Подождём до отрисовки DOM
   nextTick(() => {
     const el = questionNavRef.value
     if (el) {
@@ -80,7 +80,7 @@ onMounted(async () => {
   })
 
   const id = route.params.id as string
-  
+
 
   if (props.mode === 'edit' || props.mode === 'dublicate') {
     try {
@@ -117,33 +117,33 @@ onMounted(async () => {
       window.Telegram.WebApp.showAlert('Не удалось загрузить данные интерактива.')
     }
 
-    
+
   }
-  
 
 
-  
-      const savedForm = loadFromDeviceStorage(FORM_STORAGE_KEY)
-      console.log('Loaded form from storage:', savedForm)
 
-      if (savedForm) {
-        form.value = savedForm
-      }
 
-      const savedIndex = loadFromDeviceStorage(CURRENT_INDEX_KEY)
-      console.log('Loaded index from storage:', savedIndex)
+  const savedForm = loadFromDeviceStorage(FORM_STORAGE_KEY)
+  console.log('Loaded form from storage:', savedForm)
 
-      if (typeof savedIndex === 'number') {
-        currentQuestionIndex.value = savedIndex
+  if (savedForm) {
+    form.value = savedForm
+  }
 
-            // Подождать и проскроллить к нужной кнопке
-        await nextTick()
-        const el = questionButtonsRefs.value[savedIndex]
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
-        }
-      }
-    
+  const savedIndex = loadFromDeviceStorage(CURRENT_INDEX_KEY)
+  console.log('Loaded index from storage:', savedIndex)
+
+  if (typeof savedIndex === 'number') {
+    currentQuestionIndex.value = savedIndex
+
+    // Подождать и проскроллить к нужной кнопке
+    await nextTick()
+    const el = questionButtonsRefs.value[savedIndex]
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
+    }
+  }
+
 })
 
 async function addQuestion() {
@@ -206,7 +206,7 @@ function markCorrectAnswer(questionIndex: number, answerIndex: number) {
 }
 
 async function submitInteractive(): Promise<number | null> {
-  showSavePopup.value=false
+  showSavePopup.value = false
   const f = form.value
 
   if (!f.title || !f.description || !f.target_audience || !f.location || !f.responsible_full_name) {
@@ -304,7 +304,7 @@ async function saveInteractive(): Promise<boolean> {
 
 async function saveInteractiveButton() {
   const id = await submitInteractive()
-  showSavePopup.value=false
+  showSavePopup.value = false
   if (id !== null) {
     router.push(`/leader/interactives`)
     clearDeviceStorage(SCROLL_POSITION_KEY)
@@ -314,12 +314,12 @@ async function saveInteractiveButton() {
 
 async function startInteractive() {
   const id = await submitInteractive()
-  showSavePopup.value=false
+  showSavePopup.value = false
   if (id !== null) {
     router.push(`/leader/${id}`)
   }
 }
-
+const showConfirmPopup = ref(false)
 const showSavePopup = ref(false)
 
 watch(form, (newForm) => {
@@ -390,8 +390,9 @@ watch(currentQuestionIndex, (newIndex) => {
         <div class="question-nav">
           <div class="question_nav_header">Навигатор по вопросам</div>
           <div class="question-buttons" ref="questionNavRef">
-            <button class="quest-nav-button" v-for="(q, index) in form.questions" :key="index" :ref="el => questionButtonsRefs[index] = el"
-              :class="{ active: index === currentQuestionIndex }" @click="currentQuestionIndex = index">
+            <button class="quest-nav-button" v-for="(q, index) in form.questions" :key="index"
+              :ref="el => questionButtonsRefs[index] = el" :class="{ active: index === currentQuestionIndex }"
+              @click="currentQuestionIndex = index">
               {{ index + 1 }}
             </button>
           </div>

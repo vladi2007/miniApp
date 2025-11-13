@@ -7,9 +7,13 @@
 .countdown_timer {
   padding: 0px;
   margin: 0px;
-
+display: flex;
   height: 100vh;
   background-color: #853cff;
+    display: flex;
+  justify-content: center;  /* по горизонтали */
+  align-items: center; 
+  position: relative;     /* по вертикали */
 }
 
 .countdown_timer-text {
@@ -17,13 +21,20 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 128px;
-  font-weight: 700;
   color: white;
 
   z-index: 3;
 
   pointer-events: none;
+
+  font-family: "Work Sans", sans-serif;
+font-weight: 700;
+font-size: clamp(30px, calc((128 / 390) * 100dvw),256px);
+
+line-height: 117%;
+letter-spacing: clamp(0.30px, calc((128 /100 / 390) * 100dvw),0.256px);
+vertical-align: middle;
+
 }
 
 #countdown_circle {
@@ -46,54 +57,46 @@
 }
 
 #countdown_circle_star {
-  position: absolute;
-  top: calc(50% + 75px);
+width: calc((390/390) * 100dvw);
+height: calc((460/844) * 100dvh);
 
-  left: calc(50% - 157px);
-
-  transform: translate(-50%, -50%);
-  z-index: 0;
 }
 
 #countdown_star_2 {
-  height: 213px;
-  width: 106px;
   position: absolute;
-  top: 230px;
 
   left: 0;
-
-  transform: translate(0, -50%);
-
+height: calc((213/844) * 100dvh);
+top:calc((131/844) * 100dvh);;
   z-index: 0;
 }
 
 #countdown_star_3 {
   position: absolute;
-  right: 108px;
+height: calc((121/844) * 100dvh);
+height:calc((121/844) * 100dvh);;
 
-  top: 95px;
-
-  transform: translateY(-50%);
-
+right: calc((13/844) * 100dvh);;
+  bottom: calc((133/844) * 100dvh);;
   z-index: 4;
 }
 
 #countdown_star_6 {
   position: absolute;
-  bottom: 60px;
+  bottom: calc((60/844) * 100dvh);;
 
-  left: 28px;
+  left: calc((28/844) * 100dvh);
 
   z-index: 0;
+  width: calc((83/390) * 100dvw);
+height: calc((83/844) * 100dvh);
 }
 
 #countdown_star_7 {
   position: absolute;
-  bottom: 133px;
-
-  right: 13px;
-
+top:0px;
+right: 0;
+height: calc((262/844) * 100dvh);
   z-index: 0;
 }
 

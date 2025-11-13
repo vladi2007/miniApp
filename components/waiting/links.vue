@@ -1,47 +1,16 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router'
+
+// imports
 import QrcodeVue from 'qrcode.vue'
 
-const route = useRoute()
-
-// Получаем interactive_id из параметров URL
-const interactiveId = route.params.id as string
+// data from backend
 const props = defineProps<{
   code: string
 }>()
-// Формируем URL
-const participantUrl = `https://t.me/ClikInteractive_Bot?start=${props.code}`
 
-
-//функция для копирования ссылки в буфер обмена
-function copyToClipboard() {
-  try {
-    // Создаём скрытое поле ввода
-    const input = document.createElement('input');
-    input.style.position = 'fixed';
-    input.style.opacity = '0';
-    input.value = participantUrl;
-    document.body.appendChild(input);
-    input.focus();
-    input.select();
-
-    const successful = document.execCommand('copy');
-    document.body.removeChild(input);
-
-    if (successful) {
-      window.Telegram?.WebApp?.showAlert?.('Ссылка скопирована!');
-    } else {
-      throw new Error('Не удалось скопировать');
-    }
-  } catch (err) {
-    console.error('Ошибка копирования (fallback):', err);
-    // Fallback на ручное копирование
-    const manualCopy = prompt('Не удалось автоматически скопировать. Скопируйте вручную:', participantUrl);
-    if (!manualCopy) {
-      window.Telegram?.WebApp?.showAlert?.('Копирование отменено.');
-    }
-  }
-}
+// composables
+import { UseLinks } from '~/composables/interactive/interactive_leader/waiting_leader/waiting_links';
+const {copyToClipboard, participantUrl, qrSize} = UseLinks(props.code)
 
 </script>
 
@@ -50,7 +19,7 @@ function copyToClipboard() {
     <div class="waiting_code-text">Код викторины:</div>
     <div class="waiting_code">{{ props.code }}</div>
     <div class="waiting_qr_code">
-      <QrcodeVue :value="participantUrl" :size="300" />
+       <QrcodeVue :value="participantUrl" :size="qrSize" class="qr" /> 
     </div>
     <div class="waiting_link">
       <div><img src='/images/waiting/line-md_link.svg' id="link" @click="copyToClipboard" title="Скопировать ссылку" />
@@ -62,92 +31,4 @@ function copyToClipboard() {
 </template>
 
 <style>
-.waiting_links_column {
-  font-family: 'Lato', sans-serif;
-  width: 526px;
-
-  margin-top: 191px;
-  height: 636px;
-  display: flex;
-  flex-direction: column;
-  /* Элементы идут вертикально */
-  align-items: center;
-  /* Центрирование по горизонтали */
-  /* Центрирование по вертикали */
-
-
-  border-radius: 30px;
-  border: 3px solid #853CFF;
-
-}
-
-
-
-.waiting_code-text {
-  margin-top: 44px;
-  font-family: 'Lato', sans-serif;
-  letter-spacing: 1px;
-  font-weight: 700;
-  font-size: 32px;
-  line-height: 24px;
-}
-
-.waiting_code {
-  font-family: 'Work Sans', sans-serif;
-  margin: 0 auto;
-  font-weight: 700;
-  font-size: 64px;
-  vertical-align: middle;
-  line-height: 28px;
-  ;
-  margin-top: 44px;
-  color: #853CFFB2;
-  letter-spacing: 3px;
-}
-
-.waiting_qr_code {
-  background-color: #853CFF;
-  height: 300px;
-  width: 300px;
-  font-family: 'Lato', sans-serif;
-  margin-top: 35px;
-}
-
-.waiting_link {
-  display: flex;
-  align-items: center;
-  font-family: 'Lato', sans-serif;
-  margin-top: 53px;
-  width: 428px;
-  border-radius: 14px;
-  border: 3px solid #853CFF;
-  height: 51px;
-  ;
-
-
-}
-
-.waiting-link_text {
-  font-family: 'Lato', sans-serif;
-  font-weight: 700;
-  font-size: 32px;
-  line-height: 30px;
-  vertical-align: middle;
-  padding-left: 25px;
-  white-space: nowrap;
-  /* Запрещает перенос строк */
-  overflow: hidden;
-  /* Обрезает содержимое */
-  text-overflow: ellipsis;
-}
-
-#link {
-  font-family: 'Lato', sans-serif;
-  font-weight: 700;
-  font-size: 32px;
-  line-height: 24px;
-  vertical-align: middle;
-  margin-left: 12px;
-  ;
-}
 </style>

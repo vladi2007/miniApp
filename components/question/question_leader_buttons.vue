@@ -1,27 +1,35 @@
 <script setup lang="ts">
+
+// imports
+import { saveToLocaleStorage, loadFromLocalStorage, clearLocalStorage } from '~/utils/deviceStorage'
+
+// data from backend
 const props = defineProps<{
   onStatus: (status: string) => void
   pause: string
 }>()
-import { saveToLocaleStorage, loadFromLocalStorage, clearLocalStorage } from '~/utils/deviceStorage'
+
+// key for localStorage
 const route = useRoute()
 const interactiveId = route.params.id as string
 const localStorageKey = `isPaused_${interactiveId}`
-// Состояние паузы: true — пауза активна, false — неактивна
-// Читаем состояние из localStorage при инициализации
-const isPaused = ref(false)// вызов функции от родительского компонента для отправки флага пауза интерактива на бекенд
-// Функция записи состояния в localStorage
 
+// flag for change button
+const isPaused = ref(false)
+
+// change button
 function togglePause() {
   isPaused.value = !isPaused.value
   saveToLocaleStorage(localStorageKey, isPaused.value)
   props.onStatus('pause')
 }
-// вызов функции от родительского компонента для отправки флага конец интерактива на бекенд
+
+// end interactive
 function endInteractive() {
   props.onStatus('end')
 }
 
+//watcher for button
 watch(() => props.pause, (newWal) => {
   if (newWal === "yes") {
     isPaused.value = true
@@ -29,12 +37,10 @@ watch(() => props.pause, (newWal) => {
   else if (newWal === "no") {
     isPaused.value = false
   }
-
-
-
 }, { immediate: true }
 )
 
+// load button state from localStorage
 onMounted(() => {
   const storedValue = loadFromLocalStorage(localStorageKey)
   isPaused.value = storedValue !== null ? storedValue : false
@@ -46,14 +52,14 @@ onMounted(() => {
   <div class="question_leader_buttons_fon">
     <div class="question_leader_buttons">
       <div>
-        <button class="goto_end" @click="endInteractive">
+        <div class="goto_end" @click="endInteractive" style="cursor: pointer;">
           Завершить
-        </button>
+        </div>
       </div>
       <div>
-        <button :class="isPaused ? 'continue' : 'pause'" @click="togglePause">
+        <div :class="isPaused ? 'continue' : 'pause'" @click="togglePause" style="cursor: pointer;">
           {{ isPaused ? 'Продолжить' : 'Пауза' }}
-        </button>
+        </div>
       </div>
     </div>
   </div>

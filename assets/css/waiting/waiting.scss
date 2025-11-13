@@ -7,64 +7,85 @@
 .waiting_participant_waiting {
   padding: 0px;
   margin: 0px;
-  width: 100%;
-  height: 100%;
+  width: 100dvw;
+  height: 100dvh;
   font-family: "Lato", sans-serif;
   background-color: #853cff;
 }
 
 .waiting_description {
-  position: relative;
+  position: relative;  z-index: 33;
 }
 
 .waiting_logo {
-  padding-top: 23px;
-  margin-left: 36px;
+ 
 }
-
+#_waiting_logo{
+  position: absolute;
+     top:calc((23 / 844) * 100dvh);
+  left: calc((36 / 390) * 100dvw);
+    width: calc((50 / 390) * 100dvw);
+  height: calc((20 / 844) * 100dvh);
+}
 .waiting_description-content {
-  margin-top: 115px;
+  margin-top: calc((158 / 844) * 100dvh);
   background-color: white;
   width: 100%;
-  height: calc(100vh - 157px);
+  height: calc(100dvh - calc((158 / 844) * 100dvh));
   border-top-left-radius: 26px;
   border-top-right-radius: 26px;
   border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
+  border-bottom-right-radius: 0;  position: relative;  
+   z-index: 90;
 }
 
 .waiting_description-content > p {
-  padding-top: 79px;
+  padding-top: calc((79 / 844) * 100dvh);
   text-align: center;
   font-weight: 500;
-  font-size: 16px;
+  
+  ;z-index: 33;
+  font-family: "Lato", sans-serif;
+font-weight: 500;
+font-style: Medium;
+line-height: 24px;
+vertical-align: middle;
+font-size: clamp(10px, calc((16 / 390) * 100dvw),32px);
+letter-spacing:  clamp(0.10px, calc((16 / 100 / 390) * 100dvw),0.32px);
+
 }
 
 .waiting_grey {
   background-color: #a9a9a9;
-  top: 140px;
-
+top:calc((140 / 844) * 100dvh);
+height: 100px;
   position: absolute;
-  border-radius: 26px;
-  width: 100%;
+  width: calc((354 / 390) * 100dvw);
+  z-index: 0;
+  left: calc((18 / 390) * 100dvw);;
+    border-top-left-radius: 26px;
+  border-top-right-radius: 26px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;z-index: 33;
+  
 }
 
 .waiting_grey-line {
-  height: 7px;
   background-color: #a9a9a9;
-  top: 135px;
 
-  position: absolute;
-  border-radius: 26px;
-  width: 72px;
+  position: absolute;z-index: 9999;
+     width: calc((72 / 390) * 100dvw);
+  height: calc((7 / 844) * 100dvh);
+  left:calc((159 / 390) * 100dvw);; ;
+  border-radius: 5px;;
+   top: calc((178 / 844) * 100dvh);
 }
 
 .waiting_fixed {
   position: absolute;
-
   right: 0;
-
+   height: calc((144.32 / 844) * 100dvh);
+  top:calc((-6 / 844) * 100dvh);
   z-index: 0;
 
-  top: 6px;
 }

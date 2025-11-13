@@ -8,10 +8,10 @@ import main_menu from '~/components/main_menu/main_menu.vue'
 
 // страница для защиты доступа к функционалу 
 const webApp = ref(null)
+const initDataUnsafe = ref(null)
+const my_interactives = ref(null)
 
-
-
-const initDataUnsafe=ref(null)
+const isLoading = ref(true) // <- новый флаг
 
 const isReady = ref(false)
 const role = ref(null)
@@ -22,7 +22,6 @@ onMounted(async () => {
      //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
     const { $telegram } = useNuxtApp();
     userId.value = $telegram.initDataUnsafe.value?.user?.id;
-    
     if (userId.value) {
       const  data = await useFetch('/api/role', {
         query: {

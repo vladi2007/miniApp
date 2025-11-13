@@ -48,8 +48,13 @@ watch(userId, (newUserId) => {
 // props для компонента
 const data_props = ref({
   stage: '',
-  data: {}
+  data: {},
+  pause: {},
+  data_answers: {},
+  winners:{},
+  score:{}
 })
+
 
 // Парсим и обновляем data_props при изменении data.value
 watch(data, (newVal) => {
@@ -58,15 +63,38 @@ watch(data, (newVal) => {
     const parsedData = JSON.parse(newVal)
     data_props.value.stage = parsedData.stage || ''
     data_props.value.data = parsedData.data || {}
+    data_props.value.pause = parsedData.pause || {}
+     data_props.value.data_answers = parsedData.data_answers || {}
+     data_props.value.winners = parsedData.winners || {}
+       data_props.value.score = parsedData.score || {}
   } catch (error) {
-   
+    console.error("Ошибка при разборе данных WebSocket:", error)
   }
 })
-// Отправка ответа
-function sendAnswer(answerId) {
-  send(JSON.stringify({ answer_id: answerId }))
-}
 
+// // Отправка ответа
+// function sendAnswer(answer) {
+
+//   // Если ответ — число
+//   if (data_props.data?.question?.type ==='one') {
+//     send(JSON.stringify({ answer_id: String(answer) }))
+//   }
+//   // Если ответ — массив чисел
+//   else if (data_props.data?.question?.type ==='many') {
+//     const answer_ids = answer.map(String)
+//     send(JSON.stringify({ answer_ids:answer_ids }))
+//   }
+//   // Всё остальное — считаем текстом
+//   else {
+//     send(JSON.stringify({ answer_text: answer }))
+//   }
+// }
+
+
+function sendAnswer(answer) {
+
+  send(JSON.stringify({ answer_id: String(answer) }))
+}
 const componentMap = {
   waiting: Waiting,
   countdown: Countdown,
@@ -82,9 +110,7 @@ const timerData = ref({})
 
 <template>
   <div>
-
-
     <component v-if="data_props.stage" :is="componentMap[data_props.stage]" :data="data_props.data"
-      :stage="data_props.stage" :onAnswer="sendAnswer" context="participant"/>
+      :stage="data_props.stage" :onAnswer="send" context="participant" :data_answers="data_props.data_answers" :winners="data_props.winners" :score="data_props.score"/>
   </div>
 </template>

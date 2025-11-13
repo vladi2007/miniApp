@@ -1,50 +1,32 @@
+:root {
+  --app-height: 100vh;
+}
 .winners_table {
   font-family: "Lato", sans-serif;
-  margin-top: 5px;
+  margin-top:calc((25 / 844) * var(--app-height));
   display: flex;
 
   justify-content: center;
 }
 
 .table {
-  margin-top: 5px;
-  width: 332px;
-  height: 292px;
+  height: calc((313 / 844) * var(--app-height));
+  width: calc((370 / 390) * 100dvw);
+  ;
   border: 2px solid #d9d9d9;
-  border-radius: 30px;
+  border-radius:calc((15 / 844) * var(--app-height));
 }
 
 .title {
   font-family: "Lato", sans-serif;
-  text-align: center;
-  margin-top: 6px;
-  font-weight: 700;
-  font-size: 16px;
-  line-height: 24px;
+font-weight: 500;
+font-style: Medium;
+font-size: clamp(10px, calc((16 / 390) * 100dvw),32px);
+letter-spacing:  clamp(0.10px, calc((16 / 100 / 390) * 100dvw),0.32px);
+text-align: center;
+vertical-align: middle;
+height: calc((24 / 844) * var(--app-height));;
+margin-top:calc((6 / 844) * var(--app-height));;
 }
 
-.winners_list {
-  display: grid;
-  grid-template-rows: repeat(3, 1fr);
 
-  gap: 29px;
-
-  margin-top: 45px;
-  padding: 0 16px;
-}
-
-#first {
-}
-
-.winner {
-  background-color: #f7f7f7;
-  padding: 6px;
-
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  text-align: left;
-}
-.name {
-  margin-left: 14px;
-}

@@ -10,12 +10,19 @@ export interface QuestionData {
     id: string
     text: string
     position: string
+    type:string
+    question_weight:string
+     image:string
   }
   answers: {
     id: string
     text: string
   }[]
-  id_correct_answer: string
+  data_answers:{
+    text:string,
+    percentage:string
+  }[]
+  id_correct_answer: string | string[]
   percentages: {
     id: string
     percentage: number
@@ -28,12 +35,36 @@ export interface EndData {
   
     title: string
     participants_total: string
-    winners: {
-    position: string
-    username: string
-  }[]
+     winners: { position: number, username: string, time: number, score: number }[]
   
   
+}
+
+export interface QuestionTextCorrect {
+  is_correct:boolean
+    answer:string
+    percentage:string
+}
+
+
+export interface QuestionTextNotCorrect {
+    is_correct:boolean
+    answers:{
+answer:string
+    percentage:string
+    }[]
+     
+}
+export interface EndWinners{
+  position:string,
+  username:string,
+  score:string,
+  time:string
+}
+export interface QuestionWinners{
+  position:string,
+  username:string,
+  score:string
 }
 // данные для фазы ожидания waiting
 export interface WaitingData {

@@ -1,21 +1,33 @@
 .interactive_leader_end {
-  width: 100%;
-  height: 100%;
+  width: 100dvw;  position: relative;
+  height: 100dvh;z-index: 0;
 }
-
+*{
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
 .interactive_end_leader_results {
   position: relative;
   margin: 0 auto;
-  width: 1380px;
-  height: 281px;
+  width: calc((1220/1280)*100dvw);
+  height:calc((248/832)*100dvh);
+  margin: 0 auto;
   background-color: #853cff;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   border-bottom-left-radius: 26px;
   border-bottom-right-radius: 26px;
 }
+.interactive_end_leader_results {
+  position: relative;
+  z-index: 0; /* создаёт базовый контекст, но без перекрытия детей */
+}
 #logo_leader {
   position: absolute;
-  right: 10px;
-  top: 12px;
+  width: calc((123/1280)*100dvw);
+
+  height:calc((50/832)*100dvh);
+  right: calc((10/1280)*100dvw);
+  top: calc((12/832)*100dvh);
 }

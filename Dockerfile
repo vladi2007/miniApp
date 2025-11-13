@@ -1,5 +1,5 @@
 # Этап сборки
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 # Установка рабочей директории
 WORKDIR /miniApp
@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Этап продакшена
-FROM node:18-alpine
+FROM node:22-alpine
 
 # Рабочая директория
 WORKDIR /miniApp

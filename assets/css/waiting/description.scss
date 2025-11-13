@@ -7,43 +7,57 @@ body {
   display: flex;
 
   justify-content: center;
+  position: relative;
+  z-index: 0;
 }
 
 .waiting_desc-content {
-  height: 223px;
-  width: 332px;
-  margin-top: 50px;
-
-  background-image: url("/images/waiting/Vector_100.svg");
-  background-repeat: no-repeat;
+  width: calc((354 / 390) * 100dvw);
+  min-height: calc((199 / 844) * 100dvh);position: relative;
+  z-index: 0;
+  margin-top: calc((50 / 844) * 100dvh);
+background-color: #853CFF;
+border-radius: calc((24 / 390) * 100dvw);
+padding-bottom: calc((20 / 844) * 100dvh);
 }
 
 .waiting_interactive-title {
   font-family: "Lato", sans-serif;
   color: #ffffff;
-  font-weight: 500;
-  margin-left: 19px;
-  font-size: 16px;
-  line-height: 24px;
-  margin-top: 28px;
-  width: 300px;
-  text-align: left;
+
+  width: calc((294 / 390) * 100dvw);
+
+font-weight: 500;
+font-style: Medium;
+vertical-align: middle;
+text-align: left;
   white-space: pre-wrap;
   word-break: break-word;
+font-size: clamp(10px, calc((16 / 390) * 100dvw),32px);
+letter-spacing:  clamp(0.10px, calc((16 / 100 / 390) * 100dvw),0.32px);
+line-height: clamp(10px, calc((24 / 390) * 100dvw),48px);;
+margin-top: calc((20 / 844) * 100dvh);
+  margin-left: calc((30 / 390) * 100dvw);
 }
-
+.waiting_interactive-title_line{
+  background-color: #FFFFFF;
+  height: 2px;;
+  width: calc((320 / 390) * 100dvw);
+  margin:0 auto;
+  margin-top: calc((10 / 844) * 100dvh);
+}
 .waiting_interactive-description {
-  margin-top: 24px;
-  font-family: "Lato", sans-serif;
+  font-family: "Lato", sans-serif;position: relative;
+  z-index: 0;
+    width: calc((294 / 390) * 100dvw);
   color: #ffffff;
   font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  margin-left: 19px;
-  max-width: 295px;
   white-space: pre-wrap;
   word-break: break-word;
+  font-size: clamp(10px, calc((16 / 390) * 100dvw),32px);
+  line-height: clamp(10px, calc((24 / 390) * 100dvw),48px);;
+letter-spacing:  clamp(0.10px, calc((16 / 100 / 390) * 100dvw),0.32px);
+  margin-top: calc((20 / 844) * 100dvh);
+  margin-left: calc((30 / 390) * 100dvw);
 }
-.waiting_interactive-description > p {
-  text-align: left;
-}
+

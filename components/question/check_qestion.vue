@@ -1,0 +1,83 @@
+<script setup lang="ts">
+
+// imports
+import { defineProps } from 'vue'
+
+// data from backend
+const props = defineProps<{
+  timer: string,
+  questions_count: string,
+  question: string,
+  answers: { text: string }[],
+  score: string,
+  currentIndex: string,
+  type: string,
+  image?: string // base64
+}>()
+
+// composables
+import { useTimer } from '~/composables/interactive/timer';
+const { type } = useTimer( toRef(props, 'type'))
+
+</script>
+
+<template>
+  <div class="check_question">
+
+    <div class="check_question_timer">
+      <div class="check_question_logo">
+        <img src="/public/images/interactive_editor/logo.svg" />
+      </div>
+      <div class="check_question_timer-text">Время на ответ: {{ props.timer }}</div>
+      <div class="check_question_green-line"></div>
+    </div>
+    <div class="check_question_question-list">
+      <div class="check_question_number">
+        <div class="check_question_question-num-text">
+          Вопрос {{ props.currentIndex + 1 }}<span style="color:#A9A9A9">/{{ props.questions_count }}</span>
+        </div>
+        <img src="/images/question/Star_3.svg" class="check_question_icon" />
+      </div>
+
+      <div class="check_question_title">{{ props.question ? props.question : 'Вопрос*' }} </div>
+      <div class="check_question_title_score">{{ type }}<br />Балл: {{ props.score }} </div>
+      <div v-if="props.image" class="check_question_image">
+        <img :src="props.image" alt="Изображение вопроса" class="question-image" />
+      </div>
+
+      <div class="check_question_list">
+        <div v-for="answer in answers" class="check_question_answer">
+          <span class="check_question_text">{{ answer.text ? answer.text : 'Поле для ввода' }}</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</template>
+
+<style scoped>
+@import url("/assets/css/question/check_question.scss");
+
+@import url("/assets/css/question/check_question_static.scss");
+.check_question{
+  overflow-y: hidden !important;
+}
+.check_question_image > img{
+  width: 100%;
+  aspect-ratio: 16/ 9;
+}
+
+/* Отключаем вертикальную прокрутку внутри устройства */
+:deep(.check_question) {
+  overflow-y: hidden !important;
+}
+
+/* Также можно убрать горизонтальный запас */
+:deep(.check_question > div) {
+  overflow-y: hidden !important;
+  overflow-x: hidden !important;
+}
+
+
+</style>
