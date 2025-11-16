@@ -193,6 +193,15 @@ watch(selectedInteractives, (newSelectedInteractives) => {
     console.log(newSelectedInteractives.length)
     selectMany.value = newSelectedInteractives.length > 0
 }, { deep: true })
+
+
+const router = useRouter()
+async function goTo(url: string) {
+    await clearDeviceStorage(HISTORY_KEY)
+    await clearDeviceStorage(HISTORY_SELECT_MANY_KEY)
+    await clearDeviceStorage(HISTORY_SELECT_ONE_KEY)
+  router.push(url)
+}
 </script>
 
 <template>
@@ -210,7 +219,7 @@ watch(selectedInteractives, (newSelectedInteractives) => {
             <div :class="['active_nav', 'nav_reports']">
                 Отчеты
             </div>
-            <div class="nav_broadcasts">
+            <div class="nav_broadcasts" @click="goTo('/leader/broadcasts')">
                 Рассылка
             </div>
         </div>
