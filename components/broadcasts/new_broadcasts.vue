@@ -206,7 +206,7 @@ function closePopup() {
             <div class="nav_main">
                 О нас
             </div>
-            <div class="nav_interactives">
+            <div class="nav_interactives" @click="goTo('/leader/new_interactives')">
                 Интерактивы
             </div>
             <div class="nav_reports" @click="goTo('/leader/history')">
@@ -453,7 +453,7 @@ function closePopup() {
     background-color: #853CFF;
 }
 
-.broadcasts_input {
+.broadcasts_input {width: calc((483/1280) * 100dvw);
     margin-left: calc((112 /1280) * 100dvw);
     margin-top: calc((25/832) * 100dvh);
 }

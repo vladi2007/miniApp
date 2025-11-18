@@ -7,12 +7,12 @@ async function confirmBack(save) {
     const success = await settings.value.handleSave()
     if (success) {
       showConfirmPopup.value = false
-      route.push('/leader/interactives')
+      route.push('/leader/new_interactives')
     }
     else { showConfirmPopup.value = false }
   } else {
     showConfirmPopup.value = false
-    route.push('/leader/interactives')
+    route.push('/leader/new_interactives')
   }
 }
 const showConfirmPopup = ref(false)

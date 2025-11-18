@@ -213,7 +213,7 @@ async function goTo(url: string) {
             <div class="nav_main">
                 О нас
             </div>
-            <div class="nav_interactives">
+            <div class="nav_interactives" @click="goTo('/leader/new_interactives')">
                 Интерактивы
             </div>
             <div :class="['active_nav', 'nav_reports']">
