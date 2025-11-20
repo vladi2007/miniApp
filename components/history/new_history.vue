@@ -60,7 +60,7 @@ onMounted(async () => {
 
                 query: {
                     telegram_id: userId.value,
-                    filter: "all",
+                    filter: "conducted",
                     from_number: from_number.value,
                     to_number: to_number.value,
                 },
@@ -84,7 +84,7 @@ async function more_load() {
 
             query: {
                 telegram_id: userId.value,
-                filter: "all",
+                filter: "conducted",
                 from_number: from_number,
                 to_number: to_number,
             },
