@@ -210,16 +210,16 @@ async function goTo(url: string) {
             <img src="/public/images/interactive_editor/logo.svg" id="logo_header" />
         </div>
         <div class="nav">
-            <div class="nav_main">
+            <div class="nav_main"  @click="goTo('/leader/main_menu')" style="cursor: pointer;">
                 О нас
             </div>
-            <div class="nav_interactives" @click="goTo('/leader/new_interactives')">
+            <div class="nav_interactives" @click="goTo('/leader/new_interactives')" style="cursor: pointer;">
                 Интерактивы
             </div>
             <div :class="['active_nav', 'nav_reports']">
                 Отчеты
             </div>
-            <div class="nav_broadcasts" @click="goTo('/leader/broadcasts')">
+            <div class="nav_broadcasts" @click="goTo('/leader/broadcasts')"style="cursor: pointer;">
                 Рассылка
             </div>
         </div>
