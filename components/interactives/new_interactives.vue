@@ -1,23 +1,43 @@
 <script setup lang="ts">
-const router = useRouter()
-async function goTo(url: string) {
-    router.push(url)
-}
+import { postEvent } from '@telegram-apps/sdk';
+import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorage'
+
 
 const finder = ref<string>("")
 
 const isOpen = ref(false)
-const selectedText = ref("Все")
+const selectedText = ref("all")
 
 const options = ["Все", "Проведенные", "Не проведенные"]
-
+const options_code={
+    "all":"Все",
+    "conducted":"Проведенные",
+    "not_conducted":"Не проведенные"
+}
 function toggleDropdown() {
     isOpen.value = !isOpen.value
 }
 
-function selectOption(option: string) {
+async function selectOption(option: string) {
     selectedText.value = option
     isOpen.value = false
+    to_number.value= 9
+    if (userId.value) {
+            const data = await useFetch('/api/reports/preview', {
+
+                query: {
+                    telegram_id: userId.value,
+                    filter: selectedText.value,
+                    from_number: from_number.value,
+                    to_number: to_number.value,
+                },
+            });
+            props.value = data;
+            list.value = data.data.value.interactives_list;
+            isReady.value = true;
+            console.log(data.data.value.interactives_list)
+            is_end.value = data.data.value.is_end
+        }
 }
 const dropdownRef = ref<HTMLElement | null>(null)
 const dropdownRefsMore = ref<(HTMLElement | null)[]>([])
@@ -56,78 +76,95 @@ onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside)
 })
 const is_empty_list = computed(() => {
-    if (list.value.length > 0) {
+    if (list?.value?.length > 0) {
         return false;
     } else {
         return true;
     }
 })
-
+const webApp = ref(null)
 const list = ref<any>([
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 14:59",
-        id: "1",
-        participant_count: "10",
-        is_conducted: true,
-    },
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 7:35",
-        id: "2",
-        participant_count: "210",
-        is_conducted: false,
-    },
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 1:35",
-        id: "3",
-        participant_count: "2202",
-        is_conducted: true,
-    },
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 14:59",
-        id: "4",
-        participant_count: "220",
-        is_conducted: false,
-    },
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 7:35",
-        id: "5",
-        participant_count: "210",
-        is_conducted: true,
-    },
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 1:35",
-        id: "6",
-        participant_count: "2202",
-        is_conducted: false,
-    },
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 14:59",
-        id: "7",
-        participant_count: "220",
-        is_conducted: true,
-    },
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 7:35",
-        id: "8",
-        participant_count: "210",
-        is_conducted: false,
-    },
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 1:35",
-        id: "9",
-        participant_count: "2202",
-        is_conducted: true,
-    },
+   
 ])
+const userId = ref(null)
+const props = ref()
+const isReady = ref(false)
+const from_number = ref<Number>(0)
+const to_number = ref<Number>(9)
+const is_end = ref<string>("")
+const INTERACTIVES_TO_NUMBER_KEY = 'interactives_to_number'
+const INTERACTIVES_FILTER_KEY = 'interactives_filter'
+watch(to_number, (new_Numb) => {
+    saveToDeviceStorage(INTERACTIVES_TO_NUMBER_KEY, new_Numb)
+})
+watch(selectedText, (newText) => {
+    saveToDeviceStorage(INTERACTIVES_FILTER_KEY, newText)
+})
+watch(props, (newProps) => {
+    if (newProps?.data?.value?.interactives_list) {
+        list.value = newProps.data.interactives_list
+    }
+    is_end.value = newProps.data.is_end
+    console.log(list)
+})
+
+const router = useRouter()
+async function goTo(url: string) {
+    router.push(url)
+    await clearDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
+     await clearDeviceStorage(INTERACTIVES_FILTER_KEY)
+}
+onMounted(async () => {
+    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+        webApp.value = window.Telegram.WebApp
+        //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
+        const { $telegram } = useNuxtApp();
+        userId.value = $telegram.initDataUnsafe.value?.user?.id;
+       
+        const saved_to = loadFromDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
+        to_number.value = saved_to || 9
+        const saved_filter = loadFromDeviceStorage(INTERACTIVES_FILTER_KEY)
+        selectedText.value=saved_filter || "all"
+        if (userId.value) {
+            const data = await useFetch('/api/reports/preview', {
+
+                query: {
+                    telegram_id: userId.value,
+                    filter: selectedText.value,
+                    from_number: from_number.value,
+                    to_number: to_number.value,
+                },
+            });
+            props.value = data;
+            list.value = data.data.value.interactives_list;
+            isReady.value = true;
+            console.log(data.data.value.interactives_list)
+            is_end.value = data.data.value.is_end
+        }
+    }
+
+
+
+});
+async function more_load() {
+    to_number.value = to_number.value + 10
+    if (userId.value) {
+        const data = await useFetch('/api/reports/preview', {
+
+            query: {
+                telegram_id: userId.value,
+                filter: selectedText.value,
+                from_number: from_number,
+                to_number: to_number,
+            },
+        });
+        props.value = data;
+        list.value = data.data.value.interactives_list;
+        isReady.value = true;
+        console.log(data.data.value.interactives_list)
+        is_end.value = data.data.value.is_end
+    }
+}
 const showPopup = ref(false);
 const currentInteractiveId = ref<string | null>(null)
 function Popup(id: string) {
@@ -154,6 +191,146 @@ function toggleItemDropdown(id: string) {
         openDropdownId.value = null
     } else {
         openDropdownId.value = id
+    }
+}
+
+
+function closePopup() {
+  showPopup.value = false;
+
+}
+
+async function duplicateAndSaveInteractive(id: string) {
+  showPopup.value = false
+  try {
+
+
+    const data = await $fetch(`/api/get_interactive`, {
+      method: 'GET',
+      query: {
+        telegram_id: userId.value,
+        id: id
+      }
+    })
+    const plain = JSON.parse(JSON.stringify(data));
+    const payload = {
+      title: plain.title ?? "",
+      description: plain.description ?? "",
+      target_audience: plain.target_audience ?? "",
+      location: plain.location ?? "",
+      responsible_full_name: plain.responsible_full_name ?? "",
+      answer_duration: plain.answer_duration ?? 10,
+      discussion_duration: plain.discussion_duration ?? 5,
+      countdown_duration: plain.countdown_duration ?? 5,
+      questions: await Promise.all(
+        (plain.questions ?? []).map(async (q: any, index: number) => {
+          const imageUrl = q.image || "";
+
+          
+
+          return {
+            question: {
+              type: q.type || "one",
+              image: imageUrl,
+              score: q.score || 1,
+              position: index + 1,
+              text: q.text || "",
+              answers:
+                q.answers?.map((a: any) => ({
+                  text: a.text || "",
+                  is_correct: a.is_correct || false,
+                })) ?? [],
+            },
+          };
+        })
+      ),
+    };
+    const formData = new FormData();
+
+    
+    formData.append("telegram_id", String(userId?.value || 0));
+    formData.append("interactive", JSON.stringify(plain));
+    const response = await $fetch("/api/create_interactive", {
+        method: "POST",
+        query: {
+          telegram_id: userId?.value || 0,
+        },
+        body: formData,
+      });
+
+      if (userId.value) {
+            const data = await useFetch('/api/reports/preview', {
+
+                query: {
+                    telegram_id: userId.value,
+                    filter: selectedText.value,
+                    from_number: from_number.value,
+                    to_number: to_number.value,
+                },
+            });
+            props.value = data;
+            list.value = data.data.value.interactives_list;
+            isReady.value = true;
+            console.log(data.data.value.interactives_list)
+            is_end.value = data.data.value.is_end
+        }
+  } catch (err) {
+    console.error('Ошибка дублирования:', err)
+    window.Telegram.WebApp.showAlert('Не удалось продублировать интерактив.')
+  }
+}
+const show_report_Popup= ref<boolean>(false)
+const selectedOption = ref<string | null>("");
+const selectedInteractive = ref<number>(0);
+async function submitReport() {
+    showPopup.value = false
+    if ( selectedInteractive) {
+        if (selectedOption.value !== 'forAnalise' && selectedOption.value !== 'forLeader') {
+            window.Telegram.WebApp.showAlert(`Выберите тип отчета!`);
+            return;
+        }
+        try {
+            const interactiveIds = [{ id: selectedInteractive.value }];
+
+            const body = {
+                telegram_id: userId.value,
+                interactive_id: interactiveIds,
+                report_type: selectedOption.value
+            };
+
+            const response = await fetch('/api/reports/export', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Ошибка сервера');
+            }
+
+            const data = await response.json()
+
+            if (data.url) {
+
+                postEvent('web_app_request_file_download', {
+                    url: `https://voshod07.ru${data.url}`,
+                    file_name: data.userFileName
+                })
+            } else {
+                throw new Error(data.error || 'Не удалось получить ссылку на файл')
+            }
+        } catch (error) {
+            window.Telegram.WebApp.showAlert(`Ошибка при выгрузке отчета: ${error.message}`);
+        }
+    }
+    else {
+        window.Telegram.WebApp.showAlert(`Выберите хотя бы один интерактив для формирования отчёта!`);
+    }
+    if (window.Telegram?.WebApp?.expand) {
+        setTimeout(() => {
+            Telegram.WebApp.requestFullscreen()
+        }, 0);
     }
 }
 </script>
@@ -195,16 +372,19 @@ function toggleItemDropdown(id: string) {
                 </div>
             </div>
 
-            <div class="interactives_custom-dropdown-options" v-if="isOpen">
+             <div class="interactives_custom-dropdown-options" v-if="isOpen">
                 <div class="interactives_custom-dropdown-option-list">
-                    <div class="interactives_custom-dropdown-option" v-for="(option, index) in options" :key="index"
-                        @click.stop="selectOption(option)">
-                        <img class="interactives_custom-dropdown-circle" src="/public/images/interactives/picked.svg"
-                            v-if="selectedText === option" />
-                        <img class="interactives_custom-dropdown-circle" src="/public/images/interactives/Ellipse.svg"
-                            v-else />
-
-                        <div class="interactives_custom-dropdown-text">{{ option }}</div>
+                    <div class="interactives_custom-dropdown-option" 
+                         v-for="(label, value) in options_code" 
+                         :key="value"
+                         @click.stop="selectOption(value)">
+                        <img class="interactives_custom-dropdown-circle" 
+                             src="/public/images/interactives/picked.svg"
+                             v-if="selectedText === value" />
+                        <img class="interactives_custom-dropdown-circle" 
+                             src="/public/images/interactives/Ellipse.svg"
+                             v-else />
+                        <div class="interactives_custom-dropdown-text">{{ label }}</div>
                     </div>
                 </div>
             </div>
@@ -277,7 +457,7 @@ function toggleItemDropdown(id: string) {
                             </div>
                             <div class="interactives_item-dropdown-options" v-if="openDropdownId === item.id"
                                 style=" z-index: 10001 !important;">
-                                <div class="interactives_item-dropdown-option"
+                                <div class="interactives_item-dropdown-option"@click="show_report_Popup = true; selectedInteractive=item.id; openDropdownId=null;"
                                     style="  margin-top: calc((22/832)*100dvh);">
                                     <img src="/public/images/interactives/download.svg"
                                         class="interactives_item-dropdown-icon"
@@ -298,7 +478,47 @@ function toggleItemDropdown(id: string) {
                 </div>
                 <div class="interactives_Line" />
             </div>
-            <div class="interactives_show_more">Показать еще</div>
+            <div class="interactives_show_more"v-if="!is_end" @click="more_load()">Показать еще</div>
+        </div>
+
+        <div v-if="showPopup" class="interactives_popup-overlay">
+      <div class="interactives_popup">
+        <div class="interactives_popup-header">
+          <div class="interactives_popup-header-text">Вы точно хотите продублировать выбранный интерактив?</div>
+          <img src="/images/history/Vector_1.svg" class="interactives_popup-close" @click="closePopup" />
+        </div>
+        <div class="interactives_popup-body">
+
+          <button class="interactives_popup-button"
+            @click="duplicateAndSaveInteractive(String(currentInteractiveId))">Да</button>
+          <button class="interactives_popup-button" @click="closePopup()">Нет</button>
+          <button class="interactives_popup-button" @click="dublicate_interactive(String(currentInteractiveId))">Да, и
+            хочу его сразу отредактировать</button>
+        </div>
+      </div>
+    </div>
+    </div>
+
+
+    <div v-if="show_report_Popup===true" class="popup-overlay">
+        <div class="popup">
+            <div class="popup-header">
+                <div class="popup-header-text">Какой отчет хотите выгрузить</div>
+                <img src="/images/history/Vector_1.svg" class="popup-close" @click="show_report_Popup=false; selectedInteractive = 0; selectedOption=''" />
+            </div>
+            <div class="popup-body">
+                <label class="popup-option">
+                    <input type="radio" v-model="selectedOption" value="forLeader" />
+                    <span class="popup-option-span">Отчет для ведущего</span>
+                </label>
+                <label class="popup-option">
+                    <input type="radio" v-model="selectedOption" value="forAnalise" />
+                    <span class="popup-option-span">Отчет для обработки</span>
+                </label>
+            </div>
+            <div class="popup-footer">
+                <button @click="submitReport" class="popup-submit">Выгрузить</button>
+            </div>
         </div>
     </div>
 </template>
@@ -919,5 +1139,93 @@ width: calc((271/1280) * 100dvw);
 
 .interactives_more_options>img {
     z-index: 0 !important;
+}
+
+
+
+.interactives_popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+
+  z-index: 11999;
+
+  display: flex;
+  justify-content: center;
+}
+
+.interactives_popup {
+  margin-top: 360px;
+  background: white;
+  border-radius: 35px;
+  width: 818px;
+  height: 438px;
+
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+  position: relative;
+}
+.interactives_popup-close {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  cursor: pointer;
+  font-size: 30px;
+  color: #aaa;
+}
+.interactives_popup-header-text {
+  font-family: "Lato", sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+  letter-spacing: 1px;
+  padding-top: 48px;
+  width: 718px;
+  margin: 0 auto;
+  height: 20px;
+}
+.interactives_popup-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 24px;
+}
+.interactives_popup-button {
+  width: 320px;
+  height: 62px;
+  border-radius: 5px;
+  font-family: "Lato", sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+.interactives_popup-button:nth-child(2) {
+  background-color: #f0436c;
+  color: white;
+}
+.interactives_popup-button:nth-child(2):hover {
+  background-color: #de7d94;
+}
+
+.interactives_popup-button:nth-child(3) {
+  background-color: #853cff;
+  color: white;
+}
+.interactives_popup-button:nth-child(3):hover {
+  background-color: #aa77ff;
+}
+
+.interactives_popup-button:nth-child(1) {
+  background-color: #6ab23d;
+  color: white;
+}
+.interactives_popup-button:nth-child(1):hover {
+  background-color: #9ac57e;
 }
 </style>

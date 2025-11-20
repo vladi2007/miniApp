@@ -12,7 +12,7 @@ const selectedInteractive = ref<number>(0);
 const selectedOption = ref<string | null>("");
 const selectMany = ref(false);
 const from_number = ref(0)
-const to_number = ref(10)
+const to_number = ref(9)
 watch(selectedInteractives, (newSelectedInteractives) => {
     saveToDeviceStorage(HISTORY_KEY, newSelectedInteractives);
 }, { deep: true });
@@ -51,7 +51,7 @@ onMounted(async () => {
             selectMany.value = savedSelectMany;
         }
         const saved_to = loadFromDeviceStorage(HISTORY_TO_NUMBER_KEY)
-        to_number.value = saved_to || 10
+        to_number.value = saved_to || 9
         const savedSelectOne = loadFromDeviceStorage(HISTORY_SELECT_ONE_KEY)
 
 
@@ -61,8 +61,8 @@ onMounted(async () => {
                 query: {
                     telegram_id: userId.value,
                     filter: "all",
-                    from_number: from_number,
-                    to_number: to_number,
+                    from_number: from_number.value,
+                    to_number: to_number.value,
                 },
             });
             props.value = data;
@@ -78,7 +78,7 @@ onMounted(async () => {
 });
 
 async function more_load() {
-    to_number.value = to_number.value + 3
+    to_number.value = to_number.value + 10
     if (userId.value) {
         const data = await useFetch('/api/reports/preview', {
 
@@ -144,10 +144,8 @@ async function submitReport() {
             const hasSelectedInteractives = selectedInteractives.value.length > 0;
             let interactiveIds;
             if (hasSelectedInteractives) {
-                // Множественный выбор
                 interactiveIds = selectedInteractives.value.map(id => ({ id }));
             } else {
-                // Одиночный выбор
                 interactiveIds = [{ id: selectedInteractive.value }];
             }
 
@@ -801,7 +799,7 @@ async function goTo(url: string) {
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 999;
+    z-index: 10000999;
     display: flex;
     justify-content: center;
 }

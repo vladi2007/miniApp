@@ -47,7 +47,7 @@ function handleBackClick() {
   </div>
 </template>
 
-<style>
+<style >
 @import url("/assets/css/interactive_editor/settings.scss");
 @import url("/assets/css/interactive_editor/settings_media.scss");
 @import url("/assets/css/interactive_editor/create_interactive.scss");
