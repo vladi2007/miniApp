@@ -1,17 +1,18 @@
 <script setup lang="ts">
-
+import { postEvent } from '@telegram-apps/sdk';
 import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorage'
 
 const HISTORY_KEY = 'history_interactives'
 const HISTORY_SELECT_MANY_KEY = 'history_select_many'
 const HISTORY_SELECT_ONE_KEY = 'history_select_one'
-
+const HISTORY_TO_NUMBER_KEY = 'history_to_number'
 const showPopup = ref<boolean>(false);
 const selectedInteractives = ref<number[]>([]);
 const selectedInteractive = ref<number>(0);
 const selectedOption = ref<string | null>("");
 const selectMany = ref(false);
-
+const from_number = ref(0)
+const to_number = ref(10)
 watch(selectedInteractives, (newSelectedInteractives) => {
     saveToDeviceStorage(HISTORY_KEY, newSelectedInteractives);
 }, { deep: true });
@@ -22,12 +23,16 @@ watch(selectMany, (newSelectMany) => {
 watch(selectedInteractive, (newSelectOne) => {
     saveToDeviceStorage(HISTORY_SELECT_ONE_KEY, newSelectOne)
 })
+watch(to_number, (new_Numb) => {
+    saveToDeviceStorage(HISTORY_TO_NUMBER_KEY, new_Numb)
+})
 
 const webApp = ref(null)
 
 const userId = ref(null)
-const props = ref(null)
+const props = ref()
 const isReady = ref(false)
+
 onMounted(async () => {
     if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
         webApp.value = window.Telegram.WebApp
@@ -45,92 +50,71 @@ onMounted(async () => {
         if (savedSelectMany && selectedInteractives.value.length > 0) {
             selectMany.value = savedSelectMany;
         }
+        const saved_to = loadFromDeviceStorage(HISTORY_TO_NUMBER_KEY)
+        to_number.value = saved_to || 10
         const savedSelectOne = loadFromDeviceStorage(HISTORY_SELECT_ONE_KEY)
-        //    if (savedSelectOne){
-        //     selectedInteractive.value = savedSelectOne
-        //    }
 
-        // const data = await useFetch('/api/reports/preview', {
 
-        //   query: {
-        //     telegram_id: userId.value
-        //   },
-        // });
-        //props.value = data!!!!!!!!!! пропсы надо будет сделать
+        if (userId.value) {
+            const data = await useFetch('/api/reports/preview', {
 
-        isReady.value = true
-
+                query: {
+                    telegram_id: userId.value,
+                    filter: "all",
+                    from_number: from_number,
+                    to_number: to_number,
+                },
+            });
+            props.value = data;
+            list.value = data.data.value.interactives_list;
+            isReady.value = true;
+            console.log(data.data.value.interactives_list)
+            is_end.value = data.data.value.is_end
+        }
     }
+
+
+
 });
 
+async function more_load() {
+    to_number.value = to_number.value + 3
+    if (userId.value) {
+        const data = await useFetch('/api/reports/preview', {
+
+            query: {
+                telegram_id: userId.value,
+                filter: "all",
+                from_number: from_number,
+                to_number: to_number,
+            },
+        });
+        props.value = data;
+        list.value = data.data.value.interactives_list;
+        isReady.value = true;
+        console.log(data.data.value.interactives_list)
+        is_end.value = data.data.value.is_end
+    }
+}
+const is_end = ref<string>("")
 const finder = ref<string>("")
 const is_empty_list = computed(() => {
-    if (list.value.length > 0){
+    if (list?.value?.length > 0) {
         return false;
-    }else{
+    } else {
         return true;
     }
 })
-
+console.log(props)
 const list = ref<any>([
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 14:59",
-        id: "1",
-        participant_count: "220"
-    },
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 7:35",
-        id: "2",
-        participant_count: "210"
-    },
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 1:35",
-        id: "3",
-        participant_count: "2202"
-    },
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 14:59",
-        id: "4",
-        participant_count: "220"
-    },
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 7:35",
-        id: "5",
-        participant_count: "210"
-    },
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 1:35",
-        id: "6",
-        participant_count: "2202"
-    },
-
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 14:59",
-        id: "7",
-        participant_count: "220"
-    },
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 7:35",
-        id: "8",
-        participant_count: "210"
-    },
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 1:35",
-        id: "9",
-        participant_count: "2202"
-    },
-
-
 ])
+watch(props, (newProps) => {
+    if (newProps?.data?.value?.interactives_list) {
+        list.value = newProps.data.interactives_list
+    }
+    is_end.value = newProps.data.is_end
+    console.log(list)
+})
 
 function openPopupManySelect() {
     selectedOption.value = null;
@@ -149,12 +133,70 @@ function selectManyOption(id: number) {
 
 
 }
+async function submitReport() {
+    showPopup.value = false
+    if (selectedInteractives.value.length > 0 || selectedInteractive) {
+        if (selectedOption.value !== 'forAnalise' && selectedOption.value !== 'forLeader') {
+            window.Telegram.WebApp.showAlert(`Выберите тип отчета!`);
+            return;
+        }
+        try {
+            const hasSelectedInteractives = selectedInteractives.value.length > 0;
+            let interactiveIds;
+            if (hasSelectedInteractives) {
+                // Множественный выбор
+                interactiveIds = selectedInteractives.value.map(id => ({ id }));
+            } else {
+                // Одиночный выбор
+                interactiveIds = [{ id: selectedInteractive.value }];
+            }
 
+            const body = {
+                telegram_id: userId.value,
+                interactive_id: interactiveIds,
+                report_type: selectedOption.value
+            };
+
+            const response = await fetch('/api/reports/export', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Ошибка сервера');
+            }
+
+            const data = await response.json()
+
+            if (data.url) {
+
+                postEvent('web_app_request_file_download', {
+                    url: `https://voshod07.ru${data.url}`,
+                    file_name: data.userFileName
+                })
+            } else {
+                throw new Error(data.error || 'Не удалось получить ссылку на файл')
+            }
+        } catch (error) {
+            window.Telegram.WebApp.showAlert(`Ошибка при выгрузке отчета: ${error.message}`);
+        }
+    }
+    else {
+        window.Telegram.WebApp.showAlert(`Выберите хотя бы один интерактив для формирования отчёта!`);
+    }
+    if (window.Telegram?.WebApp?.expand) {
+        setTimeout(() => {
+            Telegram.WebApp.requestFullscreen()
+        }, 0);
+    }
+}
 // для скачивания отчёта одного
 function openPopup(id: number) {
     if (selectedInteractives.value.length === 0) {
-        selectedOption.value = null; 
-        selectedInteractive.value = id; 
+        selectedOption.value = null;
+        selectedInteractive.value = id;
         showPopup.value = true;
     }
 
@@ -164,30 +206,13 @@ function closePopup() {
     showPopup.value = false;
     selectedOption.value = null;
     selectedInteractive.value = 0;
-   
 
 
-}
-
-
-async function submitReport() {
-    if (selectedOption.value!==null) {
-        console.log(selectMany.value)
-        showPopup.value = false
-        if (selectMany.value) {
-            console.log(selectedOption.value)
-            console.log(selectedInteractives.value)
-        }
-        else {
-            console.log(selectedOption.value)
-            console.log(selectedInteractive.value)
-            selectedInteractive.value = 0
-        }
-
-        selectedOption.value = null
-    }
 
 }
+
+
+
 
 watch(selectedInteractives, (newSelectedInteractives) => {
     console.log(newSelectedInteractives.length)
@@ -199,18 +224,19 @@ const router = useRouter()
 async function goTo(url: string) {
     await clearDeviceStorage(HISTORY_KEY)
     await clearDeviceStorage(HISTORY_SELECT_MANY_KEY)
-    await clearDeviceStorage(HISTORY_SELECT_ONE_KEY)
-  router.push(url)
+    await clearDeviceStorage(HISTORY_SELECT_ONE_KEY);
+    await clearDeviceStorage(HISTORY_TO_NUMBER_KEY);
+    router.push(url)
 }
 </script>
 
 <template>
-    <div class="history">
+    <div class="history" v-if="isReady">
         <div class="header">
             <img src="/public/images/interactive_editor/logo.svg" id="logo_header" />
         </div>
         <div class="nav">
-            <div class="nav_main"  @click="goTo('/leader/main_menu')" style="cursor: pointer;">
+            <div class="nav_main" @click="goTo('/leader/main_menu')" style="cursor: pointer;">
                 О нас
             </div>
             <div class="nav_interactives" @click="goTo('/leader/new_interactives')" style="cursor: pointer;">
@@ -219,7 +245,7 @@ async function goTo(url: string) {
             <div :class="['active_nav', 'nav_reports']">
                 Отчеты
             </div>
-            <div class="nav_broadcasts" @click="goTo('/leader/broadcasts')"style="cursor: pointer;">
+            <div class="nav_broadcasts" @click="goTo('/leader/broadcasts')" style="cursor: pointer;">
                 Рассылка
             </div>
         </div>
@@ -300,8 +326,8 @@ async function goTo(url: string) {
             </div>
             <div class="history_list_list" v-for="(item, index) in list" :key="item.id">
                 <div class="Line" v-if="index === 0" />
-                <div class="history_list_list_item" >
-                    <div class="history_list_list_item_title" >
+                <div class="history_list_list_item">
+                    <div class="history_list_list_item_title">
                         {{ item.title }}
                     </div>
                     <div class="history_list_list_item_date">
@@ -310,7 +336,6 @@ async function goTo(url: string) {
                     <div class="history_list_list_item_count">
                         {{ item.participant_count }}
                     </div>
-                    id:{{ selectedInteractive }}<br/> Несколько:{{ selectMany }}
                     <div class="history_list_list_item_download_one" @click="openPopup(item.id)">Выгрузить</div>
                     <div class="history_list_list_item_download_many"
                         :style="{ visibility: selectedInteractives.includes(item.id) ? 'hidden' : 'visible' }"
@@ -318,7 +343,7 @@ async function goTo(url: string) {
                 </div>
                 <div class="Line" />
             </div>
-            <div class="history_show_more">Показать еще</div>
+            <div class="history_show_more" v-if="!is_end" @click="more_load()">Показать еще</div>
         </div>
     </div>
 
@@ -573,7 +598,7 @@ async function goTo(url: string) {
 .history_selected_interactives {
     width: calc((1056/1280) * 100dvw);
     margin-left: calc((112 / 1280) * 100dvw);
-    
+
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;

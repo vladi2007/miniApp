@@ -18,12 +18,14 @@ export default defineEventHandler(async (event) => {
       const errorText = await response.text()
       throw new Error(`Ошибка внешнего API: ${response.status} - ${errorText}`)
     }
-
+    
     // Получаем имя файла из заголовка Content-Disposition
     const contentDisposition = response.headers.get('content-disposition') || ''
     const match = contentDisposition.match(/filename="?([^"]+)"?/)
     const hostFilename = `report-${Date.now()}.xlsx`
+   
     const fileName = match ? match[1] : `report-${Date.now()}.xlsx`
+     console.log(fileName)
     const arrayBuffer = await response.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
