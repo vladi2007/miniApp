@@ -2,7 +2,7 @@
 import { postEvent } from '@telegram-apps/sdk';
 import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorage'
 
-
+import Header from "~/components/header.vue"
 const finder = ref<string>("")
 
 const isOpen = ref(false)
@@ -109,7 +109,8 @@ watch(props, (newProps) => {
 })
 
 const router = useRouter()
-async function goTo(url: string) {
+async function goTo(url: string, active: string) {
+     if (active ==="interactives") return
     router.push(url)
     await clearDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
      await clearDeviceStorage(INTERACTIVES_FILTER_KEY)
@@ -284,6 +285,7 @@ const selectedOption = ref<string | null>("");
 const selectedInteractive = ref<number>(0);
 async function submitReport() {
     showPopup.value = false
+    
     if ( selectedInteractive) {
         if (selectedOption.value !== 'forAnalise' && selectedOption.value !== 'forLeader') {
             window.Telegram.WebApp.showAlert(`Выберите тип отчета!`);
@@ -320,6 +322,7 @@ async function submitReport() {
             } else {
                 throw new Error(data.error || 'Не удалось получить ссылку на файл')
             }
+            selectedOption.value = ""
         } catch (error) {
             window.Telegram.WebApp.showAlert(`Ошибка при выгрузке отчета: ${error.message}`);
         }
@@ -336,23 +339,7 @@ async function submitReport() {
 </script>
 <template>
     <div class="interactives">
-        <div class="header">
-            <img src="/public/images/interactive_editor/logo.svg" id="logo_header" />
-        </div>
-        <div class="nav">
-            <div class="nav_main" @click="goTo('/leader/main_menu')"  style="cursor: pointer;">
-                О нас
-            </div>
-            <div :class="['active_nav', 'nav_interactives']" style="cursor: pointer;">
-                Интерактивы
-            </div>
-            <div :class="['nav_reports']" @click="goTo('/leader/history')" style="cursor: pointer;">
-                Отчеты
-            </div>
-            <div class="nav_broadcasts" @click="goTo('/leader/broadcasts')" style="cursor: pointer;">
-                Рассылка
-            </div>
-        </div>
+        <Header :goTo="goTo" :active="'interactives'"/>
         <div class="interactives_finder">
             <div class="interactives_finder_finder">
                 <img src="/public/images/history/finder.svg" class="interactives_input-icon" />
@@ -1155,10 +1142,10 @@ width: calc((271/1280) * 100dvw);
 
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 .interactives_popup {
-  margin-top: 360px;
   background: white;
   border-radius: 35px;
   width: 818px;
@@ -1227,5 +1214,160 @@ width: calc((271/1280) * 100dvw);
 }
 .interactives_popup-button:nth-child(1):hover {
   background-color: #9ac57e;
+}
+
+
+
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10000999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup {
+    background: white;
+    border-radius: 35px;
+    width: 818px;
+    height: 400px;
+    ;
+
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+    position: relative;
+}
+
+.popup-header {
+    position: relative;
+}
+
+.popup-header-text {
+    font-family: "Lato", sans-serif;
+    font-weight: 700;
+    font-size: 36px;
+    letter-spacing: 1px;
+    padding-top: 48px;
+    margin-left: 146px;
+}
+
+.popup-close {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    cursor: pointer;
+    font-size: 30px;
+    color: #aaa;
+}
+
+.popup-body {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 34px;
+    margin-top: 62px;
+}
+
+.popup-option {
+    margin-left: 51px;
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+
+    cursor: pointer;
+    position: relative;
+}
+
+.popup-option span {
+    font-family: "Lato", sans-serif;
+    font-weight: 500;
+    position: relative;
+    padding-left: 62px;
+}
+
+.popup-option input[type="radio"] {
+    display: none;
+}
+
+.popup-option input[type="radio"]+span::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 35px;
+    height: 35px;
+    background-image: url("/public/images/history/circle.svg");
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+}
+
+.popup-option input[type="radio"]:checked+span::after {
+    content: "";
+    position: absolute;
+    top: 9px;
+    left: 5px;
+    width: 24px;
+    height: 18px;
+    background-image: url("/public/images/history/Vector_2.svg");
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    pointer-events: none;
+}
+
+.popup-option input[type="radio"]:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(133, 60, 255, 0.6);
+}
+
+.popup-option span {
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-size: 32px;
+    letter-spacing: 1px;
+    position: relative;
+}
+
+.popup-footer {
+    margin-top: 44px;
+}
+
+.popup-submit {
+    margin-left: 292px;
+    width: 233px;
+    height: 62px;
+    background-color: white;
+    color: #853cff;
+    border: 2px solid #853cff;
+    font-family: "Lato", sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+    border-radius: 5px;
+    cursor: pointer;
+    vertical-align: middle;
+    letter-spacing: 1px;
+}
+
+.popup-submit:hover {
+    margin-left: 292px;
+    width: 233px;
+    height: 62px;
+    background-color: #853cff;
+    color: white;
+    border: 2px solid #853cff;
+    font-family: "Lato", sans-serif;
+    font-weight: 500;
+    font-size: 24px;
+    border-radius: 5px;
+    cursor: pointer;
+    vertical-align: middle;
+    letter-spacing: 1px;
 }
 </style>

@@ -3,6 +3,7 @@ import { useRouter } from 'vue-router';
 import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorageIndexedDB'
 const BROADCASTS_KEY = 'broadcasts_key'
 
+import Header from "~/components/header.vue"
 const BROADCASTS_TEXT_KEY = 'broadcasts_text_key'
 const BROADCASTS_FILE_KEY = 'broadcasts_file_key'
 const selectedInteractives = ref<number[]>([]);
@@ -49,7 +50,8 @@ onMounted(async () => {
     }
 });
 const router = useRouter()
-async function goTo(url: string) {
+async function goTo(url: string,active:string) {
+     if (active ==="broadcasts") return
     router.push(url)
     await clearDeviceStorage(BROADCASTS_FILE_KEY)
     await clearDeviceStorage(BROADCASTS_KEY)
@@ -199,23 +201,7 @@ function closePopup() {
 
 <template>
     <div class="broadcasts">
-        <div class="broadcasts_header">
-            <img src="/public/images/interactive_editor/logo.svg" id="logo_header" />
-        </div>
-        <div class="nav">
-            <div class="nav_main"  @click="goTo('/leader/main_menu')" style="cursor: pointer;"> 
-                О нас
-            </div>
-            <div class="nav_interactives" @click="goTo('/leader/new_interactives')" style="cursor: pointer;">
-                Интерактивы
-            </div>
-            <div class="nav_reports" @click="goTo('/leader/history')" style="cursor: pointer;">
-                Отчеты
-            </div>
-            <div class="nav_broadcasts" :class="['active_nav', 'nav_reports']" style="cursor: pointer;">
-                Рассылка
-            </div>
-        </div>
+         <Header :goTo="goTo" :active="'broadcasts'"/>
 
         <div class="broadcasts_input"> <label>Введите текст рассылки<textarea v-model="text" id="description_input"
                     placeholder="Текст" maxlength="200" /></label></div>

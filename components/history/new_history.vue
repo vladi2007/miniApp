@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { postEvent } from '@telegram-apps/sdk';
 import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorage'
-
+import Header from "~/components/header.vue"
 const HISTORY_KEY = 'history_interactives'
 const HISTORY_SELECT_MANY_KEY = 'history_select_many'
 const HISTORY_SELECT_ONE_KEY = 'history_select_one'
@@ -177,6 +177,7 @@ async function submitReport() {
             } else {
                 throw new Error(data.error || 'Не удалось получить ссылку на файл')
             }
+            selectedOption.value=""
         } catch (error) {
             window.Telegram.WebApp.showAlert(`Ошибка при выгрузке отчета: ${error.message}`);
         }
@@ -219,7 +220,8 @@ watch(selectedInteractives, (newSelectedInteractives) => {
 
 
 const router = useRouter()
-async function goTo(url: string) {
+async function goTo(url: string, active:string) {
+    if (active ==="reports") return
     await clearDeviceStorage(HISTORY_KEY)
     await clearDeviceStorage(HISTORY_SELECT_MANY_KEY)
     await clearDeviceStorage(HISTORY_SELECT_ONE_KEY);
@@ -230,23 +232,7 @@ async function goTo(url: string) {
 
 <template>
     <div class="history" v-if="isReady">
-        <div class="header">
-            <img src="/public/images/interactive_editor/logo.svg" id="logo_header" />
-        </div>
-        <div class="nav">
-            <div class="nav_main" @click="goTo('/leader/main_menu')" style="cursor: pointer;">
-                О нас
-            </div>
-            <div class="nav_interactives" @click="goTo('/leader/new_interactives')" style="cursor: pointer;">
-                Интерактивы
-            </div>
-            <div :class="['active_nav', 'nav_reports']">
-                Отчеты
-            </div>
-            <div class="nav_broadcasts" @click="goTo('/leader/broadcasts')" style="cursor: pointer;">
-                Рассылка
-            </div>
-        </div>
+        <Header :goTo="goTo" :active="'reports'"/>
         <div class="history_info">
             <img src="/public/images/history/history_info.svg" />
             <div>
@@ -801,12 +787,10 @@ async function goTo(url: string) {
     background: rgba(0, 0, 0, 0.5);
     z-index: 10000999;
     display: flex;
-    justify-content: center;
+    justify-content: center; align-items: center;
 }
 
 .popup {
-    margin-top: 220px;
-    ;
     background: white;
     border-radius: 35px;
     width: 818px;
