@@ -9,10 +9,10 @@ const isOpen = ref(false)
 const selectedText = ref("all")
 
 const options = ["Все", "Проведенные", "Не проведенные"]
-const options_code={
-    "all":"Все",
-    "conducted":"Проведенные",
-    "not_conducted":"Не проведенные"
+const options_code = {
+    "all": "Все",
+    "conducted": "Проведенные",
+    "not_conducted": "Не проведенные"
 }
 function toggleDropdown() {
     isOpen.value = !isOpen.value
@@ -21,23 +21,23 @@ function toggleDropdown() {
 async function selectOption(option: string) {
     selectedText.value = option
     isOpen.value = false
-    to_number.value= 9
+    to_number.value = 9
     if (userId.value) {
-            const data = await useFetch('/api/reports/preview', {
+        const data = await useFetch('/api/reports/preview', {
 
-                query: {
-                    telegram_id: userId.value,
-                    filter: selectedText.value,
-                    from_number: from_number.value,
-                    to_number: to_number.value,
-                },
-            });
-            props.value = data;
-            list.value = data.data.value.interactives_list;
-            isReady.value = true;
-            console.log(data.data.value.interactives_list)
-            is_end.value = data.data.value.is_end
-        }
+            query: {
+                telegram_id: userId.value,
+                filter: selectedText.value,
+                from_number: from_number.value,
+                to_number: to_number.value,
+            },
+        });
+        props.value = data;
+        list.value = data.data.value.interactives_list;
+        isReady.value = true;
+        console.log(data.data.value.interactives_list)
+        is_end.value = data.data.value.is_end
+    }
 }
 const dropdownRef = ref<HTMLElement | null>(null)
 const dropdownRefsMore = ref<(HTMLElement | null)[]>([])
@@ -84,7 +84,7 @@ const is_empty_list = computed(() => {
 })
 const webApp = ref(null)
 const list = ref<any>([
-   
+
 ])
 const userId = ref(null)
 const props = ref()
@@ -110,10 +110,10 @@ watch(props, (newProps) => {
 
 const router = useRouter()
 async function goTo(url: string, active: string) {
-     if (active ==="interactives") return
+    if (active === "interactives") return
     router.push(url)
     await clearDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
-     await clearDeviceStorage(INTERACTIVES_FILTER_KEY)
+    await clearDeviceStorage(INTERACTIVES_FILTER_KEY)
 }
 onMounted(async () => {
     if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
@@ -121,11 +121,11 @@ onMounted(async () => {
         //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
         const { $telegram } = useNuxtApp();
         userId.value = $telegram.initDataUnsafe.value?.user?.id;
-       
+
         const saved_to = loadFromDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
         to_number.value = saved_to || 9
         const saved_filter = loadFromDeviceStorage(INTERACTIVES_FILTER_KEY)
-        selectedText.value=saved_filter || "all"
+        selectedText.value = saved_filter || "all"
         if (userId.value) {
             const data = await useFetch('/api/reports/preview', {
 
@@ -197,69 +197,69 @@ function toggleItemDropdown(id: string) {
 
 
 function closePopup() {
-  showPopup.value = false;
+    showPopup.value = false;
 
 }
 
 async function duplicateAndSaveInteractive(id: string) {
-  showPopup.value = false
-  try {
+    showPopup.value = false
+    try {
 
 
-    const data = await $fetch(`/api/get_interactive`, {
-      method: 'GET',
-      query: {
-        telegram_id: userId.value,
-        id: id
-      }
-    })
-    const plain = JSON.parse(JSON.stringify(data));
-    const payload = {
-      title: plain.title ?? "",
-      description: plain.description ?? "",
-      target_audience: plain.target_audience ?? "",
-      location: plain.location ?? "",
-      responsible_full_name: plain.responsible_full_name ?? "",
-      answer_duration: plain.answer_duration ?? 10,
-      discussion_duration: plain.discussion_duration ?? 5,
-      countdown_duration: plain.countdown_duration ?? 5,
-      questions: await Promise.all(
-        (plain.questions ?? []).map(async (q: any, index: number) => {
-          const imageUrl = q.image || "";
-
-          
-
-          return {
-            question: {
-              type: q.type || "one",
-              image: imageUrl,
-              score: q.score || 1,
-              position: index + 1,
-              text: q.text || "",
-              answers:
-                q.answers?.map((a: any) => ({
-                  text: a.text || "",
-                  is_correct: a.is_correct || false,
-                })) ?? [],
-            },
-          };
+        const data = await $fetch(`/api/get_interactive`, {
+            method: 'GET',
+            query: {
+                telegram_id: userId.value,
+                id: id
+            }
         })
-      ),
-    };
-    const formData = new FormData();
+        const plain = JSON.parse(JSON.stringify(data));
+        const payload = {
+            title: plain.title ?? "",
+            description: plain.description ?? "",
+            target_audience: plain.target_audience ?? "",
+            location: plain.location ?? "",
+            responsible_full_name: plain.responsible_full_name ?? "",
+            answer_duration: plain.answer_duration ?? 10,
+            discussion_duration: plain.discussion_duration ?? 5,
+            countdown_duration: plain.countdown_duration ?? 5,
+            questions: await Promise.all(
+                (plain.questions ?? []).map(async (q: any, index: number) => {
+                    const imageUrl = q.image || "";
 
-    
-    formData.append("telegram_id", String(userId?.value || 0));
-    formData.append("interactive", JSON.stringify(plain));
-    const response = await $fetch("/api/create_interactive", {
-        method: "POST",
-        query: {
-          telegram_id: userId?.value || 0,
-        },
-        body: formData,
-      });
 
-      if (userId.value) {
+
+                    return {
+                        question: {
+                            type: q.type || "one",
+                            image: imageUrl,
+                            score: q.score || 1,
+                            position: index + 1,
+                            text: q.text || "",
+                            answers:
+                                q.answers?.map((a: any) => ({
+                                    text: a.text || "",
+                                    is_correct: a.is_correct || false,
+                                })) ?? [],
+                        },
+                    };
+                })
+            ),
+        };
+        const formData = new FormData();
+
+
+        formData.append("telegram_id", String(userId?.value || 0));
+        formData.append("interactive", JSON.stringify(plain));
+        const response = await $fetch("/api/create_interactive", {
+            method: "POST",
+            query: {
+                telegram_id: userId?.value || 0,
+            },
+            body: formData,
+        });
+
+        if (userId.value) {
             const data = await useFetch('/api/reports/preview', {
 
                 query: {
@@ -275,18 +275,18 @@ async function duplicateAndSaveInteractive(id: string) {
             console.log(data.data.value.interactives_list)
             is_end.value = data.data.value.is_end
         }
-  } catch (err) {
-    console.error('Ошибка дублирования:', err)
-    window.Telegram.WebApp.showAlert('Не удалось продублировать интерактив.')
-  }
+    } catch (err) {
+        console.error('Ошибка дублирования:', err)
+        window.Telegram.WebApp.showAlert('Не удалось продублировать интерактив.')
+    }
 }
-const show_report_Popup= ref<boolean>(false)
+const show_report_Popup = ref<boolean>(false)
 const selectedOption = ref<string | null>("");
 const selectedInteractive = ref<number>(0);
 async function submitReport() {
     showPopup.value = false
-    
-    if ( selectedInteractive) {
+
+    if (selectedInteractive) {
         if (selectedOption.value !== 'forAnalise' && selectedOption.value !== 'forLeader') {
             window.Telegram.WebApp.showAlert(`Выберите тип отчета!`);
             return;
@@ -336,10 +336,63 @@ async function submitReport() {
         }, 0);
     }
 }
+
+
+const showDeletePopap = ref(false)
+const isRunning = ref(false)
+async function deletePopup(id: string) {
+    try {
+        const data = await $fetch(`/api/get_state_interactive`, {
+            method: 'GET',
+            query: {
+
+                id: Number(id)
+            }
+        })
+        isRunning.value = data.data
+    }
+    catch (err) {
+        console.error('Ошибка удаления', err)
+        window.Telegram.WebApp.showAlert('Не удалось получить состояние интерактива!')
+    }
+    currentInteractiveId.value = id
+    showDeletePopap.value = true
+}
+async function deleteInteractive(id: string) {
+  showDeletePopap.value = false
+  const response = await $fetch(`/api/delete_interactive`, {
+    method: 'DELETE',
+    query: {
+      telegram_id: userId.value,
+      id: id
+    },
+
+  })
+  if (response) {
+    showDeletePopap.value = false;
+    if (userId.value) {
+            const data = await useFetch('/api/reports/preview', {
+
+                query: {
+                    telegram_id: userId.value,
+                    filter: selectedText.value,
+                    from_number: from_number.value,
+                    to_number: to_number.value,
+                },
+            });
+            props.value = data;
+            list.value = data.data.value.interactives_list;
+            isReady.value = true;
+            console.log(data.data.value.interactives_list)
+            is_end.value = data.data.value.is_end
+        }
+  }
+
+}
 </script>
 <template>
     <div class="interactives">
-        <Header :goTo="goTo" :active="'interactives'"/>
+        <Header :goTo="goTo" :active="'interactives'" />
         <div class="interactives_finder">
             <div class="interactives_finder_finder">
                 <img src="/public/images/history/finder.svg" class="interactives_input-icon" />
@@ -359,18 +412,14 @@ async function submitReport() {
                 </div>
             </div>
 
-             <div class="interactives_custom-dropdown-options" v-if="isOpen">
+            <div class="interactives_custom-dropdown-options" v-if="isOpen">
                 <div class="interactives_custom-dropdown-option-list">
-                    <div class="interactives_custom-dropdown-option" 
-                         v-for="(label, value) in options_code" 
-                         :key="value"
-                         @click.stop="selectOption(value)">
-                        <img class="interactives_custom-dropdown-circle" 
-                             src="/public/images/interactives/picked.svg"
-                             v-if="selectedText === value" />
-                        <img class="interactives_custom-dropdown-circle" 
-                             src="/public/images/interactives/Ellipse.svg"
-                             v-else />
+                    <div class="interactives_custom-dropdown-option" v-for="(label, value) in options_code" :key="value"
+                        @click.stop="selectOption(value)">
+                        <img class="interactives_custom-dropdown-circle" src="/public/images/interactives/picked.svg"
+                            v-if="selectedText === value" />
+                        <img class="interactives_custom-dropdown-circle" src="/public/images/interactives/Ellipse.svg"
+                            v-else />
                         <div class="interactives_custom-dropdown-text">{{ label }}</div>
                     </div>
                 </div>
@@ -435,20 +484,24 @@ async function submitReport() {
                             <img src="/images/interactives/start_2.svg"
                                 style="     height: calc((17    /832) * 100dvh) !important;width: calc((12 / 1280) * 100dvw) !important;" />
                         </div>
-
+                        <div class="interactive_delete" v-if="!item.is_conducted" title="Удалить интерактив"
+                            @click="deletePopup(item.id)">
+                            <img src="/images/interactives/vector.png" id="delete" />
+                        </div>
                         <div class="interactives_list_list_item_actions" :ref="el => setDropdownRef(el, index)">
                             <div class="interactives_more_options" v-if="item.is_conducted"
                                 @click="toggleItemDropdown(item.id)" title="Еще">
                                 <img src="/images/interactives/more_options.svg"
-                                    style="     height: calc((30/832) * 100dvh) !important;width: calc((30 / 1280) * 100dvw) !important;" />
+                                    style="     height: calc((30/832) * 100dvh) !important;width: calc((30 / 1280) * 100dvw) !important; margin-left: calc((18.5/1280)*100dvw) !important;" />
                             </div>
                             <div class="interactives_item-dropdown-options" v-if="openDropdownId === item.id"
                                 style=" z-index: 10001 !important;">
-                                <div class="interactives_item-dropdown-option"@click="show_report_Popup = true; selectedInteractive=item.id; openDropdownId=null;"
+                                <div class="interactives_item-dropdown-option"
+                                    @click="show_report_Popup = true; selectedInteractive = item.id; openDropdownId = null;"
                                     style="  margin-top: calc((22/832)*100dvh);">
                                     <img src="/public/images/interactives/download.svg"
                                         class="interactives_item-dropdown-icon"
-                                        style="     height: calc((24/832) * 100dvh) !important;width: calc((24 / 1280) * 100dvw) !important; margin-left: calc((24/1280)*100dvw);"  />
+                                        style="     height: calc((24/832) * 100dvh) !important;width: calc((24 / 1280) * 100dvw) !important; margin-left: calc((24/1280)*100dvw);" />
                                     <span style="margin-left: calc((9/1280)*100dvw);">Выгрузить отчет</span>
                                 </div>
                                 <div class="interactives_item-dropdown-option"
@@ -465,33 +518,53 @@ async function submitReport() {
                 </div>
                 <div class="interactives_Line" />
             </div>
-            <div class="interactives_show_more"v-if="!is_end" @click="more_load()">Показать еще</div>
+            <div class="interactives_show_more" v-if="!is_end" @click="more_load()">Показать еще</div>
         </div>
 
         <div v-if="showPopup" class="interactives_popup-overlay">
-      <div class="interactives_popup">
-        <div class="interactives_popup-header">
-          <div class="interactives_popup-header-text">Вы точно хотите продублировать выбранный интерактив?</div>
-          <img src="/images/history/Vector_1.svg" class="interactives_popup-close" @click="closePopup" />
-        </div>
-        <div class="interactives_popup-body">
+            <div class="interactives_popup">
+                <div class="interactives_popup-header">
+                    <div class="interactives_popup-header-text">Вы точно хотите продублировать выбранный интерактив?
+                    </div>
+                    <img src="/images/history/Vector_1.svg" class="interactives_popup-close" @click="closePopup" />
+                </div>
+                <div class="interactives_popup-body">
 
-          <button class="interactives_popup-button"
-            @click="duplicateAndSaveInteractive(String(currentInteractiveId))">Да</button>
-          <button class="interactives_popup-button" @click="closePopup()">Нет</button>
-          <button class="interactives_popup-button" @click="dublicate_interactive(String(currentInteractiveId))">Да, и
-            хочу его сразу отредактировать</button>
+                    <button class="interactives_popup-button"
+                        @click="duplicateAndSaveInteractive(String(currentInteractiveId))">Да</button>
+                    <button class="interactives_popup-button" @click="closePopup()">Нет</button>
+                    <button class="interactives_popup-button"
+                        @click="dublicate_interactive(String(currentInteractiveId))">Да, и
+                        хочу его сразу отредактировать</button>
+                </div>
+            </div>
+        </div>
+        <div v-if="showDeletePopap" class="interactives_delete_popup-overlay">
+      <div class="interactives_delete_popup">
+        <div class="interactives_delete_popup-header">
+          <div class="interactives_delete_popup-header-text">
+            {{ isRunning
+              ? 'Интерактив запущен! Все данные интерактива будут удалены!'
+              : 'Вы действительно хотите удалить?' }}
+          </div>
+        </div>
+        <div class="interactives_delete_popup-body">
+          <button class="interactives_delete_popup-button" @click="deleteInteractive(String(currentInteractiveId))">
+            {{ isRunning ? 'Закончить и удалить интерактив' : 'Удалить' }}
+          </button>
+          <button class="interactives_delete_popup-button" @click="closePopup()">Отмена</button>
         </div>
       </div>
     </div>
     </div>
 
 
-    <div v-if="show_report_Popup===true" class="popup-overlay">
+    <div v-if="show_report_Popup === true" class="popup-overlay">
         <div class="popup">
             <div class="popup-header">
                 <div class="popup-header-text">Какой отчет хотите выгрузить</div>
-                <img src="/images/history/Vector_1.svg" class="popup-close" @click="show_report_Popup=false; selectedInteractive = 0; selectedOption=''" />
+                <img src="/images/history/Vector_1.svg" class="popup-close"
+                    @click="show_report_Popup = false; selectedInteractive = 0; selectedOption = ''" />
             </div>
             <div class="popup-body">
                 <label class="popup-option">
@@ -561,7 +634,8 @@ async function submitReport() {
 .nav>div:hover {
     color: #1D1D1D;
 }
-.nav >div{
+
+.nav>div {
     cursor: pointer;
 }
 
@@ -658,7 +732,8 @@ async function submitReport() {
     pointer-events: none;
 }
 
-.interactives_create {cursor: pointer;
+.interactives_create {
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1007,6 +1082,7 @@ input:focus {
 .interactives_buttons {
     display: flex;
     align-items: center;
+    width: calc((152 / 1280) * 100dvw) !important;
     margin-left: calc((77 / 1280) * 100dvw);
 }
 
@@ -1022,7 +1098,6 @@ input:focus {
     width: calc((24 / 1280) * 100dvw) !important;
 }
 
-.interactives_delete {}
 
 .interactives_leader_board {
     background-color: #6AB23D;
@@ -1047,6 +1122,16 @@ input:focus {
     margin-left: calc((10 / 1280) * 100dvw);
 }
 
+.interactive_delete {
+    width: calc((14/1280) * 100dvw);
+    height: calc((18/832) * 100dvh);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-left: calc((10 / 1280) * 100dvw);
+}
+
 .interactives_start:hover {}
 
 .interactives_dublicate,
@@ -1058,7 +1143,8 @@ input:focus {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: calc((5/832)*100dvh); cursor: pointer;
+    border-radius: calc((5/832)*100dvh);
+    cursor: pointer;
 }
 
 /* Стили для троеточия и dropdown */
@@ -1067,14 +1153,17 @@ input:focus {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: calc((24 / 1280) * 100dvw);
-    height: calc((24 / 832) * 100dvh);
+    width: calc((30 / 1280) * 100dvw);
+    height: calc((30 / 832) * 100dvh);
     margin: 0 auto;
 }
 
 .interactives_dots img {
-    width: 100%;
-    height: 100%;
+    width: calc((30 / 1280) * 100dvw);
+    height: calc((30 / 832) * 100dvh);
+    margin: 0 auto;
+    margin-left: calc((46 / 1280) * 100dvw);
+    background-color: #6AB23D;
 }
 
 .interactives_item-dropdown-options {
@@ -1091,24 +1180,24 @@ input:focus {
 }
 
 .interactives_item-dropdown-option {
-    margin:0 auto;
+    margin: 0 auto;
     display: flex;
     align-items: center;
     cursor: pointer;
     font-family: "Lato", sans-serif;
     color: #1D1D1D;
-   
+
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
     font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
     letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
     vertical-align: middle;
-width: calc((271/1280) * 100dvw);
+    width: calc((271/1280) * 100dvw);
 }
 
 .interactives_item-dropdown-option:hover {
-    background-color:#DFDFDF;
+    background-color: #DFDFDF;
     border-radius: calc((7/832)*100dvh);
 }
 
@@ -1120,7 +1209,8 @@ width: calc((271/1280) * 100dvw);
     align-items: center;
     justify-content: center;
     width: calc((30/1280) * 100dvw);
-    height: calc((30/1280) * 100dvw);cursor: pointer;
+    height: calc((30/1280) * 100dvw);
+    cursor: pointer;
     z-index: 0 !important;
 }
 
@@ -1131,89 +1221,97 @@ width: calc((271/1280) * 100dvw);
 
 
 .interactives_popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
 
-  z-index: 11999;
+    z-index: 11999;
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .interactives_popup {
-  background: white;
-  border-radius: 35px;
-  width: 818px;
-  height: 438px;
+    background: white;
+    border-radius: 35px;
+    width: 818px;
+    height: 438px;
 
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 
-  position: relative;
+    position: relative;
 }
+
 .interactives_popup-close {
-  position: absolute;
-  top: 25px;
-  right: 25px;
-  cursor: pointer;
-  font-size: 30px;
-  color: #aaa;
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    cursor: pointer;
+    font-size: 30px;
+    color: #aaa;
 }
+
 .interactives_popup-header-text {
-  font-family: "Lato", sans-serif;
-  font-weight: 700;
-  font-size: 36px;
-  letter-spacing: 1px;
-  padding-top: 48px;
-  width: 718px;
-  margin: 0 auto;
-  height: 20px;
+    font-family: "Lato", sans-serif;
+    font-weight: 700;
+    font-size: 36px;
+    letter-spacing: 1px;
+    padding-top: 48px;
+    width: 718px;
+    margin: 0 auto;
+    height: 20px;
 }
+
 .interactives_popup-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  gap: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 24px;
 }
+
 .interactives_popup-button {
-  width: 320px;
-  height: 62px;
-  border-radius: 5px;
-  font-family: "Lato", sans-serif;
-  font-size: 24px;
-  font-weight: 500;
-  border: none;
-  cursor: pointer;
-  transition: 0.3s ease;
+    width: 320px;
+    height: 62px;
+    border-radius: 5px;
+    font-family: "Lato", sans-serif;
+    font-size: 24px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s ease;
 }
+
 .interactives_popup-button:nth-child(2) {
-  background-color: #f0436c;
-  color: white;
+    background-color: #f0436c;
+    color: white;
 }
+
 .interactives_popup-button:nth-child(2):hover {
-  background-color: #de7d94;
+    background-color: #de7d94;
 }
 
 .interactives_popup-button:nth-child(3) {
-  background-color: #853cff;
-  color: white;
+    background-color: #853cff;
+    color: white;
 }
+
 .interactives_popup-button:nth-child(3):hover {
-  background-color: #aa77ff;
+    background-color: #aa77ff;
 }
 
 .interactives_popup-button:nth-child(1) {
-  background-color: #6ab23d;
-  color: white;
+    background-color: #6ab23d;
+    color: white;
 }
+
 .interactives_popup-button:nth-child(1):hover {
-  background-color: #9ac57e;
+    background-color: #9ac57e;
 }
 
 
@@ -1369,5 +1467,88 @@ width: calc((271/1280) * 100dvw);
     cursor: pointer;
     vertical-align: middle;
     letter-spacing: 1px;
+}
+
+
+.interactives_delete_popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+
+  z-index: 22222999;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.interactives_delete_popup {
+  background: white;
+  border-radius: 35px;
+  width: 818px;
+height: 372px;
+
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+  position: relative;
+}
+.interactives_delete_popup-close {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  cursor: pointer;
+  font-size: 30px;
+  color: #aaa;
+}
+.interactives_delete_popup-header-text {
+  font-family: "Lato", sans-serif;
+  font-weight: 700;
+  font-size: 36px;
+text-align: center;
+  line-height: 37px;
+  width: 638px;
+  margin: 0 auto;
+  padding-top:48px;;
+  min-height: 64px;letter-spacing: 0px;
+}
+.interactives_delete_popup-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 44px;;
+  gap: 24px;
+}
+.interactives_delete_popup-button {
+  width: 638px;
+  height: 62px;
+  border-radius: 8px;
+  font-family: "Lato", sans-serif;
+  font-size: 32px;
+  font-weight: 400;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s ease;
+ 
+}
+.interactives_delete_popup-button:nth-child(1) {
+  background-color: #6ab23d;
+  color: white;
+}
+.interactives_delete_popup-button:nth-child(1):hover {
+  background-color: #559130;
+}
+.interactives_delete_popup-button:nth-child(2) {
+  background-color: white;
+  color: #6AB23D;
+  border: 2px solid #6AB23D;
+  border-color: #6AB23D;
+}
+.interactives_delete_popup-button:nth-child(2):hover {
+  background-color:  #9AC57E;
+  color: white;
 }
 </style>

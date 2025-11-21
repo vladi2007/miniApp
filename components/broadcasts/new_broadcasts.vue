@@ -6,13 +6,23 @@ const BROADCASTS_KEY = 'broadcasts_key'
 import Header from "~/components/header.vue"
 const BROADCASTS_TEXT_KEY = 'broadcasts_text_key'
 const BROADCASTS_FILE_KEY = 'broadcasts_file_key'
+const BROADCASTS_TO_NUMBER_KEY = 'broadcasts_to_number'
 const selectedInteractives = ref<number[]>([]);
-
-
+const is_end = ref<string>("")
+const props = ref()
 const webApp = ref(null)
-
+const from_number = ref(0)
+const to_number = ref(9)
 const userId = ref(null)
 const isReady = ref(false)
+const list = ref<any[]>([
+])
+const fileInput = ref<HTMLInputElement | null>(null)
+const uploadedFile = ref<File | null>(null)
+const uploadedFileName = ref<string>("")
+watch(to_number, async (new_Numb) => {
+    localStorage.setItem(BROADCASTS_TO_NUMBER_KEY, String(new_Numb));
+});
 onMounted(async () => {
     if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
         webApp.value = window.Telegram.WebApp
@@ -25,44 +35,79 @@ onMounted(async () => {
             selectedInteractives.value = savedInteractives
 
         }
-        
+
         const savedText = await loadFromDeviceStorage(BROADCASTS_TEXT_KEY)
         text.value = savedText
         const saved = await loadFromDeviceStorage(BROADCASTS_FILE_KEY)
-        uploadedFile.value = saved
-        uploadedFileName.value = saved.name
-        console.log(saved)
+        if (saved) {
+            uploadedFile.value = saved
+            uploadedFileName.value = saved.name
+        }
+         const saved_to = localStorage.getItem(BROADCASTS_TO_NUMBER_KEY);
+    if (saved_to) {
+        to_number.value = Number(saved_to) || 9;
+    }
+        if (userId.value) {
+            const data = await useFetch('/api/reports/preview', {
 
-        //    if (savedSelectOne){
-        //     selectedInteractive.value = savedSelectOne
-        //    }
+                query: {
+                    telegram_id: userId.value,
+                    filter: "conducted",
+                    from_number: from_number.value,
+                    to_number: to_number.value,
+                },
+            });
+            props.value = data;
+            list.value = data.data.value.interactives_list;
+            isReady.value = true;
+            console.log(data.data.value.interactives_list)
+            is_end.value = data.data.value.is_end
+        }
 
-        // const data = await useFetch('/api/reports/preview', {
 
-        //   query: {
-        //     telegram_id: userId.value
-        //   },
-        // });
-        //props.value = data!!!!!!!!!! пропсы надо будет сделать
-
-        isReady.value = true
 
     }
 });
+async function more_load() {
+    to_number.value = to_number.value + 10
+    if (userId.value) {
+        const data = await useFetch('/api/reports/preview', {
+
+            query: {
+                telegram_id: userId.value,
+                filter: "conducted",
+                from_number: from_number.value,
+                to_number: to_number.value,
+            },
+        });
+        props.value = data;
+        list.value = data.data.value.interactives_list;
+        isReady.value = true;
+        console.log(data.data.value.interactives_list)
+        is_end.value = data.data.value.is_end
+    }
+}
+watch(props, (newProps) => {
+    if (newProps?.data?.value?.interactives_list) {
+        list.value = newProps.data.interactives_list
+    }
+    is_end.value = newProps.data.is_end
+    console.log(list)
+})
+
 const router = useRouter()
-async function goTo(url: string,active:string) {
-     if (active ==="broadcasts") return
+async function goTo(url: string, active: string) {
+    if (active === "broadcasts") return
     router.push(url)
     await clearDeviceStorage(BROADCASTS_FILE_KEY)
     await clearDeviceStorage(BROADCASTS_KEY)
     await clearDeviceStorage(BROADCASTS_TEXT_KEY)
+    await localStorage.removeItem(BROADCASTS_TO_NUMBER_KEY)
 }
-const fileInput = ref<HTMLInputElement | null>(null)
-const uploadedFile = ref<File | null>(null)
-const uploadedFileName = ref<string>("")
-function openPopUp(){
-    if (uploadedFileName.value.trim().length >0 ||text.value.trim().length){
-        showPopup.value=true
+
+function openPopUp() {
+    if (uploadedFileName.value.trim().length > 0 || text.value.trim().length) {
+        showPopup.value = true
     }
 }
 function openFileDialog() {
@@ -87,68 +132,10 @@ async function removeImage() {
     await clearDeviceStorage(BROADCASTS_FILE_KEY)
 }
 
-const list = ref<any>([
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 14:59",
-        id: "1",
-        participant_count: "220"
-    },
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 7:35",
-        id: "2",
-        participant_count: "210"
-    },
-    {
-        title: "1231231231231231231231231231231231231231",
-        date_completed: "25.10.25 1:35",
-        id: "3",
-        participant_count: "2202"
-    },
-    // {
-    //     title: "1231231231231231231231231231231231231231",
-    //     date_completed: "25.10.25 14:59",
-    //     id: "4",
-    //     participant_count: "220"
-    // },
-    // {
-    //     title: "1231231231231231231231231231231231231231",
-    //     date_completed: "25.10.25 7:35",
-    //     id: "5",
-    //     participant_count: "210"
-    // },
-    // {
-    //     title: "1231231231231231231231231231231231231231",
-    //     date_completed: "25.10.25 1:35",
-    //     id: "6",
-    //     participant_count: "2202"
-    // },
 
-    // {
-    //     title: "1231231231231231231231231231231231231231",
-    //     date_completed: "25.10.25 14:59",
-    //     id: "7",
-    //     participant_count: "220"
-    // },
-    // {
-    //     title: "1231231231231231231231231231231231231231",
-    //     date_completed: "25.10.25 7:35",
-    //     id: "8",
-    //     participant_count: "210"
-    // },
-    // {
-    //     title: "1231231231231231231231231231231231231231",
-    //     date_completed: "25.10.25 1:35",
-    //     id: "9",
-    //     participant_count: "2202"
-    // },
-
-
-])
 const finder = ref<string>("")
 const is_empty_list = computed(() => {
-    if (list.value.length > 0) {
+    if (list?.value?.length > 0) {
         return false;
     } else {
         return true;
@@ -180,8 +167,8 @@ watch(selectedInteractives, async (value) => {
 watch(uploadedFile, async (file) => {
     await saveToDeviceStorage(BROADCASTS_FILE_KEY, file);
 }, { deep: true });
-watch(text,async (newtext) => {
-   await  saveToDeviceStorage(BROADCASTS_TEXT_KEY, newtext);
+watch(text, async (newtext) => {
+    await saveToDeviceStorage(BROADCASTS_TEXT_KEY, newtext);
 }, { deep: true });
 
 const count = computed(() => {
@@ -193,15 +180,15 @@ const count = computed(() => {
 
 function closePopup() {
     showPopup.value = false;
-   
+
 
 
 }
 </script>
 
 <template>
-    <div class="broadcasts">
-         <Header :goTo="goTo" :active="'broadcasts'"/>
+    <div class="broadcasts" v-if="isReady">
+        <Header :goTo="goTo" :active="'broadcasts'" />
 
         <div class="broadcasts_input"> <label>Введите текст рассылки<textarea v-model="text" id="description_input"
                     placeholder="Текст" maxlength="200" /></label></div>
@@ -225,10 +212,13 @@ function closePopup() {
             </template>
         </div>
         <div class="broadcasts_selected_interactives" v-if="!is_empty_list">
-            <div class="broadcasts_selected_interactives_header" style="display: flex; align-items: center; justify-content: space-between;">
-                <div >Выбрать участников интерактива
-                    </div>
-                    <div v-if="selectedInteractives.length > 0">Количество получателей: <span style="color: #6AB23D;">{{ count }} чел.</span></div>
+            <div class="broadcasts_selected_interactives_header"
+                style="display: flex; align-items: center; justify-content: space-between;">
+                <div>Выбрать участников интерактива
+                </div>
+                <div v-if="selectedInteractives.length > 0">Количество получателей: <span style="color: #6AB23D;">{{
+                        count }}
+                        чел.</span></div>
             </div>
             <div :class="{ broadcasts_selected_list: selectedInteractives.length > 0 }"
                 style="width: calc((1056/1280)*100dvw);">
@@ -256,7 +246,7 @@ function closePopup() {
 
             </div>
             <div class="broadcasts_list_selected_download" v-if="selectedInteractives.length > 0"
-                @click="showPopup=true">
+                @click="showPopup = true">
                 Отправить рассылку</div>
             <div class="broadcasts_selected_interactives_info" v-if="selectedInteractives.length === 0">
                 <img src="/public/images//history/finder_info.svg" />
@@ -315,12 +305,12 @@ function closePopup() {
                 </div>
                 <div class="broadcasts_Line" />
             </div>
-            <div class="broadcasts_show_more">Показать еще</div>
+            <div class="broadcasts_show_more" v-if="!is_end" @click="more_load()">Показать еще</div>
         </div>
 
     </div>
 
-   <div v-if="showPopup" class="broadcasts_popup-overlay">
+    <div v-if="showPopup" class="broadcasts_popup-overlay">
         <div class="broadcasts_popup">
             <div class="broadcasts_popup-header">
                 <div class="broadcasts_popup-header-text">Подтвердите отправку рассылки</div>
@@ -337,16 +327,16 @@ function closePopup() {
                 <div style="margin-top: calc((10 / 832) * 100dvh);">
                     Файлы: {{ uploadedFileName }}
                 </div>
-                <div style="margin-top: calc((10 / 832) * 100dvh);"> 
+                <div style="margin-top: calc((10 / 832) * 100dvh);">
                     Количество получателей: {{ count }}
                 </div>
                 <div style="margin-top: calc((20 / 832) * 100dvh);color: #7D7D7D;">
-                    Используйте рассылку по назначению. 
-Злоупотребление ею приведет к блокировке бота со стороны Telegram. 
+                    Используйте рассылку по назначению.
+                    Злоупотребление ею приведет к блокировке бота со стороны Telegram.
                 </div>
             </div>
             <div class="broadcasts_popup-footer">
-                <div class ="broadcasts_popup_back" @click="closePopup()">
+                <div class="broadcasts_popup_back" @click="closePopup()">
                     Отменить
                 </div>
                 <div class="broadcasts_popup_send">
@@ -439,7 +429,8 @@ function closePopup() {
     background-color: #853CFF;
 }
 
-.broadcasts_input {width: calc((483/1280) * 100dvw);
+.broadcasts_input {
+    width: calc((483/1280) * 100dvw);
     margin-left: calc((112 /1280) * 100dvw);
     margin-top: calc((25/832) * 100dvh);
 }
@@ -688,8 +679,9 @@ function closePopup() {
 
 }
 
-.broadcasts_selected_interactives_header >div{
-    margin-bottom: calc((15 / 832) * 100dvh);font-family: "Lato", sans-serif;
+.broadcasts_selected_interactives_header>div {
+    margin-bottom: calc((15 / 832) * 100dvh);
+    font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
     font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
@@ -874,39 +866,40 @@ function closePopup() {
 }
 
 .broadcasts_popup {
-    margin:auto auto;
+    margin: auto auto;
     ;
     background: white;
     border-radius: calc((35 / 832) * 100dvh);
-     min-height: calc((512 / 832) * 100dvh);
+    min-height: calc((512 / 832) * 100dvh);
     width: calc((921 / 1280) * 100dvw);
     ;
     position: relative;
- 
-    gap:0px;
+
+    gap: 0px;
 }
 
-.broadcasts_popup-header {
-   
-}
+.broadcasts_popup-header {}
 
-.broadcasts_popup-header-text {margin-top: calc((45 / 832) * 100dvh);
+.broadcasts_popup-header-text {
+    margin-top: calc((45 / 832) * 100dvh);
     font-family: "Lato", sans-serif;
-font-weight: 700;
-font-style: Bold;
+    font-weight: 700;
+    font-style: Bold;
     font-size: clamp(10px, calc(36 / 1280 * 100dvw), 72px);
     letter-spacing: clamp(0.1px, calc(36 / 100 / 1280 * 100dvw), 0.72px);
-text-align: center;
+    text-align: center;
 
 }
 
-.broadcasts_popup-close { height: calc((24 / 832) * 100dvh) !important;
+.broadcasts_popup-close {
+    height: calc((24 / 832) * 100dvh) !important;
     width: calc((24 / 1280) * 100dvw);
     position: absolute;
     top: calc((32 / 832) * 100dvh) !important;
-    right:  calc((23 / 1280) * 100dvw);
+    right: calc((23 / 1280) * 100dvw);
     cursor: pointer;
-    color: #aaa;  cursor: pointer;
+    color: #aaa;
+    cursor: pointer;
 }
 
 .broadcasts_popup-body {
@@ -915,14 +908,15 @@ text-align: center;
     min-height: calc((244 / 832) * 100dvh) !important;
     width: calc((743 / 1280) * 100dvw);
     font-family: "Lato", sans-serif;
-font-weight: 400;
-font-style: Regular;
+    font-weight: 400;
+    font-style: Regular;
     font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
     letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
-vertical-align: middle;
-margin: 0 auto;
-margin-top:calc((25 / 832) * 100dvh);
-margin-bottom: calc((82 / 832) * 100dvh);;
+    vertical-align: middle;
+    margin: 0 auto;
+    margin-top: calc((25 / 832) * 100dvh);
+    margin-bottom: calc((82 / 832) * 100dvh);
+    ;
 }
 
 .broadcasts_popup-option {
@@ -986,37 +980,46 @@ margin-bottom: calc((82 / 832) * 100dvh);;
     position: relative;
 }
 
-.broadcasts_popup-footer { font-family: "Lato", sans-serif;
+.broadcasts_popup-footer {
+    font-family: "Lato", sans-serif;
     display: flex;
     align-items: center;
-      cursor: pointer;
-    margin-left: calc((520 / 1280) * 100dvw);;
-        font-family: "Lato", sans-serif;
-font-weight: 500;
-font-style: Medium;
-font-size: clamp(10px, calc(24 / 1280 * 100dvw), 48px);
+    cursor: pointer;
+    margin-left: calc((520 / 1280) * 100dvw);
+    ;
+    font-family: "Lato", sans-serif;
+    font-weight: 500;
+    font-style: Medium;
+    font-size: clamp(10px, calc(24 / 1280 * 100dvw), 48px);
     letter-spacing: clamp(0.1px, calc(24 / 100 / 1280 * 100dvw), 0.48px);
-text-align: center;
-vertical-align: middle;margin-bottom: calc((20 / 832) * 100dvh);;
-}
-.broadcasts_popup_back{
-
-color: #853CFF;
+    text-align: center;
+    vertical-align: middle;
+    margin-bottom: calc((20 / 832) * 100dvh);
+    ;
 }
 
-.broadcasts_popup_send{    cursor: pointer;
-    display: flex; font-family: "Lato", sans-serif;
+.broadcasts_popup_back {
+
+    color: #853CFF;
+}
+
+.broadcasts_popup_send {
+    cursor: pointer;
+    display: flex;
+    font-family: "Lato", sans-serif;
     align-items: center;
     justify-content: center;
     width: calc((222 / 1280) * 100dvw) !important;
     height: calc((41/832)*100dvh);
-color:#6AB23D;
-margin-left: calc((40 / 1280) *100dvw);
-border: calc((2/832)*100dvh) solid #6AB23D;
-border-radius: calc((8/832)*100dvh);
+    color: #6AB23D;
+    margin-left: calc((40 / 1280) *100dvw);
+    border: calc((2/832)*100dvh) solid #6AB23D;
+    border-radius: calc((8/832)*100dvh);
 
 }
-.broadcasts_popup-submit { font-family: "Lato", sans-serif;
+
+.broadcasts_popup-submit {
+    font-family: "Lato", sans-serif;
     margin-left: 292px;
     width: 233px;
     height: 62px;

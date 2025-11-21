@@ -15,7 +15,7 @@ const from_number = ref(0)
 const to_number = ref(9)
 watch(selectedInteractives, (newSelectedInteractives) => {
     saveToDeviceStorage(HISTORY_KEY, newSelectedInteractives);
-}, { deep: true });
+});
 
 watch(selectMany, (newSelectMany) => {
     saveToDeviceStorage(HISTORY_SELECT_MANY_KEY, newSelectMany)
@@ -85,8 +85,8 @@ async function more_load() {
             query: {
                 telegram_id: userId.value,
                 filter: "conducted",
-                from_number: from_number,
-                to_number: to_number,
+                from_number: from_number.value,
+                to_number: to_number.value,
             },
         });
         props.value = data;
