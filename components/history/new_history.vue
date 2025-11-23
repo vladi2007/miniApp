@@ -243,11 +243,11 @@ async function goTo(url: string, active:string) {
             <div class="history_selected_interactives_header">
                 Список выбранных интерактивов
             </div>
-            <div :class="{ selected_list: selectedInteractives.length > 0 }" style="width: calc((1056/1280)*100dvw);">
+            <div :class="{ selected_list: selectedInteractives.length > 0 }" >
 
 
                 <div class="history_list_list" v-for="id in selectedInteractives" :key="id"
-                    v-if="selectedInteractives.length > 0" style="height: calc((36/832)*100dvh);">
+                    v-if="selectedInteractives.length > 0" style="height: calc((36/832)*100dvh);" id="history_list_list">
 
                     <div class="history_list_list_item" :class="['selected_item']">
                         <div class="history_list_list_item_title">
@@ -581,7 +581,6 @@ async function goTo(url: string, active:string) {
 }
 
 .history_selected_interactives {
-    width: calc((1056/1280) * 100dvw);
     margin-left: calc((112 / 1280) * 100dvw);
 
     font-family: "Lato", sans-serif;
@@ -598,9 +597,9 @@ async function goTo(url: string, active:string) {
 
 .history_list_selected_download {
     width: calc((99 / 1280) * 100dvw);
-    margin-left: auto;
+  
     margin-right: calc((15 / 1280) * 100dvw);
-    ;
+    margin-left:calc((942 / 1280) * 100dvw);
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -1086,7 +1085,6 @@ async function goTo(url: string, active:string) {
 }
 
 .history_selected_interactives {
-    width: 1056px;
     margin-left: 432px;
 
     font-family: "Lato", sans-serif;
@@ -1103,7 +1101,7 @@ async function goTo(url: string, active:string) {
 
 .history_list_selected_download {
     width: 99px;
-    margin-left: auto;
+    margin-left:942px;
     margin-right: 15px;
     ;
     font-family: "Lato", sans-serif;
@@ -1194,7 +1192,9 @@ async function goTo(url: string, active:string) {
     flex-direction: column;
     overflow-x: hidden;
 }
-
+#history_list_list{
+    height: 36.0px !important; ;
+}
 .history_list_list_item {
     overflow-x: hidden;
     display: flex;
@@ -1218,7 +1218,9 @@ async function goTo(url: string, active:string) {
 
 .Line {
     background-color: #e9e9e9 !important;
-    height:1px !important;
+    height:1.3px !important;
+    margin:0 auto;
+    width: 1030px !important;
 }
 
 .history_list_list_item_title {
