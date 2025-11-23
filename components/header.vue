@@ -25,6 +25,7 @@ const props = defineProps<{
         </div>
 </template>
 <style scoped>
+@media (max-width:1918px), (max-height:1078px){
 .header {
     width: 100dvw;
     height: calc((71 / 832) * 100dvh);
@@ -94,6 +95,78 @@ const props = defineProps<{
     color: #1D1D1D !important;
     margin-top: 0px;
     background-color: #853CFF;
+}
+}
+@media (min-width:1920px) and (min-height:1080px){
+    .header {
+    width: 100dvw;
+    height: 71px;
+    background-color: #853CFF;
+    display: flex;
+    align-items: center;
+}
+
+#logo_header {
+    width: 123px;
+    height: 50px;
+    margin-left: auto;
+    margin-right: 165.3px;
+}
+
+.nav {
+    display: flex;
+    gap: 20px;
+    margin-top:55px;
+    margin-left: calc(578px);
+    font-family: "Lato", sans-serif;
+    font-weight: 500;
+    font-style: Medium;
+    font-size: 20px;
+    letter-spacing: 0.2px;
+    text-align: center;
+    vertical-align: middle;
+    color: #A9A9A9;
+
+}
+
+.nav>div:hover {
+    color: #1D1D1D;
+}
+.nav > div{
+    cursor: pointer;
+}
+.nav_main:not(.active_nav):hover::after,
+.nav_interactives:not(.active_nav):hover::after,
+.nav_reports:not(.active_nav):hover::after,
+.nav_broadcasts:not(.active_nav):hover::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 2px;
+    margin-top: 0px;
+    background-color: #853CFF;
+}
+
+.active_nav {
+    font-family: "Lato", sans-serif;
+    font-weight: 500;
+    font-style: Medium;
+    color: #1D1D1D;
+
+    vertical-align: middle;
+    display: grid;
+    width: fit-content;
+}
+
+.active_nav::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 2px;
+    color: #1D1D1D !important;
+    margin-top: 0px;
+    background-color: #853CFF;
+}
 }
 
 </style>

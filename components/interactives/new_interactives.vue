@@ -584,6 +584,7 @@ async function deleteInteractive(id: string) {
 </template>
 
 <style>
+@media (max-height:1078px), (max-width:1918px){
 .interactives_list_list_item_actions {
     position: relative;
 }
@@ -1123,15 +1124,15 @@ input:focus {
 }
 
 .interactive_delete {
-    width: calc((14/1280) * 100dvw);
-    height: calc((18/832) * 100dvh);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: calc((14/1280) * 100dvw) !important;
+    height: calc((18/832) * 100dvh) !important;
     cursor: pointer;
     margin-left: calc((10 / 1280) * 100dvw);
 }
-
+.interactive_delete > img{
+    width: calc((14/1280) * 100dvw) !important;
+    height: calc((18/832) * 100dvh) !important;
+}
 .interactives_start:hover {}
 
 .interactives_dublicate,
@@ -1550,5 +1551,9 @@ text-align: center;
 .interactives_delete_popup-button:nth-child(2):hover {
   background-color:  #9AC57E;
   color: white;
+}
+}
+@media (min-width:1920px) and (min-width:1080px){
+
 }
 </style>
