@@ -389,6 +389,10 @@ async function deleteInteractive(id: string) {
   }
 
 }
+const info =computed(()=>{
+    if (selectedText.value === 'conducted') return "Проведите свой первый интерактив и он отобразится здесь"
+    else return "Создайте свой первый интерактив и он появится здесь"
+})
 </script>
 <template>
     <div class="interactives">
@@ -431,7 +435,7 @@ async function deleteInteractive(id: string) {
                 У Вас нет интерактивов
             </div>
             <div class="interactives_empty_list_info_h2">
-                Создайте свой первый интерактив и он появится здесь
+                {{info}}
             </div>
         </div>
         <div class="interactives_list" v-if="!is_empty_list">

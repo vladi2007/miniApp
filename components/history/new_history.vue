@@ -1193,7 +1193,7 @@ async function goTo(url: string, active:string) {
     overflow-x: hidden;
 }
 #history_list_list{
-    height: 36.0px !important; ;
+    height: 36.15px !important; ;
 }
 .history_list_list_item {
     overflow-x: hidden;
@@ -1218,7 +1218,7 @@ async function goTo(url: string, active:string) {
 
 .Line {
     background-color: #e9e9e9 !important;
-    height:1.3px !important;
+    height:1px !important;
     margin:0 auto;
     width: 1030px !important;
 }
