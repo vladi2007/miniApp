@@ -13,6 +13,7 @@ const selectedOption = ref<string | null>("");
 const selectMany = ref(false);
 const from_number = ref(0)
 const to_number = ref(9)
+import header_logo from "~/components/header_logo.vue"
 watch(selectedInteractives, (newSelectedInteractives) => {
     saveToDeviceStorage(HISTORY_KEY, newSelectedInteractives);
 });
@@ -232,6 +233,8 @@ async function goTo(url: string, active:string) {
 
 <template>
     <div class="history">
+         <header_logo/>
+         <div class ="history_margins" >
         <Header :goTo="goTo" :active="'reports'"/>
         <div class="history_info">
             <img src="/public/images/history/history_info.svg" />
@@ -329,6 +332,7 @@ async function goTo(url: string, active:string) {
             </div>
             <div class="history_show_more" v-if="!is_end" @click="more_load()">Показать еще</div>
         </div>
+        </div>
     </div>
 
     <div v-if="showPopup" class="popup-overlay">
@@ -366,7 +370,13 @@ async function goTo(url: string, active:string) {
     overflow-x: hidden;
     background-color: white;
 }
-
+.history_margins{
+    width: calc((1056 / 1280) * 100dvw);
+        box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+       margin-left: calc((112 / 1280) * 100dvw);
+}
 .header {
     width: 100dvw;
     height: calc((71 / 832) * 100dvh);
@@ -386,7 +396,6 @@ async function goTo(url: string, active:string) {
     display: flex;
     gap: calc((20 / 1280) * 100dvw);
     margin-top: calc((34 / 832) * 100dvh);
-    margin-left: calc((112 / 1280) * 100dvw);
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -439,7 +448,6 @@ async function goTo(url: string, active:string) {
 .history_info {
     display: flex;
     align-items: flex-start;
-    margin-left: calc((112 / 1280) * 100dvw);
     margin-top: calc((25 / 832) * 100dvh);
     margin-bottom: calc((20 / 832) * 100dvh);
 }
@@ -463,7 +471,6 @@ async function goTo(url: string, active:string) {
 }
 
 .history_finder {
-    margin-left: calc((112 / 1280) * 100dvw);
 }
 
 
@@ -494,7 +501,7 @@ async function goTo(url: string, active:string) {
 
 .search-input {
 
-    width: calc((715/1280) * 100dvw);
+    width: calc((765/1280) * 100dvw);
     height: calc((39 / 832) * 100dvh);
     line-height: calc((39 / 832) * 100dvh);
     ;
@@ -535,11 +542,10 @@ async function goTo(url: string, active:string) {
 
 .history_empty_list_info {
     margin-top: calc((34 / 832) * 100dvh);
-    margin-left: calc((403 / 1280) * 100dvw);
     width: calc((475/1280) * 100dvw);
     display: grid;
     justify-items: center;
-
+margin-left: calc((290/1280) * 100dvw);;
 }
 
 .history_empty_list_info>img {
@@ -581,7 +587,6 @@ async function goTo(url: string, active:string) {
 }
 
 .history_selected_interactives {
-    margin-left: calc((112 / 1280) * 100dvw);
 
     font-family: "Lato", sans-serif;
     font-weight: 500;
@@ -610,7 +615,7 @@ async function goTo(url: string, active:string) {
     text-align: center;
     vertical-align: middle;
     margin-top: calc((20 / 832) * 100dvh);
-    ;
+    cursor: pointer;
 
 }
 
@@ -645,7 +650,6 @@ async function goTo(url: string, active:string) {
 
 .history_list {
     width: calc((1056 / 1280) * 100dvw);
-    margin-left: calc((112 / 1280) * 100dvw);
     margin-top: calc((20 / 832) * 100dvh);
     padding-bottom: calc((100 / 832) * 100dvh);
     overflow-x: hidden;
@@ -714,6 +718,7 @@ async function goTo(url: string, active:string) {
 .Line {
     background-color: #e9e9e9 !important;
     height: calc((1 / 832) * 100dvh) !important;
+    width: 100%;
 }
 
 .history_list_list_item_title {
@@ -931,6 +936,14 @@ async function goTo(url: string, active:string) {
 }
 
 @media (min-width:1920px) and (min-width:1080px){
+
+    .history_margins{
+    width: 1056px;
+        box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+       margin:0 auto 0 auto;
+}
 .history {
     width: 100dvw;
     height: 100dvh;
@@ -945,7 +958,6 @@ async function goTo(url: string, active:string) {
 .history_info {
     display: flex;
     align-items: flex-start;
-    margin-left: 432px;
     margin-top: 61px;
     margin-bottom: 20px;
 }
@@ -969,7 +981,6 @@ async function goTo(url: string, active:string) {
 }
 
 .history_finder {
-    margin-left: 432px;
 }
 
 
@@ -1000,7 +1011,7 @@ async function goTo(url: string, active:string) {
 
 .search-input {
 
-    width: 715px;
+    width: 765px;
     height:39px;
     line-height: 39px;
     ;
@@ -1013,8 +1024,8 @@ async function goTo(url: string, active:string) {
     font-size: 16px;
 
     display: flex;
-    align-items: center;
-    padding-left: 50px;
+    align-items: center;padding-left: 50px;
+  
 }
 
 .search-input::placeholder {
@@ -1025,7 +1036,7 @@ async function goTo(url: string, active:string) {
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-size: 16px;
-    color: #A9A9A9;
+    color: #A9A9A9; 
 }
 
 .input-icon {
@@ -1044,6 +1055,7 @@ async function goTo(url: string, active:string) {
     width: 475px;
     display: grid;
     justify-items: center;
+    margin-left: 290px;;
 }
 
 .history_empty_list_info>img {
@@ -1069,8 +1081,8 @@ async function goTo(url: string, active:string) {
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Bold;
-    font-size: 20px;
-    letter-spacing: 0.2px;
+    font-size:14px;
+    letter-spacing: 0.14px;
     vertical-align: middle;
     text-align: center;
     vertical-align: middle;
@@ -1085,7 +1097,6 @@ async function goTo(url: string, active:string) {
 }
 
 .history_selected_interactives {
-    margin-left: 432px;
 
     font-family: "Lato", sans-serif;
     font-weight: 500;
@@ -1103,7 +1114,7 @@ async function goTo(url: string, active:string) {
     width: 99px;
     margin-left:942px;
     margin-right: 15px;
-    ;
+    ;cursor: pointer;
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -1148,7 +1159,6 @@ async function goTo(url: string, active:string) {
 
 .history_list {
     width: 1056px;
-    margin-left: 432px;
     margin-top: 20px;
     padding-bottom: 100px;
     overflow-x: hidden;
@@ -1220,7 +1230,7 @@ async function goTo(url: string, active:string) {
     background-color: #e9e9e9 !important;
     height:1px !important;
     margin:0 auto;
-    width: 1030px !important;
+    width: 1056px !important;
 }
 
 .history_list_list_item_title {

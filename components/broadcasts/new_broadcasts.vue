@@ -2,7 +2,7 @@
 import { useRouter } from 'vue-router';
 import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorageIndexedDB'
 const BROADCASTS_KEY = 'broadcasts_key'
-
+import header_logo from "~/components/header_logo.vue"
 import Header from "~/components/header.vue"
 const BROADCASTS_TEXT_KEY = 'broadcasts_text_key'
 const BROADCASTS_FILE_KEY = 'broadcasts_file_key'
@@ -193,6 +193,8 @@ function closePopup() {
 
 <template>
     <div class="broadcasts">
+          <header_logo/>
+          <div class="broadcasts_margins">
         <Header :goTo="goTo" :active="'broadcasts'" />
 
         <div class="broadcasts_input"> <label>Введите текст рассылки<textarea v-model="text" id="description_input"
@@ -312,7 +314,7 @@ function closePopup() {
             </div>
             <div class="broadcasts_show_more" v-if="!is_end" @click="more_load()">Показать еще</div>
         </div>
-
+</div>
     </div>
 
     <div v-if="showPopup" class="broadcasts_popup-overlay">
@@ -365,6 +367,14 @@ function closePopup() {
     background-color: white;
 }
 
+
+.broadcasts_margins{
+     width: calc((1056 / 1280) * 100dvw);
+        box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+       margin-left: calc((112 / 1280) * 100dvw);
+}
 .broadcasts_header {
     width: 100dvw;
     height: calc((71 / 832) * 100dvh);
@@ -385,7 +395,6 @@ function closePopup() {
     display: flex;
     gap: calc((20 / 1280) * 100dvw);
     margin-top: calc((34 / 832) * 100dvh);
-    margin-left: calc((112 / 1280) * 100dvw);
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -437,7 +446,6 @@ function closePopup() {
 
 .broadcasts_input {
     width: calc((483/1280) * 100dvw);
-    margin-left: calc((112 /1280) * 100dvw);
     margin-top: calc((25/832) * 100dvh);
 }
 
@@ -497,7 +505,6 @@ function closePopup() {
 
 
 .broadcasts_custom-file-upload {
-    margin-left: calc((112 /1280) * 100dvw);
     width: calc((483 / 1280) * 100dvw);
     height: calc((42 / 832) * 100dvh);
     padding: calc((12 / 832) * 100dvh) calc((12 / 1280) * 100dvw);
@@ -543,7 +550,6 @@ function closePopup() {
 
 
 .broadcasts_finder {
-    margin-left: calc((112 / 1280) * 100dvw);
 }
 
 
@@ -574,7 +580,7 @@ function closePopup() {
 
 .broadcasts_search-input {
 
-    width: calc((715/1280) * 100dvw);
+    width: calc((765/1280) * 100dvw);
     height: calc((39 / 832) * 100dvh);
     line-height: calc((39 / 832) * 100dvh);
     ;
@@ -615,7 +621,7 @@ function closePopup() {
 
 .broadcasts_empty_list_info {
     margin-top: calc((34 / 832) * 100dvh);
-    margin-left: calc((403 / 1280) * 100dvw);
+    margin-left: calc((290 / 1280) * 100dvw);
     width: calc((475/1280) * 100dvw);
     display: grid;
     justify-items: center;
@@ -699,7 +705,6 @@ function closePopup() {
 }
 
 .broadcasts_selected_interactives {
-    margin-left: calc((112 / 1280) * 100dvw);
     
     font-family: "Lato", sans-serif;
     font-weight: 700;
@@ -710,12 +715,10 @@ function closePopup() {
     color: #1D1D1D;
     overflow-x: hidden;
     min-height: calc((162 / 832) * 100dvh);
-
 }
 
 .broadcasts_list {
     width: calc((1056 / 1280) * 100dvw);
-    margin-left: calc((112 / 1280) * 100dvw);
     margin-top: calc((20 / 832) * 100dvh);
     padding-bottom: calc((100 / 832) * 100dvh);
     overflow-x: hidden;
@@ -1069,11 +1072,16 @@ function closePopup() {
     background-color: white;
 }
 
-
+.broadcasts_margins{
+    width: 1056px;
+        box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+       margin:0 auto 0 auto;
+}
 
 .broadcasts_input {
     width: 483px;
-    margin-left:432px;
     margin-top: 61px;
 }
 
@@ -1131,7 +1139,6 @@ function closePopup() {
 
 
 .broadcasts_custom-file-upload {
-    margin-left: 432px;
     width: 483px;
     height: 42px;
     padding: 12px 12px;
@@ -1177,7 +1184,6 @@ function closePopup() {
 
 
 .broadcasts_finder {
-    margin-left: 432px;
 }
 
 
@@ -1208,7 +1214,7 @@ function closePopup() {
 
 .broadcasts_search-input {
 
-    width: 715px;
+    width: 765px;
     height: 39px;
     line-height: 39px;
     ;
@@ -1249,7 +1255,7 @@ function closePopup() {
 
 .broadcasts_empty_list_info {
     margin-top: 34px;
-    margin-left: 403px;
+    margin-left: 290px;
     width: 475px;
     display: grid;
     justify-items: center;
@@ -1299,7 +1305,7 @@ function closePopup() {
     justify-items: center;
     margin-left: 378px;;
     width: 300px;
-    margin-top: calc((34 / 832) * 100dvh);
+    margin-top: 34px;
 }
 
 .broadcasts_selected_interactives_info_h2 {
@@ -1331,7 +1337,6 @@ function closePopup() {
 }
 
 .broadcasts_selected_interactives {
-    margin-left:432px;;
 
     font-family: "Lato", sans-serif;
     font-weight: 700;
@@ -1342,12 +1347,10 @@ function closePopup() {
     color: #1D1D1D;
     overflow-x: hidden;
     min-height: 162px;
-
 }
 
 .broadcasts_list {
     width: 1056px;
-    margin-left: 432px;;;
     margin-top: 20px;;
     padding-bottom: 100px;;
     overflow-x: hidden;
@@ -1445,8 +1448,8 @@ function closePopup() {
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
-    font-size: 16px;
-    letter-spacing: 0.16px;
+    font-size: 20px;;
+    letter-spacing: 0.2px;
     text-align: center;
     vertical-align: middle;
     cursor: pointer;

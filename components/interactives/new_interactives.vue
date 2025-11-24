@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { postEvent } from '@telegram-apps/sdk';
 import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorage'
-
+import header_logo from "~/components/header_logo.vue"
 import Header from "~/components/header.vue"
 const finder = ref<string>("")
 
@@ -396,7 +396,12 @@ const info =computed(()=>{
 </script>
 <template>
     <div class="interactives">
-        <Header :goTo="goTo" :active="'interactives'" />
+        <header_logo/>
+        <div class ="interactives_margins" >
+
+        
+              
+         <Header :goTo="goTo" :active="'interactives'" />
         <div class="interactives_finder">
             <div class="interactives_finder_finder">
                 <img src="/public/images/history/finder.svg" class="interactives_input-icon" />
@@ -495,8 +500,8 @@ const info =computed(()=>{
                         <div class="interactives_list_list_item_actions" :ref="el => setDropdownRef(el, index)">
                             <div class="interactives_more_options" v-if="item.is_conducted"
                                 @click="toggleItemDropdown(item.id)" title="Еще">
-                                <img src="/images/interactives/more_options.svg"
-                                    style="     height: calc((30/832) * 100dvh) !important;width: calc((30 / 1280) * 100dvw) !important; margin-left: calc((18.5/1280)*100dvw) !important;" id="more" />
+                                <img src="/images/interactives/more.svg"
+                                  id="more_options" />
                             </div>
                             <div class="interactives_item-dropdown-options" v-if="openDropdownId === item.id"
                                 style=" z-index: 10001 !important;">
@@ -505,14 +510,14 @@ const info =computed(()=>{
                                     style="  margin-top: calc((22/832)*100dvh);">
                                     <img src="/public/images/interactives/download.svg" id="first_option_img"
                                         class="interactives_item-dropdown-icon"
-                                        style="     height: calc((24/832) * 100dvh) !important;width: calc((24 / 1280) * 100dvw) !important; margin-left: calc((24/1280)*100dvw);" />
+                                        style="     height: calc((24/832) * 100dvh) ;width: calc((24 / 1280) * 100dvw) ; margin-left: calc((24/1280)*100dvw);" />
                                     <span style="margin-left: calc((9/1280)*100dvw);">Выгрузить отчет</span>
                                 </div>
                                 <div class="interactives_item-dropdown-option" id="second_option"
                                     style="  margin-top: calc((14/832)*100dvh);">
                                     <img src="/public/images/interactives/send.svg" id="second_option_img"
                                         class="interactives_item-dropdown-icon"
-                                        style="     height: calc((24/832) * 100dvh) !important;width: calc((24 / 1280) * 100dvw) !important; margin-left: calc((24/1280)*100dvw);" />
+                                        style="     height: calc((24/832) * 100dvh) ;width: calc((24 / 1280) * 100dvw) ; margin-left: calc((24/1280)*100dvw);" />
                                     <span style="margin-left: calc((9/1280)*100dvw);">Отправить рассылку</span>
                                 </div>
                             </div>
@@ -524,7 +529,7 @@ const info =computed(()=>{
             </div>
             <div class="interactives_show_more" v-if="!is_end" @click="more_load()">Показать еще</div>
         </div>
-
+    </div>
         <div v-if="showPopup" class="interactives_popup-overlay">
             <div class="interactives_popup">
                 <div class="interactives_popup-header">
@@ -589,6 +594,12 @@ const info =computed(()=>{
 
 <style>
 @media (max-height:1078px), (max-width:1918px){
+    .interactives_margins{width: calc((1056 / 1280) * 100dvw);
+        box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+       margin-left: calc((112 / 1280) * 100dvw);
+    }
 .interactives_list_list_item_actions {
     position: relative;
 }
@@ -596,9 +607,7 @@ const info =computed(()=>{
 .interactives {
     width: 100dvw;
     height: 100dvh;
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
+    
     background-color: white;
     position: relative;
     overflow-x: hidden;
@@ -623,7 +632,6 @@ const info =computed(()=>{
     display: flex;
     gap: calc((20 / 1280) * 100dvw);
     margin-top: calc((34 / 832) * 100dvh);
-    margin-left: calc((112 / 1280) * 100dvw);
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -679,8 +687,7 @@ const info =computed(()=>{
 
 .interactives_finder {
     width: calc((1056/1280) * 100dvw);
-    margin-left: calc((112 / 1280) * 100dvw);
-    margin-top: calc((15 / 832) * 100dvh);
+    margin-top: calc((25 / 832) * 100dvh);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -703,7 +710,7 @@ const info =computed(()=>{
 }
 
 .interactives_search-input {
-    width: calc((715/1280) * 100dvw);
+    width: calc((765/1280) * 100dvw);
     height: calc((39 / 832) * 100dvh);
     line-height: calc((39 / 832) * 100dvh);
     color: #1D1D1D !important;
@@ -714,7 +721,8 @@ const info =computed(()=>{
     font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
     display: flex;
     align-items: center;
-    padding-left: calc((50 / 1280) * 100dvw);
+    padding-left: calc((50 / 1280) * 100dvw) !important;
+   
 }
 
 .interactives_search-input::placeholder {
@@ -724,7 +732,7 @@ const info =computed(()=>{
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    color: #A9A9A9;
+    color: #A9A9A9; 
 }
 
 .interactives_input-icon {
@@ -744,8 +752,14 @@ const info =computed(()=>{
     justify-content: center;
     background-color: #6AB23D;
     border-radius: calc((5/832) * 100dvh);
-    width: calc((261/1280) * 100dvw);
-    height: calc((39 / 832) * 100dvh);
+    width: calc((261/1280) * 100dvw) ;
+    height: calc((39 / 832) * 100dvh) ;
+    /* padding-top:   calc((8 / 832) * 100dvh);
+    padding-left:  calc((35/1280) * 100dvw) ;;;
+    padding-bottom:   calc((8 / 832) * 100dvh);
+    padding-right:  calc((35/1280) * 100dvw) ;;; */
+       white-space: nowrap ;
+   
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -754,12 +768,12 @@ const info =computed(()=>{
     text-align: center;
     vertical-align: middle;
     color: white;
+    margin-left: calc((30/1280)*100dvw);
 }
 
 .interactives_input-group_type {
     position: relative;
     z-index: 1000;
-    margin-left: calc((112/1280)*100dvw);
     height: calc((47 / 832) * 100dvh);
     width: calc((159 / 1280) * 100dvw) !important;
 }
@@ -934,7 +948,7 @@ input:focus {
 
 .interactives_empty_list_info {
     margin-top: calc((34 / 832) * 100dvh);
-    margin-left: calc((403 / 1280) * 100dvw);
+    margin-left: calc((290 / 1280) * 100dvw);
     width: calc((475/1280) * 100dvw);
     display: grid;
     justify-items: center;
@@ -973,7 +987,6 @@ input:focus {
 
 .interactives_list {
     width: calc((1056 / 1280) * 100dvw);
-    margin-left: calc((112 / 1280) * 100dvw);
     margin-top: calc((20 / 832) * 100dvh);
     padding-bottom: calc((100 / 832) * 100dvh);
 }
@@ -983,11 +996,8 @@ input:focus {
     margin-left: calc((22 / 1280) * 100dvw);
     font-family: "Lato", sans-serif;
     font-weight: 400;
-    font-style: Regular;
     font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
     letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-    text-align: center;
-    vertical-align: middle;
     color: #A9A9A9;
     margin-bottom: calc((15 / 832) * 100dvh);
 }
@@ -1045,27 +1055,26 @@ input:focus {
     height: calc((1 / 832) * 100dvh) !important;
 }
 
-.interactives_list_list_item_title {
+.interactives_list_list_item_title { 
     margin-left: calc((22 / 1280) * 100dvw);
     width: calc((375 / 1280) * 100dvw);
     text-align: left;
 }
 
 .interactives_list_list_item_date {
-    margin-left: calc((0 / 1280) * 100dvw);
     width: calc((137 / 1280) * 100dvw);
-    text-align: center;
+    text-align: center; 
 }
 
 .interactives_list_list_item_status {
-    margin-left: calc((30 / 1280) * 100dvw);
-    width: calc((128 / 1280) * 100dvw);
+    margin-left: calc((30 / 1280) * 100dvw) !important;
+    width: calc((128 / 1280) * 100dvw); 
     text-align: center;
 }
 
 .interactives_list_list_item_count {
     margin-left: calc((69 / 1280) * 100dvw);
-    width: calc((68 / 1280) * 100dvw);
+    width: calc((68 / 1280) * 100dvw); 
     text-align: center;
 }
 
@@ -1084,26 +1093,26 @@ input:focus {
     cursor: pointer;
 }
 
-.interactives_buttons {
-    display: flex;
+.interactives_buttons { 
+    display: flex;position: relative; 
     align-items: center;
-    width: calc((152 / 1280) * 100dvw) !important;
+    width: calc((152 / 1280) * 100dvw);;
     margin-left: calc((77 / 1280) * 100dvw);
 }
 
-#leader_board {
+
+#leader_board, #dublicate{
+      width: calc((24/1280) * 100dvw) !important;
     height: calc((24/832) * 100dvh) !important;
-    width: calc((24 / 1280) * 100dvw) !important;
 }
-
-#start,
-#edit,
-#dublicate {
-    height: calc((24/832) * 100dvh) !important;
-    width: calc((24 / 1280) * 100dvw) !important;
+#edit{
+    width: calc((16/1280) * 100dvw) !important;
+    height: calc((17/832) * 100dvh) !important;
 }
-
-
+.interactives_start > img{
+        width: calc((12/1280) * 100dvw) !important;
+    height: calc((17/832) * 100dvh) !important;
+}
 .interactives_leader_board {
     background-color: #6AB23D;
     margin-right: calc((10 / 1280) * 100dvw);
@@ -1191,7 +1200,7 @@ input:focus {
     cursor: pointer;
     font-family: "Lato", sans-serif;
     color: #1D1D1D;
-
+   white-space: nowrap;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
@@ -1209,18 +1218,20 @@ input:focus {
 
 
 .interactives_more_options {
-    margin-left: calc((38 / 1280) * 100dvw) !important;
+    margin-left: calc((57 / 1280) * 100dvw);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: calc((30/1280) * 100dvw);
-    height: calc((30/1280) * 100dvw);
+
+  
     cursor: pointer;
     z-index: 0 !important;
 }
 
 .interactives_more_options>img {
     z-index: 0 !important;
+    width: calc((9.75/1280) * 100dvw) !important;
+    height: calc((18.75/1280) * 100dvw) !important;
 }
 
 
@@ -1558,6 +1569,14 @@ text-align: center;
 }
 }
 @media (min-width:1920px) and (min-width:1080px){
+
+
+     .interactives_margins{width: 1056px; 
+        box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+       margin:0 auto 0 auto;
+    }
 .interactives_list_list_item_actions {
     position: relative;
 }
@@ -1578,7 +1597,6 @@ text-align: center;
 
 .interactives_finder {
     width: 1056px;
-    margin-left: 432px;
     margin-top: 61px;
     display: flex;
     align-items: center;
@@ -1602,7 +1620,7 @@ text-align: center;
 }
 
 .interactives_search-input {
-    width: 715px;
+    width: 765px;
     height: 39px;
     line-height:39px;
     color: #1D1D1D !important;
@@ -1642,9 +1660,9 @@ text-align: center;
     align-items: center;
     justify-content: center;
     background-color: #6AB23D;
-    border-radius:5px;
-    width: 261px;
-    height: 39px;
+    border-radius:5px;white-space: nowrap ;
+     width: 261px;
+    height:39px;
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -1653,12 +1671,12 @@ text-align: center;
     text-align: center;
     vertical-align: middle;
     color: white;
+    margin-left: 30px;;
 }
 
 .interactives_input-group_type {
     position: relative;
     z-index: 1000;
-    margin-left:432px;;
     height: 47px;
     width: 47px !important;
 }
@@ -1833,7 +1851,7 @@ input:focus {
 
 .interactives_empty_list_info {
     margin-top: 34px;;
-    margin-left:772px;;
+    margin-left:290px;;
     width: 475px;;
     display: grid;
     justify-items: center;
@@ -1872,7 +1890,6 @@ input:focus {
 
 .interactives_list {
     width: 1056px;
-    margin-left:432px;;
     margin-top:20px;;
     padding-bottom: 100px;;
 }
@@ -2127,18 +2144,20 @@ input:focus {
 
 
 .interactives_more_options {
-    margin-left: 34px !important;
+   
     display: flex;
     align-items: center;
     justify-content: center;
-    width:30px;;
-    height: 30px;
+  
     cursor: pointer;
     z-index: 0 !important;
 }
 
-.more>img { margin-left: 34px !important;
+#more_options { 
     z-index: 0 !important;
+  width:3.75px;;
+    height: 18.75px;;
+    margin-left: 61.12px;;
 }
 
 

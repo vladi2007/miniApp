@@ -3,7 +3,7 @@
 
 import Header from "~/components/header.vue"
 import description from '~/components/main_menu/description.vue'
-
+import header_logo from "~/components/header_logo.vue"
 const router = useRouter()
 async function goTo(url: string, active:string) {
    if (active ==="menu") return
@@ -13,19 +13,36 @@ async function goTo(url: string, active:string) {
 
 <template>
     <div class="main_menu_fon">
-        <Header :goTo="goTo" :active="'menu'"/>
-        <description />
+           <header_logo/>
+           <Header :goTo="goTo" :active="'menu'"/>
+        <div class ="main_menu_content">
+            
+            <description />
+        </div>
     </div>
 </template>
 
 
 <style>
-@import url("~/assets/css/main_menu/main_menu.scss");
-</style>
-<style scoped>
+
+@import url("/assets/css/main_menu/main_menu.scss");
+* {
+  margin: 0;
+  box-sizing: border-box;
+}
+.main_menu_fon {
+  background-color: white;
+  width: 100%;
+
+  margin-bottom: 30px;
+  padding-bottom: 42px;
+}
 
 
-
-
+.main_menu_content{
+     width: 1320px;
+     margin: 0 auto 0 auto;
+    
+}
 
 </style>

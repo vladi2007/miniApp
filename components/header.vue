@@ -6,10 +6,8 @@ const props = defineProps<{
 
 </script>
 <template>
-    <div class="header">
-            <img src="/public/images/interactive_editor/logo.svg" id="logo_header" />
-        </div>
-        <div class="nav">
+
+        <div class="nav" :class="{margins:props.active==='menu'}">
             <div class="nav_main" :class="{active_nav : props.active === 'menu'}" @click="goTo('/leader/main_menu', 'menu')">
                 О нас
             </div>
@@ -26,26 +24,15 @@ const props = defineProps<{
 </template>
 <style scoped>
 @media (max-width:1918px), (max-height:1078px){
-.header {
-    width: 100dvw;
-    height: calc((71 / 832) * 100dvh);
-    background-color: #853CFF;
-    display: flex;
-    align-items: center;
-}
 
-#logo_header {
-    width: calc((123/1280) * 100dvw);
-    height: calc((50 / 832) * 100dvh);
-    margin-left: auto;
-    margin-right: calc((40.29/1280) * 100dvw);
+.margins{width: calc((1056 / 1280) * 100dvw);
+    margin:0 auto 0 auto;
+margin-left: calc((112/1280)*100dvw) !important;
 }
-
 .nav {
     display: flex;
     gap: calc((20 / 1280) * 100dvw);
     margin-top: calc((34 / 832) * 100dvh);
-    margin-left: calc((112 / 1280) * 100dvw);
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -55,7 +42,7 @@ const props = defineProps<{
     text-align: center;
     vertical-align: middle;
     color: #A9A9A9;
-
+    margin-left: calc((0/1280*100dvw)); 
 }
 
 .nav>div:hover {
@@ -98,26 +85,16 @@ const props = defineProps<{
 }
 }
 @media (min-width:1920px) and (min-height:1080px){
-    .header {
-    width: 100dvw;
-    height: 71px;
-    background-color: #853CFF;
-    display: flex;
-    align-items: center;
-}
 
-#logo_header {
-    width: 123px;
-    height: 50px;
-    margin-left: auto;
-    margin-right: 165.3px;
+.margins{width: 1056px !important;
+    margin:0 auto 0 auto !important;
+       margin-top:55px !important;
+       padding-left: 146px;;
 }
-
 .nav {
     display: flex;
     gap: 20px;
     margin-top:55px;
-    margin-left: calc(578px);
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -126,7 +103,7 @@ const props = defineProps<{
     text-align: center;
     vertical-align: middle;
     color: #A9A9A9;
-
+    margin-left: 146px;; 
 }
 
 .nav>div:hover {
