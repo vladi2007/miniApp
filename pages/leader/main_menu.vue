@@ -42,12 +42,10 @@ onMounted(async () => {
 
 <template>
   <!-- Показываем только когда данные загружены -->
-  <div v-if="isReady">
-    <main_menu  v-if="role==='leader'" />
+  <div >
+    <main_menu   />
     
-    <div v-else class="you_are_not_leader">
-      <div>У вас нет прав ведущего!</div>
-    </div>
+    
   </div>
 </template>
 

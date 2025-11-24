@@ -135,10 +135,15 @@ async function removeImage() {
 
 const finder = ref<string>("")
 const is_empty_list = computed(() => {
-    if (list?.value?.length > 0) {
+    if (list){
+        if (list?.value?.length > 0) {
         return false;
     } else {
         return true;
+    }
+    }
+    else{
+        return false;
     }
 })
 const showPopup = ref<boolean>(false);
@@ -187,7 +192,7 @@ function closePopup() {
 </script>
 
 <template>
-    <div class="broadcasts" v-if="isReady">
+    <div class="broadcasts">
         <Header :goTo="goTo" :active="'broadcasts'" />
 
         <div class="broadcasts_input"> <label>Введите текст рассылки<textarea v-model="text" id="description_input"
@@ -266,7 +271,7 @@ function closePopup() {
                 <input v-model="finder" type="text" placeholder="Поиск интерактива" class="broadcasts_search-input" />
             </div>
         </div>
-        <div class="broadcasts_empty_list_info" v-if="is_empty_list">
+        <div class="broadcasts_empty_list_info" v-if="isReady && is_empty_list">
             <img src="/public/images//history/finder_info.svg" />
             <div class="broadcasts_empty_list_info_h1">
                 У Вас нет интерактивов
@@ -275,7 +280,7 @@ function closePopup() {
                 Проведите свой первый интерактив и он отобразится здесь
             </div>
         </div>
-        <div class="broadcasts_list" v-if="!is_empty_list">
+        <div class="broadcasts_list" v-if="isReady && !is_empty_list" >
             <div class="broadcasts_list_header">
                 <div class="broadcasts_list_header_title">
                     Название

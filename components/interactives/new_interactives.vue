@@ -429,7 +429,7 @@ const info =computed(()=>{
                 </div>
             </div>
         </div>
-        <div class="interactives_empty_list_info" v-if="is_empty_list">
+        <div class="interactives_empty_list_info" v-if=" isReady && is_empty_list ">
             <img src="/public/images//history/finder_info.svg" />
             <div class="interactives_empty_list_info_h1">
                 У Вас нет интерактивов
@@ -438,7 +438,7 @@ const info =computed(()=>{
                 {{info}}
             </div>
         </div>
-        <div class="interactives_list" v-if="!is_empty_list">
+        <div class="interactives_list" v-if="isReady && !is_empty_list ">
             <div class="interactives_list_header">
                 <div class="interactives_list_header_title">
                     Название

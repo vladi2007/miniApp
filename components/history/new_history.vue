@@ -231,7 +231,7 @@ async function goTo(url: string, active:string) {
 </script>
 
 <template>
-    <div class="history" v-if="isReady">
+    <div class="history">
         <Header :goTo="goTo" :active="'reports'"/>
         <div class="history_info">
             <img src="/public/images/history/history_info.svg" />
@@ -287,7 +287,7 @@ async function goTo(url: string, active:string) {
                 <input v-model="finder" type="text" placeholder="Поиск интерактива" class="search-input" />
             </div>
         </div>
-        <div class="history_empty_list_info" v-if="is_empty_list">
+        <div class="history_empty_list_info" v-if="isReady && is_empty_list">
             <img src="/public/images//history/finder_info.svg" />
             <div class="history_empty_list_info_h1">
                 У Вас нет интерактивов
@@ -296,7 +296,7 @@ async function goTo(url: string, active:string) {
                 Проведите свой первый интерактив и он отобразится здесь
             </div>
         </div>
-        <div class="history_list" v-if="!is_empty_list">
+        <div class="history_list" v-if="isReady && !is_empty_list">
             <div class="history_list_header">
                 <div class="history_list_header_title">
                     Название
