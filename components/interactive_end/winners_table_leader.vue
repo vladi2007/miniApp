@@ -12,7 +12,7 @@ const router = useRouter()
 // Функция возврата на предыдущую страницу
 function goToMainMenu() {
 
-  router.push('/leader/main_menu')
+  router.push('/leader/new_interactives')
 
 }
 // форматируем секунды → мм:сс
@@ -52,7 +52,7 @@ import 'simplebar-vue/dist/simplebar.min.css';
       </simplebar>
       <div class="goto_main_menu_end">
         <button class="goto_main_menu_button_end" @click="goToMainMenu()" style="cursor: pointer;">
-          Главная страница
+          Выйти
         </button>
       </div>
     </div>

@@ -474,7 +474,7 @@ const info =computed(()=>{
                         {{ item.participant_count }}
                     </div>
                     <div class="interactives_buttons">
-                        <div class="interactives_leader_board" v-if="item.is_conducted" title="Показать лидерборд">
+                        <div class="interactives_leader_board" v-if="item.is_conducted" title="Показать лидерборд"  @click="goTo(`/leader/interactive_leader_board/${item.id}`, '')">
                             <img src="/images/interactives/leader_board.svg"
                                  id="leader_board" />
                         </div>
