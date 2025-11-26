@@ -1,62 +1,55 @@
-
 <script setup>
-
-import { ref, onMounted } from 'vue'
-
 import main_menu from '~/components/main_menu/main_menu.vue'
+import { ref, computed } from 'vue'
+import { useQuery } from '@tanstack/vue-query'
 
+const { $telegram } = useNuxtApp()
+const userId = computed(() => $telegram.initDataUnsafe.value?.user?.id ?? null)
+const {
+  data: roleData,
+  isLoading,
+  isError,
+  error,
+} = useQuery({
+  queryKey: ['user-role', userId],
+  queryFn: async () => {
+    if (!userId.value) return null
 
-// страница для защиты доступа к функционалу 
-const webApp = ref(null)
-const initDataUnsafe = ref(null)
-const my_interactives = ref(null)
+    const res = await $fetch('/api/role', {
+      query: { telegram_id: userId.value }
+    })
 
-const isLoading = ref(true) // <- новый флаг
-
-const isReady = ref(false)
-const role = ref(null)
-const userId = ref(null)
-onMounted(async () => {
-  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-    webApp.value = window.Telegram.WebApp
-     //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
-    const { $telegram } = useNuxtApp();
-    userId.value = $telegram.initDataUnsafe.value?.user?.id;
-    if (userId.value) {
-      const  data = await useFetch('/api/role', {
-        query: {
-          telegram_id: userId.value,
-        },
-      })
-
-
-      role.value = data.data.value.role
-      
-    }
-
-    isReady.value = true
-  }
+    return res
+  },
+  enabled: computed(() => Boolean(userId.value)),
+  staleTime: 1000 * 60 * 30,       // 5 минут данные считаются свежими
+  cacheTime: 1000 * 60 * 30,      // 30 минут кэш хранится даже если компонент размонтирован
+  refetchOnWindowFocus: false,    // не рефетчить при возврате на вкладку
+  refetchOnMount: false,    
 })
-
+const role = computed(() => roleData.value?.role ?? null)
 </script>
 
 <template>
-  <!-- Показываем только когда данные загружены -->
-  <div >
-    <main_menu   />
-    
-    
+  <div>
+    <main_menu v-if="role==='leader'"/>
+
+
   </div>
 </template>
 
-<style >
+<style>
 .you_are_not_leader {
 
-  
-  display: flex;                /* Используем Flexbox */
-  justify-content: center;     /* Центр по горизонтали */
-  align-items: center;         /* Центр по вертикали */
-  text-align: center;          /* Центрируем текст внутри блока */
+
+  display: flex;
+  /* Используем Flexbox */
+  justify-content: center;
+  /* Центр по горизонтали */
+  align-items: center;
+  /* Центр по вертикали */
+  text-align: center;
+  /* Центрируем текст внутри блока */
   font-family: 'Lato', sans-serif;
   font-size: 64px;
   font-weight: 500;

@@ -4,7 +4,7 @@ import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '
 import header_logo from "~/components/header_logo.vue"
 import Header from "~/components/header.vue"
 const finder = ref<string>("")
-
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 const isOpen = ref(false)
 const selectedText = ref("all")
 
@@ -17,28 +17,14 @@ const options_code = {
 function toggleDropdown() {
     isOpen.value = !isOpen.value
 }
-
+const { $telegram } = useNuxtApp()
+const userId = computed(() => $telegram.initDataUnsafe.value?.user?.id ?? null)
 async function selectOption(option: string) {
     selectedText.value = option
     isOpen.value = false
     to_number.value = 9
-    if (userId.value) {
-        const data = await useFetch('/api/reports/preview', {
-
-            query: {
-                telegram_id: userId.value,
-                filter: selectedText.value,
-                from_number: from_number.value,
-                to_number: to_number.value,
-            },
-        });
-        props.value = data;
-        list.value = data.data.value.interactives_list;
-        isReady.value = true;
-        console.log(data.data.value.interactives_list)
-        is_end.value = data.data.value.is_end
-    }
 }
+
 const dropdownRef = ref<HTMLElement | null>(null)
 const dropdownRefsMore = ref<(HTMLElement | null)[]>([])
 
@@ -66,7 +52,17 @@ function setDropdownRef(el: HTMLElement | null, index: number) {
 
 // Добавляем и удаляем обработчик событий
 
+onMounted( () => {
 
+        const saved_to = loadFromDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
+        to_number.value = saved_to || 9
+        const saved_filter = loadFromDeviceStorage(INTERACTIVES_FILTER_KEY)
+        selectedText.value = saved_filter || "all"
+          isReady.value = true
+
+
+
+});
 // В onMounted добавь:
 onMounted(() => {
     document.addEventListener('click', handleClickOutside)
@@ -76,22 +72,17 @@ onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside)
 })
 const is_empty_list = computed(() => {
-    if (list?.value?.length > 0) {
+    if (interactivesData?.value?.interactives_list?.length > 0) {
         return false;
     } else {
         return true;
     }
 })
 const webApp = ref(null)
-const list = ref<any>([
 
-])
-const userId = ref(null)
-const props = ref()
 const isReady = ref(false)
 const from_number = ref<Number>(0)
 const to_number = ref<Number>(9)
-const is_end = ref<string>("")
 const INTERACTIVES_TO_NUMBER_KEY = 'interactives_to_number'
 const INTERACTIVES_FILTER_KEY = 'interactives_filter'
 watch(to_number, (new_Numb) => {
@@ -100,13 +91,7 @@ watch(to_number, (new_Numb) => {
 watch(selectedText, (newText) => {
     saveToDeviceStorage(INTERACTIVES_FILTER_KEY, newText)
 })
-watch(props, (newProps) => {
-    if (newProps?.data?.value?.interactives_list) {
-        list.value = newProps.data.interactives_list
-    }
-    is_end.value = newProps.data.is_end
-    console.log(list)
-})
+
 
 const router = useRouter()
 async function goTo(url: string, active: string) {
@@ -115,56 +100,30 @@ async function goTo(url: string, active: string) {
     await clearDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
     await clearDeviceStorage(INTERACTIVES_FILTER_KEY)
 }
-onMounted(async () => {
-    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-        webApp.value = window.Telegram.WebApp
-        //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
-        const { $telegram } = useNuxtApp();
-        userId.value = $telegram.initDataUnsafe.value?.user?.id;
-
-        const saved_to = loadFromDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
-        to_number.value = saved_to || 9
-        const saved_filter = loadFromDeviceStorage(INTERACTIVES_FILTER_KEY)
-        selectedText.value = saved_filter || "all"
-        if (userId.value) {
-            const data = await useFetch('/api/reports/preview', {
-
-                query: {
-                    telegram_id: userId.value,
-                    filter: selectedText.value,
-                    from_number: from_number.value,
-                    to_number: to_number.value,
-                },
-            });
-            props.value = data;
-            list.value = data.data.value.interactives_list;
-            isReady.value = true;
-            console.log(data.data.value.interactives_list)
-            is_end.value = data.data.value.is_end
-        }
-    }
-
-
-
-});
+const { data: interactivesData, isLoading, refetch } = useQuery({
+  queryKey: computed(() => ['interactives', userId.value, selectedText.value, from_number.value, to_number.value]),
+  queryFn: async () => {
+    if (!userId.value) return { interactives_list: [], is_end: true }
+    const res = await $fetch('/api/reports/preview', {
+      query: {
+        telegram_id: userId.value,
+        filter: selectedText.value,
+        from_number: from_number.value,
+        to_number: to_number.value
+      }
+    })
+    
+    return res
+  },
+  enabled: computed(() => Boolean(userId.value && isReady.value)),
+  staleTime: 1000 * 60 * 30,       // 5 минут данные считаются свежими
+  cacheTime: 1000 * 60 * 30,
+  refetchOnWindowFocus: false,
+  refetchOnMount: false,
+})
 async function more_load() {
     to_number.value = to_number.value + 10
-    if (userId.value) {
-        const data = await useFetch('/api/reports/preview', {
-
-            query: {
-                telegram_id: userId.value,
-                filter: selectedText.value,
-                from_number: from_number,
-                to_number: to_number,
-            },
-        });
-        props.value = data;
-        list.value = data.data.value.interactives_list;
-        isReady.value = true;
-        console.log(data.data.value.interactives_list)
-        is_end.value = data.data.value.is_end
-    }
+   
 }
 const showPopup = ref(false);
 const currentInteractiveId = ref<string | null>(null)
@@ -200,85 +159,71 @@ function closePopup() {
     showPopup.value = false;
 
 }
+const deleteMutation =useMutation({
+    mutationFn: async (id:string) =>{
+         const response = await $fetch(`/api/delete_interactive`, {
+    method: 'DELETE',
+    query: {
+      telegram_id: userId.value,
+      id: id
+    },
 
-async function duplicateAndSaveInteractive(id: string) {
-    showPopup.value = false
-    try {
-
-
-        const data = await $fetch(`/api/get_interactive`, {
-            method: 'GET',
-            query: {
-                telegram_id: userId.value,
-                id: id
-            }
-        })
-        const plain = JSON.parse(JSON.stringify(data));
-        const payload = {
-            title: plain.title ?? "",
-            description: plain.description ?? "",
-            target_audience: plain.target_audience ?? "",
-            location: plain.location ?? "",
-            responsible_full_name: plain.responsible_full_name ?? "",
-            answer_duration: plain.answer_duration ?? 10,
-            discussion_duration: plain.discussion_duration ?? 5,
-            countdown_duration: plain.countdown_duration ?? 5,
-            questions: await Promise.all(
-                (plain.questions ?? []).map(async (q: any, index: number) => {
-                    const imageUrl = q.image || "";
+  })
+  showDeletePopap.value=false
+  return true;
+  
+    },
 
 
+    onSuccess: async () => {
+    // 4. После успешного дублирования — рефетчим список интерактивов
+    await queryClient.invalidateQueries(['interactives', userId.value])
+  },
+})
+ function deleteInteractive(id: string) {
+  deleteMutation.mutate(id)
 
-                    return {
-                        question: {
-                            type: q.type || "one",
-                            image: imageUrl,
-                            score: q.score || 1,
-                            position: index + 1,
-                            text: q.text || "",
-                            answers:
-                                q.answers?.map((a: any) => ({
-                                    text: a.text || "",
-                                    is_correct: a.is_correct || false,
-                                })) ?? [],
-                        },
-                    };
-                })
-            ),
-        };
-        const formData = new FormData();
+}
+const queryClient = useQueryClient()
+
+const duplicateInteractiveMutation = useMutation({
+  mutationFn: async (id: string) => {
+    // 1. Получаем интерактив
+    const data = await $fetch(`/api/get_interactive`, {
+      method: 'GET',
+      query: { telegram_id: userId.value, id }
+    })
+
+    const plain = JSON.parse(JSON.stringify(data))
+
+    // 2. Подготавливаем payload
+    
+    const formData = new FormData();
 
 
-        formData.append("telegram_id", String(userId?.value || 0));
-        formData.append("interactive", JSON.stringify(plain));
-        const response = await $fetch("/api/create_interactive", {
-            method: "POST",
-            query: {
-                telegram_id: userId?.value || 0,
-            },
-            body: formData,
-        });
+    formData.append("telegram_id", String(userId?.value || 0));
+    formData.append("interactive", JSON.stringify(plain));
+    // 3. Создаем интерактив
+    await $fetch("/api/create_interactive", {
+      method: "POST",
+      query: { telegram_id: userId?.value || 0 },
+      body: formData
+    })
 
-        if (userId.value) {
-            const data = await useFetch('/api/reports/preview', {
-
-                query: {
-                    telegram_id: userId.value,
-                    filter: selectedText.value,
-                    from_number: from_number.value,
-                    to_number: to_number.value,
-                },
-            });
-            props.value = data;
-            list.value = data.data.value.interactives_list;
-            isReady.value = true;
-            console.log(data.data.value.interactives_list)
-            is_end.value = data.data.value.is_end
-        }
-    } catch (err) {
-        console.error('Ошибка дублирования:', err)
-        window.Telegram.WebApp.showAlert('Не удалось продублировать интерактив.')
-    }
+    return true
+  },
+  onSuccess: async () => {
+    // 4. После успешного дублирования — рефетчим список интерактивов
+    await queryClient.invalidateQueries(['interactives', userId.value])
+  },
+  onError: (err: any) => {
+    console.error('Ошибка дублирования:', err)
+    window.Telegram.WebApp.showAlert('Не удалось продублировать интерактив.')
+  }
+})
+function duplicateAndSaveInteractive(id: string) {
+  showPopup.value = false
+  duplicateInteractiveMutation.mutate(id)
 }
 const show_report_Popup = ref<boolean>(false)
 const selectedOption = ref<string | null>("");
@@ -358,37 +303,7 @@ async function deletePopup(id: string) {
     currentInteractiveId.value = id
     showDeletePopap.value = true
 }
-async function deleteInteractive(id: string) {
-  showDeletePopap.value = false
-  const response = await $fetch(`/api/delete_interactive`, {
-    method: 'DELETE',
-    query: {
-      telegram_id: userId.value,
-      id: id
-    },
 
-  })
-  if (response) {
-    showDeletePopap.value = false;
-    if (userId.value) {
-            const data = await useFetch('/api/reports/preview', {
-
-                query: {
-                    telegram_id: userId.value,
-                    filter: selectedText.value,
-                    from_number: from_number.value,
-                    to_number: to_number.value,
-                },
-            });
-            props.value = data;
-            list.value = data.data.value.interactives_list;
-            isReady.value = true;
-            console.log(data.data.value.interactives_list)
-            is_end.value = data.data.value.is_end
-        }
-  }
-
-}
 const info =computed(()=>{
     if (selectedText.value === 'conducted') return "Проведите свой первый интерактив и он отобразится здесь"
     else return "Создайте свой первый интерактив и он появится здесь"
@@ -434,7 +349,7 @@ const info =computed(()=>{
                 </div>
             </div>
         </div>
-        <div class="interactives_empty_list_info" v-if=" isReady && is_empty_list ">
+        <div class="interactives_empty_list_info" v-if="  is_empty_list ">
             <img src="/public/images//history/finder_info.svg" />
             <div class="interactives_empty_list_info_h1">
                 У Вас нет интерактивов
@@ -443,7 +358,7 @@ const info =computed(()=>{
                 {{info}}
             </div>
         </div>
-        <div class="interactives_list" v-if="isReady && !is_empty_list ">
+        <div class="interactives_list" v-if=" !is_empty_list ">
             <div class="interactives_list_header">
                 <div class="interactives_list_header_title">
                     Название
@@ -458,7 +373,7 @@ const info =computed(()=>{
                     Количество участников
                 </div>
             </div>
-            <div class="interactives_list_list" v-for="(item, index) in list" :key="item.id">
+            <div class="interactives_list_list" v-for="(item, index) in interactivesData.interactives_list" :key="item.id">
                 <div class="interactives_Line" v-if="index === 0" />
                 <div class="interactives_list_list_item">
                     <div class="interactives_list_list_item_title">
@@ -527,7 +442,7 @@ const info =computed(()=>{
                 </div>
                 <div class="interactives_Line" />
             </div>
-            <div class="interactives_show_more" v-if="!is_end" @click="more_load()">Показать еще</div>
+            <div class="interactives_show_more" v-if="!interactivesData.is_end" @click="more_load()">Показать еще</div>
         </div>
     </div>
         <div v-if="showPopup" class="interactives_popup-overlay">

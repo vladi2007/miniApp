@@ -14,6 +14,7 @@ const selectMany = ref(false);
 const from_number = ref(0)
 const to_number = ref(9)
 import header_logo from "~/components/header_logo.vue"
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 watch(selectedInteractives, (newSelectedInteractives) => {
     saveToDeviceStorage(HISTORY_KEY, newSelectedInteractives);
 });
@@ -30,16 +31,10 @@ watch(to_number, (new_Numb) => {
 
 const webApp = ref(null)
 
-const userId = ref(null)
 const props = ref()
 const isReady = ref(false)
 
 onMounted(async () => {
-    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-        webApp.value = window.Telegram.WebApp
-        //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
-        const { $telegram } = useNuxtApp();
-        userId.value = $telegram.initDataUnsafe.value?.user?.id;
         const savedInteractives = loadFromDeviceStorage(HISTORY_KEY);
         if (Array.isArray(savedInteractives)) {
 
@@ -56,51 +51,43 @@ onMounted(async () => {
         const savedSelectOne = loadFromDeviceStorage(HISTORY_SELECT_ONE_KEY)
 
 
-        if (userId.value) {
-            const data = await useFetch('/api/reports/preview', {
-
-                query: {
-                    telegram_id: userId.value,
-                    filter: "conducted",
-                    from_number: from_number.value,
-                    to_number: to_number.value,
-                },
-            });
-            props.value = data;
-            list.value = data.data.value.interactives_list;
-            isReady.value = true;
-            console.log(data.data.value.interactives_list)
-            is_end.value = data.data.value.is_end
-        }
-    }
+        
 
 
 
 });
 
+const { $telegram } = useNuxtApp()
+const userId = computed(() => $telegram.initDataUnsafe.value?.user?.id ?? null)
+const { data: interactivesData, isLoading, refetch } = useQuery({
+  queryKey: computed(() => ['history', userId.value, 'conducted', from_number.value, to_number.value]),
+  queryFn: async () => {
+    if (!userId.value) return { interactives_list: [], is_end: true }
+    const res = await $fetch('/api/reports/preview', {
+      query: {
+        telegram_id: userId.value,
+        filter: "conducted",
+        from_number: from_number.value,
+        to_number: to_number.value
+      }
+    })
+    
+    return res
+  },
+  enabled: computed(() => Boolean(userId.value)),
+  staleTime: 1000 * 60 * 30,       // 5 минут данные считаются свежими
+  cacheTime: 1000 * 60 * 30,
+  refetchOnWindowFocus: false,
+  refetchOnMount: false,
+})
 async function more_load() {
     to_number.value = to_number.value + 10
-    if (userId.value) {
-        const data = await useFetch('/api/reports/preview', {
-
-            query: {
-                telegram_id: userId.value,
-                filter: "conducted",
-                from_number: from_number.value,
-                to_number: to_number.value,
-            },
-        });
-        props.value = data;
-        list.value = data.data.value.interactives_list;
-        isReady.value = true;
-        console.log(data.data.value.interactives_list)
-        is_end.value = data.data.value.is_end
-    }
+   
 }
 const is_end = ref<string>("")
 const finder = ref<string>("")
 const is_empty_list = computed(() => {
-    if (list?.value?.length > 0) {
+    if (interactivesData?.value?.interactives_list?.length > 0) {
         return false;
     } else {
         return true;
@@ -290,7 +277,7 @@ async function goTo(url: string, active:string) {
                 <input v-model="finder" type="text" placeholder="Поиск интерактива" class="search-input" />
             </div>
         </div>
-        <div class="history_empty_list_info" v-if="isReady && is_empty_list">
+        <div class="history_empty_list_info" v-if="is_empty_list">
             <img src="/public/images//history/finder_info.svg" />
             <div class="history_empty_list_info_h1">
                 У Вас нет интерактивов
@@ -299,7 +286,7 @@ async function goTo(url: string, active:string) {
                 Проведите свой первый интерактив и он отобразится здесь
             </div>
         </div>
-        <div class="history_list" v-if="isReady && !is_empty_list">
+        <div class="history_list" v-if="!is_empty_list">
             <div class="history_list_header">
                 <div class="history_list_header_title">
                     Название
@@ -311,7 +298,7 @@ async function goTo(url: string, active:string) {
                     Количество участников
                 </div>
             </div>
-            <div class="history_list_list" v-for="(item, index) in list" :key="item.id">
+            <div class="history_list_list" v-for="(item, index) in interactivesData.interactives_list" :key="item.id">
                 <div class="Line" v-if="index === 0" />
                 <div class="history_list_list_item">
                     <div class="history_list_list_item_title">
@@ -330,7 +317,7 @@ async function goTo(url: string, active:string) {
                 </div>
                 <div class="Line" />
             </div>
-            <div class="history_show_more" v-if="!is_end" @click="more_load()">Показать еще</div>
+            <div class="history_show_more" v-if="!interactivesData.is_end" @click="more_load()">Показать еще</div>
         </div>
         </div>
     </div>

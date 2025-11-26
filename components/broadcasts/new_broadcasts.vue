@@ -8,15 +8,13 @@ const BROADCASTS_TEXT_KEY = 'broadcasts_text_key'
 const BROADCASTS_FILE_KEY = 'broadcasts_file_key'
 const BROADCASTS_TO_NUMBER_KEY = 'broadcasts_to_number'
 const selectedInteractives = ref<number[]>([]);
-const is_end = ref<string>("")
-const props = ref()
-const webApp = ref(null)
+
 const from_number = ref(0)
 const to_number = ref(9)
-const userId = ref(null)
+const { $telegram } = useNuxtApp()
+const userId = computed(() => $telegram.initDataUnsafe.value?.user?.id ?? null)
 const isReady = ref(false)
-const list = ref<any[]>([
-])
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 const fileInput = ref<HTMLInputElement | null>(null)
 const uploadedFile = ref<File | null>(null)
 const uploadedFileName = ref<string>("")
@@ -24,11 +22,7 @@ watch(to_number, async (new_Numb) => {
     localStorage.setItem(BROADCASTS_TO_NUMBER_KEY, String(new_Numb));
 });
 onMounted(async () => {
-    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-        webApp.value = window.Telegram.WebApp
         //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
-        const { $telegram } = useNuxtApp();
-        userId.value = $telegram.initDataUnsafe.value?.user?.id;
         const savedInteractives = await loadFromDeviceStorage(BROADCASTS_KEY);
         if (savedInteractives) {
 
@@ -47,53 +41,37 @@ onMounted(async () => {
     if (saved_to) {
         to_number.value = Number(saved_to) || 9;
     }
-        if (userId.value) {
-            const data = await useFetch('/api/reports/preview', {
-
-                query: {
-                    telegram_id: userId.value,
-                    filter: "conducted",
-                    from_number: from_number.value,
-                    to_number: to_number.value,
-                },
-            });
-            props.value = data;
-            list.value = data.data.value.interactives_list;
-            isReady.value = true;
-            console.log(data.data.value.interactives_list)
-            is_end.value = data.data.value.is_end
-        }
+        
 
 
 
-    }
 });
+
+const { data: interactivesData, isLoading, refetch } = useQuery({
+  queryKey: computed(() => ['broadcasts', userId.value, 'conducted', from_number.value, to_number.value]),
+  queryFn: async () => {
+    if (!userId.value) return { interactives_list: [], is_end: true }
+    const res = await $fetch('/api/reports/preview', {
+      query: {
+        telegram_id: userId.value,
+        filter: "conducted",
+        from_number: from_number.value,
+        to_number: to_number.value
+      }
+    })
+    
+    return res
+  },
+  enabled: computed(() => Boolean(userId.value)),
+  staleTime: 1000 * 60 * 30,       // 5 минут данные считаются свежими
+  cacheTime: 1000 * 60 * 30,
+  refetchOnWindowFocus: false,
+  refetchOnMount: false,
+})
 async function more_load() {
     to_number.value = to_number.value + 10
-    if (userId.value) {
-        const data = await useFetch('/api/reports/preview', {
-
-            query: {
-                telegram_id: userId.value,
-                filter: "conducted",
-                from_number: from_number.value,
-                to_number: to_number.value,
-            },
-        });
-        props.value = data;
-        list.value = data.data.value.interactives_list;
-        isReady.value = true;
-        console.log(data.data.value.interactives_list)
-        is_end.value = data.data.value.is_end
-    }
+   
 }
-watch(props, (newProps) => {
-    if (newProps?.data?.value?.interactives_list) {
-        list.value = newProps.data.interactives_list
-    }
-    is_end.value = newProps.data.is_end
-    console.log(list)
-})
 
 const router = useRouter()
 async function goTo(url: string, active: string) {
@@ -135,15 +113,10 @@ async function removeImage() {
 
 const finder = ref<string>("")
 const is_empty_list = computed(() => {
-    if (list){
-        if (list?.value?.length > 0) {
+    if (interactivesData?.value?.interactives_list?.length > 0) {
         return false;
     } else {
         return true;
-    }
-    }
-    else{
-        return false;
     }
 })
 const showPopup = ref<boolean>(false);
@@ -273,7 +246,7 @@ function closePopup() {
                 <input v-model="finder" type="text" placeholder="Поиск интерактива" class="broadcasts_search-input" />
             </div>
         </div>
-        <div class="broadcasts_empty_list_info" v-if="isReady && is_empty_list">
+        <div class="broadcasts_empty_list_info" v-if=" is_empty_list">
             <img src="/public/images//history/finder_info.svg" />
             <div class="broadcasts_empty_list_info_h1">
                 У Вас нет интерактивов
@@ -282,7 +255,7 @@ function closePopup() {
                 Проведите свой первый интерактив и он отобразится здесь
             </div>
         </div>
-        <div class="broadcasts_list" v-if="isReady && !is_empty_list" >
+        <div class="broadcasts_list" v-if=" !is_empty_list" >
             <div class="broadcasts_list_header">
                 <div class="broadcasts_list_header_title">
                     Название
@@ -294,7 +267,7 @@ function closePopup() {
                     Количество участников
                 </div>
             </div>
-            <div class="broadcasts_list_list" v-for="(item, index) in list" :key="item.id">
+            <div class="broadcasts_list_list" v-for="(item, index) in interactivesData.interactives_list" :key="item.id">
                 <div class="broadcasts_Line" v-if="index === 0" />
                 <div class="broadcasts_list_list_item">
                     <div class="broadcasts_list_list_item_title">
@@ -312,7 +285,7 @@ function closePopup() {
                 </div>
                 <div class="broadcasts_Line" />
             </div>
-            <div class="broadcasts_show_more" v-if="!is_end" @click="more_load()">Показать еще</div>
+            <div class="broadcasts_show_more" v-if="!interactivesData.is_end" @click="more_load()">Показать еще</div>
         </div>
 </div>
     </div>
