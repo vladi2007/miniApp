@@ -16,6 +16,8 @@ const options_code = {
 function toggleDropdown() {
     isOpen.value = !isOpen.value
 }
+
+const queryClient = useQueryClient() 
 const { $telegram } = useNuxtApp()
 const userId = computed(() => $telegram.initDataUnsafe.value?.user?.id ?? null)
 async function selectOption(option: string) {
@@ -49,7 +51,6 @@ function setDropdownRef(el: HTMLElement | null, index: number) {
 
 const route = useRoute();
 // Добавляем и удаляем обработчик событий
-
 onMounted(async () => {
  const fromUrl = route.query.from as string | undefined;
  if (fromUrl){
@@ -219,7 +220,6 @@ const deleteMutation =useMutation({
   deleteMutation.mutate(id)
 
 }
-const queryClient = useQueryClient()
 
 const duplicateInteractiveMutation = useMutation({
   mutationFn: async (id: string) => {

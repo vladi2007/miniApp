@@ -14,7 +14,7 @@ const selectMany = ref(false);
 const from_number = ref(0)
 const to_number = ref(9)
 import header_logo from "~/components/header_logo.vue"
-import { useQuery, useMutation,  } from '@tanstack/vue-query'
+import { useQuery, useMutation,useQueryClient  } from '@tanstack/vue-query'
 watch(selectedInteractives, (newSelectedInteractives) => {
     saveToDeviceStorage(HISTORY_KEY, newSelectedInteractives);
 });
@@ -33,7 +33,7 @@ const webApp = ref(null)
 
 const props = ref()
 const isReady = ref(false)
-
+const queryClient = useQueryClient() 
 onMounted(async () => {
    
         const savedInteractives = loadFromDeviceStorage(HISTORY_KEY);

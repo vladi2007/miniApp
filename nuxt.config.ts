@@ -48,5 +48,6 @@ export default defineNuxtConfig({
   css: [
     '@fontsource/lato' // Импортируем шрифт Lato
    
-  ]
+  ],
+  
 })

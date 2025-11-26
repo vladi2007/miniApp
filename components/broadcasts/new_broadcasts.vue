@@ -8,7 +8,9 @@ const BROADCASTS_TEXT_KEY = 'broadcasts_text_key'
 const BROADCASTS_FILE_KEY = 'broadcasts_file_key'
 const BROADCASTS_TO_NUMBER_KEY = 'broadcasts_to_number'
 const selectedInteractives = ref<number[]>([]);
+import { useQueryClient } from '@tanstack/vue-query'
 
+const queryClient = useQueryClient()  
 const from_number = ref(0)
 const to_number = ref(9)
 const { $telegram } = useNuxtApp()
