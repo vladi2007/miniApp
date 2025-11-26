@@ -241,14 +241,14 @@ async function goTo(url: string, active:string) {
 
                     <div class="history_list_list_item" :class="['selected_item']">
                         <div class="history_list_list_item_title">
-                            {{list.find(item => item.id === id)?.title}}
+                            {{interactivesData?.interactives_list?.find(item => item.id === id)?.title}}
                         </div>
                         <div class="history_list_list_item_date">
-                            {{list.find(item => item.id === id)?.date_completed}}
+                            {{interactivesData?.interactives_list?.find(item => item.id === id)?.date_completed}}
                         </div>
                         <div class="history_list_list_item_count"
                             style="width:calc((226 / 1280) * 100dvw) !important; ">
-                            Количество участников: {{list.find(item => item.id === id)?.participant_count}}
+                            Количество участников: {{interactivesData?.interactives_list?.find(item => item.id === id)?.participant_count}}
                         </div>
                         <img src="/public/images/history/history_delete.svg"
                             @click="selectedInteractives = selectedInteractives.filter(item => item !== id)" />

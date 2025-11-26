@@ -46,6 +46,46 @@ onMounted(async () => {
 
 
 });
+async function submitBroadcasts() {
+
+    if (selectedInteractives.value.length === 0) {
+        window.Telegram.WebApp.showAlert(`Выберите хотя бы один интерактив!`);
+        closePopup();
+        return;
+    }
+
+    
+
+    try {
+        const formData = new FormData();
+
+        formData.append("telegram_id", userId.value);
+        formData.append("text", text.value);
+
+        formData.append("interactive_id", JSON.stringify(selectedInteractives.value));
+
+        if (uploadedFile.value) {
+            formData.append("file", uploadedFile.value);
+        }
+
+        const response = await fetch('/api/broadcasts/send', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || "Ошибка сервера");
+        }
+
+        window.Telegram.WebApp.showAlert(`Ваше сообщение успешно отправлено!`);
+        closePopup();
+
+    } catch (e) {
+        window.Telegram.WebApp.showAlert("Ошибка при отправке сообщения");
+    }
+
+}
 
 const { data: interactivesData, isLoading, refetch } = useQuery({
   queryKey: computed(() => ['broadcasts', userId.value, 'conducted', from_number.value, to_number.value]),
@@ -151,7 +191,7 @@ watch(text, async (newtext) => {
 
 const count = computed(() => {
     return selectedInteractives.value
-        .map(id => Number(list.value.find(item => item.id === id)?.participant_count || 0))
+        .map(id => Number(interactivesData?.value.interactives_list?.find(item => item.id === id)?.participant_count || 0))
         .reduce((sum, n) => sum + n, 0)
 })
 
@@ -203,20 +243,19 @@ function closePopup() {
             <div :class="{ broadcasts_selected_list: selectedInteractives.length > 0 }"
                  id="selected_list">
 
-
                 <div class="broadcasts_list_list" v-for="id in selectedInteractives" :key="id"
                     v-if="selectedInteractives.length > 0" style="height: calc((36/832)*100dvh);">
 
                     <div class="broadcasts_list_list_item" :class="['broadcasts_selected_item']">
                         <div class="broadcasts_list_list_item_title">
-                            {{list.find(item => item.id === id)?.title}}
+                            {{interactivesData?.interactives_list?.find(item => item.id === id)?.title}}
                         </div>
                         <div class="broadcasts_list_list_item_date">
-                            {{list.find(item => item.id === id)?.date_completed}}
+                            {{interactivesData?.interactives_list?.find(item => item.id === id)?.date_completed}}
                         </div>
                         <div class="broadcasts_list_list_item_count"
                             style="width:calc((226 / 1280) * 100dvw) !important; ">
-                            Количество участников: {{list.find(item => item.id === id)?.participant_count}}
+                            Количество участников: {{interactivesData?.interactives_list?.find(item => item.id === id)?.participant_count}}
                         </div>
                         <img src="/public/images/history/history_delete.svg"
                             @click="selectedInteractives = selectedInteractives.filter(item => item !== id)" />
@@ -319,7 +358,7 @@ function closePopup() {
                 <div class="broadcasts_popup_back" @click="closePopup()">
                     Отменить
                 </div>
-                <div class="broadcasts_popup_send">
+                <div class="broadcasts_popup_send" @click="submitBroadcasts()">
                     <div>Отправить</div>
                 </div>
             </div>
