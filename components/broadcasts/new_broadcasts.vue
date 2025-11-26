@@ -246,7 +246,7 @@ function closePopup() {
                 <input v-model="finder" type="text" placeholder="Поиск интерактива" class="broadcasts_search-input" />
             </div>
         </div>
-        <div class="broadcasts_empty_list_info" v-if=" is_empty_list">
+        <div class="broadcasts_empty_list_info" v-if="interactivesData && is_empty_list">
             <img src="/public/images//history/finder_info.svg" />
             <div class="broadcasts_empty_list_info_h1">
                 У Вас нет интерактивов
@@ -255,7 +255,7 @@ function closePopup() {
                 Проведите свой первый интерактив и он отобразится здесь
             </div>
         </div>
-        <div class="broadcasts_list" v-if=" !is_empty_list" >
+        <div class="broadcasts_list" v-if="interactivesData && !is_empty_list" >
             <div class="broadcasts_list_header">
                 <div class="broadcasts_list_header_title">
                     Название
@@ -1033,7 +1033,7 @@ function closePopup() {
     letter-spacing: 1px;
 }
 }
-@media (min-width:1920px) and (min-width:1080px){
+@media (min-width:1919px) and (min-width:1079px){
     .broadcasts {
     width: 100dvw;
     height: 100dvh;

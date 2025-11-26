@@ -277,7 +277,7 @@ async function goTo(url: string, active:string) {
                 <input v-model="finder" type="text" placeholder="Поиск интерактива" class="search-input" />
             </div>
         </div>
-        <div class="history_empty_list_info" v-if="is_empty_list">
+        <div class="history_empty_list_info" v-if="interactivesData && is_empty_list">
             <img src="/public/images//history/finder_info.svg" />
             <div class="history_empty_list_info_h1">
                 У Вас нет интерактивов
@@ -286,7 +286,7 @@ async function goTo(url: string, active:string) {
                 Проведите свой первый интерактив и он отобразится здесь
             </div>
         </div>
-        <div class="history_list" v-if="!is_empty_list">
+        <div class="history_list" v-if="interactivesData && !is_empty_list">
             <div class="history_list_header">
                 <div class="history_list_header_title">
                     Название
@@ -922,7 +922,7 @@ margin-left: calc((290/1280) * 100dvw);;
 }
 }
 
-@media (min-width:1920px) and (min-width:1080px){
+@media (min-width:1919px) and (min-width:1079px){
 
     .history_margins{
     width: 1056px;

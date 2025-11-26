@@ -84,7 +84,7 @@ margin-left: calc((112/1280)*100dvw) !important;
     background-color: #853CFF;
 }
 }
-@media (min-width:1920px) and (min-height:1080px){
+@media (min-width:1919px) and (min-height:1079px){
 
 .margins{width: 1056px !important;
     margin:0 auto 0 auto !important;

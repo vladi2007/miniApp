@@ -72,11 +72,14 @@ onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside)
 })
 const is_empty_list = computed(() => {
-    if (interactivesData?.value?.interactives_list?.length > 0) {
+    if (interactivesData){
+        if (interactivesData?.value?.interactives_list?.length > 0) {
         return false;
     } else {
         return true;
     }
+    }
+    
 })
 const webApp = ref(null)
 
@@ -100,6 +103,7 @@ async function goTo(url: string, active: string) {
     await clearDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
     await clearDeviceStorage(INTERACTIVES_FILTER_KEY)
 }
+const is_ready=ref<boolean>()
 const { data: interactivesData, isLoading, refetch } = useQuery({
   queryKey: computed(() => ['interactives', userId.value, selectedText.value, from_number.value, to_number.value]),
   queryFn: async () => {
@@ -112,7 +116,7 @@ const { data: interactivesData, isLoading, refetch } = useQuery({
         to_number: to_number.value
       }
     })
-    
+    is_ready.value=true
     return res
   },
   enabled: computed(() => Boolean(userId.value && isReady.value)),
@@ -349,7 +353,7 @@ const info =computed(()=>{
                 </div>
             </div>
         </div>
-        <div class="interactives_empty_list_info" v-if="  is_empty_list ">
+        <div class="interactives_empty_list_info" v-if="interactivesData &&  is_empty_list ">
             <img src="/public/images//history/finder_info.svg" />
             <div class="interactives_empty_list_info_h1">
                 У Вас нет интерактивов
@@ -358,7 +362,7 @@ const info =computed(()=>{
                 {{info}}
             </div>
         </div>
-        <div class="interactives_list" v-if=" !is_empty_list ">
+        <div class="interactives_list" v-if="interactivesData && !is_empty_list ">
             <div class="interactives_list_header">
                 <div class="interactives_list_header_title">
                     Название
@@ -1483,7 +1487,7 @@ text-align: center;
   color: white;
 }
 }
-@media (min-width:1920px) and (min-width:1080px){
+@media (min-width:1919px) and (min-width:1079px){
 
 
      .interactives_margins{width: 1056px; 
