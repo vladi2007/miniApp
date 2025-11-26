@@ -12,7 +12,7 @@ const router = useRouter()
 // Функция возврата на предыдущую страницу
 function goToMainMenu() {
 
-  router.push('/leader/new_interactives')
+  router.push({path:'/leader/new_interactives',  query: { from: `/leader/` }})
 
 }
 // форматируем секунды → мм:сс

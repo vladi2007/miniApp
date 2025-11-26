@@ -22,6 +22,7 @@ watch(to_number, async (new_Numb) => {
     localStorage.setItem(BROADCASTS_TO_NUMBER_KEY, String(new_Numb));
 });
 onMounted(async () => {
+   
         //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
         const savedInteractives = await loadFromDeviceStorage(BROADCASTS_KEY);
         if (savedInteractives) {
@@ -60,8 +61,14 @@ async function submitBroadcasts() {
         const formData = new FormData();
 
         formData.append("telegram_id", userId.value);
-        formData.append("text", text.value);
-
+        if (text.value===null){
+            formData.append("text", "");
+        }
+        else{
+               formData.append("text", text.value);
+        }
+     
+        console.log(text.value)
         formData.append("interactive_id", JSON.stringify(selectedInteractives.value));
 
         if (uploadedFile.value) {
@@ -136,6 +143,14 @@ function openFileDialog() {
 async function handleFileChange(event: any) {
     const file = event.target.files[0];
     if (file) {
+        const MAX_SIZE_MB = 50; // лимит 50MB
+        const fileSizeMB = file.size / (1024 * 1024); // размер в мегабайтах
+
+        if (fileSizeMB > MAX_SIZE_MB) {
+            window.Telegram.WebApp.showAlert(`Файл слишком большой. Максимальный размер: ${MAX_SIZE_MB}MB.`);
+            event.target.value = "";
+            return;
+        }
         uploadedFile.value = file;
         uploadedFileName.value = file.name;
 
@@ -202,6 +217,13 @@ function closePopup() {
 
 
 }
+const route = useRoute();
+onMounted(() => {
+  const selectedId = route.query.selected;
+  if (selectedId) {
+    selectedInteractives.value = [Number(selectedId)]; // сразу выбираем интерактив
+  }
+});
 </script>
 
 <template>
@@ -215,8 +237,8 @@ function closePopup() {
         <div class="broadcasts_custom-file-upload" :class="{ 'broadcasts_file-uploaded': uploadedFileName }"
             @click="!uploadedFileName && openFileDialog()">
 
-            <input ref="fileInput" type="file"
-                accept="image/jpeg,image/png,image/gif,image/webp,image/bmp,image/tiff,image/svg+xml" hidden
+            <input ref="fileInput" type="file" 
+                 hidden 
                 @change="handleFileChange" />
 
             <template v-if="uploadedFileName">
@@ -1072,7 +1094,7 @@ function closePopup() {
     letter-spacing: 1px;
 }
 }
-@media (min-width:1919px) and (min-width:1079px){
+@media (min-width:1918px) and (min-height:1078px){
     .broadcasts {
     width: 100dvw;
     height: 100dvh;

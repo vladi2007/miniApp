@@ -49,11 +49,35 @@ function setDropdownRef(el: HTMLElement | null, index: number) {
     dropdownRefsMore.value[index] = el
 }
 
-
+const route = useRoute();
 // Добавляем и удаляем обработчик событий
 
-onMounted( () => {
+onMounted(async () => {
+ const fromUrl = route.query.from as string | undefined;
+ if (fromUrl){
+    console.log(fromUrl?.startsWith('/leader/'))
+  if (fromUrl?.startsWith('/leader/')) {
+   await refetch()
+    await queryClient.invalidateQueries({
+      predicate: (query) => {
+        return (
+          query.queryKey[0] === 'interactives' &&
+          query.queryKey[1] === userId.value
+        );
+      },
+    });
 
+   await queryClient.invalidateQueries({
+      predicate: (query) => query.queryKey[0] === 'broadcasts' && query.queryKey[1] === userId.value
+    });
+
+    await queryClient.invalidateQueries({
+      predicate: (query) => query.queryKey[0] === 'history' && query.queryKey[1] === userId.value
+    });
+
+  }
+ }
+    
         const saved_to = loadFromDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
         to_number.value = saved_to || 9
         const saved_filter = loadFromDeviceStorage(INTERACTIVES_FILTER_KEY)
@@ -312,6 +336,12 @@ const info =computed(()=>{
     if (selectedText.value === 'conducted') return "Проведите свой первый интерактив и он отобразится здесь"
     else return "Создайте свой первый интерактив и он появится здесь"
 })
+function goToBroadcast(interactiveId) {
+  router.push({
+    path: '/leader/broadcasts',     // путь к странице рассылки
+    query: { selected: interactiveId } // передаём id интерактива
+  });
+}
 </script>
 <template>
     <div class="interactives">
@@ -432,7 +462,7 @@ const info =computed(()=>{
                                         style="     height: calc((24/832) * 100dvh) ;width: calc((24 / 1280) * 100dvw) ; margin-left: calc((24/1280)*100dvw);" />
                                     <span style="margin-left: calc((9/1280)*100dvw);">Выгрузить отчет</span>
                                 </div>
-                                <div class="interactives_item-dropdown-option" id="second_option"
+                                <div class="interactives_item-dropdown-option" id="second_option" @click="goToBroadcast(item.id)"
                                     style="  margin-top: calc((14/832)*100dvh);">
                                     <img src="/public/images/interactives/send.svg" id="second_option_img"
                                         class="interactives_item-dropdown-icon"
@@ -1487,7 +1517,7 @@ text-align: center;
   color: white;
 }
 }
-@media (min-width:1919px) and (min-width:1079px){
+@media (min-width:1918px) and (min-height:1078px){
 
 
      .interactives_margins{width: 1056px; 

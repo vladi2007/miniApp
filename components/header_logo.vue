@@ -26,7 +26,7 @@
 }
 
 
-@media (min-width:1919px) and (min-height:1079px){
+@media (min-width:1918px) and (min-height:1078px){
     .header {
     width: 100dvw;
     height: 71px;

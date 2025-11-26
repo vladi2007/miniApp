@@ -35,6 +35,7 @@ const props = ref()
 const isReady = ref(false)
 
 onMounted(async () => {
+   
         const savedInteractives = loadFromDeviceStorage(HISTORY_KEY);
         if (Array.isArray(savedInteractives)) {
 
@@ -922,7 +923,7 @@ margin-left: calc((290/1280) * 100dvw);;
 }
 }
 
-@media (min-width:1919px) and (min-width:1079px){
+@media (min-width:1918px) and (min-height:1078px){
 
     .history_margins{
     width: 1056px;

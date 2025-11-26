@@ -2,14 +2,14 @@ export default defineEventHandler(async (event) => {
   try {
     const form = await readMultipartFormData(event);
     if (!form) return { success: false, error: "Пустые данные" };
-
+   
     const telegramField = form.find((f) => f.name === "telegram_id");
-    const textField = form.find((f) => f.name === "text");
+    const textField = form.find((f) => f.name === "text") || "";
     const interactiveFields = form.find((f) => f.name === "interactive_id");
     const fileField = form.find((f) => f.name === "file");
     let interactiveList;
     interactiveList = JSON.parse(interactiveFields.data.toString());
-    
+       console.log(textField.data.toString()==="")
     const fd = new FormData();
 
     fd.append("telegram_id", telegramField.data.toString());
