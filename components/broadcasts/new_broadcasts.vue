@@ -14,7 +14,7 @@ const to_number = ref(9)
 const { $telegram } = useNuxtApp()
 const userId = computed(() => $telegram.initDataUnsafe.value?.user?.id ?? null)
 const isReady = ref(false)
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useQuery, useMutation,  } from '@tanstack/vue-query'
 const fileInput = ref<HTMLInputElement | null>(null)
 const uploadedFile = ref<File | null>(null)
 const uploadedFileName = ref<string>("")
@@ -42,7 +42,7 @@ onMounted(async () => {
     if (saved_to) {
         to_number.value = Number(saved_to) || 9;
     }
-        
+        isReady.value=true
 
 
 
@@ -93,7 +93,6 @@ async function submitBroadcasts() {
     }
 
 }
-
 const { data: interactivesData, isLoading, refetch } = useQuery({
   queryKey: computed(() => ['broadcasts', userId.value, 'conducted', from_number.value, to_number.value]),
   queryFn: async () => {
@@ -109,11 +108,11 @@ const { data: interactivesData, isLoading, refetch } = useQuery({
     
     return res
   },
-  enabled: computed(() => Boolean(userId.value)),
+  enabled: computed(() => Boolean(userId.value && isReady.value)),
   staleTime: 1000 * 60 * 30,       // 5 минут данные считаются свежими
   cacheTime: 1000 * 60 * 30,
   refetchOnWindowFocus: false,
-  refetchOnMount: false,
+  refetchOnMount: true,
 })
 async function more_load() {
     to_number.value = to_number.value + 10
@@ -628,7 +627,7 @@ onMounted(() => {
 
     display: flex;
     align-items: center;
-    padding-left: calc((50 / 1280) * 100dvw);
+    padding-left: calc((50 / 1280) * 100dvw); box-sizing: border-box;
 }
 
 .broadcasts_search-input::placeholder {
@@ -1262,7 +1261,7 @@ onMounted(() => {
 
     display: flex;
     align-items: center;
-    padding-left: 50px;;
+    padding-left: 50px;; box-sizing: border-box;
 }
 
 .broadcasts_search-input::placeholder {

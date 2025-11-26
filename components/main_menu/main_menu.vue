@@ -9,13 +9,14 @@ async function goTo(url: string, active:string) {
    if (active ==="menu") return
   router.push(url)
 }
+
 </script>
 
 <template>
     <div class="main_menu_fon">
            <header_logo/>
-           <Header :goTo="goTo" :active="'menu'"/>
-        <div class ="main_menu_content">
+           <Header :goTo="goTo" :active="'menu'" />
+        <div class ="main_menu_content" >
             
             <description />
         </div>
@@ -31,11 +32,10 @@ async function goTo(url: string, active:string) {
   box-sizing: border-box;
 }
 .main_menu_fon {
-  background-color: white;
-  width: 100%;
-
-  margin-bottom: 30px;
-  padding-bottom: 42px;
+ width: 100dvw;
+    height: 100dvh;
+    
+    background-color: white;
 }
 
 

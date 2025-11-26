@@ -14,7 +14,7 @@ const selectMany = ref(false);
 const from_number = ref(0)
 const to_number = ref(9)
 import header_logo from "~/components/header_logo.vue"
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useQuery, useMutation,  } from '@tanstack/vue-query'
 watch(selectedInteractives, (newSelectedInteractives) => {
     saveToDeviceStorage(HISTORY_KEY, newSelectedInteractives);
 });
@@ -52,12 +52,11 @@ onMounted(async () => {
         const savedSelectOne = loadFromDeviceStorage(HISTORY_SELECT_ONE_KEY)
 
 
-        
+        isReady.value=true
 
 
 
 });
-
 const { $telegram } = useNuxtApp()
 const userId = computed(() => $telegram.initDataUnsafe.value?.user?.id ?? null)
 const { data: interactivesData, isLoading, refetch } = useQuery({
@@ -75,11 +74,11 @@ const { data: interactivesData, isLoading, refetch } = useQuery({
     
     return res
   },
-  enabled: computed(() => Boolean(userId.value)),
+  enabled: computed(() => Boolean(userId.value && isReady.value)),
   staleTime: 1000 * 60 * 30,       // 5 минут данные считаются свежими
   cacheTime: 1000 * 60 * 30,
   refetchOnWindowFocus: false,
-  refetchOnMount: false,
+  refetchOnMount: true,
 })
 async function more_load() {
     to_number.value = to_number.value + 10
@@ -503,7 +502,7 @@ async function goTo(url: string, active:string) {
 
     display: flex;
     align-items: center;
-    padding-left: calc((50 / 1280) * 100dvw);
+    padding-left: calc((50 / 1280) * 100dvw); box-sizing: border-box;
 }
 
 .search-input::placeholder {
@@ -1013,7 +1012,7 @@ margin-left: calc((290/1280) * 100dvw);;
 
     display: flex;
     align-items: center;padding-left: 50px;
-  
+  box-sizing: border-box;
 }
 
 .search-input::placeholder {

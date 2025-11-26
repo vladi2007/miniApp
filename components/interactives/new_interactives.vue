@@ -4,10 +4,9 @@ import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '
 import header_logo from "~/components/header_logo.vue"
 import Header from "~/components/header.vue"
 const finder = ref<string>("")
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 const isOpen = ref(false)
 const selectedText = ref("all")
-
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 const options = ["Все", "Проведенные", "Не проведенные"]
 const options_code = {
     "all": "Все",
@@ -24,7 +23,6 @@ async function selectOption(option: string) {
     isOpen.value = false
     to_number.value = 9
 }
-
 const dropdownRef = ref<HTMLElement | null>(null)
 const dropdownRefsMore = ref<(HTMLElement | null)[]>([])
 
@@ -57,7 +55,6 @@ onMounted(async () => {
  if (fromUrl){
     console.log(fromUrl?.startsWith('/leader/'))
   if (fromUrl?.startsWith('/leader/')) {
-   await refetch()
     await queryClient.invalidateQueries({
       predicate: (query) => {
         return (
@@ -68,11 +65,21 @@ onMounted(async () => {
     });
 
    await queryClient.invalidateQueries({
-      predicate: (query) => query.queryKey[0] === 'broadcasts' && query.queryKey[1] === userId.value
+      predicate: (query) => {
+        return (
+          query.queryKey[0] === 'broadcasts' &&
+          query.queryKey[1] === userId.value
+        );
+      },
     });
 
     await queryClient.invalidateQueries({
-      predicate: (query) => query.queryKey[0] === 'history' && query.queryKey[1] === userId.value
+      predicate: (query) => {
+        return (
+          query.queryKey[0] === 'history' &&
+          query.queryKey[1] === userId.value
+        );
+      },
     });
 
   }
@@ -147,7 +154,7 @@ const { data: interactivesData, isLoading, refetch } = useQuery({
   staleTime: 1000 * 60 * 30,       // 5 минут данные считаются свежими
   cacheTime: 1000 * 60 * 30,
   refetchOnWindowFocus: false,
-  refetchOnMount: false,
+  refetchOnMount: true,
 })
 async function more_load() {
     to_number.value = to_number.value + 10
@@ -671,7 +678,7 @@ function goToBroadcast(interactiveId) {
     display: flex;
     align-items: center;
     padding-left: calc((50 / 1280) * 100dvw) !important;
-   
+   box-sizing: border-box;
 }
 
 .interactives_search-input::placeholder {
@@ -1581,6 +1588,7 @@ text-align: center;
     display: flex;
     align-items: center;
     padding-left:50px;
+       box-sizing: border-box;
 }
 
 .interactives_search-input::placeholder {
