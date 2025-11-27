@@ -11,11 +11,11 @@ const route = useRoute()
 const interactiveId = route.params.id
 const webApp = ref(null)
 
-const userId = ref(null)
 
 const data = ref(null)
 let send = null // функция отправки
-
+const userId = useState('telegramUser')
+const userRole = useState('userRole')
 // Функция для создания websocket
 function createWebSocket(interactiveId, telegramId) {
   // Предполагаю, что useWebSocket возвращает { data, send }
@@ -31,21 +31,12 @@ function createWebSocket(interactiveId, telegramId) {
   send(JSON.stringify({ type: 'init', id: interactiveId }))
 }
 
-onMounted(() => {
-  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-    webApp.value = window.Telegram.WebApp
-    //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
-    const { $telegram } = useNuxtApp();
-    userId.value = $telegram.initDataUnsafe.value?.user?.id;
-  }
-})
 
-// Создаем websocket только когда userId стал известен
-watch(userId, (newUserId) => {
-  if (newUserId) {
-    createWebSocket(interactiveId, newUserId)
+
+ if (userId) {
+    createWebSocket(interactiveId, userId.value)
   }
-})
+
 
 // props для компонента
 const data_props = ref({

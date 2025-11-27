@@ -19,7 +19,9 @@ function toggleDropdown() {
 
 const queryClient = useQueryClient() 
 const { $telegram } = useNuxtApp()
-const userId = computed(() => $telegram.initDataUnsafe.value?.user?.id ?? null)
+
+const userId = useState('telegramUser')
+const userRole = useState('userRole')
 async function selectOption(option: string) {
     selectedText.value = option
     isOpen.value = false
@@ -137,9 +139,10 @@ async function goTo(url: string, active: string) {
 }
 const is_ready=ref<boolean>()
 const { data: interactivesData, isLoading, refetch } = useQuery({
+    
   queryKey: computed(() => ['interactives', userId.value, selectedText.value, from_number.value, to_number.value]),
   queryFn: async () => {
-    if (!userId.value) return { interactives_list: [], is_end: true }
+    if (!userId) return { interactives_list: [], is_end: true }
     const res = await $fetch('/api/reports/preview', {
       query: {
         telegram_id: userId.value,
@@ -149,9 +152,10 @@ const { data: interactivesData, isLoading, refetch } = useQuery({
       }
     })
     is_ready.value=true
+    console.log(userId.value)
     return res
   },
-  enabled: computed(() => Boolean(userId.value && isReady.value)),
+   enabled: computed(() => Boolean(userId && isReady.value)),
   staleTime: 1000 * 60 * 30,       // 5 минут данные считаются свежими
   cacheTime: 1000 * 60 * 30,
   refetchOnWindowFocus: false,

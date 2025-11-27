@@ -1,11 +1,16 @@
-export default defineNuxtRouteMiddleware((to, from) => {
-  const nuxtApp = useNuxtApp()
-  const userRole = nuxtApp.$userRole as Ref<string | null>
+import { useState, useRoute, useRouter } from '#app'
 
-  // Если роль ещё не загрузилась, просто ждем
+export default defineNuxtRouteMiddleware((to, from) => {
+  const userRole = useState<{ role: string } | null>('userRole')
+  const route = useRoute()
+  const router=useRouter()
   if (!userRole.value) return
 
-  if (to.path.startsWith('/leader') && userRole.value !== 'leader') {
-    return navigateTo('/not_leader')
+  const currentPath = from.path     
+  const targetPath = to.path          
+  console.log(userRole.value?.role === 'leader')
+    console.log(currentPath.startsWith('/leader') )
+  if ( targetPath.includes('/leader')  && userRole.value?.role !== 'leader') {
+      router.push('/not_leader')
   }
 })

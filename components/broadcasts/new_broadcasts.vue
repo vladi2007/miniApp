@@ -9,13 +9,12 @@ const BROADCASTS_FILE_KEY = 'broadcasts_file_key'
 const BROADCASTS_TO_NUMBER_KEY = 'broadcasts_to_number'
 const selectedInteractives = ref<number[]>([]);
 import { useQueryClient } from '@tanstack/vue-query'
-
+const isReady = ref(false)
 const queryClient = useQueryClient()  
 const from_number = ref(0)
 const to_number = ref(9)
-const { $telegram } = useNuxtApp()
-const userId = computed(() => $telegram.initDataUnsafe.value?.user?.id ?? null)
-const isReady = ref(false)
+const userId = useState('telegramUser')
+const userRole = useState('userRole')
 import { useQuery, useMutation,  } from '@tanstack/vue-query'
 const fileInput = ref<HTMLInputElement | null>(null)
 const uploadedFile = ref<File | null>(null)
@@ -110,7 +109,7 @@ const { data: interactivesData, isLoading, refetch } = useQuery({
     
     return res
   },
-  enabled: computed(() => Boolean(userId.value && isReady.value)),
+  enabled: computed(() => Boolean(userId && isReady.value)),
   staleTime: 1000 * 60 * 30,       // 5 минут данные считаются свежими
   cacheTime: 1000 * 60 * 30,
   refetchOnWindowFocus: false,

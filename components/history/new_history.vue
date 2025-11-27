@@ -34,8 +34,7 @@ const webApp = ref(null)
 const props = ref()
 const isReady = ref(false)
 const queryClient = useQueryClient() 
-onMounted(async () => {
-   
+onMounted(async () => { 
         const savedInteractives = loadFromDeviceStorage(HISTORY_KEY);
         if (Array.isArray(savedInteractives)) {
 
@@ -58,11 +57,11 @@ onMounted(async () => {
 
 });
 const { $telegram } = useNuxtApp()
-const userId = computed(() => $telegram.initDataUnsafe.value?.user?.id ?? null)
+const userId = useState('telegramUser')
+const userRole = useState('userRole')
 const { data: interactivesData, isLoading, refetch } = useQuery({
   queryKey: computed(() => ['history', userId.value, 'conducted', from_number.value, to_number.value]),
   queryFn: async () => {
-    if (!userId.value) return { interactives_list: [], is_end: true }
     const res = await $fetch('/api/reports/preview', {
       query: {
         telegram_id: userId.value,
@@ -74,11 +73,11 @@ const { data: interactivesData, isLoading, refetch } = useQuery({
     
     return res
   },
-  enabled: computed(() => Boolean(userId.value && isReady.value)),
+  enabled: computed(() => Boolean(userId && isReady.value)),
   staleTime: 1000 * 60 * 30,       // 5 минут данные считаются свежими
   cacheTime: 1000 * 60 * 30,
   refetchOnWindowFocus: false,
-  refetchOnMount: true,
+  refetchOnMount: false,
 })
 async function more_load() {
     to_number.value = to_number.value + 10
