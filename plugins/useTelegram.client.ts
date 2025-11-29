@@ -1,20 +1,28 @@
-export default defineNuxtPlugin(() => {
-  const initDataUnsafe = ref(null)
+import { defineNuxtPlugin, useState } from '#app'
 
-  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-    const tg = window.Telegram.WebApp
+export default defineNuxtPlugin(async (nuxtApp) => {
+  const telegramUser = useState('telegramUser', () => null)
+  const userRole = useState('userRole', () => null)
 
-    initDataUnsafe.value = tg.initDataUnsafe ?? null
+    if (window.Telegram?.WebApp?.initDataUnsafe?.user?.id) {
+      telegramUser.value = window.Telegram.WebApp.initDataUnsafe.user.id
+      console.log('Telegram ID:', telegramUser.value)
 
-    // сохраняем в sessionStorage
-    sessionStorage.setItem('telegram_init_data', JSON.stringify(initDataUnsafe.value))
-  }
+      try {
+        const roleData = await $fetch('/api/role', {
+          query: { telegram_id: telegramUser.value }
+        })
+        userRole.value = roleData
+        console.log('Role:', userRole.value)
+      } catch (err) {
+        console.error('Failed to fetch user role:', err)
+      }
+    }
 
   return {
     provide: {
-      telegram: {
-        initDataUnsafe
-      }
+      telegramUser,
+      userRole
     }
   }
 })

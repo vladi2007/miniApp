@@ -1,14 +1,12 @@
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
-  const { telegram_id, x_key } = query
+  const { telegram_id,filter,from_number,to_number } = query
 
-  const body =readBody(event)
 
   try {
     const response = await fetch(
-      `https://carclicker.ru/api/reports/preview?x_key=super-secret-key&telegram_id=${telegram_id}`,
+      `https://carclicker.ru/api/interactivities/me?x_key=super-secret-key&telegram_id=${telegram_id}&filter=${filter}&from_number=${from_number}&to_number=${to_number}`,
       {
-        // здесь можно добавить headers если нужно
         method: 'GET',
         headers: {
           'Accept': 'application/json'
@@ -18,7 +16,6 @@ export default defineEventHandler(async (event) => {
 
     
     const data = await response.json()
-   
     return data
   } catch (error) {
     return { success: false, error: error.message || error }

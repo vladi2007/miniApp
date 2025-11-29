@@ -1,5 +1,5 @@
 <script setup>
-import broadcasts from '~/components/broadcasts/broadcasts.vue'
+import broadcasts from '~/components/broadcasts/new_broadcasts.vue'
 </script>
 
 <template>

@@ -83,7 +83,7 @@ export function useSave(
         body: formData,
         
       });
-      route.push("/leader/interactives");
+      route.push({path:'/leader/new_interactives',  query: { from: `/leader/` }})
       console.log(response);
       return response.data.interactive_id;
       
@@ -95,7 +95,7 @@ export function useSave(
         },
         body: formData,
       });
-      route.push("/leader/interactives");
+      route.push({path:'/leader/new_interactives',  query: { from: `/leader/` }})
        console.log(response.data)
       return response.data;
      

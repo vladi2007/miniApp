@@ -7,12 +7,12 @@ async function confirmBack(save) {
     const success = await settings.value.handleSave()
     if (success) {
       showConfirmPopup.value = false
-      route.push('/leader/interactives')
+      route.push('/leader/new_interactives')
     }
     else { showConfirmPopup.value = false }
   } else {
     showConfirmPopup.value = false
-    route.push('/leader/interactives')
+    route.push('/leader/new_interactives')
   }
 }
 const showConfirmPopup = ref(false)
@@ -47,7 +47,7 @@ function handleBackClick() {
   </div>
 </template>
 
-<style>
+<style >
 @import url("/assets/css/interactive_editor/settings.scss");
 @import url("/assets/css/interactive_editor/settings_media.scss");
 @import url("/assets/css/interactive_editor/create_interactive.scss");
