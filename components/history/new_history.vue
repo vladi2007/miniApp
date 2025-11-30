@@ -56,7 +56,6 @@ onMounted(async () => {
 
 
 });
-const { $telegram } = useNuxtApp()
 const userId = useState('telegramUser')
 const userRole = useState('userRole')
 const { data: interactivesData, isLoading, refetch } = useQuery({
@@ -456,8 +455,6 @@ async function goTo(url: string, active:string) {
 
 }
 
-.history_finder {
-}
 
 
 
@@ -966,8 +963,6 @@ margin-left: calc((290/1280) * 100dvw);;
 
 }
 
-.history_finder {
-}
 
 
 

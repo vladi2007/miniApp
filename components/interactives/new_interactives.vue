@@ -18,7 +18,6 @@ function toggleDropdown() {
 }
 
 const queryClient = useQueryClient() 
-const { $telegram } = useNuxtApp()
 
 const userId = useState('telegramUser')
 const userRole = useState('userRole')
@@ -1082,14 +1081,12 @@ input:focus {
     background-color: #853CFF;
 }
 
-.interactivs_dublicate:hover {}
 
 .interactives_edit {
     background-color: #F0436C;
     margin-left: calc((10 / 1280) * 100dvw);
 }
 
-.interactives_edit:hover {}
 
 .interactives_start {
     background-color: #6AB23D;
@@ -1106,7 +1103,6 @@ input:focus {
     width: calc((14/1280) * 100dvw) !important;
     height: calc((18/832) * 100dvh) !important;
 }
-.interactives_start:hover {}
 
 .interactives_dublicate,
 .interactives_edit,
@@ -1991,14 +1987,12 @@ input:focus {
     background-color: #853CFF;
 }
 
-.interactivs_dublicate:hover {}
 
 .interactives_edit {
     background-color: #F0436C;
     margin-left: 10px;
 }
 
-.interactives_edit:hover {}
 
 .interactives_start {
     background-color: #6AB23D;
@@ -2015,7 +2009,7 @@ input:focus {
     width: 14px !important;
     height: 18px !important;
 }
-.interactives_start:hover {}
+
 
 .interactives_dublicate,
 .interactives_edit,

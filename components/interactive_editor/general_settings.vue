@@ -58,8 +58,6 @@ onMounted(async () => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
     //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
-    const { $telegram } = useNuxtApp();
-    userId.value = $telegram.initDataUnsafe.value?.user?.id;
   }
 
   // Подождём до отрисовки DOM

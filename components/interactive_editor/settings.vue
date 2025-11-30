@@ -14,8 +14,8 @@ const router = useRoute()
 //mode
 const mode = computed(() => router.params.mode)
 const id = computed(() => router.params.id)
-const userId = ref(0)
-
+const userId = useState('telegramUser')
+const userRole = useState('userRole')
 // import composables
 import { useInteractiveForm } from '~/composables/interactive_editor/useInteractiveForm'
 import { useValidateForm } from '~/composables/interactive_editor/useValidateForm'
@@ -65,8 +65,6 @@ onMounted(async () => {
   document.addEventListener('click', handleClickOutside)
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
-    const { $telegram } = useNuxtApp();
-    userId.value = $telegram.initDataUnsafe.value?.user?.id;
   }
   const savedForm = await loadFromDeviceStorage(FORM_STORAGE_KEY);
   if (savedForm) {
