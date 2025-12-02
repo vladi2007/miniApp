@@ -89,10 +89,11 @@ async function submitBroadcasts() {
         }
         if( response.ok){   sendStatus.value = "success";}
         
-        if (showPopup.value ===false){window.Telegram.WebApp.showAlert(`Ваше сообщение успешно отправлено`);}
+        if (showPopup.value ===false){window.Telegram.WebApp.showAlert(`Ваше сообщение успешно отправлено`); sendStatus.value = "idle";}
     } catch (e) {
         console.log("error")
         sendStatus.value = "error";
+        if (showPopup.value ===false){window.Telegram.WebApp.showAlert(`${e}`); sendStatus.value = "idle";}
     }
 
 }
@@ -366,28 +367,28 @@ watch(sendStatus, (value) => {
 </div>
     </div>
 
-    <div v-if="showPopup" class="broadcasts_popup-overlay">
+    <div v-if="showPopup " class="broadcasts_popup-overlay">
         <div class="broadcasts_popup">
             <div class="broadcasts_popup-header">
                 <div class="broadcasts_popup-header-text">Подтвердите отправку рассылки</div>
                 <img src="/images/history/Vector_1.svg" class="broadcasts_popup-close" @click="closePopup()" />
             </div>
             <div class="broadcasts_popup-body" :class="{margins:sendStatus !== 'idle'}">
-                <div style="color: #7D7D7D; ">
+                <div style="color: #7D7D7D; line-height: calc((16*1.2/832)*100dvh);">
                     От лица “Название телеграмм бота” будет отправлена в личный чат с участником следующая информация
                 </div>
-                <div class="margin15" style="  white-space: normal; 
-    overflow-wrap: break-word; margin-top: calc((15 / 832) * 100dvh); ">
+                <div class="margin10" style="  white-space: normal; 
+    overflow-wrap: break-word; margin-top: calc((10 / 832) * 100dvh); line-height:calc((16*1.2/832)*100dvh);">
                     Сообщение: {{ text }}
                 </div>
-                <div class="margin10" style="margin-top: calc((10 / 832) * 100dvh);">
+                <div class="margin10" style="margin-top: calc((10 / 832) * 100dvh);line-height: calc((16*1.2/832)*100dvh);">
                     Файлы: {{ uploadedFileName }}
                 </div>
-                <div class="margin10" style="margin-top: calc((10 / 832) * 100dvh);">
+                <div class="margin10" style="margin-top: calc((10 / 832) * 100dvh);line-height: calc((16*1.2/832)*100dvh);">
                     Количество получателей: {{ count }}
                 </div>
-                <div class="margin20" style="margin-top: calc((20 / 832) * 100dvh);color: #7D7D7D;">
-                    Используйте рассылку по назначению. <br></br>
+                <div class="margin10" style="margin-top: calc((10 / 832) * 100dvh);color: #7D7D7D;line-height: calc((16*1.2/832)*100dvh);">
+                    Используйте рассылку по назначению. 
                     Злоупотребление ею приведет к блокировке бота со стороны Telegram.
                 </div>
             </div>
@@ -399,10 +400,8 @@ watch(sendStatus, (value) => {
                     <div>Отправить</div>
                 </div>
             </div>
-            <div class="broadcasts_popup-footer_sending" v-if="sendStatus === 'sending'">
-                <div class="broadcasts_popup_status_text">
-                    Идет рассылка получателям {{ ".".repeat(dotCount) }}
-                </div>
+            <div class="broadcasts_popup-footer_sending" v-if="sendStatus === 'sending'"><div class="broadcasts_popup_status_text">
+                    Идет рассылка получателям {{ ".".repeat(dotCount) }}</div>
             </div>
 
             <div class="broadcasts_popup-footer_success" v-if="sendStatus === 'success'">
@@ -424,27 +423,29 @@ watch(sendStatus, (value) => {
 
 <style>
 @media (max-height:1078px), (max-width:1918px){
+    .broadcasts_popup_status_text{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
     .margins{
         margin-bottom: 0px !important;;
     }
     .broadcasts_popup-footer_sending, .broadcasts_popup-footer_success, .broadcasts_popup-footer_error {font-family: "Lato", sans-serif;
 font-weight: 400;
-font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-    font-style: Medium;
-    letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
-text-align: center;
-vertical-align: middle;
-        width: calc((500 / 1280) * 100dvw);
-        text-align: center;
-        margin:0 auto;
-        margin-top: calc((20/832) * 100dvh);
-       
+font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
+    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
+        width: calc((484 / 1280) * 100dvw);
+           line-height: calc((19.2/832)*100dvh);
     }
-    .broadcasts_popup-footer_sending{
-        margin-bottom: calc((99/832) * 100dvh);;
+    .broadcasts_popup-footer_sending {    margin-top: calc((10/832) * 100dvh); height: calc((19 / 832) * 100dvh); margin-bottom: calc((50/832) * 100dvh) ;
+ display: flex; 
+      align-items: center;justify-content: center;margin-left: calc((20/1280)*100dvw);
     }
-    .broadcasts_popup-footer_success{margin-bottom: calc((66/832) * 100dvh);;}
-        .broadcasts_popup-footer_error{margin-bottom: calc((59/832) * 100dvh);}
+    .broadcasts_popup-footer_success{  margin-top: calc((15/832) * 100dvh);height: calc((39 / 832) * 100dvh);margin-bottom: calc((25/832) * 100dvh) !important;; display: grid; 
+     justify-content: center;margin-left: calc((20/1280)*100dvw);}
+        .broadcasts_popup-footer_error{ margin-top: calc((10/832) * 100dvh);height: calc((44 / 832) * 100dvh);margin-bottom: calc((25/832) * 100dvh) !important;; display: grid; 
+   justify-content: center;margin-left: calc((20/1280)*100dvw);}
     .broadcasts_popup-footer_sending > div{
         color: #853CFF;
     }
@@ -454,13 +455,13 @@ vertical-align: middle;
     .broadcasts_popup-footer_error > div{
         color: #F0436C;
     }
-    .broadcasts_popup-footer_success > img{
-        width: calc((36.13/1280) * 100dvw);
-    height: calc((28 / 832) * 100dvh);
+    .broadcasts_popup-footer_success > img{ margin: 0 auto;;
+          width: calc((20/1280) * 100dvw);
+    height: calc((25 / 832) * 100dvh);
     }
-    .broadcasts_popup-footer_error > img{
-          width: calc((37/1280) * 100dvw);
-    height: calc((35 / 832) * 100dvh);
+    .broadcasts_popup-footer_error > img{margin: 0 auto;;
+          width: calc((27/1280) * 100dvw);
+    height: calc((25 / 832) * 100dvh);
     }
 .broadcasts {
     width: 100dvw;
@@ -982,11 +983,11 @@ vertical-align: middle;
 
 .broadcasts_popup {
     margin: auto auto;
-    ;
+    ;box-sizing: border-box;
     background: white;
-    border-radius: calc((35 / 832) * 100dvh);
-    min-height: calc((512 / 832) * 100dvh);
-    width: calc((921 / 1280) * 100dvw);
+    border-radius: calc((18 / 832) * 100dvh);
+    min-height: calc((344 / 832) * 100dvh);
+    width: calc((524 / 1280) * 100dvw);
     ;
     position: relative;
 
@@ -996,44 +997,42 @@ vertical-align: middle;
 .broadcasts_popup-header {}
 
 .broadcasts_popup-header-text {
-    margin-top: calc((45 / 832) * 100dvh);
+    margin-top: calc((24 / 832) * 100dvh);
     font-family: "Lato", sans-serif;
     font-weight: 700;
     font-style: Bold;
-    font-size: clamp(10px, calc(36 / 1280 * 100dvw), 72px);
-    letter-spacing: clamp(0.1px, calc(36 / 100 / 1280 * 100dvw), 0.72px);
+    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
+    letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.40px);
     text-align: center;
 
 }
 
 .broadcasts_popup-close {
-    height: calc((24 / 832) * 100dvh) !important;
-    width: calc((24 / 1280) * 100dvw);
+    min-height: calc((16 / 832) * 100dvh) !important;
+    width: calc((16 / 1280) * 100dvw);
     position: absolute;
-    top: calc((32 / 832) * 100dvh) !important;
-    right: calc((23 / 1280) * 100dvw);
+    top: calc((24 / 832) * 100dvh) !important;
+    right: calc((24 / 1280) * 100dvw);
     cursor: pointer;
     color: #aaa;
     cursor: pointer;
 }
 
-.broadcasts_popup-body {
+.broadcasts_popup-body {box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    min-height: calc((244 / 832) * 100dvh) !important;
-    width: calc((743 / 1280) * 100dvw);
+    width: calc((484 / 1280) * 100dvw);
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-    letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
-    vertical-align: middle;
-    margin: 0 auto;
-    margin-top: calc((37 / 832) * 100dvh);
-    margin-bottom: calc((82 / 832) * 100dvh);
-    ;
-}
+    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
 
+    margin: 0 auto;
+    margin-top: calc((19 / 832) * 100dvh);
+}
+.broadcasts_popup-body > div{
+    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
+}
 .broadcasts_popup-option {
     margin-left: 51px;
     display: flex;
@@ -1100,17 +1099,16 @@ vertical-align: middle;
     display: flex;
     align-items: center;
     cursor: pointer;
-    margin-left: calc((520 / 1280) * 100dvw);
-    ;
+    margin-left: calc((239 / 1280) * 100dvw);
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
-    font-size: clamp(10px, calc(24 / 1280 * 100dvw), 48px);
-    letter-spacing: clamp(0.1px, calc(24 / 100 / 1280 * 100dvw), 0.48px);
+    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
+    letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.40px);
     text-align: center;
-    vertical-align: middle;
-    margin-bottom: calc((20 / 832) * 100dvh);
-    ;
+    vertical-align: middle;    width: calc((261 / 1280) * 100dvw) !important;
+    margin-top: calc((18/832)*100dvh);
+        margin-bottom: calc((20/832)*100dvh);  height: calc((41/832)*100dvh); 
 }
 
 .broadcasts_popup_back {
@@ -1124,7 +1122,7 @@ vertical-align: middle;
     font-family: "Lato", sans-serif;
     align-items: center;
     justify-content: center;
-    width: calc((222 / 1280) * 100dvw) !important;
+    width: calc((138 / 1280) * 100dvw) !important;
     height: calc((41/832)*100dvh);
     color: #6AB23D;
     margin-left: calc((40 / 1280) *100dvw);
@@ -1167,27 +1165,29 @@ vertical-align: middle;
 }
 }
 @media (min-width:1918px) and (min-height:1078px){
-     .margins{
+    .broadcasts_popup_status_text{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    .margins{
         margin-bottom: 0px !important;;
     }
     .broadcasts_popup-footer_sending, .broadcasts_popup-footer_success, .broadcasts_popup-footer_error {font-family: "Lato", sans-serif;
 font-weight: 400;
-font-size: 20px;
-    font-style: Medium;
-    letter-spacing: 0.2px;
-text-align: center;
-vertical-align: middle;
-        width: 500px;
-        text-align: center;
-        margin:0 auto;
-        margin-top: 20px;
-       
+font-size: 16px;
+    letter-spacing: 0.16px;
+        width: 484px;
+           line-height: 19.2px;
     }
-    .broadcasts_popup-footer_sending{
-        margin-bottom: 111px !important;
+    .broadcasts_popup-footer_sending {    margin-top: 10px; height: 19px;; margin-bottom:50px ;
+ display: flex; 
+      align-items: center;justify-content: center;margin-left: 20px;;
     }
-    .broadcasts_popup-footer_success{margin-bottom:78px  !important;}
-        .broadcasts_popup-footer_error{margin-bottom: 72px  !important;}
+    .broadcasts_popup-footer_success{  margin-top: 15px;height: 39px;;margin-bottom:25px !important;; display: grid; 
+     justify-content: center;margin-left:20px;}
+        .broadcasts_popup-footer_error{ margin-top:10px;height: 44px;margin-bottom: 25px !important;; display: grid; 
+   justify-content: center;margin-left: 20px;}
     .broadcasts_popup-footer_sending > div{
         color: #853CFF;
     }
@@ -1197,13 +1197,13 @@ vertical-align: middle;
     .broadcasts_popup-footer_error > div{
         color: #F0436C;
     }
-    .broadcasts_popup-footer_success > img{
-        width: 36.13px;
-    height: 28px;
+    .broadcasts_popup-footer_success > img{ margin: 0 auto;;
+          width: 20px;
+    height: 25px;;
     }
-    .broadcasts_popup-footer_error > img{
-          width: 37px;
-    height:35px;
+    .broadcasts_popup-footer_error > img{margin: 0 auto;;
+          width: 27px;;
+    height: 25px;;
     }
     .broadcasts {
     width: 100dvw;
@@ -1659,9 +1659,9 @@ vertical-align: middle;
     margin: auto auto;
     ;
     background: white;
-    border-radius: 35px;
-    min-height: 512px;
-    width: 921px
+    border-radius: 18px;
+    min-height: 344px;
+    width: 524px
     ;
     position: relative;
 
@@ -1671,22 +1671,22 @@ vertical-align: middle;
 .broadcasts_popup-header {}
 
 .broadcasts_popup-header-text {
-    margin-top: 45px;
+    margin-top: 24px;
     font-family: "Lato", sans-serif;
     font-weight: 700;
     font-style: Bold;
-    font-size: 36px;
-    letter-spacing: 0.36px;
+    font-size: 20px;
+    letter-spacing: 0.2px;
     text-align: center;
 
 }
 
 .broadcasts_popup-close {
-    height: 24px !important;
-    width: 24px;
+    height: 16px !important;
+    width: 16px;
     position: absolute;
-    top: 32px !important;
-    right: 23px;
+    top: 24px !important;
+    right: 24px;
     cursor: pointer;
     color: #aaa;
     cursor: pointer;
@@ -1695,25 +1695,16 @@ vertical-align: middle;
 .broadcasts_popup-body {
     display: flex;
     flex-direction: column;
-    min-height: 244px !important;
-    width: 743px;
+    width: 484px;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
-    font-size: 20px;
-    letter-spacing:0.2px;
     vertical-align: middle;
     margin: 0 auto;
-    margin-top: 37px;
-    margin-bottom:82px;
-    ;
+    margin-top:19px !important;
 }
-.margin15{
-    margin-top:15px !important
-}.margin10{
-    margin-top:10px !important
-}.margin20{
-    margin-top:20px !important
+.broadcasts_popup-body > div{
+    line-height: 19.2px !important;
 }
 .broadcasts_popup-option {
     margin-left: 51px;
@@ -1776,22 +1767,23 @@ vertical-align: middle;
     position: relative;
 }
 
+
+
 .broadcasts_popup-footer {
     font-family: "Lato", sans-serif;
     display: flex;
     align-items: center;
     cursor: pointer;
-    margin-left: 520px;
-    ;margin-top:94px;
+    margin-left: 239px;
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
-    font-size: 24px;
-    letter-spacing: 0.24px;
+    font-size: 20px !important;
+    letter-spacing: 0.2px !important;
     text-align: center;
     vertical-align: middle;
-    margin-bottom:20px;
-    ;
+     margin-top: 18px;;
+        margin-bottom: 20px;;  height: 41px;; 
 }
 
 .broadcasts_popup_back {
@@ -1805,10 +1797,10 @@ vertical-align: middle;
     font-family: "Lato", sans-serif;
     align-items: center;
     justify-content: center;
-    width: 222px !important;
+    width: 138px !important;
     height: 41px;
     color: #6AB23D;
-    margin-left: 40px;
+    margin-left: 20px;
     border:2px solid #6AB23D;
     border-radius: 8px;
 
@@ -1816,15 +1808,14 @@ vertical-align: middle;
 
 .broadcasts_popup-submit {
     font-family: "Lato", sans-serif;
-    margin-left: 292px;
-    width: 233px;
-    height: 62px;
+    width: 138px;
+    height: 41px;
     background-color: white;
     color: #853cff;
     border: 2px solid #853cff;
     font-family: "Lato", sans-serif;
     font-weight: 500;
-    font-size: 24px;
+    font-size: 20px;
     border-radius: 5px;
     cursor: pointer;
     vertical-align: middle;
@@ -1832,9 +1823,6 @@ vertical-align: middle;
 }
 
 .broadcasts_popup-submit:hover {
-    margin-left: 292px;
-    width: 233px;
-    height: 62px;
     background-color: #853cff;
     color: white;
     border: 2px solid #853cff;
@@ -1845,6 +1833,9 @@ vertical-align: middle;
     cursor: pointer;
     vertical-align: middle;
     letter-spacing: 1px;
+}
+.margin10{
+    margin-top:10px !important;
 }
 }
 

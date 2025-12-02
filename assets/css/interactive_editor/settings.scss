@@ -238,7 +238,7 @@
     height: calc((97 / 832) * 100dvh);
 }
 
-.settings_go_to_questions {
+.settings_go_to_questions {   font-family: "Lato", sans-serif;
     position: absolute;
     right: 0;
     bottom: 0;
@@ -260,7 +260,7 @@
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-size: clamp(10px, calc((20 / 1280) * 100dvw), 34px);
-    color: #7D7D7D;
+    color: #853CFF;
     line-height: 1;
     /* минимальный отступ по вертикали */
 }
@@ -350,7 +350,7 @@
     height: calc((42 / 832) * 100dvh);
     position: relative;
     border-radius: 8px;
-    border: 1.52px solid #E0E0E0;
+    border: 1.52px solid #6AB23D;
     background-color: #FFFFFF;
     margin-top: calc((12 / 832) * 100dvh);
     ;
@@ -642,12 +642,11 @@
 
 
 /* Стили для списка */
-.custom-dropdown-options {
+.custom-dropdown-options {box-shadow: 0px 1px 13.8px 0px #00000040;
     position: absolute;
     background-color: white;
-    border: 1.5px solid #E0E0E0;
     border-radius: 8px;
-    width: calc((287 / 1280) * 100dvw);
+    width: calc((293 / 1280) * 100dvw);
     height: calc((146 / 832) * 100dvh);
     margin-top: calc((15 / 832) * 100dvh);
     z-index: 10;
@@ -655,7 +654,7 @@
 }
 
 .custom-dropdown-option-list {
-    margin-top: calc((10 / 832) * 100dvh);
+    margin-top: calc((15 / 832) * 100dvh);
     margin-left: calc((15 / 1280) * 100dvw);
     z-index: 2;
 }
@@ -664,11 +663,9 @@
     font-family: "Lato", sans-serif;
     font-weight: 600;
     font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-    line-height: 120%;
-    letter-spacing: 0.1px;
     vertical-align: middle;
-    margin-top: calc((7 / 832) * 100dvh);
-    margin-left: calc((41 / 1280) * 100dvw);
+    margin-top: calc((15 / 832) * 100dvh);
+    margin-left: calc((37 / 1280) * 100dvw);
 }
 
 .custom-dropdown-selected {}
@@ -678,10 +675,9 @@
     align-items: center;
 
 
-    margin-top: calc((5 / 832) * 100dvh);
     width: calc((245 / 1280) * 100dvw);
-    height: calc((26 / 832) * 100dvh);
-
+    height: calc((19 / 832) * 100dvh);
+margin-bottom: calc((10 / 832) * 100dvh);
     cursor: pointer;
 
 }
@@ -689,8 +685,6 @@
 
 
 .custom-dropdown-circle {
-    width: calc((18 / 1280) * 100dvw);
-    height: calc((18 / 832) * 100dvh);
     display: flex;
     cursor: pointer;
     justify-content: center;
@@ -699,8 +693,8 @@
 }
 
 .custom-dropdown-circle>img {
-    width: calc((16 / 1280) * 100dvw);
-    height: calc((16 / 832) * 100dvh);
+    width: calc((17 / 1280) * 100dvw);
+    height: calc((17 / 832) * 100dvh);
 }
 
 .custom-dropdown-text {
@@ -708,11 +702,8 @@
     font-weight: 400;
     font-style: Regular;
     font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-    line-height: 120%;
-    letter-spacing: 0.1px;
     vertical-align: middle;
-    margin-left: calc((10 / 1280) * 100dvw);
-
+ margin-left: calc((5 / 1280) * 100dvw);
     display: flex;
     align-items: center;
 
@@ -789,7 +780,7 @@ input:focus {
     position: relative;
     display: flex;
     align-items: center;
-    margin-bottom: calc((8 / 832) * 100dvh);
+    margin-bottom: calc((10 / 832) * 100dvh);
 }
 
 /* Удаление ответа */

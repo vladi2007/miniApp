@@ -89,7 +89,7 @@ function updateScore(event: Event) {
             </div>
             <img src="/public/images/interactive_editor/question_down.svg" id="down" @click="scrollDown()" />
             <div class="question_button_plus" @click="addQuestion()"><img
-                    src="/public/images/interactive_editor/question_plus.svg" id="plus" /></div>
+                    src="/public/images/interactive_editor/greeen_plus.svg" id="plus" /></div>
         </div>
         <div class="settings_questions_editor">
             <div class="question_header">
@@ -151,7 +151,7 @@ function updateScore(event: Event) {
 
 
 
-                                <img class="custom-dropdown-circle" src="/public/images/interactive_editor/full.svg"
+                                <img class="custom-dropdown-circle" src="/public/images/interactive_editor/purple_circle.svg"
                                     v-if="typeMap[currentQuestion.question.type] === option" />
                                 <img class="custom-dropdown-circle" src="/public/images/interactive_editor/circle.svg"
                                     v-if="typeMap[currentQuestion.question.type] !== option" />
