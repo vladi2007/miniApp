@@ -48,19 +48,21 @@ onMounted(async () => {
 
 
 });
+
+const sendStatus = ref<"idle" | "sending" | "success" | "error">("idle")
 async function submitBroadcasts() {
 
     if (selectedInteractives.value.length === 0) {
         window.Telegram.WebApp.showAlert(`Выберите хотя бы один интерактив!`);
         closePopup();
         return;
-    }
+    }   
 
-    
-
+    sendStatus.value = "sending";
     try {
         const formData = new FormData();
-
+        console.log(userId.value)
+        console.log(selectedInteractives.value)
         formData.append("telegram_id", userId.value);
         if (text.value===null){
             formData.append("text", "");
@@ -78,19 +80,19 @@ async function submitBroadcasts() {
 
         const response = await fetch('/api/broadcasts/send', {
             method: 'POST',
-            body: formData
+            body: formData,
         });
 
         if (!response.ok) {
             const err = await response.json();
             throw new Error(err.error || "Ошибка сервера");
         }
-
-        window.Telegram.WebApp.showAlert(`Ваше сообщение успешно отправлено!`);
-        closePopup();
-
+        if( response.ok){   sendStatus.value = "success";}
+        
+        if (showPopup.value ===false){window.Telegram.WebApp.showAlert(`Ваше сообщение успешно отправлено`);}
     } catch (e) {
-        window.Telegram.WebApp.showAlert("Ошибка при отправке сообщения");
+        console.log("error")
+        sendStatus.value = "error";
     }
 
 }
@@ -212,8 +214,9 @@ const count = computed(() => {
 
 
 function closePopup() {
+    sendStatus.value="idle"
     showPopup.value = false;
-
+   
 
 
 }
@@ -224,6 +227,19 @@ onMounted(() => {
     selectedInteractives.value = [Number(selectedId)]; // сразу выбираем интерактив
   }
 });
+
+const dotCount = ref(1)
+let dotInterval: any = null
+watch(sendStatus, (value) => {
+    if (value === "sending") {
+        dotCount.value = 1
+        dotInterval = setInterval(() => {
+            dotCount.value = dotCount.value % 3 + 1 // 1 → 2 → 3 → 1
+        }, 500)
+    } else {
+        clearInterval(dotInterval)
+    }
+})
 </script>
 
 <template>
@@ -242,7 +258,6 @@ onMounted(() => {
                 @change="handleFileChange" />
 
             <template v-if="uploadedFileName">
-                <!-- показываем только имя файла -->
                 <span> {{ uploadedFileName }} </span>
                 <img src="/public/images/interactive_editor/delete.svg" @click.stop="removeImage"
                     class="broadcasts_remove-icon" />
@@ -287,7 +302,7 @@ onMounted(() => {
 
             </div>
             <div class="broadcasts_list_selected_download" v-if="selectedInteractives.length > 0"
-                @click="showPopup = true">
+                @click="showPopup = true ">
                 Отправить рассылку</div>
             <div class="broadcasts_selected_interactives_info" v-if="selectedInteractives.length === 0">
                 <img src="/public/images//history/finder_info.svg" />
@@ -357,7 +372,7 @@ onMounted(() => {
                 <div class="broadcasts_popup-header-text">Подтвердите отправку рассылки</div>
                 <img src="/images/history/Vector_1.svg" class="broadcasts_popup-close" @click="closePopup()" />
             </div>
-            <div class="broadcasts_popup-body">
+            <div class="broadcasts_popup-body" :class="{margins:sendStatus !== 'idle'}">
                 <div style="color: #7D7D7D; ">
                     От лица “Название телеграмм бота” будет отправлена в личный чат с участником следующая информация
                 </div>
@@ -372,16 +387,35 @@ onMounted(() => {
                     Количество получателей: {{ count }}
                 </div>
                 <div class="margin20" style="margin-top: calc((20 / 832) * 100dvh);color: #7D7D7D;">
-                    Используйте рассылку по назначению.
+                    Используйте рассылку по назначению. <br></br>
                     Злоупотребление ею приведет к блокировке бота со стороны Telegram.
                 </div>
             </div>
-            <div class="broadcasts_popup-footer">
-                <div class="broadcasts_popup_back" @click="closePopup()">
+            <div class="broadcasts_popup-footer" v-if="sendStatus === 'idle'">
+                <div class="broadcasts_popup_back" @click=" closePopup()">
                     Отменить
                 </div>
-                <div class="broadcasts_popup_send" @click="submitBroadcasts()">
+                <div class="broadcasts_popup_send" @click=" submitBroadcasts()">
                     <div>Отправить</div>
+                </div>
+            </div>
+            <div class="broadcasts_popup-footer_sending" v-if="sendStatus === 'sending'">
+                <div class="broadcasts_popup_status_text">
+                    Идет рассылка получателям {{ ".".repeat(dotCount) }}
+                </div>
+            </div>
+
+            <div class="broadcasts_popup-footer_success" v-if="sendStatus === 'success'">
+                <img src ="/public/images/broadcasts/Group.svg"></img>
+                <div class="broadcasts_popup_status_text">
+                    Рассылка успешно отправлена участникам!
+                </div>
+            </div>
+
+            <div class="broadcasts_popup-footer_error" v-if="sendStatus === 'error'">
+                <img src ="/public/images/broadcasts/Vector (2).svg"></img>
+                <div class="broadcasts_popup_status_text">
+                    Произошла ошибка. Повторите отправку.
                 </div>
             </div>
         </div>
@@ -390,6 +424,44 @@ onMounted(() => {
 
 <style>
 @media (max-height:1078px), (max-width:1918px){
+    .margins{
+        margin-bottom: 0px !important;;
+    }
+    .broadcasts_popup-footer_sending, .broadcasts_popup-footer_success, .broadcasts_popup-footer_error {font-family: "Lato", sans-serif;
+font-weight: 400;
+font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
+    font-style: Medium;
+    letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
+text-align: center;
+vertical-align: middle;
+        width: calc((500 / 1280) * 100dvw);
+        text-align: center;
+        margin:0 auto;
+        margin-top: calc((20/832) * 100dvh);
+       
+    }
+    .broadcasts_popup-footer_sending{
+        margin-bottom: calc((99/832) * 100dvh);;
+    }
+    .broadcasts_popup-footer_success{margin-bottom: calc((66/832) * 100dvh);;}
+        .broadcasts_popup-footer_error{margin-bottom: calc((59/832) * 100dvh);}
+    .broadcasts_popup-footer_sending > div{
+        color: #853CFF;
+    }
+    .broadcasts_popup-footer_success > div{
+        color: #6AB23D;
+    }
+    .broadcasts_popup-footer_error > div{
+        color: #F0436C;
+    }
+    .broadcasts_popup-footer_success > img{
+        width: calc((36.13/1280) * 100dvw);
+    height: calc((28 / 832) * 100dvh);
+    }
+    .broadcasts_popup-footer_error > img{
+          width: calc((37/1280) * 100dvw);
+    height: calc((35 / 832) * 100dvh);
+    }
 .broadcasts {
     width: 100dvw;
     height: 100dvh;
@@ -1095,6 +1167,44 @@ onMounted(() => {
 }
 }
 @media (min-width:1918px) and (min-height:1078px){
+     .margins{
+        margin-bottom: 0px !important;;
+    }
+    .broadcasts_popup-footer_sending, .broadcasts_popup-footer_success, .broadcasts_popup-footer_error {font-family: "Lato", sans-serif;
+font-weight: 400;
+font-size: 20px;
+    font-style: Medium;
+    letter-spacing: 0.2px;
+text-align: center;
+vertical-align: middle;
+        width: 500px;
+        text-align: center;
+        margin:0 auto;
+        margin-top: 20px;
+       
+    }
+    .broadcasts_popup-footer_sending{
+        margin-bottom: 111px !important;
+    }
+    .broadcasts_popup-footer_success{margin-bottom:78px  !important;}
+        .broadcasts_popup-footer_error{margin-bottom: 72px  !important;}
+    .broadcasts_popup-footer_sending > div{
+        color: #853CFF;
+    }
+    .broadcasts_popup-footer_success > div{
+        color: #6AB23D;
+    }
+    .broadcasts_popup-footer_error > div{
+        color: #F0436C;
+    }
+    .broadcasts_popup-footer_success > img{
+        width: 36.13px;
+    height: 28px;
+    }
+    .broadcasts_popup-footer_error > img{
+          width: 37px;
+    height:35px;
+    }
     .broadcasts {
     width: 100dvw;
     height: 100dvh;

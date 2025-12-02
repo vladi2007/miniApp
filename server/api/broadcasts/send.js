@@ -53,7 +53,7 @@ export default defineEventHandler(async (event) => {
       return { success: false, error: data };
     }
 
-    return { success: true, data };
+    if (response.ok) return { success: true, data };
   } catch (err) {
     console.error("Ошибка в /api/broadcasts/send:", err);
     return { success: false, error: String(err) };
