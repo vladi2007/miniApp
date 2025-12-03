@@ -106,15 +106,19 @@ type CreateInteractiveResponse = {
     interactive_id: number
   }
 }
+
+const showStart=ref(false)
  async function handleStart() {
     const isMainValid = validateForm();
     if (!isMainValid) {
       active_step.value = "main";
+      showStart.value=false
       return false;
     }
     const isQuestionsValid = validateQuestions();
     if (!isQuestionsValid) {
       active_step.value = "questions";
+      showStart.value=false
       return false;
     }
     const response = await handleSave();
@@ -122,5 +126,5 @@ type CreateInteractiveResponse = {
     route.push(`/leader/${response}`)
   }
 
-  return { showSavePopup, handleSave, handleStart };
+  return { showSavePopup, handleSave, handleStart,showStart };
 }

@@ -34,13 +34,14 @@ function handleBackClick() {
       
     </div>
     <Settings  ref="settings" :confirmBack="handleBackClick"/>
-    <div v-if="showConfirmPopup" class="interactive_edit_popup-overlay">
-            <div class="interactive_edit_popup-content">
-                <div class="interactive_edit_popup-text">Сохранить настройки перед выходом из редактирования викторины?
+    <div v-if="showConfirmPopup" class="interactive_edit_popup-overlay_goback">
+            <div class="interactive_edit_popup-content_goback">
+                <div class="interactive_edit_popup-text_goback">Сохранить настройки интерактива перед<br></br> выходом из редактирования?
                 </div>
-                <div class="interactive_edit_popup-actions">
-                    <button @click="confirmBack(true)" class="interactive_edit_popup-btn save">Да</button>
-                    <button @click="confirmBack(false)" class="interactive_edit_popup-btn cancel">Нет</button>
+                <div class="interactive_edit_popup-actions_goback">
+                  <button @click="showConfirmPopup=false" class="interactive_edit_popup-btn_goback cancel">Отменить</button>
+                    <button @click="confirmBack(true)" class="interactive_edit_popup-btn_goback save">Сохранить</button>
+                    <!-- <button @click="confirmBack(false)" class="interactive_edit_popup-btn cancel">Нет</button> -->
                 </div>
             </div>
         </div>

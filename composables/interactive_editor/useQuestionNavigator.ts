@@ -70,7 +70,21 @@ export function useQuestionNavigator(
   }
 
   async function deleteQuestion() {
+    if (form.value.questions.length===1){  showDelete.value=false;form.value.questions.push({
+        question: {
+          type: "one",
+          image: "",
+          score: "1",
+          position: form.value.questions.length,
+          text: "",
+          answers: Array(3)
+            .fill(null)
+            .map(() => ({ text: "", is_correct: false })),
+        },
+      });}
     if (form.value.questions.length > 1) {
+      
+       showDelete.value=false
       form.value.questions.splice(currentQuestionIndex.value, 1);
       const indexToDelete = currentQuestionIndex.value
 
@@ -127,6 +141,10 @@ export function useQuestionNavigator(
       );
     }
   }
+  const showDelete=ref(false)
+  async function showDeletefn(){
+   showDelete.value=true
+}
   function handleWheelScroll(event) {
     // Проверка направления прокрутки
     if (event.deltaY < 0) {
@@ -138,5 +156,5 @@ export function useQuestionNavigator(
     }
   }
 
-  return {visibleCount, visibleStartIndex, visibleQuestions, addQuestion, deleteQuestion, scrollUp, scrollDown ,handleWheelScroll}
+  return {visibleCount, visibleStartIndex, visibleQuestions, addQuestion, deleteQuestion, scrollUp, scrollDown ,handleWheelScroll,showDelete, showDeletefn}
 }

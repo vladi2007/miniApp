@@ -32,7 +32,7 @@ const { timerLabel, type, progressPercent, resetting } = useTimer(
   computed(() => props.data.timer),
   computed(() => props.data.timer_duration)
 )
-
+const showPopup=ref(false)
 </script>
 
 <template>
@@ -91,11 +91,33 @@ const { timerLabel, type, progressPercent, resetting } = useTimer(
             </div>
           </div>
           <question_leader_buttons :onStatus="onStatus" :pause="pauseRef"
-            :class="{ no_image_buttons: props.data.question.image === '' }" />
+            :class="{ no_image_buttons: props.data.question.image === '' }"
+            @show="showPopup=true"
+            @close="showPopup=false"
+             />
         </div>
       </div>
     </div>
-
+    <div v-if="showPopup" class="interactives_delete_popup-overlay">
+      <div class="interactives_delete_popup">
+        <div class="interactives_delete_popup-close" @click="showPopup=false">
+            <img src="/public/images/interactives/delete_close.svg"/>
+        </div>
+        <div class="interactives_delete_popup-header">
+          <div class="interactives_delete_popup-header-text">
+            Вы уверены, что хотите завершить интерактив?
+          </div>
+          <div  class="interactives_delete_popup-header-text_">Это действие отменить будет невозможно.<br></br>
+Результаты интерактива будут доступны во вкладке «Отчёты».</div>
+        </div>
+        <div class="interactives_delete_popup-body">
+            <button class="interactives_delete_popup-button cancel" @click="showPopup=false">Отменить</button>
+          <button class="interactives_delete_popup-button confirm" @click="props.onStatus('end')">Завершить
+          </button>
+          
+        </div>
+      </div>
+    </div>
     <div v-if="props.pause.state === 'timer_n'" class="question_leader_popup-overlay">
       <div class="question_leader_popup-content">
         <div class="question_leader_popup-text">Вы слишком долго бездействовали, запустите интерактив или через {{
@@ -121,5 +143,98 @@ const { timerLabel, type, progressPercent, resetting } = useTimer(
 
 .no-transition {
   transition: none !important;
+}
+.interactives_delete_popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+   background: #00000052;
+
+  z-index: 22222999;
+
+  display: flex;
+  justify-content: center;
+ 
+}
+
+.interactives_delete_popup {
+     margin-top:calc((273/832)*100dvh);
+  background: white;
+  border-radius: calc((18/832)*100dvh);
+  width: calc((524/1280)*100dvw);
+height: calc((233/832)*100dvh);
+
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+  position: relative;
+}
+.interactives_delete_popup-close {
+  position: absolute;
+
+   width: calc((16/1280)*100dvw);
+height: calc((16/832)*100dvh);
+  cursor: pointer;
+  color: #aaa;
+}
+.interactives_delete_popup-close > img{
+    width: calc((16/1280)*100dvw);
+height: calc((16/832)*100dvh);
+}
+.interactives_delete_popup-header-text {
+  font-family: "Lato", sans-serif;
+  font-weight: 700;
+  font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
+  margin: 0 auto;
+  margin-top:calc((24/832)*100dvh);
+  margin-left:  calc((20/1280)*100dvw);;
+}
+.interactives_delete_popup-header-text_{  margin-left:  calc((20/1280)*100dvw);;
+    font-family: "Lato", sans-serif;  margin-top:calc((19/832)*100dvh); color:#7D7D7D;
+font-weight: 400;
+font-style: Regular;
+  font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
+line-height: 120%;
+letter-spacing: 1%;
+vertical-align: middle;
+
+}
+.interactives_delete_popup-body {margin-left:  calc((218/1280)*100dvw);;
+  display: flex; margin-top:calc((59/832)*100dvh);
+  
+}
+.interactives_delete_popup-button {
+   width: calc((138/1280)*100dvw) !important;
+height: calc((41/832)*100dvh);
+  border-radius: 8px;
+font-family: "Lato", sans-serif;
+font-weight: 500;
+font-style: Medium;
+  font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
+line-height: 120%;
+letter-spacing: 1%;
+text-align: center;
+vertical-align: middle;
+
+ 
+}
+.interactives_delete_popup-button:nth-child(1) {
+  background-color: white; color:#7D7D7D;border:none;;
+}
+.interactives_delete_popup-button:nth-child(1):hover {
+  color: #1D1D1D;
+   border: calc((1.5/832)*100dvh) solid #1D1D1D;
+
+}
+.interactives_delete_popup-button:nth-child(2) {margin-left:  calc((10/1280)*100dvw);;
+  background-color: white;
+  color: #F0436C;
+  border: calc((1.5/832)*100dvh) solid #F0436C;
+  border-color: #F0436C;
+}
+.interactives_delete_popup-button:nth-child(2):hover {
+  background-color:  #F0436C;
+  color: white;
 }
 </style>

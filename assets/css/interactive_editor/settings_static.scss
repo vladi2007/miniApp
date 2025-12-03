@@ -1040,36 +1040,50 @@ vertical-align: middle;
   height: 100%;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
   justify-content: center;
   z-index: 1000;
 }
 
-.settings_popup-content {
+.settings_popup-content { margin-top:273px;
   background: white;
-  padding: 40px;
-  border-radius: 20px;
-  text-align: center;
-  width: 400px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+   width: 524px;
+    height: 233px;
+    border-radius: 18px;
+    box-sizing: border-box;
+
+  
 }
 
-.settings_popup-text {
-  font-size: 24px;
-  font-weight: 500;
-  margin-bottom: 30px;
+.settings_popup-text {    margin-top:24px !important;
+    margin-left: 20px !important;
+    font-family: "Lato", sans-serif;
+font-weight: 700;font-style: normal;
+font-style: Bold;
+    font-size: 20px; line-height:32px; 
 }
+.settings_popup-text_{height:47px;  ;
+     margin-top:19px!important;
+    margin-left: 20px !important;line-height:19.2px; ;
 
+    font-family: "Lato", sans-serif;
+font-weight: 400;
+    font-size: 16px;color: #7D7D7D;
+    letter-spacing: 0.16px !important;;;
+vertical-align: middle;font-style: normal
+
+}
 .settings_popup-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
+  margin-top:50px ;
+  margin-left: 218px;
 
+}
+.settings_popup-btn.confirm{
+      margin-left: 10px;
+}
 .settings_popup-btn {
-  width: 120px;
-  height: 45px;
-  font-size: 20px;
+  width: 138px;
+  height: 41px ;
+ font-size: 20px;
   font-family: "Lato", sans-serif;
   border-radius: 8px;
   cursor: pointer;
@@ -1077,23 +1091,42 @@ vertical-align: middle;
 
 .settings_popup-btn.confirm {
   background-color: #6ab23d;
-  border: 2px solid #6ab23d;
+  border: 1.5px solid #6ab23d;
   color: white;
 }
 
 .settings_popup-btn.confirm:hover {
-  background-color: #9ac57e;
-  border: 2px solid #9ac57e;
+  background-color: #559130;
+  border: 1.5px solid#559130;
 }
 
 .settings_popup-btn.cancel {
-  background-color: #f0436c;
-  border: 2px solid #f0436c;
-  color: white;
+  background-color: #FFFFFF;
+  border: 1.5px solid #853CFF;
+  color: #853CFF;
 }
 
-.settings_popup-btn.cancel:hover {
-  background-color: #de7d94;
-  border: 2px solid #de7d94;
+.settings_popup-btn.cancel:hover {color: #FFFFFF;
+  background-color: #AA77FF;
+}
+
+.settings_popup-btn.cancel.delete {
+  background-color: #FFFFFF;
+  border:none;
+  color: #7D7D7D;
+}
+
+.settings_popup-btn.cancel.delete:hover {color:#1D1D1D;
+  border: 1.5px solid#1D1D1D;
+}
+.settings_popup-btn.confirm.delete {
+  background-color:white;
+  border: 1.5px solid#F0436C;
+  color: #F0436C;
+}
+
+.settings_popup-btn.confirm.delete:hover {
+   background-color: #F0436C; color: white;
+  border:1.5px solid#F0436C;
 }
 }

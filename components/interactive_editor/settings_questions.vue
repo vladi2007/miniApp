@@ -22,7 +22,7 @@ const props = defineProps<{
     visibleStartIndex: number
     addQuestion: () => void
     deleteQuestion: () => void
-
+    showDelete:any
     // текущий вопрос и ошибки
     currentQuestion: any
     questionErrors: Record<number, any>
@@ -62,16 +62,16 @@ const props = defineProps<{
     handleStart: () => void
     showSavePopup: boolean
     handleSave: () => void
+    showStart:any
 }>()
 
-const emit = defineEmits(['update:score', 'updateCurrentQuestionIndex', 'showSave'])
+const emit = defineEmits(['update:score', 'updateCurrentQuestionIndex', 'showSave', 'start','cancelStart','showDelete','cancelDelete'])
 
 function updateScore(event: Event) {
   const value = Number((event.target as HTMLInputElement).value)
   emit('update:score', value)
   props.validateScore()
 }
-
 </script>
 
 
@@ -96,7 +96,7 @@ function updateScore(event: Event) {
                 <div class="question_header_text">
                     <div> Вопрос {{ currentQuestionIndex + 1 }}</div>
                     <img src="/public/images/interactive_editor/delete.svg" id="question_edit_delete"
-                        @click="deleteQuestion" />
+                        @click=" emit('showDelete')" />
                 </div>
             </div>
 
@@ -214,14 +214,37 @@ function updateScore(event: Event) {
             </div>
 
             <div class="settings_questions_editor_buttons">
-                <div class="settings_questions_editor_buttons_start" @click="handleStart">
+                <div class="settings_questions_editor_buttons_start" @click="emit('start')">
                     Запуск
                 </div>
                 <div class="settings_questions_editor_buttons_save" @click="emit('showSave')">
                     Сохранить
                 </div>
             </div>
-
+            <div v-if="showStart" class="settings_popup-overlay">
+            <div class="settings_popup-content">
+                <div class="settings_popup-text">Вы уверены, что хотите запустить интерактив?</div>
+                <div class="settings_popup-text_">По окончании интерактива Вы сможете выгрузить отчет. </div>
+                <div class="settings_popup-buttons">
+                    <button class="settings_popup-btn cancel" @click="emit('cancelStart')">Отменить</button>
+                    <button class="settings_popup-btn confirm" @click="handleStart">Запустить</button>
+                    
+                </div>
+            </div>
+            
+         </div>
+          <div v-if="showDelete" class="settings_popup-overlay">
+            <div class="settings_popup-content">
+                <div class="settings_popup-text">Вы уверены, что хотите удалить вопрос?</div>
+                <div class="settings_popup-text_">Это действие отменить будет невозможно.  </div>
+                <div class="settings_popup-buttons">
+                    <button class="settings_popup-btn cancel delete" @click="emit('cancelDelete')"  >Отменить</button>
+                    <button class="settings_popup-btn confirm delete" @click="deleteQuestion">Удалить</button>
+                    
+                </div>
+            </div>
+            
+         </div>
         </div>
 
         <div class="settings_questions_mobile" >

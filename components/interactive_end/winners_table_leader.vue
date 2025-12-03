@@ -90,12 +90,12 @@ import 'simplebar-vue/dist/simplebar.min.css';
 }
 
 .goto_main_menu_button_end {
-  margin-top: calc((72/832)*100dvh);
+  margin-top: calc((50/832)*100dvh);
   width: calc((216/1280)*100dvw);
   height: calc((44/832)*100dvh);
   margin-left: auto;
   background-color: white;
-  border: 1px solid #853CFF;
+  border: calc((2 / 832) * 100dvh) solid #853CFF;
   border-radius: calc((5/832)*100dvh);
 
   font-family: "Lato", sans-serif;
@@ -106,5 +106,8 @@ import 'simplebar-vue/dist/simplebar.min.css';
   text-align: center;
   vertical-align: middle;
   color: #853CFF;
+}
+.goto_main_menu_button_end:hover{
+  background-color: #AA77FF;;color: #FFFFFF;
 }
 </style>
