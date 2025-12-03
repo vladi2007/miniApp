@@ -1,4 +1,4 @@
-* {
+settings_nav_main* {
     margin: 0;
     padding: 0;
 }
@@ -64,15 +64,7 @@
     color: #1D1D1D;
 }
 
-.settings_nav_main:not(.settings_active_nav):hover::after,
-.settings_nav_questions_button:not(.settings_active_nav):hover::after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 2px;
-    margin-top: 0px;
-    background-color: #853CFF;
-}
+
 
 .settings_nav_questions_info {
     font-family: "Lato", sans-serif;

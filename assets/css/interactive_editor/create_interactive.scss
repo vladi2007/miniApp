@@ -74,7 +74,7 @@ font-style: Bold;
 
 }
 
-.interactive_edit_popup-actions_goback {  margin-left:calc((218 / 1280) * 100dvw); ; width: calc((286 / 1280) * 100dvw);
+.interactive_edit_popup-actions_goback { display: flex; margin-left:calc((218 / 1280) * 100dvw); ; width: calc((286 / 1280) * 100dvw);
   height: calc((41 / 832) * 100dvh) !important;margin-top:calc((20/832)*100dvh);
 }
 
@@ -168,7 +168,7 @@ font-style: Bold;
 
 }
 
-.interactive_edit_popup-actions_goback {  margin-left:218px ; width: 286px;
+.interactive_edit_popup-actions_goback {  display: flex; margin-left:218px ; width: 286px;
   height: 41px !important;margin-top:20px;
 }
 

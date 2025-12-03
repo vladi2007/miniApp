@@ -295,7 +295,7 @@ watch(sendStatus, (value) => {
                             style="width:calc((226 / 1280) * 100dvw) !important; ">
                             Количество участников: {{interactivesData?.interactives_list?.find(item => item.id === id)?.participant_count}}
                         </div>
-                        <img src="/public/images/history/history_delete.svg"
+                        <img src="/public/images/history/history_delete.svg" style="cursor: pointer;"
                             @click="selectedInteractives = selectedInteractives.filter(item => item !== id)" />
                     </div>
                     <div class="broadcasts_Line" style="width: calc((1030/1280)*100dvw); margin: 0 auto;" />

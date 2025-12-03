@@ -420,7 +420,7 @@ font-size: 16px;
 
 
 
-.broadcasts_list_list_item_download_many {
+.broadcasts_list_list_item_download_many {width: 131px;;height: 36px;
     margin-left: 201px;
     color: #853CFF;
     font-family: "Lato", sans-serif;
@@ -431,7 +431,13 @@ font-size: 16px;
     text-align: center;
     vertical-align: middle;
     cursor: pointer;
+     display: flex;
+    align-items: center;    border: 1.5px solid white;
+    justify-content: center;
 
+}
+.broadcasts_list_list_item_download_many:hover{border-radius: 5px;;
+    border: 1.5px solid #853CFF;
 }
 #selected_list{width: 1056px !important;
 }
@@ -440,9 +446,9 @@ font-size: 16px;
     height: 36.15px !important;
 }
 .broadcasts_show_more {
-    width: 141px;
+    width: 104px;
 
-    margin-left: 457px;
+    margin-left: 476px;
     margin-top: 15px;;
     font-family: "Lato", sans-serif;
     font-weight: 400;
@@ -452,13 +458,27 @@ font-size: 16px;
     text-align: center;
     vertical-align: middle;
     color: #853CFF;
-    cursor: pointer;
+    cursor: pointer;position: relative;
+}
+/* Полоска */
+.broadcasts_show_more::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 1px;             /* расстояние от текста */
+    width: 100%;
+    height: 1.5px;              /* толщина полоски */
+    background: #853CFF;transform: scaleX(0); 
 }
 
+/* Появляется при наведении */
+.broadcasts_show_more:hover::after {
+    transform: scaleX(1);
+}
 .broadcasts_list_selected_download {
     height: 36px !important;
-    width: 214px;
-    margin-left: 842px;;
+    width: 214px !important;
+    margin-left: 840px;;
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -470,12 +490,15 @@ font-size: 16px;
     text-align: center;
     vertical-align: middle;
     margin-top: 20px;
-    display: flex;
+    display: flex;   border: 1.5px solid #6AB23D;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    border-radius: 5px; cursor: pointer;
 }
-
+.broadcasts_list_selected_download:hover{
+    background-color: #9AC57E;
+    border: 1.5px solid #6AB23D;
+}
 
 .broadcasts_popup-overlay {
     position: fixed;

@@ -103,9 +103,15 @@ vertical-align: middle;
 margin-top:6px;
 
   }
+  .settings_nav_backbutton >div:hover{
+    color: #1D1D1D;
+  }
   .settings_nav_backbutton > img{
     width: 10px;
     height: 18px;;
+  }
+   .settings_nav_backbutton:hover{
+    filter: brightness(11%);
   }
   .settings_nav_backbutton > div{
     margin-left: 5px;;
@@ -154,16 +160,7 @@ color: #A9A9A9;
     font-family: "Lato", sans-serif;
 }
 
-.settings_nav_main:not(.settings_active_nav):hover::after,
-.settings_nav_questions_button:not(.settings_active_nav):hover::after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 2px;
-    font-family: "Lato", sans-serif;
-    margin-top: 0px;
-    background-color: #853CFF;
-}
+
 .settings_nav_questions_info{
     margin-left:30px;
     color: #A9A9A9;
@@ -1118,6 +1115,7 @@ vertical-align: middle;font-style: normal
 
 .settings_popup-btn.cancel.delete:hover {color:#1D1D1D;
   border: 1.5px solid#1D1D1D;
+  
 }
 .settings_popup-btn.confirm.delete {
   background-color:white;

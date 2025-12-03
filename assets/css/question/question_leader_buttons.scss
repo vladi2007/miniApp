@@ -35,7 +35,10 @@ vertical-align: middle;
 
 
 
-
+.goto_end:hover{
+  background-color: #853CFF;
+  color: white;
+}
 .pause{
    width: calc((215 / 1280) * 100dvw);font-size: clamp(10px, calc((32 / 1280) * 100dvw), 64px);
   letter-spacing: clamp(0.1px, calc((32 / 100 / 1280) * 100dvw), 0.64px);
@@ -48,7 +51,9 @@ vertical-align: middle;
   align-items: center;
   justify-content: center;
 }
-
+.pause:hover, .continue:hover{
+  background-color: #AA77FF;
+}
 .continue{
    width: calc((215 / 1280) * 100dvw);font-size: clamp(10px, calc((32 / 1280) * 100dvw), 64px);
   letter-spacing: clamp(0.1px, calc((32 / 100 / 1280) * 100dvw), 0.64px);

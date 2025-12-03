@@ -770,9 +770,12 @@ button{
     text-align: center;
     vertical-align: middle;
     color: white;
-    margin-left: calc((30/1280)*100dvw);
+    margin-left: calc((30/1280)*100dvw);  border: calc(1.5/832*100dvh) solid #6AB23D;
 }
-
+.interactives_create:hover{
+    background-color: white;color:#6AB23D;
+    border: calc(1.5/832*100dvh) solid #6AB23D;
+}
 .interactives_input-group_type {
     position: relative;
     z-index: 1000;
@@ -822,7 +825,9 @@ button{
     padding-left: calc((15/1280)*100dvw);
     padding-right: calc((15/1280)*100dvw);
 }
-
+.interactives_custom-dropdown:hover{
+    background-color: #DFDFDF;
+}
 .interactives_custom-arrow {
     width: calc((16 / 1280) * 100dvw);
     height: calc((9 / 832) * 100dvh);
@@ -1078,8 +1083,8 @@ input:focus {
 }
 
 .interactives_show_more {
-    width: calc((141 / 1280) * 100dvw);
-    margin-left: calc((457 / 1280) * 100dvw);
+    width: calc((104 / 1280) * 100dvw);
+    margin-left: calc((476 / 1280) * 100dvw);
     margin-top: calc((15 / 832) * 100dvh);
     font-family: "Lato", sans-serif;
     font-weight: 400;
@@ -1089,9 +1094,23 @@ input:focus {
     text-align: center;
     vertical-align: middle;
     color: #853CFF;
-    cursor: pointer;
+    cursor: pointer;position: relative;  
+}
+/* Полоска */
+.interactives_show_more::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 1px;             /* расстояние от текста */
+    width: 100%;
+    height: 1.5px;              /* толщина полоски */
+    background: #853CFF;transform: scaleX(0); 
 }
 
+/* Появляется при наведении */
+.interactives_show_more:hover::after {
+    transform: scaleX(1);
+}
 .interactives_buttons { 
     display: flex;position: relative; 
     align-items: center;
@@ -1099,7 +1118,9 @@ input:focus {
     margin-left: calc((77 / 1280) * 100dvw);
 }
 
-
+.interactive_delete:hover {
+  filter: brightness(11%);
+}
 #leader_board, #dublicate{
       width: calc((24/1280) * 100dvw) !important;
     height: calc((24/832) * 100dvh) !important;
@@ -1116,23 +1137,31 @@ input:focus {
     background-color: #6AB23D;
     margin-right: calc((10 / 1280) * 100dvw);
 }
-
+.interactives_leader_board:hover{
+    background-color: #9AC57E;
+}
 .interactives_dublicate {
     background-color: #853CFF;
 }
-
+.interactives_dublicate:hover{
+    background-color: #AA77FF;;
+}
 
 .interactives_edit {
     background-color: #F0436C;
     margin-left: calc((10 / 1280) * 100dvw);
 }
-
+.interactives_edit:hover{
+    background-color: #DE7D94;;
+}
 
 .interactives_start {
     background-color: #6AB23D;
     margin-left: calc((10 / 1280) * 100dvw);
 }
-
+.interactives_start:hover{
+    background-color: #9AC57E;
+}
 .interactive_delete {
     width: calc((14/1280) * 100dvw) !important;
     height: calc((18/832) * 100dvh) !important;
@@ -1223,8 +1252,10 @@ input:focus {
     cursor: pointer;
     z-index: 0 !important;
 }
-
-.interactives_more_options>img {
+.interactives_more_options:hover{
+    filter: brightness(11%);
+}
+.interactives_more_options>img { 
     z-index: 0 !important;
     width: calc((9.75/1280) * 100dvw) !important;
     height: calc((18.75/1280) * 100dvw) !important;
@@ -1759,9 +1790,12 @@ vertical-align: middle;
     text-align: center;
     vertical-align: middle;
     color: white;
-    margin-left: 30px;;
+    margin-left: 30px;;    border: 1.5px solid #6AB23D;
 }
-
+.interactives_create:hover{
+    background-color: white;color:#6AB23D;
+    border: 1.5px solid #6AB23D;
+}
 .interactives_input-group_type {
     position: relative;
     z-index: 1000;
@@ -1811,7 +1845,9 @@ vertical-align: middle;
     padding-left: 15px;;
     padding-right: 15px;;
 }
-
+.interactives_custom-dropdown:hover{
+    background-color: #DFDFDF;
+}
 .interactives_custom-arrow {
     width: 16px;;
     height: 9px;
@@ -2073,8 +2109,8 @@ input:focus {
 }
 
 .interactives_show_more {
-    width: 141px;;
-    margin-left: 457px;;
+    width: 104px;;
+    margin-left: 476px;;
     margin-top: 15px;;
     font-family: "Lato", sans-serif;
     font-weight: 400;
@@ -2084,9 +2120,23 @@ input:focus {
     text-align: center;
     vertical-align: middle;
     color: #853CFF;
-    cursor: pointer;
+    cursor: pointer; position: relative;
+}
+/* Полоска */
+.interactives_show_more::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 1px;             /* расстояние от текста */
+    width: 100%;
+    height: 1.5px;              /* толщина полоски */
+    background: #853CFF;transform: scaleX(0); 
 }
 
+/* Появляется при наведении */
+.interactives_show_more:hover::after {
+    transform: scaleX(1);
+}
 .interactives_buttons {
     display: flex;
     align-items: center;
@@ -2112,30 +2162,45 @@ input:focus {
     background-color: #6AB23D;
     margin-right:10px;;
 }
-
+.interactives_leader_board:hover{
+    background-color: #9AC57E;
+}
 .interactives_dublicate {
     background-color: #853CFF;
 }
-
+.interactives_dublicate:hover{
+    background-color: #AA77FF;
+}
 
 .interactives_edit {
     background-color: #F0436C;
     margin-left: 10px;
 }
-
+.interactives_edit:hover{
+    background-color: #DE7D94;
+}
 
 .interactives_start {
     background-color: #6AB23D;
     margin-left: 10px;
 }
-
+.interactives_start:hover{
+    background-color: #9AC57E;
+}
 .interactive_delete {
     width: 14px !important;
     height: 18px !important;
     cursor: pointer;
     margin-left: 10px;
 }
-.interactive_delete > img{
+.interactive_delete:hover {
+  filter: brightness(11%);
+}
+.interactives_more_options:hover{
+    filter: brightness(11%);
+}
+.interactive_delete > img {
+
     width: 14px !important;
     height: 18px !important;
 }

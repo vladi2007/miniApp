@@ -493,7 +493,7 @@ font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
 
 
 
-.broadcasts_list_list_item_download_many {
+.broadcasts_list_list_item_download_many {width: calc((131 / 1280) * 100dvw);;height: calc((36 / 832) * 100dvh);;
     margin-left: calc((201 / 1280) * 100dvw);
     color: #853CFF;
     font-family: "Lato", sans-serif;
@@ -503,14 +503,34 @@ font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
     letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
     text-align: center;
     vertical-align: middle;
-    cursor: pointer;
+    cursor: pointer; border: calc((1.5/832)*100dvh) solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
 }
+.broadcasts_list_list_item_download_many:hover{border-radius: calc((5 / 832) * 100dvh);;
+    border: calc((1.5/832)*100dvh) solid #853CFF;
+}
+/* Полоска */
+.broadcasts_show_more::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 1px;             /* расстояние от текста */
+    width: 100%;
+    height: 1.5px;              /* толщина полоски */
+    background: #853CFF;transform: scaleX(0); 
+}
 
+/* Появляется при наведении */
+.broadcasts_show_more:hover::after {
+    transform: scaleX(1);
+}
 .broadcasts_show_more {
-    width: calc((141 / 1280) * 100dvw);
+    width: calc((104 / 1280) * 100dvw);
 
-    margin-left: calc((457 / 1280) * 100dvw);
+    margin-left: calc((476 / 1280) * 100dvw);
     margin-top: calc((15 / 832) * 100dvh);
     font-family: "Lato", sans-serif;
     font-weight: 400;
@@ -520,13 +540,13 @@ font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
     text-align: center;
     vertical-align: middle;
     color: #853CFF;
-    cursor: pointer;
+    cursor: pointer;position: relative;
 }
 
 .broadcasts_list_selected_download {
     height: calc((36 / 832) * 100dvh) !important;
-    width: calc((214 / 1280) * 100dvw);
-    margin-left: calc(842/1280*100dvw);
+    width: calc((214 / 1280) * 100dvw) !important;
+    margin-left: calc(840/1280*100dvw);
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -538,12 +558,14 @@ font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
     text-align: center;
     vertical-align: middle;
     margin-top: calc((20 / 832) * 100dvh);
-    display: flex;
+    display: flex;   border: calc((1.5/832)*100dvh) solid #6AB23D;
     align-items: center;
     justify-content: center;
-    border-radius: calc((8/832)*100dvh);
+    border-radius: calc((5/832)*100dvh);cursor: pointer;
 }
-
+.broadcasts_list_selected_download:hover{
+    background-color: #9AC57E;   border: calc((1.5/832)*100dvh) solid #6AB23D;
+}
 
 .broadcasts_popup-overlay {
     position: fixed;
