@@ -219,7 +219,7 @@ export function useValidateForm(
 
       // Показываем обычную иконку в остальных случаях
       return isCorrect
-        ? "/images/interactive_editor/answer_square_picked.svg"
+        ? "/images/interactive_editor/green.svg"
         : "/images/interactive_editor/answer_square_gray.svg";
     }
 

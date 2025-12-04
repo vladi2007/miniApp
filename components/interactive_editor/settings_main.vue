@@ -46,7 +46,7 @@ const props = defineProps<{
             <div class="settings_go_to_questions" :class="{ disabled: !isFormComplete }"
                 @click="validateForm() && take_step('questions')">
                 <span class="settings_go_to_questions_text">Далее</span>
-                <img src="/public/images/interactive_editor/goto.svg" id="goto" />
+                <img src="/public/images/interactive_editor/purple.svg" id="goto" />
             </div>
         </div>
 </template>

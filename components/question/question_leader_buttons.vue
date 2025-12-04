@@ -46,13 +46,14 @@ onMounted(() => {
   isPaused.value = storedValue !== null ? storedValue : false
 
 })
+const emit = defineEmits(['show','close'])
 </script>
 
 <template>
   <div class="question_leader_buttons_fon">
     <div class="question_leader_buttons">
       <div>
-        <div class="goto_end" @click="endInteractive" style="cursor: pointer;">
+        <div class="goto_end" @click="emit('show')" style="cursor: pointer;">
           Завершить
         </div>
       </div>

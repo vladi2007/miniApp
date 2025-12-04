@@ -126,8 +126,6 @@ onMounted(async () => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
       //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
-    const { $telegram } = useNuxtApp();
-    userId.value = $telegram.initDataUnsafe.value?.user?.id;
     const savedInteractives = loadFromDeviceStorage(HISTORY_KEY);
     if (Array.isArray(savedInteractives)) {
       if (savedInteractives.length > 0 && typeof savedInteractives[0] === 'object') {

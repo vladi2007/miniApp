@@ -51,17 +51,6 @@ margin-left: calc((112/1280)*100dvw) !important;
 .nav > div{
     cursor: pointer;
 }
-.nav_main:not(.active_nav):hover::after,
-.nav_interactives:not(.active_nav):hover::after,
-.nav_reports:not(.active_nav):hover::after,
-.nav_broadcasts:not(.active_nav):hover::after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 2px;
-    margin-top: 0px;
-    background-color: #853CFF;
-}
 
 .active_nav {
     font-family: "Lato", sans-serif;
@@ -112,17 +101,7 @@ margin-left: calc((112/1280)*100dvw) !important;
 .nav > div{
     cursor: pointer;
 }
-.nav_main:not(.active_nav):hover::after,
-.nav_interactives:not(.active_nav):hover::after,
-.nav_reports:not(.active_nav):hover::after,
-.nav_broadcasts:not(.active_nav):hover::after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 2px;
-    margin-top: 0px;
-    background-color: #853CFF;
-}
+
 
 .active_nav {
     font-family: "Lato", sans-serif;

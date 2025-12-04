@@ -13,7 +13,7 @@ const props = defineProps<{
 <template>
     <div class="settings_nav">
         <div class ='settings_nav_backbutton' @click="confirmBack">
-            <img src="/public/images/interactive_editor/Vector_static.svg"  />
+            <img src="/public/images/interactive_editor/Vector_static.svg" id="back_purple" />
          <div >
           Управление интерактивами
          </div>

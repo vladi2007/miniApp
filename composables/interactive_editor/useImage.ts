@@ -52,6 +52,14 @@ export function useImage(currentQuestionIndex, form, currentQuestion) {
     const index = currentQuestionIndex.value;
     const imageKey = `${IMAGE_STATE_KEY}_${index}`;
     if (file) {
+      const MAX_SIZE_MB = 5; // лимит 50MB
+        const fileSizeMB = file.size / (1024 * 1024); // размер в мегабайтах
+
+        if (fileSizeMB > MAX_SIZE_MB) {
+            window.Telegram.WebApp.showAlert(`Файл слишком большой. Максимальный размер: ${MAX_SIZE_MB}MB.`);
+            event.target.value = "";
+            return;
+        }
       if (!Object.keys(mime_to_ext).includes(file.type)) {
         if (window.Telegram && window.Telegram.WebApp) {
           window.Telegram.WebApp.showAlert(
