@@ -24,10 +24,9 @@ height: calc((487 / 832) * 100dvh);
 .winners_list {
   font-family: "Lato", sans-serif;
   width: calc((1097 / 1280) * 100dvw);
-
  display: flex;
-  flex-direction: column;
-  gap: calc((10 / 832) * 100dvh); /* теперь расстояние будет стабильным */
+
+  gap: calc((10 / 832) * 100dvh); 
   font-weight: 500;
   height:calc((318 / 832) * 100dvh);
   font-style: Medium;
@@ -40,15 +39,17 @@ height: calc((487 / 832) * 100dvh);
 
 #first {
 }
-.position{
-  width: calc((91 / 1280) * 100dvw) !important;
+.position{  margin-left: calc((16 / 1280) * 100dvw); white-space: nowrap;;
+  text-align: center;
+  width: calc((16 / 1280) * 100dvw) !important;
 }
 .winner {
   font-family: "Lato", sans-serif;
   width: calc((1096 / 1280) * 100dvw);
   font-weight: 500;
  display: flex;
- height: calc((30.63/832)*100dvh);
+ align-items: center;
+ height: calc((41/832)*100dvh);
    letter-spacing: clamp(0.1px, calc(calc(20 / 100) / 1280 * 100dvw), 0.4px);
 }
 .Line {
@@ -56,15 +57,15 @@ height: calc((487 / 832) * 100dvh);
   height: calc((1 / 832) * 100dvh) !important;
     width: calc((1096 / 1280) * 100dvw) !important;
 }
-.time{
-width: calc((121 / 1280) * 100dvw) !important; margin-left: calc((24 / 1280) * 100dvw);
+.time{ 
+width: calc((57 / 1280) * 100dvw) !important; margin-left: calc((318 / 1280) * 100dvw);white-space: nowrap;;text-align: center;
 }
-.score{
-  margin-left: calc((115 / 1280) * 100dvw);
+.score{ width: calc((14 / 1280) * 100dvw) !important;
+  margin-left: calc((162 / 1280) * 100dvw);white-space: nowrap;
 }
-.name {
-  margin-left: calc((48 / 1280) * 100dvw);
-   width: calc((544 / 1280) * 100dvw);
+.name { 
+  margin-left: calc((103 / 1280) * 100dvw);white-space: nowrap;;
+   width: calc((250 / 1280) * 100dvw);
 }
 
 

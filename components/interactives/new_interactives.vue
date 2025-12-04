@@ -18,7 +18,6 @@ function toggleDropdown() {
 }
 
 const queryClient = useQueryClient() 
-const { $telegram } = useNuxtApp()
 
 const userId = useState('telegramUser')
 const userRole = useState('userRole')
@@ -196,7 +195,7 @@ function toggleItemDropdown(id: string) {
 
 
 function closePopup() {
-    showPopup.value = false;
+    showDeletePopap.value = false;
 
 }
 const deleteMutation =useMutation({
@@ -306,7 +305,6 @@ async function submitReport() {
             } else {
                 throw new Error(data.error || 'Не удалось получить ссылку на файл')
             }
-            selectedOption.value = ""
         } catch (error) {
             window.Telegram.WebApp.showAlert(`Ошибка при выгрузке отчета: ${error.message}`);
         }
@@ -353,6 +351,15 @@ function goToBroadcast(interactiveId) {
     query: { selected: interactiveId } // передаём id интерактива
   });
 }
+const showStart=ref(false)
+const currID=ref(0)
+
+const showEdit=ref(false)
+function urlReport(value:string){
+    if (selectedOption.value!==value) {return "/images/interactives/circle_report.svg"}
+    else {return "/images/interactives/circle_report_picked.svg"}
+}
+
 </script>
 <template>
     <div class="interactives">
@@ -444,12 +451,13 @@ function goToBroadcast(interactiveId) {
                         </div>
 
                         <div class="interactives_edit" title="Редактировать интерактив" v-if="!item.is_conducted"
-                            @click="edit_interactive(item.id)">
+                            @click="showEdit=true; currID=item.id">
                             <img src="/images/interactives/edit_2.svg"
                               id="edit" />
                         </div>
                         <div class="interactives_start" title="Запустить интерактив" v-if="!item.is_conducted"
-                            @click="start_interactive(item.id)">
+                        @click="showStart=true; currID=item.id"
+                          >
                             <img src="/images/interactives/start_2.svg"
                                />
                         </div>
@@ -493,35 +501,62 @@ function goToBroadcast(interactiveId) {
         <div v-if="showPopup" class="interactives_popup-overlay">
             <div class="interactives_popup">
                 <div class="interactives_popup-header">
-                    <div class="interactives_popup-header-text">Вы точно хотите продублировать выбранный интерактив?
+                    <div class="interactives_popup-header-text">Вы уверены, что хотите продублировать выбранный интерактив?
                     </div>
-                    <img src="/images/history/Vector_1.svg" class="interactives_popup-close" @click="closePopup" />
                 </div>
                 <div class="interactives_popup-body">
 
                     <button class="interactives_popup-button"
-                        @click="duplicateAndSaveInteractive(String(currentInteractiveId))">Да</button>
-                    <button class="interactives_popup-button" @click="closePopup()">Нет</button>
+                        @click="duplicateAndSaveInteractive(String(currentInteractiveId))">Дублировать</button>
+    
                     <button class="interactives_popup-button"
-                        @click="dublicate_interactive(String(currentInteractiveId))">Да, и
-                        хочу его сразу отредактировать</button>
+                        @click="dublicate_interactive(String(currentInteractiveId))">Дублировать и редактировать</button>
+                                        <button class="interactives_popup-button" @click="showPopup=false">Отменить</button>
+                </div>
+            </div>
+        </div>
+        <div v-if="showStart" class="settings_popup-overlay">
+            <div class="settings_popup-content">
+                <div class="settings_popup-text">Вы уверены, что хотите запустить интерактив?</div>
+                <div class="settings_popup-text_">По окончании интерактива Вы сможете выгрузить отчет. </div>
+                <div class="settings_popup-buttons">
+                    <button class="settings_popup-btn cancel" @click="showStart=false;currID=0">Отменить</button>
+                    <button class="settings_popup-btn confirm" @click="start_interactive(String(currID));currID=0" style="">Запустить</button>
+                    
+                </div>
+            </div>
+        </div>
+        <div v-if="showEdit" class="settings_popup-overlay">
+            <div class="settings_popup-content" :class="{height:true}">
+                <div class="settings_popup-text" :class="{margin_text:true}">Вы уверены, что хотите отредактировать интерактив?</div>
+                <div class="settings_popup-buttons" :class="{margin:true}" >
+                    <button class="settings_popup-btn cancel" @click="showEdit=false;currID=0">Отменить</button>
+                    <button class="settings_popup-btn confirm" @click="edit_interactive(String(currID));currID=0" style="display: flex;
+      align-items: center;
+      justify-content: center;" :class="{margin_left:true}">Редактировать</button>
+                    
                 </div>
             </div>
         </div>
         <div v-if="showDeletePopap" class="interactives_delete_popup-overlay">
       <div class="interactives_delete_popup">
+        <div class="interactives_delete_popup-close" @click="closePopup()">
+            <img src="/public/images/interactives/delete_close.svg"/>
+        </div>
         <div class="interactives_delete_popup-header">
           <div class="interactives_delete_popup-header-text">
             {{ isRunning
               ? 'Интерактив запущен! Все данные интерактива будут удалены!'
-              : 'Вы действительно хотите удалить?' }}
+              : 'Вы уверены, что хотите удалить интерактив?' }}
           </div>
+          <div  class="interactives_delete_popup-header-text_">Это действие отменить будет невозможно. Вопросы и данные интерактива не будут сохранены.</div>
         </div>
         <div class="interactives_delete_popup-body">
-          <button class="interactives_delete_popup-button" @click="deleteInteractive(String(currentInteractiveId))">
+            <button class="interactives_delete_popup-button cancel" @click="closePopup()">Отменить</button>
+          <button class="interactives_delete_popup-button confirm" @click="deleteInteractive(String(currentInteractiveId))">
             {{ isRunning ? 'Закончить и удалить интерактив' : 'Удалить' }}
           </button>
-          <button class="interactives_delete_popup-button" @click="closePopup()">Отмена</button>
+          
         </div>
       </div>
     </div>
@@ -530,22 +565,24 @@ function goToBroadcast(interactiveId) {
 
     <div v-if="show_report_Popup === true" class="popup-overlay">
         <div class="popup">
+            <img src="/images/history/Vector_1.svg" class="popup-close"  @click="show_report_Popup = false; selectedInteractive = 0; selectedOption = ''"
+                   /> 
             <div class="popup-header">
-                <div class="popup-header-text">Какой отчет хотите выгрузить</div>
-                <img src="/images/history/Vector_1.svg" class="popup-close"
-                    @click="show_report_Popup = false; selectedInteractive = 0; selectedOption = ''" />
+                <div class="popup-header-text">Выгрузить отчет</div>
+                
             </div>
             <div class="popup-body">
-                <label class="popup-option">
-                    <input type="radio" v-model="selectedOption" value="forLeader" />
+                <div class="popup-option"@click="selectedOption='forLeader'">
+                    <img :src="urlReport('forLeader')" />
                     <span class="popup-option-span">Отчет для ведущего</span>
-                </label>
-                <label class="popup-option">
-                    <input type="radio" v-model="selectedOption" value="forAnalise" />
+                </div>
+                <div class="popup-option second" @click="selectedOption='forAnalise'">
+                    <img :src="urlReport('forAnalise')"/>
                     <span class="popup-option-span">Отчет для обработки</span>
-                </label>
+                </div>
             </div>
             <div class="popup-footer">
+                      <button @click="show_report_Popup=false" class="popup-cancel">Отменить</button>
                 <button @click="submitReport" class="popup-submit">Выгрузить</button>
             </div>
         </div>
@@ -553,6 +590,11 @@ function goToBroadcast(interactiveId) {
 </template>
 
 <style>
+button{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 @media (max-height:1078px), (max-width:1918px){
     .interactives_margins{width: calc((1056 / 1280) * 100dvw);
         box-sizing: border-box;
@@ -728,13 +770,16 @@ function goToBroadcast(interactiveId) {
     text-align: center;
     vertical-align: middle;
     color: white;
-    margin-left: calc((30/1280)*100dvw);
+    margin-left: calc((30/1280)*100dvw);  border: calc(1.5/832*100dvh) solid #6AB23D;
 }
-
+.interactives_create:hover{
+    background-color: white;color:#6AB23D;
+    border: calc(1.5/832*100dvh) solid #6AB23D;
+}
 .interactives_input-group_type {
     position: relative;
     z-index: 1000;
-    height: calc((47 / 832) * 100dvh);
+    height: calc((36 / 832) * 100dvh);
     width: calc((159 / 1280) * 100dvw) !important;
 }
 
@@ -763,8 +808,8 @@ function goToBroadcast(interactiveId) {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: calc((159 / 1280) * 100dvw);
-    height: calc((47 / 832) * 100dvh);
+    width: calc((121 / 1280) * 100dvw);
+    height: calc((36 / 832) * 100dvh);
     border-radius: calc((14/832)*100dvh);
     background-color: #F3F3F3;
     box-sizing: border-box;
@@ -777,10 +822,12 @@ function goToBroadcast(interactiveId) {
     letter-spacing: 0.1px;
     vertical-align: middle;
     box-sizing: border-box;
-    padding-left: calc((25/1280)*100dvw);
-    padding-right: calc((25/1280)*100dvw);
+    padding-left: calc((15/1280)*100dvw);
+    padding-right: calc((15/1280)*100dvw);
 }
-
+.interactives_custom-dropdown:hover{
+    background-color: #DFDFDF;
+}
 .interactives_custom-arrow {
     width: calc((16 / 1280) * 100dvw);
     height: calc((9 / 832) * 100dvh);
@@ -791,8 +838,8 @@ function goToBroadcast(interactiveId) {
 .interactives_custom-dropdown-options {
     box-shadow: 0px 1px 13.8px 0px #00000040;
     border-radius: calc((8/832)*100dvh);
-    width: calc((256 / 1280) * 100dvw) !important;
-    height: calc((143 / 832) * 100dvh);
+    width: calc((179 / 1280) * 100dvw) !important;
+    height: calc((103 / 832) * 100dvh);
     margin-top: calc((10 / 832) * 100dvh);
     position: absolute;
     top: 100%;
@@ -805,8 +852,8 @@ function goToBroadcast(interactiveId) {
 }
 
 .interactives_custom-dropdown-option-list {
-    margin-top: calc((25 / 832) * 100dvh);
-    margin-left: calc((30 / 1280) * 100dvw);
+    margin-top: calc((15 / 832) * 100dvh);
+    margin-left: calc((15 / 1280) * 100dvw);
     z-index: 10000;
     /* Увеличиваем z-index */
 }
@@ -826,46 +873,43 @@ function goToBroadcast(interactiveId) {
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-    letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
+    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
+    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.34px);
     vertical-align: middle;
 }
 
 .interactives_custom-dropdown-option {
     display: flex;
     align-items: center;
-    margin-top: calc((5 / 832) * 100dvh);
-    height: calc((26 / 832) * 100dvh);
+    margin-top: calc((9 / 832) * 100dvh);
+    height: calc((19 / 832) * 100dvh);
     cursor: pointer;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-    letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
+    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
+    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
     vertical-align: middle;
 }
 
-.interactives_custom-dropdown-circle {
-    width: calc((18 / 1280) * 100dvw);
-    height: calc((18 / 832) * 100dvh);
-    display: flex;
-    cursor: pointer;
-    justify-content: center;
+.interactives_custom-dropdown-circle{
+     width: calc((17 / 1280) * 100dvw);
+    height: calc((17 / 832) * 100dvh);
 }
 
 .interactives_custom-dropdown-circle>img {
-    width: calc((16 / 1280) * 100dvw);
-    height: calc((16 / 832) * 100dvh);
+    width: calc((17 / 1280) * 100dvw);
+    height: calc((17 / 832) * 100dvh);
 }
 
 .interactives_custom-dropdown-text {
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-    letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
+    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
+    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
     vertical-align: middle;
-    margin-left: calc((12 / 1280) * 100dvw);
+    margin-left: calc((5 / 1280) * 100dvw);
     display: flex;
     align-items: center;
 }
@@ -947,7 +991,7 @@ input:focus {
 
 .interactives_list {
     width: calc((1056 / 1280) * 100dvw);
-    margin-top: calc((20 / 832) * 100dvh);
+    margin-top: calc((27 / 832) * 100dvh);
     padding-bottom: calc((100 / 832) * 100dvh);
 }
 
@@ -1039,8 +1083,8 @@ input:focus {
 }
 
 .interactives_show_more {
-    width: calc((141 / 1280) * 100dvw);
-    margin-left: calc((457 / 1280) * 100dvw);
+    width: calc((104 / 1280) * 100dvw);
+    margin-left: calc((476 / 1280) * 100dvw);
     margin-top: calc((15 / 832) * 100dvh);
     font-family: "Lato", sans-serif;
     font-weight: 400;
@@ -1050,9 +1094,23 @@ input:focus {
     text-align: center;
     vertical-align: middle;
     color: #853CFF;
-    cursor: pointer;
+    cursor: pointer;position: relative;  
+}
+/* Полоска */
+.interactives_show_more::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 1px;             /* расстояние от текста */
+    width: 100%;
+    height: 1.5px;              /* толщина полоски */
+    background: #853CFF;transform: scaleX(0); 
 }
 
+/* Появляется при наведении */
+.interactives_show_more:hover::after {
+    transform: scaleX(1);
+}
 .interactives_buttons { 
     display: flex;position: relative; 
     align-items: center;
@@ -1060,7 +1118,9 @@ input:focus {
     margin-left: calc((77 / 1280) * 100dvw);
 }
 
-
+.interactive_delete:hover {
+  filter: brightness(11%);
+}
 #leader_board, #dublicate{
       width: calc((24/1280) * 100dvw) !important;
     height: calc((24/832) * 100dvh) !important;
@@ -1077,25 +1137,31 @@ input:focus {
     background-color: #6AB23D;
     margin-right: calc((10 / 1280) * 100dvw);
 }
-
+.interactives_leader_board:hover{
+    background-color: #9AC57E;
+}
 .interactives_dublicate {
     background-color: #853CFF;
 }
-
-.interactivs_dublicate:hover {}
+.interactives_dublicate:hover{
+    background-color: #AA77FF;;
+}
 
 .interactives_edit {
     background-color: #F0436C;
     margin-left: calc((10 / 1280) * 100dvw);
 }
-
-.interactives_edit:hover {}
+.interactives_edit:hover{
+    background-color: #DE7D94;;
+}
 
 .interactives_start {
     background-color: #6AB23D;
     margin-left: calc((10 / 1280) * 100dvw);
 }
-
+.interactives_start:hover{
+    background-color: #9AC57E;
+}
 .interactive_delete {
     width: calc((14/1280) * 100dvw) !important;
     height: calc((18/832) * 100dvh) !important;
@@ -1106,7 +1172,6 @@ input:focus {
     width: calc((14/1280) * 100dvw) !important;
     height: calc((18/832) * 100dvh) !important;
 }
-.interactives_start:hover {}
 
 .interactives_dublicate,
 .interactives_edit,
@@ -1187,8 +1252,10 @@ input:focus {
     cursor: pointer;
     z-index: 0 !important;
 }
-
-.interactives_more_options>img {
+.interactives_more_options:hover{
+    filter: brightness(11%);
+}
+.interactives_more_options>img { 
     z-index: 0 !important;
     width: calc((9.75/1280) * 100dvw) !important;
     height: calc((18.75/1280) * 100dvw) !important;
@@ -1202,22 +1269,20 @@ input:focus {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: #00000052;
 
     z-index: 11999;
 
     display: flex;
     justify-content: center;
-    align-items: center;
 }
 
 .interactives_popup {
     background: white;
-    border-radius: 35px;
-    width: 818px;
-    height: 438px;
-
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: calc((18 / 832) * 100dvh);
+    width: calc((524 / 1280) * 100dvw);
+    height: calc((270 / 832) * 100dvh);
+        margin-top:calc((290 / 832) * 100dvh);
 
     position: relative;
 }
@@ -1232,53 +1297,52 @@ input:focus {
 }
 
 .interactives_popup-header-text {
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-size: 36px;
-    letter-spacing: 1px;
-    padding-top: 48px;
-    width: 718px;
-    margin: 0 auto;
-    height: 20px;
+font-family: "Lato", sans-serif;
+font-weight: 700;
+font-style: Bold;
+font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
+margin-top:calc((24/832)*100dvh);
+margin-left: calc((20/1280)*100dvw);
+line-height: clamp(10px, calc(32 / 1280 * 100dvw), 64px);;
+height: calc((64/832)*100dvh);
 }
 
-.interactives_popup-body {
+.interactives_popup-body {margin-top:calc((20/832)*100dvh);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100%;
-    gap: 24px;
+    gap: calc((10/832)*100dvh);
 }
 
 .interactives_popup-button {
-    width: 320px;
-    height: 62px;
-    border-radius: 5px;
+    width: calc((360 / 1280) * 100dvw);
+    height: calc((41 / 832) * 100dvh);
+    border-radius: calc((8 / 832) * 100dvh);
     font-family: "Lato", sans-serif;
-    font-size: 24px;
+font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
     font-weight: 500;
     border: none;
     cursor: pointer;
-    transition: 0.3s ease;
 }
 
 .interactives_popup-button:nth-child(2) {
-    background-color: #f0436c;
+    background-color:#853CFF;border: calc((1.5/832)*100dvh) solid #853CFF !important;
     color: white;
 }
 
 .interactives_popup-button:nth-child(2):hover {
-    background-color: #de7d94;
+    background-color: #AA77FF;
+    border: calc((1.5/832)*100dvh) solid #853CFF !important;
 }
 
 .interactives_popup-button:nth-child(3) {
-    background-color: #853cff;
-    color: white;
+    background-color: white !important;border: calc((1.5/832)*100dvh) solid #853CFF;
+    color:#853CFF;
 }
 
 .interactives_popup-button:nth-child(3):hover {
-    background-color: #aa77ff;
+    background-color:#853CFF !important ; color: white !important;
 }
 
 .interactives_popup-button:nth-child(1) {
@@ -1287,7 +1351,7 @@ input:focus {
 }
 
 .interactives_popup-button:nth-child(1):hover {
-    background-color: #9ac57e;
+    background-color:#559130;
 }
 
 
@@ -1299,173 +1363,142 @@ input:focus {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+  background: #00000052;
     z-index: 10000999;
     display: flex;
     justify-content: center;
-    align-items: center;
 }
 
 .popup {
     background: white;
-    border-radius: 35px;
-    width: 818px;
-    height: 400px;
-    ;
-
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-
+      border-radius: calc((18 / 832) * 100dvh);
+    width: calc((525 / 1280) * 100dvw);
+    height: calc((233 / 832) * 100dvh);
+        margin-top:calc((273 / 832) * 100dvh) !important;
     position: relative;
 }
 
-.popup-header {
-    position: relative;
-}
+
 
 .popup-header-text {
     font-family: "Lato", sans-serif;
     font-weight: 700;
-    font-size: 36px;
-    letter-spacing: 1px;
-    padding-top: 48px;
-    margin-left: 146px;
+font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
+line-height: clamp(10px, calc(32 / 1280 * 100dvw), 64px);
+height: calc(32 / 832 * 100dvh);
+letter-spacing: 1%;
+text-align: center;
+margin-top:calc(24 / 832 * 100dvh);
+display: flex;
+align-items: center;
+justify-content: center;
 }
 
-.popup-close {
+
+.popup-close{
+width: calc((16 / 1280) * 100dvw);
+    height: calc((16 / 832) * 100dvh);
     position: absolute;
-    top: 25px;
-    right: 25px;
-    cursor: pointer;
-    font-size: 30px;
-    color: #aaa;
+    top: calc((20 / 832) * 100dvh);
+    right:  calc((20 / 1280) * 100dvw);
+    cursor: pointer;  
+ 
 }
-
-.popup-body {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 34px;
-    margin-top: 62px;
+.popup-body {margin-top:calc((20 / 832) * 100dvh); 
 }
-
-.popup-option {
-    margin-left: 51px;
+.popup-option.second{
+margin-top:calc((20 / 832) * 100dvh) !important; 
+}
+.popup-option {height: calc(20 / 832 * 100dvh);
+    margin-left: calc(20 / 1280 * 100dvw) ;
     display: flex;
     align-items: center;
-    font-size: 18px;
-
+font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
     cursor: pointer;
     position: relative;
 }
+.popup-option img{ width: calc((20 / 1280) * 100dvw);
+    height: calc((20 / 832) * 100dvh);
 
-.popup-option span {
+}
+.popup-option span {margin-left: calc(5 / 1280 * 100dvw) ;
     font-family: "Lato", sans-serif;
     font-weight: 500;
     position: relative;
-    padding-left: 62px;
+
+font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
+letter-spacing: clamp(0.10px, calc(16 /100/ 1280 * 100dvw), 0.32px);;
+vertical-align: middle;
+
 }
 
-.popup-option input[type="radio"] {
-    display: none;
-}
 
-.popup-option input[type="radio"]+span::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 35px;
-    height: 35px;
-    background-image: url("/public/images/history/circle.svg");
-    background-size: cover;
-    background-position: center;
-    cursor: pointer;
-}
 
-.popup-option input[type="radio"]:checked+span::after {
-    content: "";
-    position: absolute;
-    top: 9px;
-    left: 5px;
-    width: 24px;
-    height: 18px;
-    background-image: url("/public/images/history/Vector_2.svg");
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    pointer-events: none;
-}
 
-.popup-option input[type="radio"]:focus {
-    outline: none;
-    box-shadow: 0 0 5px rgba(133, 60, 255, 0.6);
-}
 
-.popup-option span {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: 32px;
-    letter-spacing: 1px;
-    position: relative;
-}
+
 
 .popup-footer {
-    margin-top: 44px;
+    margin-top:calc((40 / 832) * 100dvh); 
+    display: flex; margin-left: calc(203 / 1280 * 100dvw) ;
 }
-
+.popup-footer > button{
+    width: calc((138 / 1280) * 100dvw);
+    height: calc((41 / 832) * 100dvh);
+}
 .popup-submit {
-    margin-left: 292px;
-    width: 233px;
-    height: 62px;
+margin-left: calc(10 / 1280 * 100dvw)  !important;
+}
+.popup-submit {
     background-color: white;
     color: #853cff;
-    border: 2px solid #853cff;
+    border: calc((1.5 / 832) * 100dvh) solid #853cff;
     font-family: "Lato", sans-serif;
     font-weight: 500;
-    font-size: 24px;
-    border-radius: 5px;
+    border-radius: calc((8 / 832) * 100dvh);
     cursor: pointer;
     vertical-align: middle;
-    letter-spacing: 1px;
+    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);;
 }
 
 .popup-submit:hover {
-    margin-left: 292px;
-    width: 233px;
-    height: 62px;
-    background-color: #853cff;
-    color: white;
-    border: 2px solid #853cff;
+  background-color: #AA77FF; color: #FFFFFF;
+}
+.popup-cancel{
+     background-color: white;
+    color:#7D7D7D;
+    border: none;
     font-family: "Lato", sans-serif;
     font-weight: 500;
-    font-size: 24px;
-    border-radius: 5px;
+    border-radius: calc((8 / 832) * 100dvh);
     cursor: pointer;
     vertical-align: middle;
-    letter-spacing: 1px;
+    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);;
 }
-
-
+.popup-cancel:hover {
+ border: calc((1.5 / 832) * 100dvh) solid #1D1D1D !important; ; color:  #1D1D1D;
+}
 .interactives_delete_popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+   background: #00000052;
 
   z-index: 22222999;
 
   display: flex;
   justify-content: center;
-  align-items: center;
+ 
 }
 
 .interactives_delete_popup {
+     margin-top:calc((273/832)*100dvh);
   background: white;
-  border-radius: 35px;
-  width: 818px;
-height: 372px;
+  border-radius: calc((18/832)*100dvh);
+  width: calc((524/1280)*100dvw);
+height: calc((233/832)*100dvh);
 
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 
@@ -1473,59 +1506,184 @@ height: 372px;
 }
 .interactives_delete_popup-close {
   position: absolute;
-  top: 25px;
-  right: 25px;
+  top: calc((20/832)*100dvh);
+  right: calc((20/1280)*100dvw);
+   width: calc((16/1280)*100dvw);
+height: calc((16/832)*100dvh);
   cursor: pointer;
-  font-size: 30px;
   color: #aaa;
+}
+.interactives_delete_popup-close > img{
+    width: calc((16/1280)*100dvw);
+height: calc((16/832)*100dvh);
 }
 .interactives_delete_popup-header-text {
   font-family: "Lato", sans-serif;
   font-weight: 700;
-  font-size: 36px;
-text-align: center;
-  line-height: 37px;
-  width: 638px;
+  font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
   margin: 0 auto;
-  padding-top:48px;;
-  min-height: 64px;letter-spacing: 0px;
+  margin-top:calc((24/832)*100dvh);
+  margin-left:  calc((20/1280)*100dvw);;
 }
-.interactives_delete_popup-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-top: 44px;;
-  gap: 24px;
+.interactives_delete_popup-header-text_{  margin-left:  calc((20/1280)*100dvw);;
+    font-family: "Lato", sans-serif;  margin-top:calc((19/832)*100dvh); color:#7D7D7D;
+font-weight: 400;
+font-style: Regular;
+  font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
+line-height: 120%;
+letter-spacing: 1%;
+vertical-align: middle;
+
+}
+.interactives_delete_popup-body {margin-left:  calc((218/1280)*100dvw);;
+  display: flex; margin-top:calc((59/832)*100dvh);
+  
 }
 .interactives_delete_popup-button {
-  width: 638px;
-  height: 62px;
+   width: calc((138/1280)*100dvw) !important;
+height: calc((41/832)*100dvh);
   border-radius: 8px;
-  font-family: "Lato", sans-serif;
-  font-size: 32px;
-  font-weight: 400;
-  border: none;
-  cursor: pointer;
-  transition: 0.3s ease;
+font-family: "Lato", sans-serif;
+font-weight: 500;
+font-style: Medium;
+  font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
+line-height: 120%;
+letter-spacing: 1%;
+text-align: center;
+vertical-align: middle;
+
  
 }
 .interactives_delete_popup-button:nth-child(1) {
-  background-color: #6ab23d;
-  color: white;
+  background-color: white; color:#7D7D7D;border:none;;
 }
 .interactives_delete_popup-button:nth-child(1):hover {
-  background-color: #559130;
+  color: #1D1D1D;
+   border: calc((1.5/832)*100dvh) solid #1D1D1D;
+
 }
-.interactives_delete_popup-button:nth-child(2) {
+.interactives_delete_popup-button:nth-child(2) {margin-left:  calc((10/1280)*100dvw);;
   background-color: white;
-  color: #6AB23D;
-  border: 2px solid #6AB23D;
-  border-color: #6AB23D;
+  color: #F0436C;
+  border: calc((1.5/832)*100dvh) solid #F0436C;
+  border-color: #F0436C;
 }
 .interactives_delete_popup-button:nth-child(2):hover {
-  background-color:  #9AC57E;
+  background-color:  #F0436C;
   color: white;
+}
+.settings_popup-overlay {
+  font-family: "Lato", sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #00000052 !important;
+  display: flex;
+  justify-content: center;
+  z-index: 1000;
+ 
+}
+
+.settings_popup-content { margin-top:calc((273/832)*100dvh);
+  background: white;
+   width: calc((524 / 1280) * 100dvw);
+    height: calc((233 / 832) * 100dvh);
+    border-radius: calc((18/832)*100dvh);
+    box-sizing: border-box;
+
+  
+}
+
+.settings_popup-text {    margin-top:calc((24/832)*100dvh) !important;
+    margin-left: calc((20/1280)*100dvw) !important;
+    font-family: "Lato", sans-serif;
+font-weight: 700;
+font-style: Bold;
+    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px); letter-spacing: clamp(0.20px, calc((20 /100/ 1280) * 100dvw), 0.4px);;
+}
+.settings_popup-text_{height:calc((47/832)*100dvh)  ;
+     margin-top:calc((19/832)*100dvh) !important;
+    margin-left: calc((20/1280)*100dvw) !important;line-height:calc((19.2 / 1280) * 100dvw) ;
+
+    font-family: "Lato", sans-serif;
+font-weight: 400;
+    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);color: #7D7D7D;
+    letter-spacing: clamp(0.10px, calc((16 /100/ 1280) * 100dvw), 0.32px);;
+vertical-align: middle;
+
+}
+.settings_popup-buttons {display: flex;
+  margin-top:calc((50/832)*100dvh) ;
+  margin-left: calc((218 / 1280) * 100dvw);
+
+}
+.settings_popup-btn.confirm{
+      margin-left: calc((10 / 1280) * 100dvw);
+    
+}
+.settings_popup-btn {
+  width: calc((138 / 1280) * 100dvw);
+  height: calc((41/832)*100dvh) ;
+ font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
+  font-family: "Lato", sans-serif;
+  border-radius: calc((8/832)*100dvh);
+  cursor: pointer;
+}
+
+.settings_popup-btn.confirm {
+  background-color: #6ab23d;
+  border: calc((1.5/832)*100dvh) solid #6ab23d;
+  color: white;  
+}
+
+.settings_popup-btn.confirm:hover {
+   background-color: #559130;
+  border: calc((1.5/832)*100dvh) solid #559130;
+}
+
+.settings_popup-btn.cancel {
+  background-color: #FFFFFF;
+  border: calc((1.5/832)*100dvh) solid #853CFF;
+  color: #853CFF;
+}
+
+.settings_popup-btn.cancel:hover {color: #FFFFFF;
+  background-color: #AA77FF;
+}
+
+.settings_popup-btn.cancel.delete {
+  background-color: #FFFFFF;
+  border:none;
+  color: #7D7D7D;
+}
+
+.settings_popup-btn.cancel.delete:hover {color:#1D1D1D;
+  border: calc((1.5/832)*100dvh) solid#1D1D1D;
+}
+.settings_popup-btn.confirm.delete {
+  background-color:white;
+  border: calc((1.5/832)*100dvh) #F0436C;
+  color: #F0436C;
+}
+
+.settings_popup-btn.confirm.delete:hover {
+   background-color: #F0436C; color: white;
+  border: calc((1.5/832)*100dvh) solid#F0436C;
+}
+.height{
+      height: calc((173 / 832) * 100dvh)  !important;
+}
+.margin{
+      margin-top:calc((18/832)*100dvh)  !important;
+      margin-left: calc((203/1280)*100dvw) !important;
+}
+.margin_text{
+     height: calc((64 / 832) * 100dvh)  !important;
+}
+.margin_left{
+     width: calc((150 / 1280) * 100dvw) !important;
 }
 }
 @media (min-width:1918px) and (min-height:1078px){
@@ -1632,13 +1790,16 @@ text-align: center;
     text-align: center;
     vertical-align: middle;
     color: white;
-    margin-left: 30px;;
+    margin-left: 30px;;    border: 1.5px solid #6AB23D;
 }
-
+.interactives_create:hover{
+    background-color: white;color:#6AB23D;
+    border: 1.5px solid #6AB23D;
+}
 .interactives_input-group_type {
     position: relative;
     z-index: 1000;
-    height: 47px;
+    height: 36px;
     width: 47px !important;
 }
 
@@ -1667,8 +1828,8 @@ text-align: center;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width:159px;;
-    height:48px;;
+    width:121px;;;
+    height:36px;;
     border-radius: 14px;;
     background-color: #F3F3F3;
     box-sizing: border-box;
@@ -1681,10 +1842,12 @@ text-align: center;
     letter-spacing: 0.1px;
     vertical-align: middle;
     box-sizing: border-box;
-    padding-left: 22px;;
-    padding-right: 22px;;
+    padding-left: 15px;;
+    padding-right: 15px;;
 }
-
+.interactives_custom-dropdown:hover{
+    background-color: #DFDFDF;
+}
 .interactives_custom-arrow {
     width: 16px;;
     height: 9px;
@@ -1695,8 +1858,8 @@ text-align: center;
 .interactives_custom-dropdown-options {
     box-shadow: 0px 1px 13.8px 0px #00000040;
     border-radius: 8px;;
-    width: 256px !important;
-    height: 143px;;
+    width: 179px !important;
+    height: 103px;;;
     margin-top: 10px;;
     position: absolute;
     top: 100%;
@@ -1709,8 +1872,8 @@ text-align: center;
 }
 
 .interactives_custom-dropdown-option-list {
-    margin-top: 25px;;
-    margin-left: 30px;;
+    margin-top: 15px;;
+    margin-left: 15px;;
     z-index: 10000;
     /* Увеличиваем z-index */
 }
@@ -1719,8 +1882,7 @@ text-align: center;
     font-family: "Lato", sans-serif;
     font-weight: 600;
     font-size: 16px;;
-    line-height: 120%;
-    letter-spacing: 0.1px;
+   
     vertical-align: middle;
     margin-top: 7px;;
     margin-left: 41px;;
@@ -1730,16 +1892,16 @@ text-align: center;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
-    font-size:20px;;
-    letter-spacing: 0.2px;;
+    font-size:16px;;
+    letter-spacing: 0.32px;;
     vertical-align: middle;
 }
 
 .interactives_custom-dropdown-option {
     display: flex;
     align-items: center;
-    margin-top: 5px;
-    height: 26px;;
+    margin-top: 9px;
+    height: 19px;;
     cursor: pointer;
     font-family: "Lato", sans-serif;
     font-weight: 400;
@@ -1750,26 +1912,26 @@ text-align: center;
 }
 
 .interactives_custom-dropdown-circle {
-    width:18px;
-    height: 18px;
+    width:17px;
+    height: 17px;
     display: flex;
     cursor: pointer;
     justify-content: center;
 }
 
 .interactives_custom-dropdown-circle>img {
-    width: 16px;
-    height:16px;
+    width: 17px;
+    height:17px;
 }
 
 .interactives_custom-dropdown-text {
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
-   font-size:20px;;
-    letter-spacing: 0.2px;;
+   font-size:16px;;
+    letter-spacing: 0.32px;;
     vertical-align: middle;
-    margin-left:12px;;
+    margin-left:5px;;;
     display: flex;
     align-items: center;
 }
@@ -1851,7 +2013,7 @@ input:focus {
 
 .interactives_list {
     width: 1056px;
-    margin-top:20px;;
+    margin-top:27px;;
     padding-bottom: 100px;;
 }
 
@@ -1947,8 +2109,8 @@ input:focus {
 }
 
 .interactives_show_more {
-    width: 141px;;
-    margin-left: 457px;;
+    width: 104px;;
+    margin-left: 476px;;
     margin-top: 15px;;
     font-family: "Lato", sans-serif;
     font-weight: 400;
@@ -1958,9 +2120,23 @@ input:focus {
     text-align: center;
     vertical-align: middle;
     color: #853CFF;
-    cursor: pointer;
+    cursor: pointer; position: relative;
+}
+/* Полоска */
+.interactives_show_more::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 1px;             /* расстояние от текста */
+    width: 100%;
+    height: 1.5px;              /* толщина полоски */
+    background: #853CFF;transform: scaleX(0); 
 }
 
+/* Появляется при наведении */
+.interactives_show_more:hover::after {
+    transform: scaleX(1);
+}
 .interactives_buttons {
     display: flex;
     align-items: center;
@@ -1986,36 +2162,49 @@ input:focus {
     background-color: #6AB23D;
     margin-right:10px;;
 }
-
+.interactives_leader_board:hover{
+    background-color: #9AC57E;
+}
 .interactives_dublicate {
     background-color: #853CFF;
 }
-
-.interactivs_dublicate:hover {}
+.interactives_dublicate:hover{
+    background-color: #AA77FF;
+}
 
 .interactives_edit {
     background-color: #F0436C;
     margin-left: 10px;
 }
-
-.interactives_edit:hover {}
+.interactives_edit:hover{
+    background-color: #DE7D94;
+}
 
 .interactives_start {
     background-color: #6AB23D;
     margin-left: 10px;
 }
-
+.interactives_start:hover{
+    background-color: #9AC57E;
+}
 .interactive_delete {
     width: 14px !important;
     height: 18px !important;
     cursor: pointer;
     margin-left: 10px;
 }
-.interactive_delete > img{
+.interactive_delete:hover {
+  filter: brightness(11%);
+}
+.interactives_more_options:hover{
+    filter: brightness(11%);
+}
+.interactive_delete > img {
+
     width: 14px !important;
     height: 18px !important;
 }
-.interactives_start:hover {}
+
 
 .interactives_dublicate,
 .interactives_edit,
@@ -2129,22 +2318,20 @@ input:focus {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: #00000052;
 
     z-index: 11999;
 
     display: flex;
     justify-content: center;
-    align-items: center;
 }
 
 .interactives_popup {
     background: white;
-    border-radius: 35px;
-    width: 818px;
-    height: 438px;
-
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 18px;;
+    width: 524px;;
+    height: 270px;
+    margin-top:290px;
 
     position: relative;
 }
@@ -2159,53 +2346,52 @@ input:focus {
 }
 
 .interactives_popup-header-text {
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-size: 36px;
-    letter-spacing: 1px;
-    padding-top: 48px;
-    width: 718px;
-    margin: 0 auto;
-    height: 20px;
+font-family: "Lato", sans-serif;
+font-weight: 700;
+font-style: Bold;
+font-size: 20px;
+margin-top:24px;;
+margin-left: 20px;
+line-height: 32px;;
+height: 64px;
 }
 
-.interactives_popup-body {
+.interactives_popup-body {margin-top:20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100%;
-    gap: 24px;
+    gap: 10px;
 }
 
 .interactives_popup-button {
-    width: 320px;
-    height: 62px;
-    border-radius: 5px;
+    width: 360px;
+    height: 41px;
+    border-radius: 8px;
     font-family: "Lato", sans-serif;
-    font-size: 24px;
+font-size:20px;
     font-weight: 500;
     border: none;
     cursor: pointer;
-    transition: 0.3s ease;
 }
 
 .interactives_popup-button:nth-child(2) {
-    background-color: #f0436c;
+    background-color:#853CFF;border: 1.5px solid #853CFF !important;
     color: white;
 }
 
 .interactives_popup-button:nth-child(2):hover {
-    background-color: #de7d94;
+    background-color: #AA77FF;
+    border: 1.5px  solid #853CFF !important;
 }
 
 .interactives_popup-button:nth-child(3) {
-    background-color: #853cff;
-    color: white;
+    background-color: white !important;border: 1.5px  solid #853CFF;
+    color:#853CFF;
 }
 
 .interactives_popup-button:nth-child(3):hover {
-    background-color: #aa77ff;
+    background-color:#853CFF !important ; color: white !important;
 }
 
 .interactives_popup-button:nth-child(1) {
@@ -2214,11 +2400,8 @@ input:focus {
 }
 
 .interactives_popup-button:nth-child(1):hover {
-    background-color: #9ac57e;
+    background-color:#559130;
 }
-
-
-
 
 .popup-overlay {
     position: fixed;
@@ -2226,150 +2409,119 @@ input:focus {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+  background: #00000052;
     z-index: 10000999;
     display: flex;
     justify-content: center;
-    align-items: center;
 }
 
 .popup {
     background: white;
-    border-radius: 35px;
-    width: 818px;
-    height: 400px;
-    ;
-
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-
+      border-radius: 18px;
+    width: 525px;
+    height:233px;
+        margin-top:273px !important;
     position: relative;
 }
 
-.popup-header {
-    position: relative;
-}
 
 .popup-header-text {
     font-family: "Lato", sans-serif;
     font-weight: 700;
-    font-size: 36px;
-    letter-spacing: 1px;
-    padding-top: 48px;
-    margin-left: 146px;
+font-size: 20px;
+line-height: 32px;
+height: 32px;
+letter-spacing: 1%;
+text-align: center;
+margin-top:24px;
+display: flex;
+align-items: center;
+justify-content: center;
 }
 
-.popup-close {
+.popup-close {    width:16px;
+    height: 16px;
     position: absolute;
-    top: 25px;
-    right: 25px;
+    top: 20px;
+    right:  20px;
     cursor: pointer;
     font-size: 30px;
     color: #aaa;
 }
 
-.popup-body {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 34px;
-    margin-top: 62px;
+.popup-body {margin-top:20px; 
 }
-
-.popup-option {
-    margin-left: 51px;
+.popup-option.second{
+margin-top:20px !important; 
+}
+.popup-option {height: 20px;
+    margin-left: 20px;
     display: flex;
     align-items: center;
-    font-size: 18px;
-
+font-size: 16px;
     cursor: pointer;
     position: relative;
 }
+.popup-option img{ width: 20px;
+    height: 20px;
 
-.popup-option span {
+}
+.popup-option span {margin-left: 5px;
     font-family: "Lato", sans-serif;
     font-weight: 500;
     position: relative;
-    padding-left: 62px;
+
+font-size: 16px;
+letter-spacing: 0.20px;
+vertical-align: middle;
+
 }
 
-.popup-option input[type="radio"] {
-    display: none;
-}
 
-.popup-option input[type="radio"]+span::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 35px;
-    height: 35px;
-    background-image: url("/public/images/history/circle.svg");
-    background-size: cover;
-    background-position: center;
-    cursor: pointer;
-}
 
-.popup-option input[type="radio"]:checked+span::after {
-    content: "";
-    position: absolute;
-    top: 9px;
-    left: 5px;
-    width: 24px;
-    height: 18px;
-    background-image: url("/public/images/history/Vector_2.svg");
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    pointer-events: none;
-}
 
-.popup-option input[type="radio"]:focus {
-    outline: none;
-    box-shadow: 0 0 5px rgba(133, 60, 255, 0.6);
-}
 
-.popup-option span {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: 32px;
-    letter-spacing: 1px;
-    position: relative;
-}
+
 
 .popup-footer {
-    margin-top: 44px;
+    margin-top:40px;
+    display: flex; margin-left: 203px;;
 }
-
+.popup-footer > button{
+    width: 138px;;
+    height: 41px;;
+}
 .popup-submit {
-    margin-left: 292px;
-    width: 233px;
-    height: 62px;
+margin-left: 10px  !important;
+}
+.popup-submit {
     background-color: white;
     color: #853cff;
-    border: 2px solid #853cff;
+    border: 1.5px solid #853cff;
     font-family: "Lato", sans-serif;
     font-weight: 500;
-    font-size: 24px;
-    border-radius: 5px;
+    border-radius: 8px;;
     cursor: pointer;
     vertical-align: middle;
-    letter-spacing: 1px;
+    font-size: 20px;;
 }
 
 .popup-submit:hover {
-    margin-left: 292px;
-    width: 233px;
-    height: 62px;
-    background-color: #853cff;
-    color: white;
-    border: 2px solid #853cff;
+  background-color: #AA77FF; color: #FFFFFF;
+}
+.popup-cancel{
+     background-color: white;
+    color:#7D7D7D;
+    border: none;
     font-family: "Lato", sans-serif;
     font-weight: 500;
-    font-size: 24px;
-    border-radius: 5px;
+    border-radius: 8px;;
     cursor: pointer;
     vertical-align: middle;
-    letter-spacing: 1px;
+    font-size: 20px;;;
+}
+.popup-cancel:hover {
+ border: 1.5px solid #1D1D1D !important; ; color:  #1D1D1D;
 }
 
 
@@ -2379,20 +2531,21 @@ input:focus {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: #00000052;
 
   z-index: 22222999;
 
   display: flex;
   justify-content: center;
-  align-items: center;
+ 
 }
 
 .interactives_delete_popup {
+     margin-top:273px;
   background: white;
-  border-radius: 35px;
-  width: 818px;
-height: 372px;
+  border-radius: 18px;;
+  width: 524px;;
+height: 233px;;
 
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 
@@ -2409,50 +2562,167 @@ height: 372px;
 .interactives_delete_popup-header-text {
   font-family: "Lato", sans-serif;
   font-weight: 700;
-  font-size: 36px;
-text-align: center;
-  line-height: 37px;
-  width: 638px;
+  font-size: 20px;;
   margin: 0 auto;
-  padding-top:48px;;
-  min-height: 64px;letter-spacing: 0px;
+  margin-top:24px;
+  margin-left:  20px;;;
 }
-.interactives_delete_popup-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-top: 44px;;
-  gap: 24px;
+.interactives_delete_popup-header-text_{  margin-left:  20px;;;
+    font-family: "Lato", sans-serif;  margin-top:19px;; color:#7D7D7D;
+font-weight: 400;
+font-style: Regular;
+  font-size: 16px;;
+line-height: 120%;
+letter-spacing: 1%;
+vertical-align: middle;
+
+}
+.interactives_delete_popup-body {margin-left:  218px;;;
+  display: flex; margin-top:59px;
+  
 }
 .interactives_delete_popup-button {
-  width: 638px;
-  height: 62px;
+   width:138px !important;
+height: 41px;;
   border-radius: 8px;
-  font-family: "Lato", sans-serif;
-  font-size: 32px;
-  font-weight: 400;
-  border: none;
-  cursor: pointer;
-  transition: 0.3s ease;
+font-family: "Lato", sans-serif;
+font-weight: 500;
+font-style: Medium;
+  font-size: 20px;;
+line-height: 120%;
+letter-spacing: 1%;
+text-align: center;
+vertical-align: middle;
+
  
 }
 .interactives_delete_popup-button:nth-child(1) {
-  background-color: #6ab23d;
-  color: white;
+  background-color: white; color:#7D7D7D;border:none;;
 }
 .interactives_delete_popup-button:nth-child(1):hover {
-  background-color: #559130;
+  color: #1D1D1D;
+   border: 1.5px solid #1D1D1D;
+
 }
-.interactives_delete_popup-button:nth-child(2) {
+.interactives_delete_popup-button:nth-child(2) {margin-left:  10px;;;
   background-color: white;
-  color: #6AB23D;
-  border: 2px solid #6AB23D;
-  border-color: #6AB23D;
+  color: #F0436C;
+  border: 1.5px solid #F0436C;
+  border-color: #F0436C;
 }
 .interactives_delete_popup-button:nth-child(2):hover {
-  background-color:  #9AC57E;
+  background-color:  #F0436C;
   color: white;
+}
+.settings_popup-overlay {
+  font-family: "Lato", sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #00000052 !important;
+  display: flex;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.settings_popup-content { margin-top:273px;
+  background: white;
+   width: 524px;
+    height: 233px;
+    border-radius: 18px;
+    box-sizing: border-box;
+
+  
+}
+
+.settings_popup-text {    margin-top:24px !important;
+    margin-left: 20px !important;
+    font-family: "Lato", sans-serif;
+font-weight: 700;font-style: normal;
+font-style: Bold;
+    font-size: 20px; line-height:32px; 
+}
+.settings_popup-text_{height:47px;  ;
+     margin-top:19px!important;
+    margin-left: 20px !important;line-height:19.2px; ;
+
+    font-family: "Lato", sans-serif;
+font-weight: 400;
+    font-size: 16px;color: #7D7D7D;
+    letter-spacing: 0.16px !important;;;
+vertical-align: middle;font-style: normal
+
+}
+.settings_popup-buttons {display: flex;
+  margin-top:50px ;
+  margin-left: 218px;
+
+}
+.settings_popup-btn.confirm{
+      margin-left: 10px;
+}
+.settings_popup-btn {
+  width: 138px;
+  height: 41px ;
+ font-size: 20px;
+  font-family: "Lato", sans-serif;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.settings_popup-btn.confirm {
+  background-color: #6ab23d;
+  border: 1.5px solid #6ab23d;
+  color: white;
+}
+
+.settings_popup-btn.confirm:hover {
+  background-color: #559130;
+  border: 1.5px solid#559130;
+}
+
+.settings_popup-btn.cancel {
+  background-color: #FFFFFF;
+  border: 1.5px solid #853CFF;
+  color: #853CFF;
+}
+
+.settings_popup-btn.cancel:hover {color: #FFFFFF;
+  background-color: #AA77FF;
+}
+
+.settings_popup-btn.cancel.delete {
+  background-color: #FFFFFF;
+  border:none;
+  color: #7D7D7D;
+}
+
+.settings_popup-btn.cancel.delete:hover {color:#1D1D1D;
+  border: 1.5px solid#1D1D1D;
+}
+.settings_popup-btn.confirm.delete {
+  background-color:white;
+  border: 1.5px#F0436C;
+  color: #F0436C;
+}
+
+.settings_popup-btn.confirm.delete:hover {
+   background-color: #F0436C; color: white;
+  border:1.5px solid#F0436C;
+}
+.height{
+      height: 173px !important;
+}
+.margin{
+      margin-top:18px !important;      margin-left: 203px !important;
+}
+.margin_text{
+     height: 64px  !important;
+}
+.margin_left{
+     width: 150px !important;
 }
 }
 </style>

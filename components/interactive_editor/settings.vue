@@ -14,8 +14,8 @@ const router = useRoute()
 //mode
 const mode = computed(() => router.params.mode)
 const id = computed(() => router.params.id)
-const userId = ref(0)
-
+const userId = useState('telegramUser')
+const userRole = useState('userRole')
 // import composables
 import { useInteractiveForm } from '~/composables/interactive_editor/useInteractiveForm'
 import { useValidateForm } from '~/composables/interactive_editor/useValidateForm'
@@ -32,13 +32,13 @@ import { Confirm } from 'vue-tg'
 // constants
 const { form, active_step, currentQuestion, currentQuestionIndex, loadDB, take_step, } = useInteractiveForm(mode.value, userId, id)
 const { questionErrors, isFormComplete, errors, validateQuestions, validateForm, getIconSrcWithValidation } = useValidateForm(form, active_step, currentQuestion, currentQuestionIndex)
-const { visibleStartIndex, visibleQuestions, addQuestion, deleteQuestion, scrollUp, scrollDown, handleWheelScroll } = useQuestionNavigator(form, currentQuestionIndex, questionErrors, errors)
+const { visibleStartIndex, visibleQuestions, addQuestion, deleteQuestion, scrollUp, scrollDown, handleWheelScroll,showDelete,showDeletefn } = useQuestionNavigator(form, currentQuestionIndex, questionErrors, errors)
 const { imageUploaded, uploadedFileName, loadImageDB, handleFileChange, removeImage, imageUrls, } = useImage(currentQuestionIndex, form, currentQuestion)
 const { loadFromBackend, getOriginalFileNameFromMeta } = useEdit(mode.value, userId, id, form, currentQuestionIndex, imageUrls)
 const { isOpen, options, typeMap, selectedText, toggleDropdown, handleClickOutside, selectOption } = useTypeQuestion(form, currentQuestionIndex, questionErrors)
 const { score, validateScore } = useScoreQuestion(currentQuestion)
 const { deleteAnswer, toggleCorrect, getIconSrc, addAnswer, limit_answers } = useAnswerQuestion(currentQuestion)
-const { showSavePopup, handleSave, handleStart } = useSave(route, active_step, form, validateForm, validateQuestions, mode, userId, id.value)
+const { showSavePopup, handleSave, handleStart,showStart } = useSave(route, active_step, form, validateForm, validateQuestions, mode, userId, id.value)
 
 // save form to IndexedDB
 async function handleBeforeUnload() {
@@ -65,8 +65,6 @@ onMounted(async () => {
   document.addEventListener('click', handleClickOutside)
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
-    const { $telegram } = useNuxtApp();
-    userId.value = $telegram.initDataUnsafe.value?.user?.id;
   }
   const savedForm = await loadFromDeviceStorage(FORM_STORAGE_KEY);
   if (savedForm) {
@@ -135,7 +133,13 @@ const props = defineProps<{confirmBack: () => void}>()
       :selectOption="selectOption" :typeMap="typeMap" :score="score" :validateScore="validateScore"
       :addAnswer="addAnswer" :deleteAnswer="deleteAnswer" :toggleCorrect="toggleCorrect"
       :getIconSrcWithValidation="getIconSrcWithValidation" :limit_answers="limit_answers" :handleStart="handleStart"
-      :showSavePopup="showSavePopup" :handleSave="handleSave"
+      :showSavePopup="showSavePopup" :handleSave="handleSave" 
+      :showStart="showStart"
+      :showDelete="showDelete"
+      @showDelete="showDeletefn"
+      @cancelDelete="showDelete=false"
+      @start="showStart=true"
+      @cancelStart="showStart=false"
       @updateCurrentQuestionIndex="currentQuestionIndex = $event" @showSave="showSavePopup = true"
       :imageUrls="imageUrls" />
     <settings_save_popup :showSavePopup="showSavePopup" :handleSave="handleSave" @closeSave="showSavePopup = false" />

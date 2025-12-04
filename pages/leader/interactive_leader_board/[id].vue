@@ -1,18 +1,14 @@
 <script setup lang="ts">
-import InteractiveEnd_leader from '~/components/interactive_end/interactive_end_leader.vue'
-const webApp = ref(null)
-const userId = ref(null)
+const userId = useState('telegramUser')
+const userRole = useState('userRole')
 const route = useRoute()
 const interactiveId = route.params.id
 const props = ref<any>()
 const isReady = ref(false)
 onMounted(async () =>{
 if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-        webApp.value = window.Telegram.WebApp
         //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
-        const { $telegram } = useNuxtApp();
-        userId.value = $telegram.initDataUnsafe.value?.user?.id;}
-        if (userId.value) {
+        if (userId) {
             const data = await useFetch('/api/get_leader_board', {
 
                 query: {
@@ -26,7 +22,7 @@ if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
             isReady.value = true;
             }
             
-        }
+        }}
 })
 
 </script>
