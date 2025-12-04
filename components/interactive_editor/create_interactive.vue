@@ -25,21 +25,25 @@ function handleBackClick() {
   <div class="interactive_editor">
     <div class="intreractive_editor_header">
       <img src="/public/images/interactive_editor/logo.svg" id="interactive_editor_logo" />
-      <div @click="handleBackClick()">
+      <div @click="handleBackClick()" class="goback">
+       <img src="/public/images/interactive_editor/Vector.svg" id="interactive_editor_back" />
         <div class="intreractive_editor_header_back_text">
         Управление интерактивами
         </div>
-      <img src="/public/images/interactive_editor/Vector.svg" id="interactive_editor_back" />
+        
       </div>
       
     </div>
     <Settings  ref="settings" :confirmBack="handleBackClick"/>
     <div v-if="showConfirmPopup" class="interactive_edit_popup-overlay_goback">
-            <div class="interactive_edit_popup-content_goback">
+            <div class="interactive_edit_popup-content_goback" style="position: relative !important;" @click="showConfirmPopup=false">
+              <div class="interactive_delete_popup-close">
+            <img src="/public/images/interactives/delete_close.svg"/>
+             </div>
                 <div class="interactive_edit_popup-text_goback">Сохранить настройки интерактива перед<br></br> выходом из редактирования?
                 </div>
                 <div class="interactive_edit_popup-actions_goback">
-                  <button @click="showConfirmPopup=false" class="interactive_edit_popup-btn_goback cancel">Отменить</button>
+                  <button @click="confirmBack(false)" class="interactive_edit_popup-btn_goback cancel">Удалить</button>
                     <button @click="confirmBack(true)" class="interactive_edit_popup-btn_goback save">Сохранить</button>
                     <!-- <button @click="confirmBack(false)" class="interactive_edit_popup-btn cancel">Нет</button> -->
                 </div>

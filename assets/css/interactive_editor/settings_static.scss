@@ -103,16 +103,18 @@ vertical-align: middle;
 margin-top:6px;
 
   }
-  .settings_nav_backbutton >div:hover{
-    color: #1D1D1D;
+  .settings_nav_backbutton:hover{
+    color: #853CFF;
   }
   .settings_nav_backbutton > img{
     width: 10px;
     height: 18px;;
   }
    .settings_nav_backbutton:hover{
-    filter: brightness(11%);
   }
+  .settings_nav_backbutton:hover #back_purple {
+    content: url("/public/images/interactive_editor/Purple_.svg");
+}
   .settings_nav_backbutton > div{
     margin-left: 5px;;
   }
@@ -343,11 +345,11 @@ cursor: pointer;
 }
 /* Hover */
 .settings_go_to_questions:hover .settings_go_to_questions_text {
-    color: #1D1D1D; 
+       color: #AA77FF;
 }
 
 .settings_go_to_questions:hover #goto { 
-    content: url("/public/images/interactive_editor/goto_active.svg");
+        content: url("/public/images/interactive_editor/purple_vector.svg");
 }
 
 .settings_questions{

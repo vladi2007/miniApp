@@ -266,11 +266,11 @@ settings_nav_main* {
 
 /* Hover */
 .settings_go_to_questions:hover .settings_go_to_questions_text {
-    color: #1D1D1D;
+    color: #AA77FF;
 }
 
 .settings_go_to_questions:hover #goto {
-    content: url("/public/images/interactive_editor/goto_active.svg");
+    content: url("/public/images/interactive_editor/purple_vector.svg");
     margin-top: calc((4 / 832) * 100dvh);
 }
 
