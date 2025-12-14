@@ -268,7 +268,7 @@ watch(sendStatus, (value) => {
                 @change="handleFileChange" />
 
             <template v-if="uploadedFileName">
-                <span> {{ uploadedFileName }} </span>
+                <span class ="uploadedFileName"> {{ uploadedFileName }} </span>
                 <img src="/public/images/interactive_editor/delete.svg" @click.stop="removeImage"
                     class="broadcasts_remove-icon" />
             </template>

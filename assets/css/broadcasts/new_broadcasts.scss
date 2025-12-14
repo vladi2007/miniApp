@@ -207,7 +207,10 @@ font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
 
 
 
-
+.uploadedFileName{width: calc((400 / 1280) * 100dvw); white-space: nowrap;
+overflow: hidden;        
+  text-overflow: ellipsis;
+}
 
 .broadcasts_file-status {
     margin-top: calc((5 / 832) * 100dvh);

@@ -135,7 +135,10 @@ font-size: 16px;
 }
 
 
-
+.uploadedFileName{width: 400px; white-space: nowrap;
+overflow: hidden;        
+  text-overflow: ellipsis;
+}
 
 
 .broadcasts_file-status {
