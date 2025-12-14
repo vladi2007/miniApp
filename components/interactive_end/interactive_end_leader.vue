@@ -13,7 +13,8 @@ const props = defineProps<{
 
 onMounted(() => {
  clearAllDeviceStorage()
-
+const { $queryClient } = useNuxtApp()
+$queryClient.invalidateQueries(['interactives'])
 })
 </script>
 
