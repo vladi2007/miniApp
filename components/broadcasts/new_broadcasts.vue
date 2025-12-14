@@ -50,8 +50,17 @@ onMounted(async () => {
 });
 
 const sendStatus = ref<"idle" | "sending" | "success" | "error">("idle")
-async function submitBroadcasts() {
 
+async function validateBeforeSend(){
+    showPopup.value = true;
+if (text.value===null && uploadedFile.value===null){
+        window.Telegram.WebApp.showAlert(`Прикрепите файл или наберите текст сообщения!`);
+        closePopup();
+        return;
+    }
+}
+async function submitBroadcasts() {
+    
     if (selectedInteractives.value.length === 0) {
         window.Telegram.WebApp.showAlert(`Выберите хотя бы один интерактив!`);
         closePopup();
@@ -303,7 +312,7 @@ watch(sendStatus, (value) => {
 
             </div>
             <div class="broadcasts_list_selected_download" v-if="selectedInteractives.length > 0"
-                @click="showPopup = true ">
+                @click="validateBeforeSend() ">
                 Отправить рассылку</div>
             <div class="broadcasts_selected_interactives_info" v-if="selectedInteractives.length === 0">
                 <img src="/public/images//history/finder_info.svg" />
