@@ -23,6 +23,8 @@
     "@telegram-apps/bridge": "^2.11.0",
     "@telegram-apps/init-data-node": "^2.0.7",
     "@telegram-apps/sdk": "^3.10.0",
+    "@telegram-apps/sdk-vue": "^2.0.31",
+    "@tma.js/sdk-vue": "^1.0.11",
     "@vueuse/core": "^13.2.0",
     "@vueuse/nuxt": "^13.1.0",
     "base64url": "^3.0.1",

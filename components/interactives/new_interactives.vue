@@ -437,7 +437,7 @@ function urlReport(value:string){
                     <div class="interactives_list_list_item_status">
                         {{ item.is_conducted ? "Проведен" : "Не проведен" }}
                     </div>
-                    <div class="interactives_list_list_item_count">
+                    <div class="interactives_list_list_item_count" :class="{ hidden: !item.is_conducted }">
                         {{ item.participant_count }}
                     </div>
                     <div class="interactives_buttons">
@@ -594,6 +594,9 @@ button{
     display: flex;
     align-items: center;
     justify-content: center;
+}
+.hidden {
+  visibility: hidden;
 }
 @media (max-height:1078px), (max-width:1918px){
     .interactives_margins{width: calc((1056 / 1280) * 100dvw);
