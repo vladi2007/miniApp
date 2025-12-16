@@ -185,6 +185,32 @@ export function useValidateForm(
     },
     { deep: true }
   );
+ function isQuestionComplete(question) {
+  if (!question.text?.trim()) return false;
+
+  if (!(+question.score >= 1 && +question.score <= 5)) return false;
+
+  if (!["one", "many", "text"].includes(question.type)) return false;
+
+  // Все ответы заполнены
+  if (!question.answers.length) return false;
+
+  for (const a of question.answers) {
+    if (!a.text?.trim()) return false;
+  }
+
+  // Проверка правильных ответов
+  if (question.type === "one") {
+    return question.answers.filter(a => a.is_correct).length === 1;
+  }
+
+  if (question.type === "many") {
+    const count = question.answers.filter(a => a.is_correct).length;
+    return count >= 2 && count <= 5;
+  }
+
+  return true;
+}
   function getIconSrcWithValidation(
     type,
     isCorrect,
@@ -204,7 +230,7 @@ export function useValidateForm(
       }
 
       return isCorrect
-        ? "/images/interactive_editor/answer_circle_pick.svg"
+        ? "/images/interactive_editor/one_picked.svg"
         : "/images/interactive_editor/answer_circle.svg";
     }
 
@@ -232,5 +258,6 @@ export function useValidateForm(
     validateQuestions,
     validateForm,
     getIconSrcWithValidation,
+    isQuestionComplete
   };
 }

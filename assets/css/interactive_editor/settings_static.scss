@@ -403,17 +403,19 @@ font-size: 16px;
 line-height: 120%;
 letter-spacing: 1%;
 text-align: center;
-vertical-align: middle;
+vertical-align: middle;cursor: pointer;
 
 }
 
 .quest-nav-button.active {
-    border: 1.5px solid #853CFF
+    border: 1.5px solid #853CFF !important
         /* или другой фиолетовый */
 
         /* опционально — текст */
 }
-
+.quest-nav-button.complete {
+  border: 1.5px  solid #6AB23D;
+}
 .question_button_plus {
     width: 42px;
     height: 42px;
@@ -532,8 +534,16 @@ vertical-align: middle;
     height: 14px;
     cursor: pointer;
 }
-
-
+#question_edit_delete:hover{
+    content: url("/public/images/interactive_editor/red_delete_question.svg");
+}
+/* hover иконки через родителя */
+.question_button_plus:hover #plus {
+  content: url("/public/images/interactive_editor/hover_add.svg");
+}
+.question_button_plus:hover{
+background-color: #6AB23D;
+}
 
 .custom-file-upload {
     height: 42px;;
@@ -858,7 +868,9 @@ vertical-align: middle;
     right: 14px;
     cursor: pointer;
 }
-
+.delete-answer-icon:hover{
+    content: url("/public/images/interactive_editor/red_delete.svg");
+}
 /* Обертка с инпутом и картинкой */
 .custom-answer-input {
     display: flex;

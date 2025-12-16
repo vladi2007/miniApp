@@ -700,21 +700,29 @@ overflow: hidden;
     display: flex;
     align-items: center;
     cursor: pointer;
-    margin-left: calc((239 / 1280) * 100dvw);
+    margin-left: calc((218 / 1280) * 100dvw);
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
     font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
     letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.40px);
     text-align: center;
-    vertical-align: middle;    width: calc((261 / 1280) * 100dvw) !important;
+    vertical-align: middle;    width: calc((286 / 1280) * 100dvw) !important;
     margin-top: calc((18/832)*100dvh);
         margin-bottom: calc((20/832)*100dvh);  height: calc((41/832)*100dvh); 
+        box-sizing: border-box;
 }
 
 .broadcasts_popup_back {
+width: calc((138 / 1280) * 100dvw);display: flex;
+    height: calc((41/832)*100dvh);
+    color: #853CFF;align-items: center;
+    justify-content: center;  border-radius: calc((8/832)*100dvh);    border: calc((2/832)*100dvh) solid #fff;
+}
 
-    color: #853CFF;
+.broadcasts_popup_back:hover{
+    border: calc((2/832)*100dvh) solid #853CFF;width: calc((138 / 1280) * 100dvw) !important;
+    border-radius: calc((8/832)*100dvh);
 }
 
 .broadcasts_popup_send {
@@ -726,12 +734,14 @@ overflow: hidden;
     width: calc((138 / 1280) * 100dvw) !important;
     height: calc((41/832)*100dvh);
     color: #6AB23D;
-    margin-left: calc((40 / 1280) *100dvw);
+    margin-left: calc((10 / 1280) *100dvw);
     border: calc((2/832)*100dvh) solid #6AB23D;
     border-radius: calc((8/832)*100dvh);
 
 }
-
+.broadcasts_popup_send:hover{
+    background-color: #6AB23D;color: white;
+}
 .broadcasts_popup-submit {
     font-family: "Lato", sans-serif;
     margin-left: 292px;

@@ -634,21 +634,28 @@ white-space: nowrap;
     display: flex;
     align-items: center;
     cursor: pointer;
-    margin-left: 239px;
+    margin-left: 218px;
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
     font-size: 20px !important;
     letter-spacing: 0.2px !important;
     text-align: center;
-    vertical-align: middle;
+    vertical-align: middle;width: 286px !important;
      margin-top: 18px;;
         margin-bottom: 20px;;  height: 41px;; 
 }
 
 .broadcasts_popup_back {
+width: 138px; display: flex;
+    height:41px;
+    color: #853CFF;align-items: center;
+    justify-content: center;  border-radius: 8px;    border: 2px solid #fff;
+}
 
-    color: #853CFF;
+.broadcasts_popup_back:hover{
+    border: 2px solid #853CFF;width: 138px !important;
+    border-radius: 8px;;
 }
 
 .broadcasts_popup_send {
@@ -665,7 +672,9 @@ white-space: nowrap;
     border-radius: 8px;
 
 }
-
+.broadcasts_popup_send:hover{
+    background-color: #6AB23D;color: white;
+}
 .broadcasts_popup-submit {
     font-family: "Lato", sans-serif;
     width: 138px;

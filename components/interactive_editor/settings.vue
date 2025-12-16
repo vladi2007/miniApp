@@ -31,7 +31,7 @@ import { Confirm } from 'vue-tg'
 
 // constants
 const { form, active_step, currentQuestion, currentQuestionIndex, loadDB, take_step, } = useInteractiveForm(mode.value, userId, id)
-const { questionErrors, isFormComplete, errors, validateQuestions, validateForm, getIconSrcWithValidation } = useValidateForm(form, active_step, currentQuestion, currentQuestionIndex)
+const { questionErrors, isFormComplete, errors, validateQuestions, validateForm, getIconSrcWithValidation, isQuestionComplete } = useValidateForm(form, active_step, currentQuestion, currentQuestionIndex)
 const { visibleStartIndex, visibleQuestions, addQuestion, deleteQuestion, scrollUp, scrollDown, handleWheelScroll,showDelete,showDeletefn } = useQuestionNavigator(form, currentQuestionIndex, questionErrors, errors)
 const { imageUploaded, uploadedFileName, loadImageDB, handleFileChange, removeImage, imageUrls, } = useImage(currentQuestionIndex, form, currentQuestion)
 const { loadFromBackend, getOriginalFileNameFromMeta } = useEdit(mode.value, userId, id, form, currentQuestionIndex, imageUrls)
@@ -141,7 +141,8 @@ const props = defineProps<{confirmBack: () => void}>()
       @start="showStart=true"
       @cancelStart="showStart=false"
       @updateCurrentQuestionIndex="currentQuestionIndex = $event" @showSave="showSavePopup = true"
-      :imageUrls="imageUrls" />
+      :imageUrls="imageUrls"
+      :isQuestionComplete="isQuestionComplete" />
     <settings_save_popup :showSavePopup="showSavePopup" :handleSave="handleSave" @closeSave="showSavePopup = false" />
     <!-- Попап загрузки изображения -->
     <teleport to="body">
