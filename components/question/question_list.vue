@@ -38,6 +38,10 @@ const ANSWERS_STORAGE_KEY = computed(() => `interactive_answers_${interactiveId}
 onMounted(() => {
   const savedAnswers = loadFromLocalStorage(ANSWERS_STORAGE_KEY.value)
   const savedState = loadFromLocalStorage(isAnsweredKey.value)
+  const savedAnswer = loadFromLocalStorage(storageKey.value)
+  if (savedAnswer){
+    selectedAnswer.value=savedAnswer
+  }
   if (Array.isArray(savedAnswers)) {
     answers.value = savedAnswers
   } else {
