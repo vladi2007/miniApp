@@ -2,6 +2,8 @@
 import Settings from '~/components/interactive_editor/settings.vue'
 const settings = ref(null)
 const route = useRouter()
+const router =useRoute()
+const header = computed(() => route.params.mode === "edit" ? "Сохранить изменения перед выходом?" : "")
 async function confirmBack(save) {
   if (save ) {
     const success = await settings.value.handleSave()
@@ -40,10 +42,12 @@ function handleBackClick() {
               <div class="interactive_delete_popup-close">
             <img src="/public/images/interactives/delete_close.svg"/>
              </div>
-                <div class="interactive_edit_popup-text_goback">Сохранить настройки интерактива перед<br></br> выходом из редактирования?
+                <div class="interactive_edit_popup-text_goback" v-if="router.params.mode === 'edit'">Сохранить изменения перед выходом?
+                </div>
+                <div class="interactive_edit_popup-text_goback" v-if="router.params.mode !== 'edit'">Сохранить настройки интерактива перед<br></br> выходом из редактирования?
                 </div>
                 <div class="interactive_edit_popup-actions_goback">
-                  <button @click="confirmBack(false)" class="interactive_edit_popup-btn_goback cancel">Удалить</button>
+                  <button @click="confirmBack(false)" class="interactive_edit_popup-btn_goback cancel">{{router.params.mode === "edit" ? "Не сохранять" : "Удалить"}}</button>
                     <button @click="confirmBack(true)" class="interactive_edit_popup-btn_goback save">Сохранить</button>
                     <!-- <button @click="confirmBack(false)" class="interactive_edit_popup-btn cancel">Нет</button> -->
                 </div>
