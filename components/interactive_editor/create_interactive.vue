@@ -19,6 +19,14 @@ async function confirmBack(save) {
 }
 const showConfirmPopup = ref(false)
 function handleBackClick() {
+   if (
+    router.params.mode === 'edit' &&
+    settings.value &&
+    !settings.value.isFormChanged()
+  ) {
+    route.push('/leader/new_interactives')
+    return
+  }
   showConfirmPopup.value = true
 }
 </script>
