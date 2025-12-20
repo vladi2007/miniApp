@@ -77,6 +77,7 @@ function updateScore(event: Event) {
 
 
 <template>
+     <div class="container">
     <div class="settings_questions" v-if="active_step === 'questions'">
         <div class="settings_questions_nav">
             <img src="/public/images/interactive_editor/question_up.svg" id="up" @click="scrollUp()" />
@@ -262,6 +263,7 @@ function updateScore(event: Event) {
         </div>
 
 
+    </div>
     </div>
 </template>
 <style>

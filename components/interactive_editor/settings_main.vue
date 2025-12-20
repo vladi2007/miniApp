@@ -11,6 +11,7 @@ const props = defineProps<{
 </script>
 
 <template>
+    <div class="container">
 <div class="settings_main" v-if="active_step === 'main'">
             <div class="settings_main_first">
                 <div class="settings_input"><label>Название интерактива*<textarea v-model="form.title"
@@ -48,6 +49,7 @@ const props = defineProps<{
                 <span class="settings_go_to_questions_text">Далее</span>
                 <img src="/public/images/interactive_editor/purple.svg" id="goto" />
             </div>
+        </div>
         </div>
 </template>
 

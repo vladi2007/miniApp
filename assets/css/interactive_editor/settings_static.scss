@@ -81,8 +81,9 @@ background-color: rgba(0, 0, 0, 0.32);
 
 .settings_nav{
         height: 53px;
-        margin-left: 260px;;
+        width:1400px;
         margin-top:49px;
+      
         display: flex;
         font-family: "Lato", sans-serif;
     }
@@ -101,6 +102,7 @@ letter-spacing: 1%;
 text-align: center;
 vertical-align: middle;
 margin-top:6px;
+width: 278px;;white-space: nowrap;
 
   }
   .settings_nav_backbutton:hover{
@@ -133,6 +135,7 @@ line-height: 120%;
 letter-spacing: 1%;
 vertical-align: middle;
 cursor: pointer;
+text-align: center;
 }
 
 
@@ -180,7 +183,7 @@ font-size: 14px;
 line-height: 22px;
 letter-spacing: 1%;
 vertical-align: middle;
-
+width: 228px;;
 padding-left: 10px;;
 padding-right: 10px;;
 padding-top: 5px;;
@@ -208,10 +211,13 @@ border-radius: 8px;
     background-color: #853CFF;
     /* Цвет для активного состояния */
 }
+.container{
+    display: flex;
+  justify-content: center;
+}
  .settings_main{
     height: 685px;
-    width: 600px;
-    margin-left: 590px;
+    width:740px;
     margin-top:40px;;
     position: relative;
   }
@@ -355,10 +361,10 @@ cursor: pointer;
 .settings_questions{
         width: 960px;
         height: 684px;
-        margin-left: 517px;
         display: flex;
         position: relative;
         margin-top:2px;
+        margin-left:75px;
     }
    
 
