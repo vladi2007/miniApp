@@ -20,9 +20,7 @@ async function goTo(url: string) {
                     <div class="header_nav_organization_settings_name">
                         ИРИТ РТФ
                     </div>
-                    <div class="header_nav_organization_settings_name">
-                      
-                    </div>
+                      <img src="../public/images/Vector.svg" />
                 </div>
                 <div class='header_nav_user' @click="goTo('/leader/user')">
                     @{{ telegramName }}
@@ -40,6 +38,7 @@ async function goTo(url: string) {
    
 @media (max-width:1918px),
 (max-height:1078px) {
+
     .header_fon {
         width: 100dvw;
         height: calc((71 / 832) * 100dvh);
@@ -48,23 +47,24 @@ async function goTo(url: string) {
     }
 
     .header {
-
+        width: calc((1224/1280) * 100dvw);height: calc((71 / 832) * 100dvh);
         display: flex;
         align-items: center;
+       
+        margin: 0 auto;
     }
-
+    
     #logo_header {
         width: calc((123/1280) * 100dvw);
         height: calc((50 / 832) * 100dvh);
-        margin-left: calc((28/1280) * 100dvw) !important;
     }
 
     .header_nav {
         display: flex;
-        gap:calc((30/1280) * 100dvw) ;
-        margin-left: calc((697.91/1280) * 100dvw) !important;
+        gap: calc((30/1280) * 100dvw);
         height: calc((50 / 832) * 100dvh);
-        align-items: center;
+        margin-left:  auto;
+        align-items: center; 
     }
 
     .header_nav>div {
@@ -80,6 +80,12 @@ async function goTo(url: string) {
         color: #FFFFFF;
         cursor: pointer;
 
+    }
+
+    .header_nav_organization_settings >img  {
+        width: calc((16/1280) * 100dvw);
+        height: calc((9 / 832) * 100dvh);
+        margin-left: calc((5/1280) * 100dvw);
     }
     .header_nav_photo{
       width: calc((50/1280) * 100dvw);
@@ -119,7 +125,7 @@ async function goTo(url: string) {
     .header_nav {
         display: flex;
          gap:30px; ;
-        margin-left: 1082.91px !important;
+       margin-left:  auto;
          height: 50px;;
         align-items: center;
     }
@@ -138,6 +144,11 @@ async function goTo(url: string) {
         cursor: pointer;
 
     }
+     .header_nav_organization_settings >img  {
+        width: 16px;
+        height: 9px;
+        margin-left: 5px;;
+    }
      .header_nav_photo{
       width: 50px;
         height: 50px;
@@ -149,7 +160,13 @@ async function goTo(url: string) {
   object-fit: cover;
     }
 }
-
+*{
+    padding: 0;;
+}
+.header_nav_organization_settings{
+    display: flex;
+    align-items: center;
+}
 
  /* .header{
         background-color: beige;
