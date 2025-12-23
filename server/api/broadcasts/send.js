@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
     const xKey = "super-secret-key";
 
     const response = await fetch(
-      `https://carclicker.ru/api/broadcasts/send?x_key=${xKey}`,
+      `https://voshod08.ru/api/broadcasts/send?x_key=${xKey}`,
       {
         method: "POST",
         body: fd,

@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
 
     // 4️⃣ Отправляем запрос на внешний API
     const response = await fetch(
-      `https://carclicker.ru/api/interactivities/${id}?x_key=super-secret-key`,
+      `https://voshod08.ru/api/interactivities/${id}?x_key=super-secret-key`,
       {
         method: "PATCH",
         body: formData,

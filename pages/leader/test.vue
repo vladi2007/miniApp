@@ -16,7 +16,7 @@ const questions = [
       position: '1',
       type: 'text',
       question_weight: '5',
-      image: 'https://carclicker.ru/images/3359a87d-a883-4c9d-b3a7-6cbd4615eb81.jpg'
+      image: 'https://voshod08.ru/images/3359a87d-a883-4c9d-b3a7-6cbd4615eb81.jpg'
     },
     data_answers: [
       { text: "Контур", percentage: 10 },
@@ -50,7 +50,7 @@ const questions = [
       position: '2',
       type: 'many',
       question_weight: '5',
-      image: 'https://carclicker.ru/images/012790ad-b310-4566-bcc0-469793c9b6f7.jpg'
+      image: 'https://voshod08.ru/images/012790ad-b310-4566-bcc0-469793c9b6f7.jpg'
     },
     answers: [
       { id: '3', text: 'IT в бизнесе' },
@@ -80,7 +80,7 @@ const questions = [
       position: '3',
       type: 'one',
       question_weight: '2',
-      image: 'https://carclicker.ru/images/2f0aba5c-e9e3-43d3-8efd-744661137a8f.jpg'
+      image: 'https://voshod08.ru/images/2f0aba5c-e9e3-43d3-8efd-744661137a8f.jpg'
     },
     answers: [
       { id: '1', text: '1023' },

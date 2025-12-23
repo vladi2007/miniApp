@@ -294,13 +294,14 @@ async function submitReport() {
                 throw new Error(errorData.error || 'Ошибка сервера');
             }
 
-            const data = await response.json()
+            const data =await response.json();
+            console.log(data.data)
 
-            if (data.url) {
-
+            if (data.data) {
+                const fileName = data.data.split('/').pop()
                 postEvent('web_app_request_file_download', {
-                    url: `https://voshod07.ru${data.url}`,
-                    file_name: data.userFileName
+                    url: data.data,
+                    file_name: data.name
                 })
             } else {
                 throw new Error(data.error || 'Не удалось получить ссылку на файл')
