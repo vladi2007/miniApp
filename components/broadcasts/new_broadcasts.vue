@@ -253,11 +253,7 @@ watch(sendStatus, (value) => {
 </script>
 
 <template>
-    <div class="broadcasts">
-          <header_logo/>
-          <div class="broadcasts_margins">
-        <Header :goTo="goTo" :active="'broadcasts'" />
-
+        <Layout :active_nav="'broadcasts'">
         <div class="broadcasts_input"> <label>Введите текст рассылки<textarea v-model="text" id="description_input"
                     placeholder="Текст" maxlength="200" /></label></div>
         <div class="broadcasts_custom-file-upload" :class="{ 'broadcasts_file-uploaded': uploadedFileName }"
@@ -373,8 +369,6 @@ watch(sendStatus, (value) => {
             </div>
             <div class="broadcasts_show_more" v-if="!interactivesData.is_end" @click="more_load()">Показать еще</div>
         </div>
-</div>
-    </div>
 
     <div v-if="showPopup " class="broadcasts_popup-overlay">
         <div class="broadcasts_popup">
@@ -428,6 +422,8 @@ watch(sendStatus, (value) => {
             </div>
         </div>
     </div>
+        </Layout>
+
 </template>
 
 <style>

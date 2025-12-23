@@ -224,10 +224,7 @@ function urlReport(value:string){
 </script>
 
 <template>
-    <div class="history">
-         <header_logo/>
-         <div class ="history_margins" >
-        <Header :goTo="goTo" :active="'reports'"/>
+    <Layout :active_nav="'reports'">
         <div class="history_info">
             <img src="/public/images/history/history_info.svg" />
             <div>
@@ -324,8 +321,8 @@ function urlReport(value:string){
             </div>
             <div class="history_show_more" v-if="!interactivesData.is_end" @click="more_load()">Показать еще</div>
         </div>
-        </div>
-    </div>
+        
+    
 
     <div v-if="showPopup" class="popup-overlay">
         <div class="popup">
@@ -349,6 +346,7 @@ function urlReport(value:string){
             </div>
         </div>
     </div>
+    </Layout>
 </template>
 
 <style>

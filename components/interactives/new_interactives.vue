@@ -7,6 +7,7 @@ const finder = ref<string>("")
 const isOpen = ref(false)
 const selectedText = ref("all")
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import Layout from '../layout.vue';
 const options = ["Все", "Проведенные", "Не проведенные"]
 const options_code = {
     "all": "Все",
@@ -363,13 +364,9 @@ function urlReport(value:string){
 
 </script>
 <template>
-    <div class="interactives">
-        <header_logo/>
-        <div class ="interactives_margins" >
 
         
-              
-         <Header :goTo="goTo" :active="'interactives'" />
+        <Layout :active_nav="'interactives'">
         <div class="interactives_finder">
             <div class="interactives_finder_finder">
                 <img src="/public/images/history/finder.svg" class="interactives_input-icon" />
@@ -498,7 +495,7 @@ function urlReport(value:string){
             </div>
             <div class="interactives_show_more" v-if="!interactivesData.is_end" @click="more_load()">Показать еще</div>
         </div>
-    </div>
+    
         <div v-if="showPopup" class="interactives_popup-overlay">
             <div class="interactives_popup">
                 <div class="interactives_popup-header">
@@ -561,7 +558,6 @@ function urlReport(value:string){
         </div>
       </div>
     </div>
-    </div>
 
 
     <div v-if="show_report_Popup === true" class="popup-overlay">
@@ -588,6 +584,7 @@ function urlReport(value:string){
             </div>
         </div>
     </div>
+        </Layout>
 </template>
 
 <style>
@@ -619,7 +616,56 @@ button{
     overflow-x: hidden;
 }
 
+.header {
+    width: 100dvw;
+    height: calc((71 / 832) * 100dvh);
+    background-color: #853CFF;
+    display: flex;
+    align-items: center;
+}
 
+#logo_header {
+    width: calc((123/1280) * 100dvw);
+    height: calc((50 / 832) * 100dvh);
+    margin-left: auto;
+    margin-right: calc((40.29/1280) * 100dvw);
+}
+
+.nav {
+    display: flex;
+    gap: calc((20 / 1280) * 100dvw);
+    margin-top: calc((34 / 832) * 100dvh);
+    font-family: "Lato", sans-serif;
+    font-weight: 500;
+    font-style: Medium;
+    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
+    font-style: Medium;
+    letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
+    text-align: center;
+    vertical-align: middle;
+    color: #A9A9A9;
+
+}
+
+.nav>div:hover {
+    color: #1D1D1D;
+}
+
+.nav>div {
+    cursor: pointer;
+}
+
+.nav_main:not(.active_nav):hover::after,
+.nav_interactives:not(.active_nav):hover::after,
+.nav_reports:not(.active_nav):hover::after,
+.nav_broadcasts:not(.active_nav):hover::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 2px;
+    margin-top: 0px;
+    background-color: #853CFF;
+}
 
 .active_nav {
     font-family: "Lato", sans-serif;
