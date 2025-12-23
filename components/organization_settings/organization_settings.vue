@@ -8,14 +8,14 @@
                 <div class="org_form_input_title">
                     Название организации:
                 </div>
-                <textarea class="org_form_input_input" placeholder="Название"></textarea>
+                <textarea class="org_form_input_input" placeholder="Название" maxlength="32" minlength="3"></textarea>
 
             </div>
             <div class="org_form_input">
                 <div class="org_form_input_title">
                     Описание организации:
                 </div>
-                <textarea class="org_form_input_input"placeholder="Описание" ></textarea>
+                <textarea class="org_form_input_input"placeholder="Описание"maxlength="200" ></textarea>
 
 
             </div>
@@ -93,7 +93,6 @@ font-family: "Lato", sans-serif;
     vertical-align: middle;
 
 
-    font-family: Lato;
 font-family: "Lato", sans-serif;
         font-weight: 400;
         font-size: 16px;;
