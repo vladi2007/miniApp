@@ -331,12 +331,14 @@ settings_nav_main* {
 }
 
 .quest-nav-button.active {
-    border: 1.5px solid #853CFF
+    border: 1.5px solid #853CFF !important;
         /* или другой фиолетовый */
 
         /* опционально — текст */
 }
-
+.quest-nav-button.complete {
+  border: 1.5px  solid #6AB23D;
+}
 .question_button_plus {
     width: calc((42 / 1280) * 100dvw);
     height: calc((42 / 832) * 100dvh);
@@ -360,7 +362,13 @@ settings_nav_main* {
     margin-left: auto;
     margin-right: auto;
 }
-
+/* hover иконки через родителя */
+.question_button_plus:hover #plus {
+  content: url("/public/images/interactive_editor/hover_add.svg");
+}
+.question_button_plus:hover{
+background-color: #6AB23D;
+}
 #down {
     width: calc((19/ 1280) * 100dvw);
     height: calc((10 / 832) * 100dvh);
@@ -449,7 +457,9 @@ settings_nav_main* {
     height: calc((18 / 832) * 100dvh);
     cursor: pointer;
 }
-
+#question_edit_delete:hover{
+    content: url("/public/images/interactive_editor/red_delete_question.svg");
+}
 .settings_questions_mobile {
     margin-left: calc((227 / 1280) * 100dvw);
     width: calc((355 / 1280) * 100dvw);
@@ -787,7 +797,9 @@ input:focus {
     right: calc((14 / 1280) * 100dvw);
     cursor: pointer;
 }
-
+.delete-answer-icon:hover{
+    content: url("/public/images/interactive_editor/red_delete.svg");
+}
 /* Обертка с инпутом и картинкой */
 .custom-answer-input {
     display: flex;

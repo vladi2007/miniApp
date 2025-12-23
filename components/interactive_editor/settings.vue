@@ -31,7 +31,7 @@ import { Confirm } from 'vue-tg'
 
 // constants
 const { form, active_step, currentQuestion, currentQuestionIndex, loadDB, take_step, } = useInteractiveForm(mode.value, userId, id)
-const { questionErrors, isFormComplete, errors, validateQuestions, validateForm, getIconSrcWithValidation } = useValidateForm(form, active_step, currentQuestion, currentQuestionIndex)
+const { questionErrors, isFormComplete, errors, validateQuestions, validateForm, getIconSrcWithValidation, isQuestionComplete } = useValidateForm(form, active_step, currentQuestion, currentQuestionIndex)
 const { visibleStartIndex, visibleQuestions, addQuestion, deleteQuestion, scrollUp, scrollDown, handleWheelScroll,showDelete,showDeletefn } = useQuestionNavigator(form, currentQuestionIndex, questionErrors, errors)
 const { imageUploaded, uploadedFileName, loadImageDB, handleFileChange, removeImage, imageUrls, } = useImage(currentQuestionIndex, form, currentQuestion)
 const { loadFromBackend, getOriginalFileNameFromMeta } = useEdit(mode.value, userId, id, form, currentQuestionIndex, imageUrls)
@@ -58,7 +58,7 @@ onUnmounted(() => {
 
 //flags
 const isLoading=ref(false)
-
+const originalForm = ref<string>('')
 //onMounted
 onMounted(async () => {
   await Promise.all([loadDB(), loadImageDB()]);
@@ -69,11 +69,11 @@ onMounted(async () => {
   const savedForm = await loadFromDeviceStorage(FORM_STORAGE_KEY);
   if (savedForm) {
     form.value = savedForm;
-    console.log('✅ Форма восстановлена из IndexedDB');
     isLoading.value = true;
     return; 
   }
   if (mode.value === 'edit' || mode.value === 'duplicate') {
+
     await loadFromBackend(userId);
     await Promise.all(
       form.value.questions.map(async (q) => {
@@ -91,11 +91,24 @@ onMounted(async () => {
     await saveToDeviceStorage(FORM_STORAGE_KEY, toRaw(form.value));
     console.log('💾 Форма сохранена после загрузки с бэкенда');
     isLoading.value = true;
+      originalForm.value = snapshot(toRaw(form.value))
   }
 });
 
 
-// popup for input type= file(image)
+function snapshot(formValue: any) {
+  const copy = structuredClone(formValue)
+
+  copy.questions?.forEach((q: any) => {
+    delete q.question.position
+    if (q.question._originalFileName !== undefined) {
+      q.question.uploadedFileName = q.question._originalFileName;
+    }
+  })
+  
+  return JSON.stringify(copy)
+}
+
 const isImagePopupOpen = ref(false);
 function openImagePopup() {
   isImagePopupOpen.value = true;
@@ -103,10 +116,13 @@ function openImagePopup() {
 function closeImagePopup() {
   isImagePopupOpen.value = false;
 }
-
+function isFormChanged() {
+  return snapshot(toRaw(form.value)) !== originalForm.value
+}
 // for parent component
 defineExpose({
-  handleSave
+  handleSave,
+  isFormChanged
 })
 
 const props = defineProps<{confirmBack: () => void}>()
@@ -141,7 +157,8 @@ const props = defineProps<{confirmBack: () => void}>()
       @start="showStart=true"
       @cancelStart="showStart=false"
       @updateCurrentQuestionIndex="currentQuestionIndex = $event" @showSave="showSavePopup = true"
-      :imageUrls="imageUrls" />
+      :imageUrls="imageUrls"
+      :isQuestionComplete="isQuestionComplete" />
     <settings_save_popup :showSavePopup="showSavePopup" :handleSave="handleSave" @closeSave="showSavePopup = false" />
     <!-- Попап загрузки изображения -->
     <teleport to="body">

@@ -62,7 +62,8 @@ const props = defineProps<{
     handleStart: () => void
     showSavePopup: boolean
     handleSave: () => void
-    showStart:any
+    showStart:any,
+    isQuestionComplete:any
 }>()
 
 const emit = defineEmits(['update:score', 'updateCurrentQuestionIndex', 'showSave', 'start','cancelStart','showDelete','cancelDelete'])
@@ -76,13 +77,14 @@ function updateScore(event: Event) {
 
 
 <template>
+     <div class="container">
     <div class="settings_questions" v-if="active_step === 'questions'">
         <div class="settings_questions_nav">
             <img src="/public/images/interactive_editor/question_up.svg" id="up" @click="scrollUp()" />
             <div class="question_buttons_list" @wheel="handleWheelScroll">
                 <div v-for="(q, idx) in visibleQuestions" :key="q.question.position"
                     @click="emit('updateCurrentQuestionIndex', visibleStartIndex + idx)" class="quest-nav-button"
-                    :class="{ active: currentQuestionIndex === (visibleStartIndex + idx) }">
+                    :class="{ active: currentQuestionIndex === (visibleStartIndex + idx), complete: isQuestionComplete(q.question)} ">
                     {{ visibleStartIndex + idx + 1 }}
                 </div>
 
@@ -204,8 +206,8 @@ function updateScore(event: Event) {
 
                         <!-- Удаление ответа -->
                         <img v-if="currentQuestion.question.answers.length > 1" class="delete-answer-icon"
-                            src="public/images/interactive_editor/delete_answer.svg" alt="Удалить ответ"
-                            @click="deleteAnswer(index)" />
+                            src="public/images/interactive_editor/grey_delete.svg" alt="Удалить ответ"
+                            @click="deleteAnswer(index)" id="delete-answer-icon"/>
                     </div>
                 </div>
                 <div class="answers-section-add_question" @click="addAnswer()" v-if="!limit_answers">
@@ -261,6 +263,7 @@ function updateScore(event: Event) {
         </div>
 
 
+    </div>
     </div>
 </template>
 <style>

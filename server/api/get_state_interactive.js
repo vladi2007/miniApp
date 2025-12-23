@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   try {
     // Тип явно указываем
     const response = await fetch(
-      `https://carclicker.ru/api/interactivities/is_running/${id}?x_key=super-secret-key`
+      `https://voshod08.ru/api/interactivities/is_running/${id}?x_key=super-secret-key`
     );
     
 

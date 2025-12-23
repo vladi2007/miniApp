@@ -25,7 +25,7 @@ height: calc((487 / 832) * 100dvh);
   font-family: "Lato", sans-serif;
   width: calc((1097 / 1280) * 100dvw);
  display: flex;
-
+flex-direction: column;
   gap: calc((10 / 832) * 100dvh); 
   font-weight: 500;
   height:calc((318 / 832) * 100dvh);
@@ -33,7 +33,6 @@ height: calc((487 / 832) * 100dvh);
   font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
   letter-spacing: clamp(0.1px, calc(calc(20 / 100) / 1280 * 100dvw), 0.4px);
   vertical-align: middle;
-  
 }
 
 

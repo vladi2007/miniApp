@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     // валидация
   
-    const response = await fetch('https://carclicker.ru/api/broadcasts/test?x_key=super-secret-key', {
+    const response = await fetch('https://voshod08.ru/api/broadcasts/test?x_key=super-secret-key', {
       method: 'POST',
         headers: {
     'Content-Type': 'application/json',

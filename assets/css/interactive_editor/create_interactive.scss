@@ -63,8 +63,8 @@
   
 }
 
-.interactive_edit_popup-text_goback {
-  font-size: clamp(12px, calc((20 / 1280) * 100dvw), 40px);
+.interactive_edit_popup-text_goback {white-space: nowrap;
+  font-size: clamp(12px, calc((20 / 1280) * 100dvw), 40px); height: calc((64 / 832) * 100dvh);
   letter-spacing: clamp(0.12px, calc((20/100 / 1280) * 100dvw), 0.40px);;
   margin-top: calc((29 / 1159) * 100dvh);
   margin-left:calc((20 / 1280) * 100dvw); ;
@@ -79,7 +79,7 @@ font-style: Bold;
   height: calc((41 / 832) * 100dvh) !important;margin-top:calc((20/832)*100dvh);
 }
 
-.interactive_edit_popup-btn_goback {
+.interactive_edit_popup-btn_goback {white-space: nowrap;
    font-size: clamp(12px, calc((20 / 1280) * 100dvw), 40px);
   border: none;
   border-radius: 5px;
@@ -166,7 +166,7 @@ font-style: Bold;
   
 }
 
-.interactive_edit_popup-text_goback {
+.interactive_edit_popup-text_goback {height: 64px; white-space: nowrap;
   font-size: 20px;
   letter-spacing: 0.20px;;
   margin-top: 29px;
@@ -214,7 +214,7 @@ font-style: Bold;
 .interactive_edit_popup-btn_goback.cancel {
   background-color: #FFFFFF;
   border: 1.5px solid #F0436C;
-  color: #F0436C;
+  color: #F0436C;white-space: nowrap;
 }
 
 .interactive_edit_popup-btn_goback.cancel:hover {color: #FFFFFF;

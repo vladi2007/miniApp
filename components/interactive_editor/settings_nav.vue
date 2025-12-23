@@ -11,6 +11,7 @@ const props = defineProps<{
 </script>
 
 <template>
+    <div class="container">
     <div class="settings_nav">
         <div class ='settings_nav_backbutton' @click="confirmBack">
             <img src="/public/images/interactive_editor/Vector_static.svg" id="back_purple" />
@@ -36,7 +37,7 @@ const props = defineProps<{
         </div>
 
 
-    </div>
+    </div></div>
 </template>
 
 

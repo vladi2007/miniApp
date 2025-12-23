@@ -10,6 +10,7 @@ export function useSave(
   userId?,
   id?
 ) {
+  const { $queryClient } = useNuxtApp()
   const showSavePopup = ref(false);
   function cleanFormBeforeSave(formValue) {
     const cleaned = JSON.parse(JSON.stringify(formValue)); // делаем копию
@@ -34,6 +35,7 @@ export function useSave(
   }
 
   async function handleSave() {
+    
     showSavePopup.value = false;
     const isMainValid = validateForm();
     if (!isMainValid) {
@@ -85,6 +87,8 @@ export function useSave(
       });
       route.push({path:'/leader/new_interactives',  query: { from: `/leader/` }})
       console.log(response);
+      
+    $queryClient.invalidateQueries(['interactives'])
       return response.data.interactive_id;
       
     } else {
@@ -97,9 +101,11 @@ export function useSave(
       });
       route.push({path:'/leader/new_interactives',  query: { from: `/leader/` }})
        console.log(response.data)
+    $queryClient.invalidateQueries(['interactives'])
       return response.data;
      
     }
+    
   }
 type CreateInteractiveResponse = {
   data: {
@@ -122,7 +128,7 @@ const showStart=ref(false)
       return false;
     }
     const response = await handleSave();
-    
+    $queryClient.invalidateQueries(['interactives'])
     route.push(`/leader/${response}`)
   }
 

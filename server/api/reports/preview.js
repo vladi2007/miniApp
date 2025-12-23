@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     const response = await fetch(
-      `https://carclicker.ru/api/interactivities/me?x_key=super-secret-key&telegram_id=${telegram_id}&filter=${filter}&from_number=${from_number}&to_number=${to_number}`,
+      `https://voshod08.ru/api/interactivities/me?x_key=super-secret-key&telegram_id=${telegram_id}&filter=${filter}&from_number=${from_number}&to_number=${to_number}`,
       {
         method: 'GET',
         headers: {

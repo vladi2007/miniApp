@@ -8,7 +8,28 @@ import { useRouter } from 'vue-router'
 
 // Получаем экземпляр маршрутизатора
 const router = useRouter()
-
+// const winners = [
+//   { position: 1, username: 'PlayerOne', time: 125, score: 1500 },
+//   { position: 2, username: 'FastRunner', time: 138, score: 1420 },
+//   { position: 3, username: 'Speedy', time: 150, score: 1300 },
+//   { position: 4, username: 'NoobMaster', time: 180, score: 1100 },
+//   { position: 5, username: 'Legend27', time: 210, score: 900 },
+//   { position: 1, username: 'PlayerOne', time: 125, score: 1500 },
+//   { position: 2, username: 'FastRunner', time: 138, score: 1420 },
+//   { position: 3, username: 'Speedy', time: 150, score: 1300 },
+//   { position: 4, username: 'NoobMaster', time: 180, score: 1100 },
+//   { position: 5, username: 'Legend27', time: 210, score: 900 },
+//   { position: 1, username: 'PlayerOne', time: 125, score: 1500 },
+//   { position: 2, username: 'FastRunner', time: 138, score: 1420 },
+//   { position: 3, username: 'Speedy', time: 150, score: 1300 },
+//   { position: 4, username: 'NoobMaster', time: 180, score: 1100 },
+//   { position: 5, username: 'Legend27', time: 210, score: 900 },
+//   { position: 1, username: 'PlayerOne', time: 125, score: 1500 },
+//   { position: 2, username: 'FastRunner', time: 138, score: 1420 },
+//   { position: 3, username: 'Speedy', time: 150, score: 1300 },
+//   { position: 4, username: 'NoobMaster', time: 180, score: 1100 },
+//   { position: 5, username: 'Legend27', time: 210, score: 900 },
+// ]
 // Функция возврата на предыдущую страницу
 function goToMainMenu() {
 

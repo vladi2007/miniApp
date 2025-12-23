@@ -1,9 +1,9 @@
 <script setup>
-import history from '~/components/history/new_history.vue'
+import new_interactives from '~/components/interactives/new_interactives.vue';
 </script>
 
 <template>
-    <history/>
+    <new_interactives/>
 </template>
 
 <style >

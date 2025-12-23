@@ -45,7 +45,7 @@ export default defineEventHandler(async (event) => {
 
     // 4️⃣ Отправляем запрос на внешний API
     const response = await fetch(
-      `https://carclicker.ru/api/interactivities/?x_key=${xKey}`,
+      `https://voshod08.ru/api/interactivities/?x_key=${xKey}`,
       {
         method: "POST",
         body: formData,
