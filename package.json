@@ -19,7 +19,7 @@
     "@pinia/nuxt": "^0.11.0",
     "@tanstack/query-persist-client-core": "^5.91.10",
     "@tanstack/react-query-persist-client": "^5.90.13",
-    "@tanstack/vue-query": "^5.91.4",
+    "@tanstack/vue-query": "^5.92.1",
     "@telegram-apps/bridge": "^2.11.0",
     "@telegram-apps/init-data-node": "^2.0.7",
     "@telegram-apps/sdk": "^3.10.0",

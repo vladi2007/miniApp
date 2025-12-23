@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const response = await fetch(`https://carclicker.ru/api/users/me/role?x_key=super-secret-key&telegram_id=${telegram_id}`)
+  const response = await fetch(`https://voshod08.ru/api/users/me/role?x_key=super-secret-key&telegram_id=${telegram_id}`)
 
   if (!response.ok) {
     throw createError({

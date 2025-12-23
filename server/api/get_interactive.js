@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   try {
     // Тип явно указываем
     const response = await fetch(
-      `https://carclicker.ru/api/interactivities/${id}?x_key=super-secret-key&telegram_id=${telegram_id}`,
+      `https://voshod08.ru/api/interactivities/${id}?x_key=super-secret-key&telegram_id=${telegram_id}`,
      
     )
 
