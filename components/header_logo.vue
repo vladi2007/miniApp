@@ -7,6 +7,8 @@
 async function goTo(url: string) {
     router.push(url)
 }
+const orgs=ref(false)
+const org_name=ref('ИРИТ РТФ')
 </script>
 <template>
     <div class="header_fon">
@@ -16,11 +18,26 @@ async function goTo(url: string) {
                 <div class='header_nav_about_us' @click="goTo('/leader/main_menu')">
                     О нас
                 </div>
-                <div class="header_nav_organization_settings">
+                <div class="header_nav_organization_settings" @click="orgs=!orgs" >
                     <div class="header_nav_organization_settings_name">
-                        ИРИТ РТФ
+                        {{ org_name }}
                     </div>
                       <img src="../public/images/Vector.svg" />
+                      <div class="header_nav_item-dropdown-options" v-if="orgs"
+                                style=" z-index: 10001 !important;" >
+                                <div class ='header_nav_item-dropdown-options-header'>
+                                    Выберите организацию:
+                                </div>
+                                <div class="header_nav_item-dropdown-option"  @click="org_name='Джойтека'">
+                                    Джойтека
+                                </div>
+                                <div class="header_nav_item-dropdown-option"  @click="org_name='Звезда'">
+                                    Звезда 
+                                </div>
+                                <div class="header_nav_item-dropdown-option"   @click="org_name='ИРИТ РТФ'">
+                                    ИРИТ РТФ 
+                                </div>
+                            </div>
                 </div>
                 <div class='header_nav_user' @click="goTo('/leader/user')">
                     @{{ telegramName }}
@@ -97,6 +114,56 @@ async function goTo(url: string) {
         border-radius: 50%;
   object-fit: cover;
     }
+
+    .header_nav_item-dropdown-options {
+        position: absolute;
+        top: calc(100% + calc(32/832)*100dvh);
+        box-shadow: 0px 1px 13.8px 0px #00000025;
+        width: calc((318 / 1280) * 100dvw);
+        height: calc((206 / 832) * 100dvh);
+        border-radius: calc((14/832*100dvh));
+        left: calc((-11 / 1280) * 100dvw);
+        background: white;
+        z-index: 665455;
+
+    }
+    .header_nav_item-dropdown-options-header{
+      margin: 0 auto;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-family: "Lato", sans-serif;
+        color: #1D1D1D;
+        white-space: nowrap;
+        font-weight: 600;
+        font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
+        letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
+        width: calc((306/1280) * 100dvw);
+         height: calc((34 / 832) * 100dvh);
+         padding-left: calc((5/1280) * 100dvw);
+         margin-top:calc((17 / 832) * 100dvh)
+    }
+    .header_nav_item-dropdown-option {
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-family: "Lato", sans-serif;
+        color: #1D1D1D;
+        white-space: nowrap;
+        font-weight: 400;
+        font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
+        letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
+        width: calc((306/1280) * 100dvw);
+         height: calc((34 / 832) * 100dvh);
+         padding-left: calc((5/1280) * 100dvw);
+        margin-top:calc((12 / 832) * 100dvh)
+    }
+
+    .header_nav_item-dropdown-option:hover{
+        border-radius: calc(7/832*100dvh);
+        background-color: #DFDFDF !important;
+    }
 }
 
 
@@ -159,6 +226,55 @@ async function goTo(url: string) {
         border-radius: 50%;
   object-fit: cover;
     }
+    .header_nav_item-dropdown-options {
+        position: absolute;
+        top: calc(100% + 32px);
+        box-shadow: 0px 1px 13.8px 0px #00000025;
+        width: 318px;
+        height: 206px;
+        border-radius: 14px;
+        left: -11px;
+        background: white;
+        z-index: 665455;
+
+    }
+    .header_nav_item-dropdown-options-header{
+      margin: 0 auto;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-family: "Lato", sans-serif;
+        color: #1D1D1D;
+        white-space: nowrap;
+        font-weight: 600;
+        font-size:20px;
+        letter-spacing: 0.2px;
+        width: 306px;
+         height: 34px;
+         padding-left: 5px;
+         margin-top:17px
+    }
+    .header_nav_item-dropdown-option {
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-family: "Lato", sans-serif;
+        color: #1D1D1D;
+        white-space: nowrap;
+        font-weight: 400;
+        font-size:20px;
+        letter-spacing: 0.2px;
+        width: 306px;
+         height: 34px;
+         padding-left: 5px;
+         margin-top:12px
+    }
+
+    .header_nav_item-dropdown-option:hover{
+        border-radius: 7px;
+        background-color: #DFDFDF !important;
+    }
 }
 *{
     padding: 0;;
@@ -166,6 +282,8 @@ async function goTo(url: string) {
 .header_nav_organization_settings{
     display: flex;
     align-items: center;
+    cursor: pointer;
+    position: relative;
 }
 
  /* .header{

@@ -43,9 +43,13 @@
     gap: calc((10 / 832) * 100dvh);
     margin-bottom: calc((10 / 832) * 100dvh);;
 }
-
+.org_form_input_title{
+    height: calc((18 / 832) * 100dvh);;
+    display: flex;
+    align-items: center;
+}
  .org_form_input > textarea{
-    min-height: calc((42 / 832) * 100dvh);;
+    height: calc((42 / 832) * 100dvh);;
     border-radius: calc((8 / 832) * 100dvh);;
     border: calc((1.5 / 832) * 100dvh) solid #E0E0E0;;
     padding-left:calc(12/1280*100dvw);
@@ -82,9 +86,13 @@ font-family: "Lato", sans-serif;
     gap: 10px;
     margin-bottom: 10px;;
 }
-
+.org_form_input_title{
+    height: 18px;;
+    display: flex;
+    align-items: center;
+}
  .org_form_input > textarea{
-    min-height: 42px;;;
+     height: 42px;;
     border-radius: 8px;;
     border: 1.5px solid #E0E0E0;;
     padding-left:12px;
