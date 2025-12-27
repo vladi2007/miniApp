@@ -221,6 +221,18 @@ function urlReport(value:string){
     if (selectedOption.value!==value) {return "/images/interactives/circle_report.svg"}
     else {return "/images/interactives/circle_report_picked.svg"}
 }
+const expandedTitles = reactive<{ [key: string]: boolean }>({});
+const expandedLeaders = reactive<{ [key: string]: boolean }>({});
+
+// Функции для переключения раскрытия
+function toggleTitle(id: string) {
+  expandedTitles[id] = !expandedTitles[id];
+}
+
+function toggleLeader(id: string) {
+  expandedLeaders[id] = !expandedLeaders[id];
+}
+const telegramName = useState<string | null>('userName')
 </script>
 
 <template>
@@ -241,7 +253,7 @@ function urlReport(value:string){
                 <div class="history_list_list" v-for="id in selectedInteractives" :key="id"
                     v-if="selectedInteractives.length > 0" style="height: calc((36/832)*100dvh);" id="history_list_list">
 
-                    <div class="history_list_list_item" :class="['selected_item']">
+                    <div class="history_list_list_item_selected" :class="['selected_item']">
                         <div class="history_list_list_item_title">
                             {{interactivesData?.interactives_list?.find(item => item.id === id)?.title}}
                         </div>
@@ -293,6 +305,9 @@ function urlReport(value:string){
                 <div class="history_list_header_title">
                     Название
                 </div>
+                <div class="history_list_header_leadername">
+                    Ведущий
+                </div>
                 <div class="history_list_header_date">
                     Дата
                 </div>
@@ -303,8 +318,11 @@ function urlReport(value:string){
             <div class="history_list_list" v-for="(item, index) in interactivesData.interactives_list" :key="item.id">
                 <div class="Line" v-if="index === 0" />
                 <div class="history_list_list_item">
-                    <div class="history_list_list_item_title">
+                    <div class="history_list_list_item_title title-clamp" :class="{ expanded: expandedTitles[item.id] }" @click="toggleTitle(item.id)">
                         {{ item.title }}
+                    </div>
+                    <div class="history_list_list_item_leadername title-clamp" :class="{ expanded: expandedLeaders[item.id] }" @click="toggleLeader(item.id)">
+                        @{{ telegramName }}
                     </div>
                     <div class="history_list_list_item_date">
                         {{ item.date_completed }}

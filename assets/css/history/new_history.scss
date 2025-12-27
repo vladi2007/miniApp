@@ -269,15 +269,18 @@ margin-left: calc((290/1280) * 100dvw);;
     width: calc((89 / 1280) * 100dvw);
     text-align: left;
 }
-
-.history_list_header_date {
-    margin-left: calc((356 / 1280) * 100dvw);
+.history_list_header_leadername{ 
+    width: calc((96 / 1280) * 100dvw);
+     margin-left: calc((197 / 1280) * 100dvw);
+      text-align: center;
+}
+.history_list_header_date {     margin-left: calc((73 / 1280) * 100dvw);
     width: calc((96 / 1280) * 100dvw);
     text-align: center;
 }
 
-.history_list_header_count {
-    margin-left: calc((59 / 1280) * 100dvw);
+.history_list_header_count { margin-left: calc((49 / 1280) * 100dvw);
+   
     width: calc((192 / 1280) * 100dvw);
     text-align: center;
 }
@@ -292,8 +295,6 @@ margin-left: calc((290/1280) * 100dvw);;
 .history_list_list_item {
     overflow-x: hidden;
     display: flex;
-    align-items: center;
-    height: calc((46.13/832) * 100dvh);
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
@@ -302,8 +303,20 @@ margin-left: calc((290/1280) * 100dvw);;
     text-align: center;
     vertical-align: middle;
 }
-
-.history_list_list_item>img {
+.history_list_list_item_selected{
+     overflow-x: hidden;
+    display: flex;
+    align-items: center;
+     height: calc((46.13/832) * 100dvh);
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
+    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
+    text-align: center;
+    vertical-align: middle;
+}
+.history_list_list_item_selected>img {
     height: calc((18/832) * 100dvh);
     width: calc((14 / 1280) * 100dvw);
     margin-left: auto;
@@ -316,25 +329,72 @@ margin-left: calc((290/1280) * 100dvw);;
     width: 100%;
 }
 
-.history_list_list_item_title {
-    margin-left: calc((22 / 1280) * 100dvw);
-    width: calc((400 / 1280) * 100dvw);
+.history_list_list_item > div{
+
+      line-height: calc((19.2/832)*100dvh);
+}
+.history_list_list_item_title, 
+.history_list_list_item_leadername {
+    position: relative; /* для ::after */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.history_list_list_item_title {margin-left: calc((22 / 1280) * 100dvw);
+    margin-top:calc((15/832)*100dvh);;
+     margin-bottom:calc((15/832)*100dvh);;
+    width: calc((253/ 1280) * 100dvw);
     text-align: left;
+
+}
+.history_list_list_item_leadername {margin-left: calc((12 / 1280) * 100dvw);
+ margin-top:calc((15/832)*100dvh);;
+  text-align: left;
+     margin-bottom:calc((15/832)*100dvh);;
+  width: calc((137 / 1280) * 100dvw);
+}
+.title-clamp::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: calc((31 / 1280) * 100dvw);
+    height: 100%;
+    pointer-events: none;
+    background: linear-gradient(85.63deg, rgba(255,255,255,0.4) 29.36%, #ffffff 89.3%);
+}
+.history_list_list_item_leadername.expanded,
+.history_list_list_item_title.expanded {
+    white-space: normal;      
+    word-break: break-word;  
+    overflow-wrap: break-word; 
 }
 
-.history_list_list_item_date {
-    margin-left: calc((16 / 1280) * 100dvw);
+.title-clamp.expanded::after {
+    display: none; /* только у текущего элемента с expanded */
+}
+
+
+.history_list_list_item_date {margin-left: calc((24 / 1280) * 100dvw);
+    margin-top:calc((15/832)*100dvh);;
+     margin-bottom:calc((15/832)*100dvh);;
     width: calc((154 / 1280) * 100dvw);
-    text-align: center;
+     text-align: center;
 }
 
-.history_list_list_item_count {
-    margin-left: calc((92 / 1280) * 100dvw);
+.history_list_list_item_count {margin-left: calc((82 / 1280) * 100dvw);
+    margin-top:calc((15/832)*100dvh);;
+     margin-bottom:calc((15/832)*100dvh);;
     width: calc((68 / 1280) * 100dvw);
     text-align: center;
 }
 
 .history_list_list_item_download_one {
+    margin-top:calc((5.13/832)*100dvh);;
+     margin-bottom:calc((5/832)*100dvh);;
     margin-left: calc((32 / 1280) * 100dvw);
     height: calc((36/832) * 100dvh);
     width: calc((131 / 1280) * 100dvw);
@@ -355,6 +415,8 @@ margin-left: calc((290/1280) * 100dvw);;
 }
 .history_list_list_item_download_many {width: calc((131 / 1280) * 100dvw);    height: calc((36/832) * 100dvh);
     margin-left: calc((10 / 1280) * 100dvw);
+    margin-top:calc((5.13/832)*100dvh);;
+     margin-bottom:calc((5/832)*100dvh);;
     color: #853CFF;
     font-family: "Lato", sans-serif;border: calc(1.5/832*100dvh) solid white;
     font-weight: 500;

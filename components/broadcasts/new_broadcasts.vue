@@ -250,6 +250,18 @@ watch(sendStatus, (value) => {
         clearInterval(dotInterval)
     }
 })
+const expandedTitles = reactive<{ [key: string]: boolean }>({});
+const expandedLeaders = reactive<{ [key: string]: boolean }>({});
+
+// Функции для переключения раскрытия
+function toggleTitle(id: string) {
+  expandedTitles[id] = !expandedTitles[id];
+}
+
+function toggleLeader(id: string) {
+  expandedLeaders[id] = !expandedLeaders[id];
+}
+const telegramName = useState<string | null>('userName')
 </script>
 
 <template>
@@ -289,7 +301,7 @@ watch(sendStatus, (value) => {
                 <div class="broadcasts_list_list" v-for="id in selectedInteractives" :key="id"
                     v-if="selectedInteractives.length > 0" style="height: calc((36/832)*100dvh);">
 
-                    <div class="broadcasts_list_list_item" :class="['broadcasts_selected_item']">
+                    <div class="broadcasts_list_list_item_selected" :class="['broadcasts_selected_item']">
                         <div class="broadcasts_list_list_item_title">
                             {{interactivesData?.interactives_list?.find(item => item.id === id)?.title}}
                         </div>
@@ -342,6 +354,9 @@ watch(sendStatus, (value) => {
                 <div class="broadcasts_list_header_title">
                     Название
                 </div>
+                <div class="broadcasts_list_header_leadername">
+                    Ведущий
+                </div>
                 <div class="broadcasts_list_header_date">
                     Дата
                 </div>
@@ -352,8 +367,11 @@ watch(sendStatus, (value) => {
             <div class="broadcasts_list_list" v-for="(item, index) in interactivesData.interactives_list" :key="item.id">
                 <div class="broadcasts_Line" v-if="index === 0" />
                 <div class="broadcasts_list_list_item">
-                    <div class="broadcasts_list_list_item_title">
+                    <div class="broadcasts_list_list_item_title title-clamp" :class="{ expanded: expandedTitles[item.id] }" @click="toggleTitle(item.id)">
                         {{ item.title }}
+                    </div>
+                    <div class="broadcasts_list_list_item_leadername title-clamp" :class="{ expanded: expandedLeaders[item.id] }" @click="toggleLeader(item.id)">
+                        @{{ telegramName }}
                     </div>
                     <div class="broadcasts_list_list_item_date">
                         {{ item.date_completed }}
