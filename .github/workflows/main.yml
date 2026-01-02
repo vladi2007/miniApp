@@ -1,9 +1,9 @@
-name: Deploy to VPS (branch-aware)
+name: Deploy to VPS (frontend + dev + nginx)
 
 on:
   push:
     branches:
-      - '**'
+      - '**' 
 
 jobs:
   deploy:
@@ -14,32 +14,40 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.MINIAPP_KEY }}
+
       - name: Add SSH host key to known_hosts
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H 45.9.40.96 >> ~/.ssh/known_hosts
+
       - name: 🚀 SSH into server and deploy
         run: |
           BRANCH=${{ github.ref_name }}
+
           ssh root@45.9.40.96 << EOF
             set -e
-            cd /root/miniApp
-            
-            echo "🛑 Stopping Docker containers..."
-            docker compose down
 
-            echo "🧹 Cleaning up Docker system..."
+            echo "🛑 Pull latest code for PROD..."
+            cd /root/miniApp
+            docker compose down
+            git fetch origin
+            git checkout main
+            git pull origin main
+
+            echo "🛑 Pull latest code for DEV..."
+            cd /root/miniApp_dev
+            git fetch origin
+            git checkout -B $BRANCH origin/$BRANCH
+            git pull 
+
+            echo "🛑 Building and starting all containers..."
+            cd /root
+            
             docker system prune --volumes -f
             docker builder prune -f
             docker system prune -f
-
-            echo "📦 Checking out branch: $BRANCH"
-            git fetch origin
-            git checkout -B $BRANCH origin/$BRANCH
-            git pull
-
-            echo "🔧 Rebuilding and restarting container..."
             docker compose build --no-cache
             docker compose up -d
-          EOF
 
+            echo "✅ Deployment finished!"
+          EOF
