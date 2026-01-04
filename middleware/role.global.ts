@@ -10,7 +10,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   const targetPath = to.path          
   console.log(userRole.value?.role === 'leader')
     console.log(currentPath.startsWith('/leader') )
-  if ( targetPath.includes('/leader')  && userRole.value?.role !== 'leader') {
+  if ( targetPath.includes('/leader')  && userRole.value?.role === 'participant') {
       router.push('/not_leader')
   }
 })

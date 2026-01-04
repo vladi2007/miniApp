@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const { telegram_id } = getQuery(event)
+    const { telegram_id , organization_name, organization_description} = getQuery(event)
 
   if (!telegram_id) {
     return createError({
@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const response = await fetch(`https://devvoshod08.ru/api/organization/me/role?x_key=super-secret-key&telegram_id=${telegram_id}`)
+  const response = await fetch(`https://devvoshod08.ru/api/organization/description?x_key=super-secret-key&telegram_id=${telegram_id}&organization_name=${organization_name}&organization_description=${organization_description}`, {method:'PATCH'})
 
   if (!response.ok) {
     throw createError({

@@ -1,5 +1,71 @@
 <script setup lang="ts">
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+const telegramName = useState<string | null>('userName')
+const userId = useState('telegramUser')
+const { data: org, isLoading, refetch } = useQuery({
+    queryKey: computed(() => ['org', userId.value]),
+    queryFn: async () => {
+        const res = await $fetch('/api/get_org_name', {
+            query: { telegram_id: userId.value, }
 
+        })
+        return res
+    },
+    enabled: computed(() => Boolean(userId)),
+    staleTime: 1000 * 60 * 30,
+    cacheTime: 1000 * 60 * 30,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+})
+const orgNameInput = ref<string>('')
+const orgDescInput = ref<string>('')
+watch(
+  () => org.value,
+  (val) => {
+
+      orgNameInput.value = val?.organization_name ?? ''
+    orgDescInput.value = val?.organization_description ?? ''
+    
+  },
+  { immediate: true }
+)
+
+const { $queryClient } = useNuxtApp()
+const { mutate: saveOrg  } = useMutation({
+  mutationFn: () =>
+  
+    $fetch('/api/patch_org', {
+      method: 'PATCH',
+      query: {
+        telegram_id: userId.value,
+        organization_name: orgNameInput.value,
+        organization_description:orgDescInput.value,
+      },
+    }
+    
+
+),
+  onSuccess: (data) => {
+    // обновляем кэш, без refetch
+    $queryClient.invalidateQueries(['org'])}
+
+})
+
+const originalName = computed(() => org.value?.organization_name ?? '')
+const originalDesc= computed(() => org.value?.organization_description ?? '')
+const canSave = computed(() => {
+    const trimmedName = orgNameInput.value.trim()
+        const trimmedDesc = orgDescInput.value.trim()
+  if (trimmedName.length<3) {
+    // Можно показать уведомление
+    window.Telegram.WebApp.showAlert('Имя должно быть длинее 2 символов')
+    return
+  }
+  return (
+    trimmedName !== originalName.value.trim() || trimmedDesc !== originalDesc.value.trim()
+    
+  )
+})
 </script>
 <template>
     <layout :active_nav="'organization_settings'">
@@ -8,24 +74,25 @@
                 <div class="org_form_input_title">
                     Название организации:
                 </div>
-                <textarea class="org_form_input_input" placeholder="Название" maxlength="32" minlength="3"></textarea>
+                <textarea class="org_form_input_input" placeholder="Название" maxlength="32" minlength="3" v-model="orgNameInput"></textarea>
 
             </div>
             <div class="org_form_input">
                 <div class="org_form_input_title">
                     Описание организации:
                 </div>
-                <textarea class="org_form_input_input"placeholder="Описание"maxlength="200" ></textarea>
+                <textarea class="org_form_input_input"placeholder="Описание"maxlength="200" v-model="orgDescInput" ></textarea>
 
 
             </div>
-            <div class="org_form_input_button">
+            <div class="org_form_input_button" @click="canSave && saveOrg()">
                 Сохранить изменения
             </div>
         </form>
     </layout>
 </template>
 <style>
+    
 @media (max-width:1918px),
 (max-height:1078px) {
     .org_form {
@@ -111,7 +178,9 @@ font-family: "Lato", sans-serif;
     margin-left: auto;;color:#6AB23D;cursor: pointer;
 }
 }
-
+.org_form_input_button{
+    white-space: nowrap;
+}
 textarea {
     resize: none;
 }
