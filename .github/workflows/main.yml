@@ -27,27 +27,36 @@ jobs:
           ssh root@45.9.40.96 << EOF
             set -e
 
-            echo "🛑 Pull latest code for PROD..."
-            cd /root/miniApp
-            docker compose down
-            git fetch origin
-            git checkout main
-            git pull origin main
+            echo "🌿 Current branch: $BRANCH"
 
-            echo "🛑 Pull latest code for DEV..."
-            cd /root/miniApp_dev
-            git fetch origin
-            git checkout -B $BRANCH origin/$BRANCH
-            git pull 
+            if [ "$BRANCH" = "main" ]; then
+              echo "🚀 Deploy PROD (frontend)"
 
-            echo "🛑 Building and starting all containers..."
-            cd /root
-            
-            docker system prune --volumes -f
-            docker builder prune -f
-            docker system prune -f
-            docker compose build --no-cache
-            docker compose up -d
+              cd /root/miniApp
+              git fetch origin
+              git checkout main
+              git pull 
+
+              cd /root
+              docker compose build --no-cache frontend
+              docker compose up -d frontend
+
+            elif [[ "$BRANCH" == sprint* ]]; then
+              echo "🚀 Deploy DEV (developing)"
+
+              cd /root/miniApp_dev
+              git fetch origin
+              git checkout -B $BRANCH origin/$BRANCH
+              git pull 
+
+              cd /root
+              docker compose build --no-cache developing
+              docker compose up -d developing
+
+            else
+              echo "⚠️ Branch '$BRANCH' ignored"
+            fi
 
             echo "✅ Deployment finished!"
           EOF
+
