@@ -1,47 +1,102 @@
-<script setup>
+<script setup lang="ts">
+    const activeGroup = ref('all')
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+const telegramName = useState<string | null>('userName')
+const userId = useState('telegramUser')
+const userRole = useState('userRole').value.role
+const { data: org_participants, isLoading, refetch } = useQuery({
+    queryKey: computed(() => ['org_participants', userId.value, activeGroup.value]),
+    queryFn: async () => {
+        const res = await $fetch('/api/get_org_participants', {
+            query: { telegram_id: userId.value, filter:activeGroup.value }
+
+        })
+        return res
+    },
+    enabled: computed(() => Boolean(userId)),
+    staleTime: 1000 * 60 * 30,
+    cacheTime: 1000 * 60 * 30,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+})
+const { $queryClient } = useNuxtApp()
+const { mutate: patchRole  } = useMutation({
+  mutationFn: (newRole:string) =>
+  
+    $fetch('/api/patch_participant_role', {
+      method: 'PATCH',
+      query: {
+        telegram_id: userId.value,
+        participant_id: current_id.value,
+        role:newRole,
+      },
+    }
+    
+
+),
+  onSuccess: (data) => {
+    // обновляем кэш, без refetch
+    $queryClient.invalidateQueries(['org_participants', userId.value, activeGroup.value])}
+
+})
+const { mutate: deleteParticipant  } = useMutation({
+  mutationFn: (participantId: number) =>
+  
+    $fetch('/api/patch_participant_role', {
+      method: 'PATCH',
+      query: {
+        telegram_id: userId.value,
+        participant_id: participantId,
+        role:'remote',
+      },
+    }
+    
+
+),
+  onSuccess: (data) => {
+    // обновляем кэш, без refetch
+    $queryClient.invalidateQueries(['org_participants', userId.value, activeGroup.value])}
+
+})
 let groups = {
     "all": 'Все',
-    "admins": "Администраторы",
-    "leader": "Ведущие"
+    "admin": "Администраторы",
+    "leader": "Ведущие",
 }
-const users = ref([
-    {
-        id: 1,
-        name: 'Новиков Максим Юрьевич',
-        role: 'Создатель организации'
-    },
-    {
-        id: 2,
-        name: 'Корелина Дарья',
-        role: 'Администратор'
-    },
-    {
-        id: 3,
-        name: 'Жилин Юрий',
-        role: 'Ведущий'
-    },
-    {
-        id: 4,
-        name: 'Мельников Борис Юрьевич',
-        role: 'Ведущий'
-    },
+const roles={
+    "admin":"Администратор",
+    "leader":"Ведущий",
+    "organizer":"Создатель организации"
+}
 
-])
-const activeGroup = ref('all')
 const isOpen = ref(false)
-const userId = ref(0)
+const current_id=ref(0)
 function toggleItemDropdown(id) {
-    if (userId.value === id) {
-        userId.value = null
+    if (current_id.value === id) {
+        current_id.value = undefined
     } else {
-        userId.value = id
+        current_id.value = id
     }
 }
 function getDropdownIcon(id) {
-    return userId.value === id 
-        ? "/images/users/close_role.svg"
-        : "/images/users/open_role.svg";
+    return current_id.value === id 
+        ? "../images/users/close_role.svg"
+        : "../images/users/open_role.svg";
 }
+const canChangeRole = (participantRole: string, yourRole:string, isYou:boolean) => {
+    if (isYou) return false // с самим собой нельзя действия производить
+  if (yourRole==='organizer'){
+    // если вы орг, то вы можете удалять кого угодно и менять роль кому угодно
+    return true
+  }
+  else if (yourRole==='admin'){
+    if (participantRole==='leader') return true; // если вы админ то вы можете поменять роль только ведущему и только на админа
+    if (participantRole==='admin') return false;
+  }
+  else return false; // если вы не админ и не орг то никакие действия не можете выполнять
+}
+
+
 </script>
 <template>
     <layout :active_nav="'users'">
@@ -64,13 +119,12 @@ function getDropdownIcon(id) {
         </form>
         <div class="users_list">
             <div class="users_list_groups">
-                <div v-for="(value, key) in groups" @click="activeGroup = key" class="group">
+                <div v-for="(value, key) in groups" @click="activeGroup = key; current_id=undefined" class="group">
                     <div v-if="activeGroup == key" class="group_active"></div>
                     <div class="group_value" :style="{ fontWeight: activeGroup === key ? 600 : 400 }">{{ value }}</div>
                 </div>
             </div>
             <div class='users_list_list_column'>
-
 
                 <div class="users_list_list">
                     <div class="users_list_list_header" style="color: #853CFF;">
@@ -84,40 +138,41 @@ function getDropdownIcon(id) {
                     </div>
                     <div class="users_list_list_line"></div>
                 </div>
-                <div class="users_list_list_list" v-for="user in users" :key=user.id>
+                <div class="users_list_list_list" v-for="user in org_participants?.participants" :key="user.id">
                     <div class="users_list_list_header">
                         <span class='users_list_list_name'>
                             {{ user.name }}
                         </span>
-                        <div :class="{ users_list_list_role: user.role !== 'Создатель организации' }"
-                            :style="{ cursor: user.role !== 'Создатель организации' ? 'pointer' : 'default' }"
-                            @click=" user.role !== 'Создатель организации' && toggleItemDropdown(user.id)">
+                        <div :class="{ users_list_list_role: user.role !== 'organizer' }"
+                            :style="{ cursor: canChangeRole(user.role, userRole, user.is_you) ? 'pointer' : 'default' }"
+                            @click=" canChangeRole(user.role, userRole, user.is_you)  && toggleItemDropdown(user.id)">
 
 
                             <div style="color:#7D7D7D;"
-                                :class="{ users_list_list_role_margin: user.role !== 'Создатель организации' }">
-                                {{ user.role }}
+                                :class="{ users_list_list_role_margin: user.role !== 'organizer' }">
+                                {{ roles[user.role] }}
                             </div>
 
-                            <img class="open_role" v-if="user.role !== 'Создатель организации'"
+                            <img class="open_role" v-if="canChangeRole(user.role, userRole, user.is_you) "
                                :src="getDropdownIcon(user.id)"
                                  />
 
-                            <div class="users_list_item-dropdown-options" v-if="userId === user.id"
+                            <div class="users_list_item-dropdown-options" v-if="current_id === user.id  && canChangeRole(user.role, userRole, user.is_you) "
                                 style=" z-index: 10001 !important;">
-                                <div class="users_list_item-dropdown-option"
-                                    style="margin-top:calc((17 / 832) * 100dvh)"
-                                    @click=" users.find(u => u.id === user.id).role = 'Администратор'">
+                                <div class="users_list_item-dropdown-option" :class="{option_margin:true}"
+                                 
+                                 @click="user.role!=='admin' && patchRole('admin')"
+                            >
                                     <span>Выдать роль “Администратор”</span>
                                 </div>
-                                <div class="users_list_item-dropdown-option" style="margin-top:calc((4 / 832) * 100dvh)"
-                                    @click=" users.find(u => u.id === user.id).role = 'Ведущий'">
+                                <div class="users_list_item-dropdown-option"   :class="{option_second_margin:true}"  @click="user.role!=='leader' && patchRole('leader')"
+                                   >
                                     <span>Выдать роль “Ведущий”</span>
                                 </div>
                             </div>
                         </div>
                         <img class="kick_user" src="/public/images/users/kick_user.svg"
-                            v-if="user.role !== 'Создатель организации'" />
+                            v-if="canChangeRole(user.role, userRole, user.is_you)" @click="  deleteParticipant(user.id)" />
 
                     </div>
                     <div class="users_list_list_line"></div>
@@ -131,6 +186,12 @@ function getDropdownIcon(id) {
 <style>
 @media (max-width:1918px),
 (max-height:1078px) {
+    .option_margin{
+        margin-top:calc((17 / 832) * 100dvh) !important;
+    }
+    .option_second_margin{
+        margin-top:calc((4 / 832) * 100dvh) !important;
+    }
     .users_title {
         font-family: "Lato", sans-serif;
         font-weight: 400;
@@ -371,6 +432,12 @@ function getDropdownIcon(id) {
 
 @media (min-width:1918px),
 (min-height:1078px) {
+    .option_margin{
+        margin-top:17px !important;
+    }
+     .option_second_margin{
+        margin-top:4px !important;
+    }
     .users_title {
         font-family: "Lato", sans-serif;
         font-weight: 400;
