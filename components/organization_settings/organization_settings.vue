@@ -2,6 +2,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 const telegramName = useState<string | null>('userName')
 const userId = useState('telegramUser')
+const userRole = useState('userRole').value.role
+const canEdit = computed(() => userRole === 'organizer');
 const { data: org, isLoading, refetch } = useQuery({
     queryKey: computed(() => ['org', userId.value]),
     queryFn: async () => {
@@ -49,6 +51,7 @@ const { mutate: saveOrg  } = useMutation({
     // обновляем кэш, без refetch
     $queryClient.invalidateQueries(['org'])}
 
+    
 })
 
 const originalName = computed(() => org.value?.organization_name ?? '')
@@ -74,18 +77,18 @@ const canSave = computed(() => {
                 <div class="org_form_input_title">
                     Название организации:
                 </div>
-                <textarea class="org_form_input_input" placeholder="Название" maxlength="32" minlength="3" v-model="orgNameInput"></textarea>
+                <textarea class="org_form_input_input" placeholder="Название" maxlength="32" minlength="3" v-model="orgNameInput" :disabled="!canEdit"></textarea>
 
             </div>
             <div class="org_form_input">
                 <div class="org_form_input_title">
                     Описание организации:
                 </div>
-                <textarea class="org_form_input_input"placeholder="Описание"maxlength="200" v-model="orgDescInput" ></textarea>
+                <textarea class="org_form_input_input"placeholder="Описание"maxlength="200" v-model="orgDescInput" :disabled="!canEdit" ></textarea>
 
 
             </div>
-            <div class="org_form_input_button" @click="canSave && saveOrg()">
+            <div class="org_form_input_button" @click="canSave && saveOrg()"  v-if="canEdit">
                 Сохранить изменения
             </div>
         </form>
