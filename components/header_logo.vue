@@ -9,6 +9,23 @@ async function goTo(url: string) {
 }
 const orgs=ref(false)
 const org_name=ref('ИРИТ РТФ')
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+const userId = useState('telegramUser')
+const { data: org, isLoading, refetch } = useQuery({
+    queryKey: computed(() => ['org', userId.value]),
+    queryFn: async () => {
+        const res = await $fetch('/api/get_org_name', {
+            query: { telegram_id: userId.value, }
+
+        })
+        return res
+    },
+    enabled: computed(() => Boolean(userId)),
+    staleTime: 1000 * 60 * 30,
+    cacheTime: 1000 * 60 * 30,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+})
 </script>
 <template>
     <div class="header_fon">
@@ -20,7 +37,7 @@ const org_name=ref('ИРИТ РТФ')
                 </div>
                 <div class="header_nav_organization_settings" @click="orgs=!orgs" >
                     <div class="header_nav_organization_settings_name">
-                        {{ org_name }}
+                        {{ org?.organization_name }}
                     </div>
                       <img src="../public/images/Vector.svg" />
                       <div class="header_nav_item-dropdown-options" v-if="orgs"

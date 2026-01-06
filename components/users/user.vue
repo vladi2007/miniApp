@@ -92,7 +92,7 @@ const canSave = computed(() => {
         </form>
         <div class="user_info">
             <div class='user_info_part'>
-                Telegram username: <span>@{{ telegramName }}</span>
+                Telegram username: <span>@{{ name?.username }}</span>
             </div>
             <div class='user_info_part'>
                 Организация: <span>ИРИТ ртф</span>

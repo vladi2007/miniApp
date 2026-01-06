@@ -1071,4 +1071,10 @@ vertical-align: middle;
    background-color: #F0436C; color: white;
   border: calc((1.5/832)*100dvh) solid#F0436C;
 }
+.readonly-mode {
+  cursor: default !important ;     
+  pointer-events: none;          
+  user-select: text;               
+}
+
 }

@@ -86,7 +86,7 @@ margin-left: calc((112/1280)*100dvw) !important;
 .margins{width: 1056px !important;
     margin:0 auto 0 auto !important;
        margin-top:55px !important;
-       padding-left: 146px;;
+       
 }
 .nav {
     display: flex;

@@ -61,7 +61,7 @@ const canSave = computed(() => {
         const trimmedDesc = orgDescInput.value.trim()
   if (trimmedName.length<3) {
     // Можно показать уведомление
-    window.Telegram.WebApp.showAlert('Имя должно быть длинее 2 символов')
+    window.Telegram.WebApp.showAlert('Название вашей организации должно быть длинее 2 символов')
     return
   }
   return (

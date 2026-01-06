@@ -23,7 +23,7 @@ const interactive_id = query.interactive_id
 
       if (data.type === 'init' && data.id) {
         // Собираем URL с параметрами
-        const backendUrl = `wss://voshod08.ru/ws/${interactive_id}?telegram_id=${telegramId}&role=${role}&x_key=super-secret-key`
+        const backendUrl = `wss://devvoshod08.ru/ws/${interactive_id}?telegram_id=${telegramId}&role=${role}&x_key=super-secret-key`
        
 
         backendSocket = new WebSocket(backendUrl)

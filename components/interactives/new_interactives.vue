@@ -21,7 +21,7 @@ function toggleDropdown() {
 const queryClient = useQueryClient() 
 
 const userId = useState('telegramUser')
-const userRole = useState('userRole')
+const userRole = useState('userRole')?.value?.role
 async function selectOption(option: string) {
     selectedText.value = option
     isOpen.value = false
@@ -136,6 +136,11 @@ async function goTo(url: string, active: string) {
     router.push(url)
     await clearDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
     await clearDeviceStorage(INTERACTIVES_FILTER_KEY)
+}
+async function checkSettings(id:number){
+    router.push({path:`/leader/edit/${id}`, state:{
+        is_checkSettings:true
+    }})
 }
 const is_ready=ref<boolean>()
 const { data: interactivesData, isLoading, refetch } = useQuery({
@@ -444,7 +449,7 @@ const telegramName = useState<string | null>('userName')
                         {{ item.title }}
                     </div>
                     <div class="interactives_list_list_item_leadername title-clamp" :class="{ expanded: expandedLeaders[item.id] }" @click="toggleLeader(item.id)">
-                        @{{ telegramName }}
+                        {{ item.username }}
                     </div>
                     <div class="interactives_list_list_item_date" >
                         {{ item.date_completed }}
@@ -465,28 +470,28 @@ const telegramName = useState<string | null>('userName')
                             <img src="/images/interactives/leader_board.svg"
                                  id="leader_board" />
                         </div>
-                        <div class="interactives_check" v-if="item.is_conducted" title="Просмотреть настройки интерактива" >
+                        <div class="interactives_check" v-if="  !item.is_you " title="Просмотреть настройки интерактива" @click="checkSettings(item.id)">
                             <img src="/images/interactives/check.svg"
                                  />
                         </div>
-                        <div class="interactives_edit" title="Редактировать интерактив" v-if="!item.is_conducted"
+                        <div class="interactives_edit" title="Редактировать интерактив" v-if="!item.is_conducted && item.is_you"
                             @click="showEdit=true; currID=item.id">
                             <img src="/images/interactives/edit_2.svg"
                               id="edit" />
                         </div>
-                        <div class="interactives_start" title="Запустить интерактив" v-if="!item.is_conducted"
-                        @click="showStart=true; currID=item.id"
+                        <div class="interactives_start" title="Запустить интерактив" v-if="!item.is_conducted && item.is_you"
+                        @click="showStart=true; currID=item.id" 
                           >
                             <img src="/images/interactives/start_2.svg"
                                />
                         </div>
-                        <div class="interactive_delete" v-if="!item.is_conducted" title="Удалить интерактив"
-                            @click="deletePopup(item.id)">
+                        <div class="interactive_delete" v-if="!item.is_conducted && (item.is_you || userRole==='admin' || userRole==='organizer') " title="Удалить интерактив"
+                            @click="deletePopup(item.id)" style="margin-left: auto;">
                             <img src="/images/interactives/vector.png" id="delete" />
                         </div>
-                        <div class="interactives_list_list_item_actions" :ref="el => setDropdownRef(el, index)"  v-if="item.is_conducted">
+                        <div class="interactives_list_list_item_actions" :ref="el => setDropdownRef(el, index)"  v-if="item.is_conducted" style="margin-left: auto !important;">
                             <div class="interactives_more_options"
-                                @click="toggleItemDropdown(item.id)" title="Еще">
+                                @click="toggleItemDropdown(item.id)" title="Еще" >
                                 <img src="/images/interactives/more.svg"
                                   id="more_options" />
                             </div>
@@ -1119,7 +1124,7 @@ input:focus {
      margin-bottom:calc((5/832)*100dvh) !important;
      height: calc((36/832)*100dvh);
      align-items: center;
-     justify-content: space-between;
+     gap:calc((10 / 1280) * 100dvw);;
 }
 
 .interactive_delete:hover {
@@ -2190,10 +2195,10 @@ input:focus {
      margin-bottom:5px !important;
      height: 36px;
      align-items: center;
-     justify-content: space-between;
+     gap:10px;;;
 }
 
-#leader_board , {
+#leader_board  {
     height: 24px !important;
     width: 24px !important;
 }

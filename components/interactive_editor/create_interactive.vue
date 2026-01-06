@@ -18,11 +18,22 @@ async function confirmBack(save) {
   }
 }
 const showConfirmPopup = ref(false)
+import { onMounted, ref } from 'vue'
+
+const isCheckMode = ref(false)
+
+onMounted(() => {
+  // 👇 читаем то что передали в router.push state
+  if (history.state?.is_checkSettings === true) {
+    isCheckMode.value = true
+    
+  }
+})
 function handleBackClick() {
    if (
     router.params.mode === 'edit' &&
     settings.value &&
-    !settings.value.isFormChanged()
+    !settings.value.isFormChanged() || isCheckMode.value ===true
   ) {
     route.push('/leader/new_interactives')
     return

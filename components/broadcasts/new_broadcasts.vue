@@ -371,7 +371,7 @@ const telegramName = useState<string | null>('userName')
                         {{ item.title }}
                     </div>
                     <div class="broadcasts_list_list_item_leadername title-clamp" :class="{ expanded: expandedLeaders[item.id] }" @click="toggleLeader(item.id)">
-                        @{{ telegramName }}
+                        {{ item.username }}
                     </div>
                     <div class="broadcasts_list_list_item_date">
                         {{ item.date_completed }}
