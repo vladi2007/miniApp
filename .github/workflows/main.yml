@@ -29,6 +29,9 @@ jobs:
 
             echo "🌿 Current branch: $BRANCH"
 
+            echo "🧹 Cleaning docker cache"
+            docker builder prune -f
+            docker system prune -f
             if [ "$BRANCH" = "main" ]; then
               echo "🚀 Deploy PROD (frontend)"
 
