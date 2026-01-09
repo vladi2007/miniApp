@@ -5,7 +5,6 @@ export default defineNuxtPlugin(async () => {
   const webApp = useWebApp()
 
   const telegramUser = useState<number | null>('telegramUser', () => null)
-  const userRole = useState<string | null>('userRole', () => null)
   const userName = useState<string | null>('userName', () => null)
   const userPhoto = useState<string | null>('userPhoto', () => null)
     const cachedId = localStorage.getItem('telegram_id')
@@ -29,21 +28,11 @@ export default defineNuxtPlugin(async () => {
     localStorage.setItem('userPhoto',String(userPhoto.value) )
   }
 
-  if (telegramUser.value) {
-    try {
-      const roleData = await $fetch('/api/role', {
-        query: { telegram_id: telegramUser.value }
-      })
-      userRole.value = roleData
-    } catch (err) {
-      console.error('Failed to fetch user role:', err)
-    }
-  }
+  
 
   return {
     provide: {
       telegramUser,
-      userRole
     }
   }
 })
