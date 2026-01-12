@@ -17,8 +17,10 @@ const userId = useState('telegramUser')
 const userRole = useState('userRole')
 // Функция для создания websocket
 function createWebSocket(interactiveId, telegramId) {
+   const config = useRuntimeConfig().public
+  const wsURL = config.wsFrontend
   // Предполагаю, что useWebSocket возвращает { data, send }
-  const ws = useWebSocket(`wss://voshod07.ru/ws?interactive_id=${interactiveId}&telegram_id=${telegramId}&role=participant`)
+  const ws = useWebSocket(`${wsURL}?interactive_id=${interactiveId}&telegram_id=${telegramId}&role=participant`)
   send = ws.send
 
   // Обновляем реактивный data

@@ -87,7 +87,7 @@ async function submitBroadcasts() {
             formData.append("file", uploadedFile.value);
         }
 
-        const response = await fetch('/api/broadcasts/send', {
+        const response = await $fetch('/api/broadcasts/send', {
             method: 'POST',
             body: formData,
         });

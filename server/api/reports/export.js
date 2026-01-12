@@ -3,8 +3,9 @@
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-
-    const response = await fetch('https://voshod08.ru/api/reports/export?x_key=super-secret-key', {
+    const config = useRuntimeConfig().public
+  const apiBase =config.apiBase
+    const response = await fetch(`${apiBase}/api/reports/export?x_key=super-secret-key`, {
       method: 'POST',
       headers: {
           'Content-Type': 'application/json',

@@ -289,22 +289,14 @@ async function submitReport() {
                 report_type: selectedOption.value
             };
 
-            const response = await fetch('/api/reports/export', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
+            const data = await $fetch('/api/reports/export', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+});
+    console.log(data)
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Ошибка сервера');
-            }
-
-            const data =await response.json();
-            console.log(data.data)
-
-            if (data.data) {
-                const fileName = data.data.split('/').pop()
+            if (data) {
                 postEvent('web_app_request_file_download', {
                     url: data.data,
                     file_name: data.name

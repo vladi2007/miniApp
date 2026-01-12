@@ -5,11 +5,12 @@ export default defineEventHandler(async (event) => {
   const { telegram_id,  id} = query
 
 
-
+  const config = useRuntimeConfig().public
+  const apiBase =config.apiBase
   try {
     // Тип явно указываем
     const response = await fetch(
-      `https://devvoshod08.ru/api/interactivities/${id}?x_key=super-secret-key&telegram_id=${telegram_id}`,
+      `${apiBase}/api/interactivities/${id}?x_key=super-secret-key&telegram_id=${telegram_id}`,
       {
         method: 'DELETE',
         headers: {

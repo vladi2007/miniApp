@@ -4,11 +4,12 @@ export default defineEventHandler(async (event) => {
 
   const { telegram_id, interactive_id} = query
 
-
+const config = useRuntimeConfig().public
+  const apiBase =config.apiBase
   try {
     // Тип явно указываем
     const response = await fetch(
-      `https://voshod08.ru/api/interactivities/end/${interactive_id}?x_key=super-secret-key&telegram_id=${telegram_id}`
+      `${apiBase}/api/interactivities/end/${interactive_id}?x_key=super-secret-key&telegram_id=${telegram_id}`
     )
 
     if (!response.ok) {

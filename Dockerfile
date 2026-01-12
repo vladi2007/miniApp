@@ -1,44 +1,39 @@
-# Этап сборки
+# =========================
+# 🏗 BUILDER STAGE
+# =========================
 FROM node:22-alpine AS builder
 
-# Установка рабочей директории
 WORKDIR /miniApp
 
-# Копируем package файлы
-COPY package*.json ./
+# Build-time args
+ARG NUXT_APP_BASE_URL
+ARG NUXT_APP_BUILD_ASSETS_DIR
+ENV NUXT_APP_BASE_URL=$NUXT_APP_BASE_URL
+ENV NUXT_APP_BUILD_ASSETS_DIR=$NUXT_APP_BUILD_ASSETS_DIR
 
-# Устанавливаем зависимости
-#RUN npm install
+COPY package*.json ./
 RUN npm install
-# Копируем остальные файлы
 COPY . .
 
-# Сборка проекта
+# Build Nuxt с правильными baseURL/buildAssetsDir
 RUN npm run build
 
-# Этап продакшена
+# =========================
+# 🚀 RUNTIME STAGE
+# =========================
 FROM node:22-alpine
 
-# Рабочая директория
 WORKDIR /miniApp
 
-# Установка минимальных зависимостей
 COPY package*.json ./
 RUN npm install --production
-
-# Копируем сборку из предыдущего этапа
 COPY --from=builder /miniApp/.output ./.output
 
-# Указываем порт (Nuxt 3 по умолчанию использует 3000)
-EXPOSE 3000
-
-# Копируем сервер WebSocket-прокси
 COPY server/api/ws-proxy-server.js ./ws-proxy-server.js
-
-# Устанавливаем concurrently и ws
 RUN npm install concurrently ws
 
-# Добавь скрипт в package.json:
-# "start": "concurrently \"node .output/server/index.mjs\" \"node ws-proxy-server.js\""
+
+
+EXPOSE 3000
 
 CMD ["npm", "run", "start"]

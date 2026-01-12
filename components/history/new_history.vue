@@ -141,7 +141,7 @@ async function submitReport() {
                 report_type: selectedOption.value
             };
 
-            const response = await fetch('/api/reports/export', {
+            const response = await $fetch('/api/reports/export', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)

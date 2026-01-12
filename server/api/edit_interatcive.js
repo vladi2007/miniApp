@@ -42,10 +42,11 @@ export default defineEventHandler(async (event) => {
     }
 
 
-
+    const config = useRuntimeConfig().public
+  const apiBase =config.apiBase
     // 4️⃣ Отправляем запрос на внешний API
     const response = await fetch(
-      `https://devvoshod08.ru/api/interactivities/${id}?x_key=super-secret-key`,
+      `${apiBase}/api/interactivities/${id}?x_key=super-secret-key`,
       {
         method: "PATCH",
         body: formData,

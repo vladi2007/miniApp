@@ -42,10 +42,11 @@ export default defineEventHandler(async (event) => {
     }
 
 
-
+    const config = useRuntimeConfig().public
+  const apiBase =config.apiBase
     // 4️⃣ Отправляем запрос на внешний API
     const response = await fetch(
-      `https://devvoshod08.ru/api/interactivities/?x_key=${xKey}`,
+      `${apiBase}/api/interactivities/?x_key=${xKey}`,
       {
         method: "POST",
         body: formData,

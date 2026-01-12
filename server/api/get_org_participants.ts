@@ -7,8 +7,9 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'Missing telegram_id',
     })
   }
-
-  const response = await fetch(`https://devvoshod08.ru/api/organization/participants?x_key=super-secret-key&telegram_id=${telegram_id}&filter=${filter}`)
+const config = useRuntimeConfig().public
+  const apiBase =config.apiBase
+  const response = await fetch(`${apiBase}/api/organization/participants?x_key=super-secret-key&telegram_id=${telegram_id}&filter=${filter}`)
 
   if (!response.ok) {
     throw createError({
