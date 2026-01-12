@@ -2,11 +2,12 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event);
 
   const {id} = query;
-
+const config = useRuntimeConfig().public
+  const apiBase =config.apiBase
   try {
     // Тип явно указываем
     const response = await fetch(
-      `https://voshod08.ru/api/interactivities/is_running/${id}?x_key=super-secret-key`
+      `${apiBase}/api/interactivities/is_running/${id}?x_key=super-secret-key`
     );
     
 

@@ -129,11 +129,21 @@ const props = defineProps<{confirmBack: () => void}>()
 
 
 
+import { onMounted, ref } from 'vue'
 
+const isCheckMode = ref(false)
+
+onMounted(() => {
+  // 👇 читаем то что передали в router.push state
+  if (history.state?.is_checkSettings === true) {
+    isCheckMode.value = true
+    
+  }
+})
 </script>
 
 <template>
-  <div class="settings" v-if="mode !== 'edit' || isLoading">
+  <div class="settings" v-if="mode !== 'edit' || isLoading" >
     <settings_nav :take_step="take_step" :active_step="active_step" :isFormComplete="isFormComplete"
       :validateForm="validateForm" :confirmBack="confirmBack"/>
     <settings_main :take_step="take_step" :active_step="active_step" :errors="errors" :form="form"
@@ -185,6 +195,5 @@ const props = defineProps<{confirmBack: () => void}>()
 .no-scroll-device {
   overflow-y: hidden !important;
 }
-
 
 </style>

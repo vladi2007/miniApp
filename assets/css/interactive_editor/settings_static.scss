@@ -1150,4 +1150,9 @@ vertical-align: middle;font-style: normal
    background-color: #F0436C; color: white;
   border:1.5px solid#F0436C;
 }
+.readonly-mode {
+  cursor: default !important ;     
+  pointer-events: none;          
+  user-select: text;               
+}
 }

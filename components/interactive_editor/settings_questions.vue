@@ -73,12 +73,24 @@ function updateScore(event: Event) {
   emit('update:score', value)
   props.validateScore()
 }
+import { onMounted, ref } from 'vue'
+
+const isCheckMode = ref(false)
+
+onMounted(() => {
+  // 👇 читаем то что передали в router.push state
+  if (history.state?.is_checkSettings === true) {
+    isCheckMode.value = true
+    
+  }
+})
+
 </script>
 
 
 <template>
-     <div class="container">
-    <div class="settings_questions" v-if="active_step === 'questions'">
+     <div class="container" >
+    <div class="settings_questions" v-if="active_step === 'questions'" >
         <div class="settings_questions_nav">
             <img src="/public/images/interactive_editor/question_up.svg" id="up" @click="scrollUp()" />
             <div class="question_buttons_list" @wheel="handleWheelScroll">
@@ -90,31 +102,31 @@ function updateScore(event: Event) {
 
             </div>
             <img src="/public/images/interactive_editor/question_down.svg" id="down" @click="scrollDown()" />
-            <div class="question_button_plus" @click="addQuestion()"><img
+            <div class="question_button_plus" @click="!isCheckMode && addQuestion()" :class="{ 'readonly-mode': isCheckMode }"><img
                     src="/public/images/interactive_editor/greeen_plus.svg" id="plus" /></div>
         </div>
-        <div class="settings_questions_editor">
+        <div class="settings_questions_editor" :class="{ 'readonly-mode': isCheckMode }">
             <div class="question_header">
                 <div class="question_header_text">
                     <div> Вопрос {{ currentQuestionIndex + 1 }}</div>
                     <img src="/public/images/interactive_editor/delete.svg" id="question_edit_delete"
-                        @click=" emit('showDelete')" />
+                        @click="!isCheckMode && emit('showDelete')" />
                 </div>
             </div>
 
             <!-- Вопрос -->
-            <div class="input-group">
+            <div class="input-group" >
 
                 <textarea v-model="currentQuestion.question.text" maxlength="100" placeholder="Вопрос*"
-                    id="question_text" :class="{ 'field-error': questionErrors[currentQuestionIndex]?.text }" />
+                    id="question_text" :class="{ 'field-error': questionErrors[currentQuestionIndex]?.text }" :disabled="isCheckMode"/>
 
             </div>
 
             <!-- В вашем шаблоне, для отображения имени файла -->
             <div class="custom-file-upload" :class="{ 'file-uploaded': uploadedFileName }"
-                @click="!uploadedFileName && $refs.fileInput.click()">
+                @click="!isCheckMode && !uploadedFileName && $refs.fileInput.click()">
 
-                <input ref="fileInput" type="file"  accept="image/jpeg,image/png,image/gif,image/webp,image/bmp,image/tiff,image/svg+xml" hidden @change="handleFileChange" />
+                <input ref="fileInput" type="file"  accept="image/jpeg,image/png,image/gif,image/webp,image/bmp,image/tiff,image/svg+xml" hidden @change="handleFileChange" :disabled="isCheckMode"/>
 
                 <template v-if="uploadedFileName">
                     <!-- показываем только имя файла -->
@@ -135,7 +147,7 @@ function updateScore(event: Event) {
             <div class="input-group_row">
                 <div class="input-group_type" ref="dropdownRef">
                     <!-- Кастомный выпадающий список -->
-                    <div class="custom-dropdown" @click="toggleDropdown"
+                    <div class="custom-dropdown" @click="!isCheckMode &&  toggleDropdown"
                         :class="{ 'field-error': questionErrors[currentQuestionIndex]?.type }">
                         <div class="custom-dropdown-selected">{{ selectedText }}</div>
                         <div class="custom-arrow" :class="{ open: isOpen }">
@@ -171,7 +183,7 @@ function updateScore(event: Event) {
                 <div class="input-group_score">
                     <div>Баллы:</div>
                     <input type="number" v-model="currentQuestion.question.score" @blur="updateScore" min="1" max="5" @keyup.enter="updateScore"
-                        :class="{ 'field-error': questionErrors[currentQuestionIndex]?.score }" />
+                        :class="{ 'field-error': questionErrors[currentQuestionIndex]?.score }" :disabled="isCheckMode"/>
 
                 </div>
 
@@ -186,7 +198,7 @@ function updateScore(event: Event) {
                         }">
                             <!-- Показать иконку, если тип не 'text' -->
                             <div v-if="currentQuestion.question.type !== 'text'" class="custom-dropdown-circle"
-                                @click="toggleCorrect(index)">
+                                @click="!isCheckMode && toggleCorrect(index)">
                                 <img :src="getIconSrcWithValidation(
                                     currentQuestion.question.type,
                                     answer.is_correct,
@@ -201,21 +213,21 @@ function updateScore(event: Event) {
                                 :placeholder="currentQuestion.question.type === 'text' ? 'Поле для ввода правильного ответа' : 'Поле для ввода'"
                                 maxlength="30" :class="{
                                     'text-type': currentQuestion.question.type === 'text',
-                                }" />
+                                }" :disabled="isCheckMode"/>
                         </div>
 
                         <!-- Удаление ответа -->
                         <img v-if="currentQuestion.question.answers.length > 1" class="delete-answer-icon"
                             src="public/images/interactive_editor/grey_delete.svg" alt="Удалить ответ"
-                            @click="deleteAnswer(index)" id="delete-answer-icon"/>
+                            @click="!isCheckMode && deleteAnswer(index)" id="delete-answer-icon"/>
                     </div>
                 </div>
-                <div class="answers-section-add_question" @click="addAnswer()" v-if="!limit_answers">
+                <div class="answers-section-add_question" @click="!isCheckMode && addAnswer()" v-if="!limit_answers">
                     <img class="add_question_icon" src="/public/images/interactive_editor/add_question.svg">
                 </div>
             </div>
 
-            <div class="settings_questions_editor_buttons">
+            <div class="settings_questions_editor_buttons" v-if="!isCheckMode">
                 <div class="settings_questions_editor_buttons_start" @click="emit('start')">
                     Запуск
                 </div>
@@ -267,7 +279,6 @@ function updateScore(event: Event) {
     </div>
 </template>
 <style>
-
 
 
 </style>

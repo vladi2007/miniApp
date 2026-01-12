@@ -7,10 +7,18 @@ export default defineNuxtConfig({
       websocket: true
     }
   },
+  runtimeConfig: {
+     public: {
+      apiBase: process.env.NUXT_PUBLIC_API_BASE || '',
+      wsBackend: process.env.NUXT_PUBLIC_WS_BACKEND || '',
+      wsFrontend: process.env.NUXT_PUBLIC_WS_FRONTEND || ''
+    }
+  },
   compatibilityDate: '2024-11-01',
   devtools: { enabled: false },
   app: {
-    baseURL: '/',
+    baseURL: process.env.NUXT_APP_BASE_URL || '/',
+    buildAssetsDir: process.env.NUXT_APP_BUILD_ASSETS_DIR || '/_nuxt/',
         head: {
             meta: [
                 {
@@ -41,10 +49,7 @@ export default defineNuxtConfig({
     }
   },
   ssr:false,
-  runtimeConfig: {
-        telegramBotToken: process.env.TELEGRAM_BOT_TOKEN,
-        secretKey: process.env.SECRET_KEY,
-    },
+ 
   modules:['@vueuse/nuxt','@pinia/nuxt'],
   css: [
     '@fontsource/lato' // Импортируем шрифт Lato

@@ -245,16 +245,19 @@
     width: 89px;;
     text-align: left;
 }
-
-.history_list_header_date {
-    margin-left: 356px;;
+.history_list_header_leadername{ 
     width: 96px;;
+     margin-left: 197px;
+      text-align: center;
+}
+.history_list_header_date {     margin-left:73px;
+    width: 96px;
     text-align: center;
 }
 
-.history_list_header_count {
-    margin-left: 59px;;
-    width: 192px;;
+.history_list_header_count { margin-left: 49px;
+   
+    width: 192px;
     text-align: center;
 }
 
@@ -270,8 +273,6 @@
 .history_list_list_item {
     overflow-x: hidden;
     display: flex;
-    align-items: center;
-    height:46.13px;;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
@@ -280,8 +281,20 @@
     text-align: center;
     vertical-align: middle;
 }
-
-.history_list_list_item>img {
+.history_list_list_item_selected{
+     overflow-x: hidden;
+    display: flex;
+    align-items: center;
+     height: 46.13px;
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: Regular;
+     font-size: 16px;
+    letter-spacing: 0.16px;
+    text-align: center;
+    vertical-align: middle;
+}
+.history_list_list_item_selected>img {
     height: 18px;
     width:14px;
     margin-left: auto;
@@ -294,26 +307,73 @@
     margin:0 auto;
     width: 1056px !important;
 }
+.history_list_list_item > div{
 
-.history_list_list_item_title {
-    margin-left: 22px;
-    width: 400px;
+      line-height: 19.2px;
+}
+.history_list_list_item_title, 
+.history_list_list_item_leadername {
+    position: relative; /* для ::after */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.history_list_list_item_title {margin-left: 22px;;
+    margin-top:15px;;
+     margin-bottom:15px;;
+    width: 253px;;
     text-align: left;
+
+}
+.history_list_list_item_leadername {margin-left: 12px;;
+  text-align: left;
+ margin-top:15px;;
+     margin-bottom:15px;;
+  width:  137px;;
+}
+.title-clamp::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 31px;
+    height: 100%;
+    pointer-events: none;
+    background: linear-gradient(85.63deg, rgba(255,255,255,0.4) 29.36%, #ffffff 89.3%);
+}
+.history_list_list_item_leadername.expanded,
+.history_list_list_item_title.expanded {
+    white-space: normal;      
+    word-break: break-word;  
+    overflow-wrap: break-word; 
 }
 
+.title-clamp.expanded::after {
+    display: none; /* только у текущего элемента с expanded */
+}
+
+
 .history_list_list_item_date {
-    margin-left: 16px;
+        margin-top:15px;
+     margin-bottom:15px;
+    margin-left: 24px;
     width: 154px;
     text-align: center;
 }
 
 .history_list_list_item_count {
-    margin-left: 92px;
+        margin-top:15px;
+     margin-bottom:15px;
+    margin-left: 82px;
     width: 68px;
     text-align: center;
 }
 
-.history_list_list_item_download_one {
+.history_list_list_item_download_one {   
+     margin-top:5.13px;
+     margin-bottom:5px;
     margin-left: 32px;
     height: 36px;
     width:131px;
@@ -333,7 +393,8 @@
 .history_list_list_item_download_many:hover{    border-radius: 5px;
     border: 1.5px solid #853CFF;
 }
-.history_list_list_item_download_many {width: 131px;;    height: 36px;;
+.history_list_list_item_download_many {width: 131px;;    height: 36px;; margin-top:5.13px;
+     margin-bottom:5px;
     margin-left:10px;    border: 1.5px solid white;
     color: #853CFF;
     font-family: "Lato", sans-serif;

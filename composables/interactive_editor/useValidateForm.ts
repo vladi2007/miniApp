@@ -21,7 +21,7 @@ export function useValidateForm(
       Boolean(f.description?.trim()) &&
       Boolean(f.target_audience?.trim()) &&
       Boolean(f.location?.trim()) &&
-      Boolean(f.responsible_full_name?.trim()) &&
+      
       Number(f.answer_duration) > 0 &&
       Number(f.discussion_duration) > 0 &&
       Number(f.countdown_duration) > 0
@@ -33,7 +33,6 @@ export function useValidateForm(
     description: false,
     target_audience: false,
     location: false,
-    responsible_full_name: false,
     answer_duration: false,
     discussion_duration: false,
     countdown_duration: false,
@@ -111,8 +110,7 @@ export function useValidateForm(
     errors.value.description = !form.value.description.trim();
     errors.value.target_audience = !form.value.target_audience.trim();
     errors.value.location = !form.value.location.trim();
-    errors.value.responsible_full_name =
-      !form.value.responsible_full_name.trim();
+    
     errors.value.answer_duration = !(form.value.answer_duration > 0);
     errors.value.discussion_duration = !(form.value.discussion_duration > 0);
     errors.value.countdown_duration = !(form.value.countdown_duration > 0);

@@ -1,9 +1,9 @@
-name: Deploy to VPS (branch-aware)
+name: Deploy to VPS (frontend + dev + nginx)
 
 on:
   push:
     branches:
-      - '**'
+      - '**' 
 
 jobs:
   deploy:
@@ -14,32 +14,61 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.MINIAPP_KEY }}
+
       - name: Add SSH host key to known_hosts
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H 45.9.40.96 >> ~/.ssh/known_hosts
+
       - name: 🚀 SSH into server and deploy
         run: |
           BRANCH=${{ github.ref_name }}
+
           ssh root@45.9.40.96 << EOF
             set -e
-            cd /root/miniApp
-            
-            echo "🛑 Stopping Docker containers..."
-            docker compose down
 
-            echo "🧹 Cleaning up Docker system..."
-            docker system prune --volumes -f
+            echo "🌿 Current branch: $BRANCH"
+
+            echo "🧹 Cleaning docker cache"
             docker builder prune -f
             docker system prune -f
+            if [ "$BRANCH" = "main" ]; then
 
-            echo "📦 Checking out branch: $BRANCH"
-            git fetch origin
-            git checkout -B $BRANCH origin/$BRANCH
-            git pull
+              echo "🚀 Deploy PROD (frontend)"
+              export NUXT_APP_BASE_URL=/
+              export NUXT_APP_BUILD_ASSETS_DIR=/_nuxt/
+              export NUXT_PUBLIC_API_BASE=https://voshod08.ru
+              export NUXT_PUBLIC_WS_BACKEND=wss://voshod08.ru/ws
+              export NUXT_PUBLIC_WS_FRONTEND=wss://voshod07.ru/ws
+              cd /root/miniApp
+              git fetch origin
+              git checkout main
+              git pull 
 
-            echo "🔧 Rebuilding and restarting container..."
-            docker compose build --no-cache
-            docker compose up -d
+              cd /root
+              docker compose build --no-cache frontend
+              docker compose up -d frontend
+
+            elif [[ "$BRANCH" == sprint* ]]; then
+              echo "🚀 Deploy DEV (developing)"
+              export NUXT_APP_BASE_URL=/dev/
+              export NUXT_APP_BUILD_ASSETS_DIR=/dev/_nuxt/
+              export NUXT_PUBLIC_API_BASE=https://devvoshod08.ru
+              export NUXT_PUBLIC_WS_BACKEND=wss://devvoshod08.ru/ws
+              export NUXT_PUBLIC_WS_FRONTEND=wss://voshod07.ru/dev/ws
+              cd /root/miniApp_dev
+              git fetch origin
+              git checkout -B $BRANCH origin/$BRANCH
+              git pull 
+
+              cd /root
+              docker compose build --no-cache developing
+              docker compose up -d developing
+
+            else
+              echo "⚠️ Branch '$BRANCH' ignored"
+            fi
+
+            echo "✅ Deployment finished!"
           EOF
 

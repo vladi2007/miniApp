@@ -31,9 +31,10 @@ export default defineEventHandler(async (event) => {
 
     // Отправка на внешний API
     const xKey = "super-secret-key";
-
+    const config = useRuntimeConfig().public
+  const apiBase =config.apiBase
     const response = await fetch(
-      `https://voshod08.ru/api/broadcasts/send?x_key=${xKey}`,
+      `${apiBase}/api/broadcasts/send?x_key=${xKey}`,
       {
         method: "POST",
         body: fd,

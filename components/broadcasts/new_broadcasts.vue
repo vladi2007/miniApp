@@ -87,7 +87,7 @@ async function submitBroadcasts() {
             formData.append("file", uploadedFile.value);
         }
 
-        const response = await fetch('/api/broadcasts/send', {
+        const response = await $fetch('/api/broadcasts/send', {
             method: 'POST',
             body: formData,
         });
@@ -250,14 +250,22 @@ watch(sendStatus, (value) => {
         clearInterval(dotInterval)
     }
 })
+const expandedTitles = reactive<{ [key: string]: boolean }>({});
+const expandedLeaders = reactive<{ [key: string]: boolean }>({});
+
+// Функции для переключения раскрытия
+function toggleTitle(id: string) {
+  expandedTitles[id] = !expandedTitles[id];
+}
+
+function toggleLeader(id: string) {
+  expandedLeaders[id] = !expandedLeaders[id];
+}
+const telegramName = useState<string | null>('userName')
 </script>
 
 <template>
-    <div class="broadcasts">
-          <header_logo/>
-          <div class="broadcasts_margins">
-        <Header :goTo="goTo" :active="'broadcasts'" />
-
+        <Layout :active_nav="'broadcasts'">
         <div class="broadcasts_input"> <label>Введите текст рассылки<textarea v-model="text" id="description_input"
                     placeholder="Текст" maxlength="200" /></label></div>
         <div class="broadcasts_custom-file-upload" :class="{ 'broadcasts_file-uploaded': uploadedFileName }"
@@ -293,7 +301,7 @@ watch(sendStatus, (value) => {
                 <div class="broadcasts_list_list" v-for="id in selectedInteractives" :key="id"
                     v-if="selectedInteractives.length > 0" style="height: calc((36/832)*100dvh);">
 
-                    <div class="broadcasts_list_list_item" :class="['broadcasts_selected_item']">
+                    <div class="broadcasts_list_list_item_selected" :class="['broadcasts_selected_item']">
                         <div class="broadcasts_list_list_item_title">
                             {{interactivesData?.interactives_list?.find(item => item.id === id)?.title}}
                         </div>
@@ -346,6 +354,9 @@ watch(sendStatus, (value) => {
                 <div class="broadcasts_list_header_title">
                     Название
                 </div>
+                <div class="broadcasts_list_header_leadername">
+                    Ведущий
+                </div>
                 <div class="broadcasts_list_header_date">
                     Дата
                 </div>
@@ -356,8 +367,11 @@ watch(sendStatus, (value) => {
             <div class="broadcasts_list_list" v-for="(item, index) in interactivesData.interactives_list" :key="item.id">
                 <div class="broadcasts_Line" v-if="index === 0" />
                 <div class="broadcasts_list_list_item">
-                    <div class="broadcasts_list_list_item_title">
+                    <div class="broadcasts_list_list_item_title title-clamp" :class="{ expanded: expandedTitles[item.id] }" @click="toggleTitle(item.id)">
                         {{ item.title }}
+                    </div>
+                    <div class="broadcasts_list_list_item_leadername title-clamp" :class="{ expanded: expandedLeaders[item.id] }" @click="toggleLeader(item.id)">
+                        {{ item.username }}
                     </div>
                     <div class="broadcasts_list_list_item_date">
                         {{ item.date_completed }}
@@ -373,8 +387,6 @@ watch(sendStatus, (value) => {
             </div>
             <div class="broadcasts_show_more" v-if="!interactivesData.is_end" @click="more_load()">Показать еще</div>
         </div>
-</div>
-    </div>
 
     <div v-if="showPopup " class="broadcasts_popup-overlay">
         <div class="broadcasts_popup">
@@ -428,6 +440,8 @@ watch(sendStatus, (value) => {
             </div>
         </div>
     </div>
+        </Layout>
+
 </template>
 
 <style>

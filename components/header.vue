@@ -8,9 +8,7 @@ const props = defineProps<{
 <template>
 
         <div class="nav" :class="{margins:props.active==='menu'}">
-            <div class="nav_main" :class="{active_nav : props.active === 'menu'}" @click="goTo('/leader/main_menu', 'menu')">
-                О нас
-            </div>
+           
             <div class="nav_interactives" :class="{active_nav : props.active === 'interactives'}" @click="goTo('/leader/new_interactives',  'interactives')">
                 Интерактивы
             </div>
@@ -20,11 +18,19 @@ const props = defineProps<{
             <div class="nav_broadcasts" :class="{active_nav : props.active === 'broadcasts'}"  @click="goTo('/leader/broadcasts', 'broadcasts')">
                 Рассылка
             </div>
+            <div class="nav_broadcasts"  :class="{active_nav : props.active === 'users',nav_margin:true}"  @click="goTo('/leader/users', 'users')">
+                Пользователи
+            </div>
+            <div class="nav_broadcasts" :class="{active_nav : props.active === 'organization_settings'}"  @click="goTo('/leader/organization_settings', 'organization_settings')">
+                Настройки организации
+            </div>
         </div>
 </template>
 <style scoped>
 @media (max-width:1918px), (max-height:1078px){
-
+.nav_margin{
+    margin-left: auto;
+}
 .margins{width: calc((1056 / 1280) * 100dvw);
     margin:0 auto 0 auto;
 margin-left: calc((112/1280)*100dvw) !important;
@@ -48,7 +54,7 @@ margin-left: calc((112/1280)*100dvw) !important;
 .nav>div:hover {
     color: #1D1D1D;
 }
-.nav > div{
+.nav > div{white-space: nowrap;
     cursor: pointer;
 }
 
@@ -74,11 +80,13 @@ margin-left: calc((112/1280)*100dvw) !important;
 }
 }
 @media (min-width:1918px) and (min-height:1078px){
-
+.nav_margin{
+    margin-left: auto;
+}
 .margins{width: 1056px !important;
     margin:0 auto 0 auto !important;
        margin-top:55px !important;
-       padding-left: 146px;;
+       
 }
 .nav {
     display: flex;
@@ -92,13 +100,13 @@ margin-left: calc((112/1280)*100dvw) !important;
     text-align: center;
     vertical-align: middle;
     color: #A9A9A9;
-    margin-left: 146px;; 
+  
 }
 
 .nav>div:hover {
     color: #1D1D1D;
 }
-.nav > div{
+.nav > div{white-space: nowrap;
     cursor: pointer;
 }
 

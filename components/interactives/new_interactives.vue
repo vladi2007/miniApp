@@ -7,6 +7,7 @@ const finder = ref<string>("")
 const isOpen = ref(false)
 const selectedText = ref("all")
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import Layout from '../layout.vue';
 const options = ["Все", "Проведенные", "Не проведенные"]
 const options_code = {
     "all": "Все",
@@ -20,7 +21,7 @@ function toggleDropdown() {
 const queryClient = useQueryClient() 
 
 const userId = useState('telegramUser')
-const userRole = useState('userRole')
+const userRole = useState('userRole')?.value?.role
 async function selectOption(option: string) {
     selectedText.value = option
     isOpen.value = false
@@ -135,6 +136,11 @@ async function goTo(url: string, active: string) {
     router.push(url)
     await clearDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
     await clearDeviceStorage(INTERACTIVES_FILTER_KEY)
+}
+async function checkSettings(id:number){
+    router.push({path:`/leader/edit/${id}`, state:{
+        is_checkSettings:true
+    }})
 }
 const is_ready=ref<boolean>()
 const { data: interactivesData, isLoading, refetch } = useQuery({
@@ -283,22 +289,14 @@ async function submitReport() {
                 report_type: selectedOption.value
             };
 
-            const response = await fetch('/api/reports/export', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
+            const data = await $fetch('/api/reports/export', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+});
+    console.log(data)
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Ошибка сервера');
-            }
-
-            const data =await response.json();
-            console.log(data.data)
-
-            if (data.data) {
-                const fileName = data.data.split('/').pop()
+            if (data) {
                 postEvent('web_app_request_file_download', {
                     url: data.data,
                     file_name: data.name
@@ -360,16 +358,23 @@ function urlReport(value:string){
     if (selectedOption.value!==value) {return "/images/interactives/circle_report.svg"}
     else {return "/images/interactives/circle_report_picked.svg"}
 }
+const expandedTitles = reactive<{ [key: string]: boolean }>({});
+const expandedLeaders = reactive<{ [key: string]: boolean }>({});
 
+// Функции для переключения раскрытия
+function toggleTitle(id: string) {
+  expandedTitles[id] = !expandedTitles[id];
+}
+
+function toggleLeader(id: string) {
+  expandedLeaders[id] = !expandedLeaders[id];
+}
+const telegramName = useState<string | null>('userName')
 </script>
 <template>
-    <div class="interactives">
-        <header_logo/>
-        <div class ="interactives_margins" >
 
         
-              
-         <Header :goTo="goTo" :active="'interactives'" />
+        <Layout :active_nav="'interactives'">
         <div class="interactives_finder">
             <div class="interactives_finder_finder">
                 <img src="/public/images/history/finder.svg" class="interactives_input-icon" />
@@ -416,6 +421,9 @@ function urlReport(value:string){
                 <div class="interactives_list_header_title">
                     Название
                 </div>
+                <div class="interactives_list_header_leadername">
+                    Ведущий
+                </div>
                 <div class="interactives_list_header_date">
                     Дата
                 </div>
@@ -429,10 +437,13 @@ function urlReport(value:string){
             <div class="interactives_list_list" v-for="(item, index) in interactivesData.interactives_list" :key="item.id">
                 <div class="interactives_Line" v-if="index === 0" />
                 <div class="interactives_list_list_item">
-                    <div class="interactives_list_list_item_title">
+                    <div class="interactives_list_list_item_title title-clamp" :class="{ expanded: expandedTitles[item.id] }" @click="toggleTitle(item.id)">
                         {{ item.title }}
                     </div>
-                    <div class="interactives_list_list_item_date">
+                    <div class="interactives_list_list_item_leadername title-clamp" :class="{ expanded: expandedLeaders[item.id] }" @click="toggleLeader(item.id)">
+                        {{ item.username }}
+                    </div>
+                    <div class="interactives_list_list_item_date" >
                         {{ item.date_completed }}
                     </div>
                     <div class="interactives_list_list_item_status">
@@ -442,33 +453,37 @@ function urlReport(value:string){
                         {{ item.participant_count }}
                     </div>
                     <div class="interactives_buttons">
-                        <div class="interactives_leader_board" v-if="item.is_conducted" title="Показать лидерборд"  @click="goTo(`/leader/interactive_leader_board/${item.id}`, '')">
-                            <img src="/images/interactives/leader_board.svg"
-                                 id="leader_board" />
-                        </div>
+                        
                         <div class="interactives_dublicate" title="Дублировать интерактив" @click="Popup(item.id)">
                             <img src="/images/interactives/dublicate_2.svg"
                               id="dublicate"/>
                         </div>
-
-                        <div class="interactives_edit" title="Редактировать интерактив" v-if="!item.is_conducted"
+                        <div class="interactives_leader_board" v-if="item.is_conducted" title="Показать лидерборд"  @click="goTo(`/leader/interactive_leader_board/${item.id}`, '')">
+                            <img src="/images/interactives/leader_board.svg"
+                                 id="leader_board" />
+                        </div>
+                        <div class="interactives_check" v-if="  !item.is_you " title="Просмотреть настройки интерактива" @click="checkSettings(item.id)">
+                            <img src="/images/interactives/check.svg"
+                                 />
+                        </div>
+                        <div class="interactives_edit" title="Редактировать интерактив" v-if="!item.is_conducted && item.is_you"
                             @click="showEdit=true; currID=item.id">
                             <img src="/images/interactives/edit_2.svg"
                               id="edit" />
                         </div>
-                        <div class="interactives_start" title="Запустить интерактив" v-if="!item.is_conducted"
-                        @click="showStart=true; currID=item.id"
+                        <div class="interactives_start" title="Запустить интерактив" v-if="!item.is_conducted && item.is_you"
+                        @click="showStart=true; currID=item.id" 
                           >
                             <img src="/images/interactives/start_2.svg"
                                />
                         </div>
-                        <div class="interactive_delete" v-if="!item.is_conducted" title="Удалить интерактив"
-                            @click="deletePopup(item.id)">
+                        <div class="interactive_delete" v-if="!item.is_conducted && (item.is_you || userRole==='admin' || userRole==='organizer') " title="Удалить интерактив"
+                            @click="deletePopup(item.id)" style="margin-left: auto;">
                             <img src="/images/interactives/vector.png" id="delete" />
                         </div>
-                        <div class="interactives_list_list_item_actions" :ref="el => setDropdownRef(el, index)">
-                            <div class="interactives_more_options" v-if="item.is_conducted"
-                                @click="toggleItemDropdown(item.id)" title="Еще">
+                        <div class="interactives_list_list_item_actions" :ref="el => setDropdownRef(el, index)"  v-if="item.is_conducted" style="margin-left: auto !important;">
+                            <div class="interactives_more_options"
+                                @click="toggleItemDropdown(item.id)" title="Еще" >
                                 <img src="/images/interactives/more.svg"
                                   id="more_options" />
                             </div>
@@ -498,7 +513,7 @@ function urlReport(value:string){
             </div>
             <div class="interactives_show_more" v-if="!interactivesData.is_end" @click="more_load()">Показать еще</div>
         </div>
-    </div>
+    
         <div v-if="showPopup" class="interactives_popup-overlay">
             <div class="interactives_popup">
                 <div class="interactives_popup-header">
@@ -561,7 +576,6 @@ function urlReport(value:string){
         </div>
       </div>
     </div>
-    </div>
 
 
     <div v-if="show_report_Popup === true" class="popup-overlay">
@@ -588,6 +602,7 @@ function urlReport(value:string){
             </div>
         </div>
     </div>
+        </Layout>
 </template>
 
 <style>
@@ -619,77 +634,6 @@ button{
     overflow-x: hidden;
 }
 
-.header {
-    width: 100dvw;
-    height: calc((71 / 832) * 100dvh);
-    background-color: #853CFF;
-    display: flex;
-    align-items: center;
-}
-
-#logo_header {
-    width: calc((123/1280) * 100dvw);
-    height: calc((50 / 832) * 100dvh);
-    margin-left: auto;
-    margin-right: calc((40.29/1280) * 100dvw);
-}
-
-.nav {
-    display: flex;
-    gap: calc((20 / 1280) * 100dvw);
-    margin-top: calc((34 / 832) * 100dvh);
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-style: Medium;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-    font-style: Medium;
-    letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
-    text-align: center;
-    vertical-align: middle;
-    color: #A9A9A9;
-
-}
-
-.nav>div:hover {
-    color: #1D1D1D;
-}
-
-.nav>div {
-    cursor: pointer;
-}
-
-.nav_main:not(.active_nav):hover::after,
-.nav_interactives:not(.active_nav):hover::after,
-.nav_reports:not(.active_nav):hover::after,
-.nav_broadcasts:not(.active_nav):hover::after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 2px;
-    margin-top: 0px;
-    background-color: #853CFF;
-}
-
-.active_nav {
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-style: Medium;
-    color: #1D1D1D;
-
-    vertical-align: middle;
-    display: grid;
-    width: fit-content;
-}
-
-.active_nav::after {
-    content: "";
-    display: block;
-    width: 100%;
-    height: 2px;
-    color: #1D1D1D !important;
-    margin-top: 0px;
-    background-color: #853CFF;
-}
 
 .interactives_finder {
     width: calc((1056/1280) * 100dvw);
@@ -1012,25 +956,29 @@ input:focus {
 
 .interactives_list_header_title {
     width: calc((89 / 1280) * 100dvw);
-    text-align: left;
+  
 }
-
-.interactives_list_header_date {
-    margin-left: calc((306 / 1280) * 100dvw);
+.interactives_list_header_leadername{
     width: calc((96 / 1280) * 100dvw);
+      text-align: center;
+      margin-left: calc((189 / 1280) * 100dvw);
+}
+.interactives_list_header_date {
+    margin-left: calc((47 / 1280) * 100dvw);
     text-align: center;
+    width: calc((96 / 1280) * 100dvw);
 }
 
 .interactives_list_header_status {
-    margin-left: calc((64 / 1280) * 100dvw);
-    width: calc((102 / 1280) * 100dvw);
+    margin-left: calc((38 / 1280) * 100dvw);
     text-align: center;
+    width: calc((102 / 1280) * 100dvw);
 }
 
 .interactives_list_header_count {
     margin-left: calc((20 / 1280) * 100dvw);
-    width: calc((192 / 1280) * 100dvw);
     text-align: center;
+    width: calc((192 / 1280) * 100dvw);
 }
 
 .interactives_list_list {
@@ -1040,15 +988,11 @@ input:focus {
 
 .interactives_list_list_item {
     display: flex;
-    align-items: center;
-    height: calc((46.13/832) * 100dvh);
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
     font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
     letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-    text-align: center;
-    vertical-align: middle;
 }
 
 .interactives_list_list_item>img {
@@ -1062,25 +1006,74 @@ input:focus {
     background-color: #e9e9e9 !important;
     height: calc((1 / 832) * 100dvh) !important;
 }
+.interactives_list_list_item > div{
+
+      line-height: calc((19.2/832)*100dvh);
+}
+.interactives_list_list_item_title, 
+.interactives_list_list_item_leadername {
+    position: relative; /* для ::after */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    cursor: pointer;
+    white-space: nowrap;
+}
 
 .interactives_list_list_item_title { 
+    margin-top:calc((15/832)*100dvh);;
+     margin-bottom:calc((15/832)*100dvh);;
     margin-left: calc((22 / 1280) * 100dvw);
-    width: calc((375 / 1280) * 100dvw);
+    width: calc((222 / 1280) * 100dvw);
     text-align: left;
+
+}
+.interactives_list_list_item_leadername {
+ margin-top:calc((15/832)*100dvh);;
+     margin-bottom:calc((15/832)*100dvh);;
+  margin-left: calc((29 / 1280) * 100dvw);
+  width: calc((150 / 1280) * 100dvw);
+}
+.title-clamp::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: calc((31 / 1280) * 100dvw);
+    height: 100%;
+    pointer-events: none;
+    background: linear-gradient(85.63deg, rgba(255,255,255,0.4) 29.36%, #ffffff 89.3%);
+}
+.interactives_list_list_item_leadername.expanded,
+.interactives_list_list_item_title.expanded {
+    white-space: normal;      
+    word-break: break-word;  
+    overflow-wrap: break-word; 
+}
+
+.title-clamp.expanded::after {
+    display: none; /* только у текущего элемента с expanded */
 }
 
 .interactives_list_list_item_date {
-    width: calc((137 / 1280) * 100dvw);
+ margin-top:calc((15/832)*100dvh);;
+     margin-bottom:calc((15/832)*100dvh);;
+     margin-left: calc((13 / 1280) * 100dvw);
+    width: calc((111 / 1280) * 100dvw);
     text-align: center; 
 }
 
 .interactives_list_list_item_status {
-    margin-left: calc((30 / 1280) * 100dvw) !important;
+     margin-top:calc((15/832)*100dvh);;
+     margin-bottom:calc((15/832)*100dvh);;
+    margin-left: calc((17 / 1280) * 100dvw) !important;
     width: calc((128 / 1280) * 100dvw); 
     text-align: center;
 }
 
 .interactives_list_list_item_count {
+      margin-top:calc((15/832)*100dvh);;
+     margin-bottom:calc((15/832)*100dvh);;
     margin-left: calc((69 / 1280) * 100dvw);
     width: calc((68 / 1280) * 100dvw); 
     text-align: center;
@@ -1117,15 +1110,19 @@ input:focus {
 }
 .interactives_buttons { 
     display: flex;position: relative; 
-    align-items: center;
     width: calc((152 / 1280) * 100dvw);;
     margin-left: calc((77 / 1280) * 100dvw);
+    margin-top:calc((5.13/832)*100dvh) !important;
+     margin-bottom:calc((5/832)*100dvh) !important;
+     height: calc((36/832)*100dvh);
+     align-items: center;
+     gap:calc((10 / 1280) * 100dvw);;
 }
 
 .interactive_delete:hover {
   filter: brightness(11%);
 }
-#leader_board, #dublicate{
+#leader_board, #dublicate,  .interactives_check > img{
       width: calc((24/1280) * 100dvw) !important;
     height: calc((24/832) * 100dvh) !important;
 }
@@ -1137,11 +1134,10 @@ input:focus {
         width: calc((12/1280) * 100dvw) !important;
     height: calc((17/832) * 100dvh) !important;
 }
-.interactives_leader_board {
+.interactives_leader_board, .interactives_check {
     background-color: #6AB23D;
-    margin-right: calc((10 / 1280) * 100dvw);
 }
-.interactives_leader_board:hover{
+.interactives_leader_board:hover, .interactives_check:hover{
     background-color: #9AC57E;
 }
 .interactives_dublicate {
@@ -1153,7 +1149,6 @@ input:focus {
 
 .interactives_edit {
     background-color: #F0436C;
-    margin-left: calc((10 / 1280) * 100dvw);
 }
 .interactives_edit:hover{
     background-color: #DE7D94;;
@@ -1161,16 +1156,14 @@ input:focus {
 
 .interactives_start {
     background-color: #6AB23D;
-    margin-left: calc((10 / 1280) * 100dvw);
 }
 .interactives_start:hover{
     background-color: #9AC57E;
 }
 .interactive_delete {
-    width: calc((14/1280) * 100dvw) !important;
-    height: calc((18/832) * 100dvh) !important;
+     width: calc((14 / 1280) * 100dvw);
+    height: calc((18 / 832) * 100dvh);
     cursor: pointer;
-    margin-left: calc((10 / 1280) * 100dvw);
 }
 .interactive_delete > img{
     width: calc((14/1280) * 100dvw) !important;
@@ -1180,7 +1173,7 @@ input:focus {
 .interactives_dublicate,
 .interactives_edit,
 .interactives_start,
-.interactives_leader_board {
+.interactives_leader_board, .interactives_check {
     width: calc((36/1280) * 100dvw);
     height: calc((36/832) * 100dvh);
     display: flex;
@@ -1204,8 +1197,6 @@ input:focus {
 .interactives_dots img {
     width: calc((30 / 1280) * 100dvw);
     height: calc((30 / 832) * 100dvh);
-    margin: 0 auto;
-    margin-left: calc((46 / 1280) * 100dvw);
     background-color: #6AB23D;
 }
 
@@ -1247,12 +1238,11 @@ input:focus {
 
 
 .interactives_more_options {
-    margin-left: calc((57 / 1280) * 100dvw);
     display: flex;
     align-items: center;
     justify-content: center;
-
-  
+  width: calc((14 / 1280) * 100dvw);
+    height: calc((18 / 832) * 100dvh);
     cursor: pointer;
     z-index: 0 !important;
 }
@@ -2037,25 +2027,29 @@ input:focus {
 
 .interactives_list_header_title {
     width: 89px;
-    text-align: left;
+  
 }
-
+.interactives_list_header_leadername{
+    width: 96px;
+      text-align: center;
+      margin-left: 189px;;
+}
 .interactives_list_header_date {
-    margin-left: 306px;
-    width: 96px;;
+    margin-left: 47px;
     text-align: center;
+    width:96px;
 }
 
 .interactives_list_header_status {
-    margin-left: 64px;;
-    width: 102px;;
+    margin-left: 38px;
     text-align: center;
+    width: 102px;
 }
 
 .interactives_list_header_count {
-    margin-left: 20px;;
-    width: 192px;;
+    margin-left: 20px;
     text-align: center;
+    width: 192px;
 }
 
 .interactives_list_list {
@@ -2065,8 +2059,6 @@ input:focus {
 
 .interactives_list_list_item {
     display: flex;
-    align-items: center;
-    height: 46.13px;;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
@@ -2082,33 +2074,79 @@ input:focus {
     margin-left: auto;
     margin-right: 22px;
 }
-
+.interactives_list_list_item > div{
+ 
+      line-height: 19.2px;
+}
+.interactives_list_list_item_title, 
+.interactives_list_list_item_leadername {
+    position: relative; /* для ::after */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    cursor: pointer;
+    white-space: nowrap;
+}
 .interactives_Line {
     background-color: #e9e9e9 !important;
     height: 1px !important;
 }
 
-.interactives_list_list_item_title {
+.interactives_list_list_item_title { 
+       margin-top:15px;;
+     margin-bottom:15px;;
     margin-left: 22px;;
-    width: 375px;
+    width: 222px;;
     text-align: left;
 }
+.interactives_list_list_item_leadername { 
+       margin-top:15px;;
+     margin-bottom:15px;;
+    margin-left: 29px;;
+    width: 150px;;
+    text-align: left;
+}
+.title-clamp::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 31px;
+    height: 100%;
+    pointer-events: none;
+    background: linear-gradient(85.63deg, rgba(255,255,255,0.4) 29.36%, #ffffff 89.3%);
+}
+.interactives_list_list_item_leadername.expanded,
+.interactives_list_list_item_title.expanded {
+    white-space: normal;      
+    word-break: break-word;  
+    overflow-wrap: break-word; 
+}
 
+.title-clamp.expanded::after {
+    display: none; /* только у текущего элемента с expanded */
+}
 .interactives_list_list_item_date {
-    margin-left: 0px;
-    width: 137px;;
-    text-align: center;
+       margin-top:15px;;
+     margin-bottom:15px;;
+     margin-left: 13px;;
+    width: 111px;
+    text-align: center; 
 }
 
 .interactives_list_list_item_status {
-    margin-left: 30px;;
-    width: 128px;;
+       margin-top:15px;;
+     margin-bottom:15px;;
+    margin-left: 17px !important;
+    width: 128px; 
     text-align: center;
 }
 
 .interactives_list_list_item_count {
-    margin-left:69px;;
-    width: 68px;;
+       margin-top:15px;;
+     margin-bottom:15px;;
+    margin-left: 69px;
+    width: 68px; 
     text-align: center;
 }
 
@@ -2141,20 +2179,24 @@ input:focus {
 .interactives_show_more:hover::after {
     transform: scaleX(1);
 }
-.interactives_buttons {
-    display: flex;
-    align-items: center;
-    width: 152px !important;
+.interactives_buttons { 
+    display: flex;position: relative; 
+    width: 152px;;
     margin-left: 77px;
+     margin-top:5px !important;
+     margin-bottom:5px !important;
+     height: 36px;
+     align-items: center;
+     gap:10px;;;
 }
 
-#leader_board {
+#leader_board  {
     height: 24px !important;
     width: 24px !important;
 }
 
 
-#leader_board, #dublicate{
+#leader_board, #dublicate, .interactives_check > img{
      height:24px !important;
     width: 24px !important;
 }
@@ -2162,11 +2204,10 @@ input:focus {
     height:16px !important;
     width: 17px !important;
 }
-.interactives_leader_board {
+.interactives_leader_board, .interactives_check  {
     background-color: #6AB23D;
-    margin-right:10px;;
 }
-.interactives_leader_board:hover{
+.interactives_leader_board:hover, .interactives_check:hover {
     background-color: #9AC57E;
 }
 .interactives_dublicate {
@@ -2178,7 +2219,6 @@ input:focus {
 
 .interactives_edit {
     background-color: #F0436C;
-    margin-left: 10px;
 }
 .interactives_edit:hover{
     background-color: #DE7D94;
@@ -2186,7 +2226,6 @@ input:focus {
 
 .interactives_start {
     background-color: #6AB23D;
-    margin-left: 10px;
 }
 .interactives_start:hover{
     background-color: #9AC57E;
@@ -2195,7 +2234,6 @@ input:focus {
     width: 14px !important;
     height: 18px !important;
     cursor: pointer;
-    margin-left: 10px;
 }
 .interactive_delete:hover {
   filter: brightness(11%);
@@ -2213,7 +2251,7 @@ input:focus {
 .interactives_dublicate,
 .interactives_edit,
 .interactives_start,
-.interactives_leader_board {
+.interactives_leader_board,.interactives_check {
     width: 36px !important;
     height: 36px !important;
     display: flex;
@@ -2302,7 +2340,8 @@ input:focus {
     display: flex;
     align-items: center;
     justify-content: center;
-  
+      width: 14px;;
+    height: 18px;
     cursor: pointer;
     z-index: 0 !important;
 }
@@ -2311,7 +2350,6 @@ input:focus {
     z-index: 0 !important;
   width:3.75px;;
     height: 18.75px;;
-    margin-left: 61.12px;;
 }
 
 
