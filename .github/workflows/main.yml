@@ -35,11 +35,7 @@ jobs:
             if [ "$BRANCH" = "main" ]; then
 
               echo "🚀 Deploy PROD (frontend)"
-              export NUXT_APP_BASE_URL=/
-              export NUXT_APP_BUILD_ASSETS_DIR=/_nuxt/
-              export NUXT_PUBLIC_API_BASE=https://voshod08.ru
-              export NUXT_PUBLIC_WS_BACKEND=wss://voshod08.ru/ws
-              export NUXT_PUBLIC_WS_FRONTEND=wss://voshod07.ru/ws
+              
               cd /root/miniApp
               git fetch origin
               git checkout main
@@ -51,11 +47,7 @@ jobs:
 
             elif [[ "$BRANCH" == sprint* ]]; then
               echo "🚀 Deploy DEV (developing)"
-              export NUXT_APP_BASE_URL=/dev/
-              export NUXT_APP_BUILD_ASSETS_DIR=/dev/_nuxt/
-              export NUXT_PUBLIC_API_BASE=https://devvoshod08.ru
-              export NUXT_PUBLIC_WS_BACKEND=wss://devvoshod08.ru/ws
-              export NUXT_PUBLIC_WS_FRONTEND=wss://voshod07.ru/dev/ws
+              
               cd /root/miniApp_dev
               git fetch origin
               git checkout -B $BRANCH origin/$BRANCH
