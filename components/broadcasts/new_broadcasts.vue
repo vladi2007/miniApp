@@ -41,12 +41,16 @@ onMounted(async () => {
 const sendStatus = ref<"idle" | "sending" | "success" | "error">("idle")
 
 async function validateBeforeSend(){
-    showPopup.value = true;
-if (text.value===null && uploadedFile.value===null){
+    if(count.value === 0){
+        window.Telegram.WebApp.showAlert(`У выбранных интерактивов должен быть хотя бы один участник!`);
+           return;
+    }
+if ((text.value.trim().length <1  && uploadedFile.value ===null)){
         window.Telegram.WebApp.showAlert(`Прикрепите файл или наберите текст сообщения!`);
-        closePopup();
         return;
     }
+    showPopup.value=true;
+
 }
 async function submitBroadcasts() {
     
