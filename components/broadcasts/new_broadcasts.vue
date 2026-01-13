@@ -24,21 +24,10 @@ watch(to_number, async (new_Numb) => {
 });
 onMounted(async () => {
    
-        //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
-        const savedInteractives = await loadFromDeviceStorage(BROADCASTS_KEY);
-        if (savedInteractives) {
+        
 
-            selectedInteractives.value = savedInteractives
-
-        }
-
-        const savedText = await loadFromDeviceStorage(BROADCASTS_TEXT_KEY)
-        text.value = savedText
-        const saved = await loadFromDeviceStorage(BROADCASTS_FILE_KEY)
-        if (saved) {
-            uploadedFile.value = saved
-            uploadedFileName.value = saved.name
-        }
+        
+        
          const saved_to = localStorage.getItem(BROADCASTS_TO_NUMBER_KEY);
     if (saved_to) {
         to_number.value = Number(saved_to) || 9;
@@ -92,11 +81,8 @@ async function submitBroadcasts() {
             body: formData,
         });
 
-        if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.error || "Ошибка сервера");
-        }
-        if( response.ok){   sendStatus.value = "success";}
+        
+        if( response.success){   sendStatus.value = "success";}
         
         if (showPopup.value ===false){window.Telegram.WebApp.showAlert(`Ваше сообщение успешно отправлено`); sendStatus.value = "idle";}
     } catch (e) {

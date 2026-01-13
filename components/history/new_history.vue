@@ -147,22 +147,13 @@ async function submitReport() {
                 body: JSON.stringify(body)
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Ошибка сервера');
-            }
-
-            const data =await response.json();
-            console.log(data.data)
-
-            if (data.data) {
-                const fileName = data.data.split('/').pop()
+            if (response) {
                 postEvent('web_app_request_file_download', {
-                    url: data.data,
-                    file_name: data.name
+                    url: response.data,
+                    file_name: response.name
                 })
             } else {
-                throw new Error(data.error || 'Не удалось получить ссылку на файл')
+                throw new Error(response.error || 'Не удалось получить ссылку на файл')
             }
             
             selectedOption.value=""
