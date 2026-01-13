@@ -38,9 +38,8 @@ jobs:
               
               cd /root/miniApp
               git fetch origin
-              git checkout main
+              git checkout -B $BRANCH origin/$BRANCH
               git pull 
-
               cd /root
               docker compose build --no-cache frontend
               docker compose up -d frontend

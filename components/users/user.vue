@@ -44,7 +44,8 @@ const { mutate: saveName  } = useMutation({
 ),
   onSuccess: (data) => {
     // обновляем кэш, без refetch
-    $queryClient.invalidateQueries(['name'])}
+    
+    $queryClient.invalidateQueries(['org_participants'])}
 
 })
 const originalName = computed(() => name.value?.name ?? '')
@@ -95,7 +96,7 @@ const canSave = computed(() => {
                 Telegram username: <span>@{{ name?.username }}</span>
             </div>
             <div class='user_info_part'>
-                Организация: <span>ИРИТ ртф</span>
+                Организация: <span>{{ name?.organization_name }}</span>
             </div>
             <div class='user_info_part'>
                 Роль в организации: <span>Администратор</span>
