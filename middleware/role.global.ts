@@ -1,14 +1,10 @@
 import { useState, useRoute, useRouter } from '#app'
-import { useWebApp } from 'vue-tg'
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const telegramUser = useState<number | null>('telegramUser')
   const userRole = useState<{ role: string } | null>('userRole')
-  if (!telegramUser.value) return navigateTo('/not_access')
+  if (!telegramUser.value) return 
    
-  const currentPath = from.path     
-  const targetPath = to.path    
-  const router = useRouter();
-  
+    const router=useRouter()
   if (telegramUser.value) {
     try {
       const roleData = await $fetch("/api/role", {
@@ -22,6 +18,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   }    
   
   if (to.path !=='/not_leader' && userRole.value?.role !== 'admin' && userRole.value?.role !== 'leader' && userRole.value?.role !== 'organizer') {
-      return  navigateTo({path:'/not_leader'})
+       router.push('/not_leader')
   }
 })

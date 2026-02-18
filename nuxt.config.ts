@@ -55,10 +55,6 @@ export default defineNuxtConfig({
     '@fontsource/lato' // Импортируем шрифт Lato
    
   ],
-  router: {
-    options: {
-      globalMiddleware: ['~/middleware/role']
-    }
-  }
+
   
 })
