@@ -1,65 +1,65 @@
-name: Deploy to VPS (frontend + dev + nginx)
+# name: Deploy to VPS (frontend + dev + nginx)
 
-on:
-  push:
-    branches:
-      - '**' 
+# on:
+#   push:
+#     branches:
+#       - '**' 
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: 🔐 Setup SSH agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.MINIAPP_KEY }}
+#     steps:
+#       - name: 🔐 Setup SSH agent
+#         uses: webfactory/ssh-agent@v0.9.0
+#         with:
+#           ssh-private-key: ${{ secrets.MINIAPP_KEY }}
 
-      - name: Add SSH host key to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H 45.9.40.96 >> ~/.ssh/known_hosts
+#       - name: Add SSH host key to known_hosts
+#         run: |
+#           mkdir -p ~/.ssh
+#           ssh-keyscan -H 45.9.40.96 >> ~/.ssh/known_hosts
 
-      - name: 🚀 SSH into server and deploy
-        run: |
-          BRANCH=${{ github.ref_name }}
+#       - name: 🚀 SSH into server and deploy
+#         run: |
+#           BRANCH=${{ github.ref_name }}
 
-          ssh root@45.9.40.96 << EOF
-            set -e
+#           ssh root@45.9.40.96 << EOF
+#             set -e
 
-            echo "🌿 Current branch: $BRANCH"
+#             echo "🌿 Current branch: $BRANCH"
 
-            echo "🧹 Cleaning docker cache"
-            docker builder prune -f
-            docker system prune -f
-            if [ "$BRANCH" = "main" ]; then
+#             echo "🧹 Cleaning docker cache"
+#             docker builder prune -f
+#             docker system prune -f
+#             if [ "$BRANCH" = "main" ]; then
 
-              echo "🚀 Deploy PROD (frontend)"
+#               echo "🚀 Deploy PROD (frontend)"
               
-              cd /root/miniApp
-              git fetch origin
-              git checkout -B $BRANCH origin/$BRANCH
-              git pull 
-              cd /root
-              docker compose build --no-cache frontend
-              docker compose up -d frontend
+#               cd /root/miniApp
+#               git fetch origin
+#               git checkout -B $BRANCH origin/$BRANCH
+#               git pull 
+#               cd /root
+#               docker compose build --no-cache frontend
+#               docker compose up -d frontend
 
-            elif [[ "$BRANCH" == sprint* ]]; then
-              echo "🚀 Deploy DEV (developing)"
+#             elif [[ "$BRANCH" == sprint* ]]; then
+#               echo "🚀 Deploy DEV (developing)"
               
-              cd /root/miniApp_dev
-              git fetch origin
-              git checkout -B $BRANCH origin/$BRANCH
-              git pull 
+#               cd /root/miniApp_dev
+#               git fetch origin
+#               git checkout -B $BRANCH origin/$BRANCH
+#               git pull 
 
-              cd /root
-              docker compose build --no-cache developing
-              docker compose up -d developing
+#               cd /root
+#               docker compose build --no-cache developing
+#               docker compose up -d developing
 
-            else
-              echo "⚠️ Branch '$BRANCH' ignored"
-            fi
+#             else
+#               echo "⚠️ Branch '$BRANCH' ignored"
+#             fi
 
-            echo "✅ Deployment finished!"
-          EOF
+#             echo "✅ Deployment finished!"
+#           EOF
 
