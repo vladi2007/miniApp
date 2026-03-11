@@ -11,12 +11,18 @@ ARG NUXT_APP_BUILD_ASSETS_DIR
 ENV NUXT_APP_BASE_URL=$NUXT_APP_BASE_URL
 ENV NUXT_APP_BUILD_ASSETS_DIR=$NUXT_APP_BUILD_ASSETS_DIR
 
-COPY package*.json ./
-RUN npm install
+# Копируем package.json и yarn.lock
+COPY package.json yarn.lock ./
+
+# Устанавливаем все зависимости (dev + prod)
+RUN yarn install --frozen-lockfile
+
+# Копируем весь проект
 COPY . .
 
-# Build Nuxt с правильными baseURL/buildAssetsDir
-RUN npm run build
+# Собираем Nuxt
+RUN yarn build
+
 
 # =========================
 # 🚀 RUNTIME STAGE
@@ -25,15 +31,16 @@ FROM node:22-alpine
 
 WORKDIR /miniApp
 
-COPY package*.json ./
-RUN npm install --production
+# Копируем только результат билда из builder stage
 COPY --from=builder /miniApp/.output ./.output
-
 COPY server/api/ws-proxy-server.js ./ws-proxy-server.js
-RUN npm install concurrently ws
 
+# Устанавливаем только те зависимости, которые нужны для runtime
+# (ws нужен для прокси, concurrent можно убрать и запускать через sh)
+RUN yarn add ws
 
-
+# Открываем порт
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+# Запуск сервера Nuxt + ws-прокси без concurrently
+CMD sh -c "node .output/server/index.mjs & node ws-proxy-server.js"
