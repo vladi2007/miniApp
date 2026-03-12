@@ -1,21 +1,22 @@
 <script setup lang="ts">
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+
 const telegramName = useState<string | null>('userName')
 const userId = useState('telegramUser')
 const { data: name, isLoading, refetch } = useQuery({
-    queryKey: computed(() => ['name', userId.value]),
-    queryFn: async () => {
-        const res = await $fetch('/api/get_name', {
-            query: { telegram_id: userId.value, }
+  queryKey: computed(() => ['name', userId.value]),
+  queryFn: async () => {
+    const res = await $fetch('/api/get_name', {
+      query: { telegram_id: userId.value },
 
-        })
-        return res
-    },
-    enabled: computed(() => Boolean(userId)),
-    staleTime: 1000 * 60 * 30,
-    cacheTime: 1000 * 60 * 30,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    })
+    return res
+  },
+  enabled: computed(() => Boolean(userId)),
+  staleTime: 1000 * 60 * 30,
+  cacheTime: 1000 * 60 * 30,
+  refetchOnWindowFocus: false,
+  refetchOnMount: false,
 })
 const userNameInput = ref('')
 watch(
@@ -25,85 +26,91 @@ watch(
       userNameInput.value = val.name
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 const { $queryClient } = useNuxtApp()
-const { mutate: saveName  } = useMutation({
+const { mutate: saveName } = useMutation({
   mutationFn: (newName: string) =>
-  
+
     $fetch('/api/patch_name', {
       method: 'PATCH',
       query: {
         telegram_id: userId.value,
         name: newName,
       },
-    }
-    
+    },
 
-),
+    ),
   onSuccess: (data) => {
     // обновляем кэш, без refetch
-    
-    $queryClient.invalidateQueries(['org_participants'])}
+
+    $queryClient.invalidateQueries(['org_participants'])
+  },
 
 })
 const originalName = computed(() => name.value?.name ?? '')
 
 const canSave = computed(() => {
-    const trimmed = userNameInput.value.trim()
-  if (trimmed.length<3) {
+  const trimmed = userNameInput.value.trim()
+  if (trimmed.length < 3) {
     // Можно показать уведомление
     window.Telegram.WebApp.showAlert('Имя должно быть длинее 2 символов')
     return
   }
   return (
-    trimmed !== originalName.value.trim() 
-    
+    trimmed !== originalName.value.trim()
+
   )
 })
-
 </script>
+
 <template>
-    <layout :active_nav="'user'">
-        <form class="user_form">
-            <div class="user_form_input">
-                <div class="user_form_input_title">
-                    Имя пользователя:
-                </div>
-                <div class="user_form_input_group">
-                    <textarea class="user_form_input_group_input" placeholder="Сергеев Сергей Сергеевич"
-                        maxlength="32" v-model="userNameInput"></textarea>
-                    <div class='user_form_input_group_button' @click="canSave && saveName(userNameInput)">
-                        Сохранить
-                    </div>
-                </div>
-                <div class="user_form_input_info">
-                    <img src="/public/images/icon.svg" class="user_form_input_info_icon" />
-                    <div class='user_form_input_info_text'>
-                        Данное имя будет отображаться при создании интерактива и в отчетах
-                    </div>
-                </div>
-
-
-            </div>
-
-
-
-        </form>
-        <div class="user_info">
-            <div class='user_info_part'>
-                Telegram username: <span>@{{ name?.username }}</span>
-            </div>
-            <div class='user_info_part'>
-                Организация: <span>{{ name?.organization_name }}</span>
-            </div>
-            <div class='user_info_part'>
-                Роль в организации: <span>Администратор</span>
-            </div>
+  <layout :active_nav="'user'">
+    <form class="user_form">
+      <div class="user_form_input">
+        <div class="user_form_input_title">
+          Имя пользователя:
         </div>
-    </layout>
+        <div class="user_form_input_group">
+          <textarea
+            v-model="userNameInput"
+            class="user_form_input_group_input"
+            placeholder="Сергеев Сергей Сергеевич"
+            maxlength="32"
+          />
+          <div
+            class="user_form_input_group_button"
+            @click="canSave && saveName(userNameInput)"
+          >
+            Сохранить
+          </div>
+        </div>
+        <div class="user_form_input_info">
+          <img
+            src="/public/images/icon.svg"
+            class="user_form_input_info_icon"
+          >
+          <div class="user_form_input_info_text">
+            Данное имя будет отображаться при создании интерактива и в отчетах
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="user_info">
+      <div class="user_info_part">
+        Telegram username: <span>@{{ name?.username }}</span>
+      </div>
+      <div class="user_info_part">
+        Организация: <span>{{ name?.organization_name }}</span>
+      </div>
+      <div class="user_info_part">
+        Роль в организации: <span>Администратор</span>
+      </div>
+    </div>
+  </layout>
 </template>
+
 <style>
 @media (max-width:1918px),
 (max-height:1078px) {

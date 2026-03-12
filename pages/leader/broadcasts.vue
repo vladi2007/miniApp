@@ -3,9 +3,9 @@ import broadcasts from '~/components/broadcasts/new_broadcasts.vue'
 </script>
 
 <template>
-    <broadcasts/>
+  <broadcasts />
 </template>
 
-<style >
+<style>
 
 </style>

@@ -1,226 +1,217 @@
 <script setup lang="ts">
-const activeGroup = ref('all')
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+
+const activeGroup = ref('all')
 const telegramName = useState<string | null>('userName')
 const userId = useState('telegramUser')
 const userRole = useState('userRole').value.role
 const { data: org_participants, isLoading, refetch } = useQuery({
-    queryKey: computed(() => ['org_participants', userId.value, activeGroup.value]),
-    queryFn: async () => {
-        const res = await $fetch('/api/get_org_participants', {
-            query: { telegram_id: userId.value, filter: activeGroup.value }
+  queryKey: computed(() => ['org_participants', userId.value, activeGroup.value]),
+  queryFn: async () => {
+    const res = await $fetch('/api/get_org_participants', {
+      query: { telegram_id: userId.value, filter: activeGroup.value },
 
-        })
-        return res
-    },
-    enabled: computed(() => Boolean(userId)),
-    staleTime: 1000 * 60 * 30,
-    cacheTime: 1000 * 60 * 30,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    })
+    return res
+  },
+  enabled: computed(() => Boolean(userId)),
+  staleTime: 1000 * 60 * 30,
+  cacheTime: 1000 * 60 * 30,
+  refetchOnWindowFocus: false,
+  refetchOnMount: false,
 })
 const { $queryClient } = useNuxtApp()
 const { mutate: patchRole } = useMutation({
-    mutationFn: (payload: { role: string; participant_id: number }) =>
+  mutationFn: (payload: { role: string, participant_id: number }) =>
 
-        $fetch('/api/patch_participant_role', {
-            method: 'PATCH',
-            query: {
-                telegram_id: userId.value,
-                participant_id: payload.participant_id,
-                role: payload.role,
-            },
-        }
+    $fetch('/api/patch_participant_role', {
+      method: 'PATCH',
+      query: {
+        telegram_id: userId.value,
+        participant_id: payload.participant_id,
+        role: payload.role,
+      },
+    },
 
-
-        ),
-    onSuccess: (data) => {
-        // обновляем кэш, без refetch
-        $queryClient.invalidateQueries(['org_participants', userId.value, activeGroup.value])
-    }
+    ),
+  onSuccess: (data) => {
+    // обновляем кэш, без refetch
+    $queryClient.invalidateQueries(['org_participants', userId.value, activeGroup.value])
+  },
 
 })
 const { mutate: deleteParticipant } = useMutation({
-    mutationFn: (id: number) =>
+  mutationFn: (id: number) =>
 
-        $fetch('/api/patch_participant_role', {
-            method: 'PATCH',
-            query: {
-                telegram_id: userId.value,
-                participant_id: id,
-                role: 'remote',
-            },
-        }
+    $fetch('/api/patch_participant_role', {
+      method: 'PATCH',
+      query: {
+        telegram_id: userId.value,
+        participant_id: id,
+        role: 'remote',
+      },
+    },
 
-
-        ),
-    onSuccess: (data) => {
-        // обновляем кэш, без refetch
-        $queryClient.invalidateQueries(['org_participants', userId.value, activeGroup.value])
-    }
+    ),
+  onSuccess: (data) => {
+    // обновляем кэш, без refetch
+    $queryClient.invalidateQueries(['org_participants', userId.value, activeGroup.value])
+  },
 
 })
 const { mutate: addParticipantFn } = useMutation({
-    mutationFn: (payload: { role: string; participant_username: string }) =>
+  mutationFn: (payload: { role: string, participant_username: string }) =>
 
-        $fetch('/api/post_add_participant_to_org', {
-            method: 'POST',
-            query: {
-                telegram_id: userId.value,
-                participant_username: payload.participant_username,
-                role: payload.role,
-            },
-        }
-
-
-        ),
-    onSuccess: (data) => {
-        // обновляем кэш, без refetch
-        $queryClient.invalidateQueries(['org_participants', userId.value])
-        selectedText.value = 'leader'
-         nameToAdd.value = ''
-
+    $fetch('/api/post_add_participant_to_org', {
+      method: 'POST',
+      query: {
+        telegram_id: userId.value,
+        participant_username: payload.participant_username,
+        role: payload.role,
+      },
     },
-    onError: (error: any) => {
 
+    ),
+  onSuccess: (data) => {
+    // обновляем кэш, без refetch
+    $queryClient.invalidateQueries(['org_participants', userId.value])
+    selectedText.value = 'leader'
+    nameToAdd.value = ''
+  },
+  onError: (error: any) => {
+    if (error?.statusCode === 404) {
+      window.Telegram.WebApp.showAlert(
+        'Этот пользователь уже состоит в вашей организации',
+      )
+    }
+    if (error?.statusCode === 409) {
+      const inviteLink = `https://t.me/ClikInteractive_Bot?start=${userId.value}_${selectedText.value}`
 
-  if ( error?.statusCode === 404) {
-    window.Telegram.WebApp.showAlert(
-      'Этот пользователь уже состоит в вашей организации'
-    )
-    
-  }
-  if (error?.statusCode === 409) {
-    const inviteLink = `https://t.me/ClikInteractive_Bot?start=${userId.value}_${selectedText.value}`
-
-    navigator.clipboard.writeText(inviteLink)
-      .then(() => {
+      navigator.clipboard.writeText(inviteLink)
+        .then(() => {
         // показываем alert с текстом
-        window.Telegram.WebApp.showAlert(
-          `Пользователь не найден. Ссылка для приглашения уже скопирована в буфер:\n${inviteLink}`
-        )
-      })
-      .catch(() => {
-        window.Telegram.WebApp.showAlert(
-          `Пользователь не найден. Не удалось скопировать ссылку, вот она:\n${inviteLink}`
-        )
-      })
-    
-  }
-selectedText.value = 'leader'
-         nameToAdd.value = ''
-  return
-}
-
+          window.Telegram.WebApp.showAlert(
+            `Пользователь не найден. Ссылка для приглашения уже скопирована в буфер:\n${inviteLink}`,
+          )
+        })
+        .catch(() => {
+          window.Telegram.WebApp.showAlert(
+            `Пользователь не найден. Не удалось скопировать ссылку, вот она:\n${inviteLink}`,
+          )
+        })
+    }
+    selectedText.value = 'leader'
+    nameToAdd.value = ''
+    return
+  },
 
 })
-let groups = {
-    "all": 'Все',
-    "admin": "Администраторы",
-    "leader": "Ведущие",
+const groups = {
+  all: 'Все',
+  admin: 'Администраторы',
+  leader: 'Ведущие',
 }
 const roles = {
-    "admin": "Администратор",
-    "leader": "Ведущий",
-    "organizer": "Создатель организации"
+  admin: 'Администратор',
+  leader: 'Ведущий',
+  organizer: 'Создатель организации',
 }
 
 const isOpen = ref(false)
 const current_id = ref(0)
 function toggleItemDropdown(id) {
-    if (current_id.value === id) {
-        current_id.value = undefined
-    } else {
-        current_id.value = id
-    }
+  if (current_id.value === id) {
+    current_id.value = undefined
+  }
+  else {
+    current_id.value = id
+  }
 }
 function getDropdownIcon(id) {
-    return current_id.value === id
-        ? "../images/users/close_role.svg"
-        : "../images/users/open_role.svg";
+  return current_id.value === id
+    ? '../images/users/close_role.svg'
+    : '../images/users/open_role.svg'
 }
 const canChangeRole = (participantRole: string, yourRole: string, isYou: boolean) => {
-    if (isYou) return false // с самим собой нельзя действия производить
-    if (yourRole === 'organizer') {
-        // если вы орг, то вы можете удалять кого угодно и менять роль кому угодно
-        return true
-    }
-    else if (yourRole === 'admin') {
-        if (participantRole === 'organizer') return false;
-        if (participantRole === 'leader') return true; // если вы админ то вы можете поменять роль только ведущему и только на админа
-        if (participantRole === 'admin') return false;
-    }
-    else return false; // если вы не админ и не орг то никакие действия не можете выполнять
+  if (isYou) return false // с самим собой нельзя действия производить
+  if (yourRole === 'organizer') {
+    // если вы орг, то вы можете удалять кого угодно и менять роль кому угодно
+    return true
+  }
+  else if (yourRole === 'admin') {
+    if (participantRole === 'organizer') return false
+    if (participantRole === 'leader') return true // если вы админ то вы можете поменять роль только ведущему и только на админа
+    if (participantRole === 'admin') return false
+  }
+  else return false // если вы не админ и не орг то никакие действия не можете выполнять
 }
 const deleteId = ref(0)
 const showDeletePop = ref(false)
 const currentName = ref('')
 
 async function showDelete(currName: string, id: number) {
-    current_id.value = undefined
-    showDeletePop.value = true
-    currentName.value = currName
-    deleteId.value = id
+  current_id.value = undefined
+  showDeletePop.value = true
+  currentName.value = currName
+  deleteId.value = id
 }
 async function hidePopup() {
-    showDeletePop.value = false
-    currentName.value = ''
-    deleteId.value = 0
+  showDeletePop.value = false
+  currentName.value = ''
+  deleteId.value = 0
 }
 async function deleteParticipants() {
-    deleteParticipant(deleteId.value)
-    showDeletePop.value = false
-    currentName.value = ''
-    deleteId.value = 0
+  deleteParticipant(deleteId.value)
+  showDeletePop.value = false
+  currentName.value = ''
+  deleteId.value = 0
 }
 const changeRoleUserId = ref<number>(0)
 const tochangeRole = ref('')
 const showChangeRole = ref(false)
 async function showChange(role: string, currName: string, id: number) {
-    showChangeRole.value = true
-    tochangeRole.value = role
-    currentName.value = currName
-    changeRoleUserId.value = id
-    current_id.value = 0
+  showChangeRole.value = true
+  tochangeRole.value = role
+  currentName.value = currName
+  changeRoleUserId.value = id
+  current_id.value = 0
 }
 async function hidePopupChange() {
-    showChangeRole.value = false
-    tochangeRole.value = ''
-    currentName.value = ''
-    changeRoleUserId.value = 0
+  showChangeRole.value = false
+  tochangeRole.value = ''
+  currentName.value = ''
+  changeRoleUserId.value = 0
 }
 async function ChangeRole() {
-    patchRole({
-        role: tochangeRole.value,
-        participant_id: changeRoleUserId.value
-    })
-    showChangeRole.value = false
-    tochangeRole.value = ''
-    currentName.value = ''
-    changeRoleUserId.value = 0
+  patchRole({
+    role: tochangeRole.value,
+    participant_id: changeRoleUserId.value,
+  })
+  showChangeRole.value = false
+  tochangeRole.value = ''
+  currentName.value = ''
+  changeRoleUserId.value = 0
 }
-
 
 const showAddPop = ref(false)
 function toggleDropdown() {
-    isOpen.value = !isOpen.value
+  isOpen.value = !isOpen.value
 }
 const options_code = {
-    "leader": "Ведущий",
-    "admin": "Администратор",
+  leader: 'Ведущий',
+  admin: 'Администратор',
 }
 const selectedText = ref('leader')
 async function selectOption(option: string) {
-    selectedText.value = option
-    isOpen.value = false
+  selectedText.value = option
+  isOpen.value = false
 }
 async function addParticipant() {
-    if (nameToAdd.value.length < 2) {
-        window.Telegram.WebApp.showAlert(`Заполните поле с username!`);
-        return;
-    }
-    addParticipantFn({ role: selectedText.value, participant_username: nameToAdd.value })
-    
+  if (nameToAdd.value.length < 2) {
+    window.Telegram.WebApp.showAlert(`Заполните поле с username!`)
+    return
+  }
+  addParticipantFn({ role: selectedText.value, participant_username: nameToAdd.value })
 }
 function onAddClick() {
   if (userRole === 'leader') return
@@ -228,157 +219,285 @@ function onAddClick() {
 }
 const nameToAdd = ref('')
 </script>
+
 <template>
-    <layout :active_nav="'users'">
-        <div class='users_title'>
-            Пользователи
+  <layout :active_nav="'users'">
+    <div class="users_title">
+      Пользователи
+    </div>
+    <form class="users_form">
+      <div class="users_form_finder_finder">
+        <img
+          src="/public/images/history/finder.svg"
+          class="users_form_input-icon"
+        >
+
+        <input
+          type="text"
+          placeholder="Поиск интерактива"
+          class="users_form_search-input"
+          maxlength="32"
+        >
+      </div>
+      <div
+        v-if="userRole !== 'leader'"
+        class="users_form_button"
+        @click="onAddClick()"
+      >
+        <div>
+          Добавить
         </div>
-        <form class="users_form">
-            <div class="users_form_finder_finder">
-                <img src="/public/images/history/finder.svg" class="users_form_input-icon" />
-
-                <input type="text" placeholder="Поиск интерактива" class="users_form_search-input" maxlength="32" />
-            </div>
-            <div class="users_form_button" @click="onAddClick()" v-if ="userRole !== 'leader'">
-                <div>
-                    Добавить
-                </div>
-                <img src="/public//images/users/add.svg"></img>
-
-            </div>
-        </form>
-        <div class="users_list">
-            <div class="users_list_groups">
-                <div v-for="(value, key) in groups" @click="activeGroup = key; current_id = undefined" class="group">
-                    <div v-if="activeGroup == key" class="group_active"></div>
-                    <div class="group_value" :style="{ fontWeight: activeGroup === key ? 600 : 400 }">{{ value }}</div>
-                </div>
-            </div>
-            <div class='users_list_list_column'>
-
-                <div class="users_list_list">
-                    <div class="users_list_list_header" style="color: #853CFF;">
-                        <span class='users_list_list_name'>
-                            Имя
-                        </span>
-                        <span class="users_list_list_role">
-                            Роль
-                        </span>
-
-                    </div>
-                    <div class="users_list_list_line"></div>
-                </div>
-                <div class="users_list_list_list" v-for="user in org_participants?.participants" :key="user.id">
-                    <div class="users_list_list_header">
-                        <div style="display: grid;">
-                            <span class='users_list_list_name'>
-                            {{ user.name }}
-                        </span>
-                          <span >
-                            @{{ user.username }}
-                            </span>
-                        </div>
-                        
-                        <div :class="{ users_list_list_role: user.role !== 'organizer' }">
-
-
-                            <div style="display: flex; align-items: center  ;"
-                                @click=" canChangeRole(user.role, userRole, user.is_you) && toggleItemDropdown(user.id)"
-                                :style="{ cursor: canChangeRole(user.role, userRole, user.is_you) ? 'pointer' : 'default' }">
-
-
-                                <div style="color:#7D7D7D;"
-                                    :class="{ users_list_list_role_margin: user.role !== 'organizer' }">
-                                    {{ roles[user.role] }}
-                                </div>
-
-                                <img class="open_role" v-if="canChangeRole(user.role, userRole, user.is_you)"
-                                    :src="getDropdownIcon(user.id)" />
-                            </div>
-                            <div class="users_list_item-dropdown-options"
-                                v-if="current_id === user.id && canChangeRole(user.role, userRole, user.is_you)"
-                                style=" z-index: 10001 !important;">
-                                <div class="users_list_item-dropdown-option" :class="{ option_margin: true }"
-                                    @click="user.role !== 'admin' && showChange('admin', user.name, user.id)">
-                                    <span>Выдать роль “Администратор”</span>
-                                </div>
-                                <div class="users_list_item-dropdown-option" :class="{ option_second_margin: true }"
-                                    @click="user.role !== 'leader' && showChange('leader', user.name, user.id)">
-                                    <span>Выдать роль “Ведущий”</span>
-                                </div>
-                            </div>
-                        </div>
-                        <img class="kick_user" src="/public/images/users/kick_user.svg"
-                            v-if="canChangeRole(user.role, userRole, user.is_you)"
-                            @click="  showDelete(user.name, user.id)" />
-
-                    </div>
-                    <div class="users_list_list_line"></div>
-
-                </div>
-            </div>
+        <img src="/public//images/users/add.svg"></img>
+      </div>
+    </form>
+    <div class="users_list">
+      <div class="users_list_groups">
+        <div
+          v-for="(value, key) in groups"
+          class="group"
+          @click="activeGroup = key; current_id = undefined"
+        >
+          <div
+            v-if="activeGroup == key"
+            class="group_active"
+          />
+          <div
+            class="group_value"
+            :style="{ fontWeight: activeGroup === key ? 600 : 400 }"
+          >
+            {{ value }}
+          </div>
         </div>
-        <div v-if="showDeletePop" class="users_popup-overlay">
-            <div class="users_popup-content">
-                <div class="users_popup-text">Вы уверены, что хотите удалить пользователя<br /><span
-                        style="color: #853CFF;">{{ currentName }}</span>?</div>
-                <div class="users_popup-text_">Это действие отменить будет невозможно. </div>
-                <div class="users_popup-buttons">
-                    <button class="users_popup-btn cancel delete" @click="hidePopup()">Отменить</button>
-                    <button class="users_popup-btn confirm delete" @click="deleteParticipants()">Удалить</button>
-
-                </div>
+      </div>
+      <div class="users_list_list_column">
+        <div class="users_list_list">
+          <div
+            class="users_list_list_header"
+            style="color: #853CFF;"
+          >
+            <span class="users_list_list_name">
+              Имя
+            </span>
+            <span class="users_list_list_role">
+              Роль
+            </span>
+          </div>
+          <div class="users_list_list_line" />
+        </div>
+        <div
+          v-for="user in org_participants?.participants"
+          :key="user.id"
+          class="users_list_list_list"
+        >
+          <div class="users_list_list_header">
+            <div style="display: grid;">
+              <span class="users_list_list_name">
+                {{ user.name }}
+              </span>
+              <span>
+                @{{ user.username }}
+              </span>
             </div>
 
+            <div :class="{ users_list_list_role: user.role !== 'organizer' }">
+              <div
+                style="display: flex; align-items: center  ;"
+                :style="{ cursor: canChangeRole(user.role, userRole, user.is_you) ? 'pointer' : 'default' }"
+                @click=" canChangeRole(user.role, userRole, user.is_you) && toggleItemDropdown(user.id)"
+              >
+                <div
+                  style="color:#7D7D7D;"
+                  :class="{ users_list_list_role_margin: user.role !== 'organizer' }"
+                >
+                  {{ roles[user.role] }}
+                </div>
+
+                <img
+                  v-if="canChangeRole(user.role, userRole, user.is_you)"
+                  class="open_role"
+                  :src="getDropdownIcon(user.id)"
+                >
+              </div>
+              <div
+                v-if="current_id === user.id && canChangeRole(user.role, userRole, user.is_you)"
+                class="users_list_item-dropdown-options"
+                style=" z-index: 10001 !important;"
+              >
+                <div
+                  class="users_list_item-dropdown-option"
+                  :class="{ option_margin: true }"
+                  @click="user.role !== 'admin' && showChange('admin', user.name, user.id)"
+                >
+                  <span>Выдать роль “Администратор”</span>
+                </div>
+                <div
+                  class="users_list_item-dropdown-option"
+                  :class="{ option_second_margin: true }"
+                  @click="user.role !== 'leader' && showChange('leader', user.name, user.id)"
+                >
+                  <span>Выдать роль “Ведущий”</span>
+                </div>
+              </div>
+            </div>
+            <img
+              v-if="canChangeRole(user.role, userRole, user.is_you)"
+              class="kick_user"
+              src="/public/images/users/kick_user.svg"
+              @click=" showDelete(user.name, user.id)"
+            >
+          </div>
+          <div class="users_list_list_line" />
         </div>
-        <div v-if="showChangeRole" class="users_popup-overlay">
-            <div class="users_change_popup-content" :class="{ height: true }">
-                <div class="users_popup-text" :class="{ margin_text: true }">Вы уверены, что хотите выдать роль
-                    “{{ tochangeRole === 'leader' ? "Ведущий" : "Администратор" }}” пользователю <span
-                        style="color: #853CFF;">{{ currentName }}</span>? </div>
-                <div class="users_popup-buttons" :class="{ margin: true }">
-                    <button class="users_popup-btn cancel" @click="hidePopupChange()">Отменить</button>
-                    <button class="users_popup-btn confirm" style="display: flex;
+      </div>
+    </div>
+    <div
+      v-if="showDeletePop"
+      class="users_popup-overlay"
+    >
+      <div class="users_popup-content">
+        <div class="users_popup-text">
+          Вы уверены, что хотите удалить пользователя<br><span
+            style="color: #853CFF;"
+          >{{ currentName }}</span>?
+        </div>
+        <div class="users_popup-text_">
+          Это действие отменить будет невозможно.
+        </div>
+        <div class="users_popup-buttons">
+          <button
+            class="users_popup-btn cancel delete"
+            @click="hidePopup()"
+          >
+            Отменить
+          </button>
+          <button
+            class="users_popup-btn confirm delete"
+            @click="deleteParticipants()"
+          >
+            Удалить
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      v-if="showChangeRole"
+      class="users_popup-overlay"
+    >
+      <div
+        class="users_change_popup-content"
+        :class="{ height: true }"
+      >
+        <div
+          class="users_popup-text"
+          :class="{ margin_text: true }"
+        >
+          Вы уверены, что хотите выдать роль
+          “{{ tochangeRole === 'leader' ? "Ведущий" : "Администратор" }}” пользователю <span
+            style="color: #853CFF;"
+          >{{ currentName }}</span>?
+        </div>
+        <div
+          class="users_popup-buttons"
+          :class="{ margin: true }"
+        >
+          <button
+            class="users_popup-btn cancel"
+            @click="hidePopupChange()"
+          >
+            Отменить
+          </button>
+          <button
+            class="users_popup-btn confirm"
+            style="display: flex;
       align-items: center;
-      justify-content: center;" :class="{ margin_left: true }" @click="ChangeRole()">Выдать</button>
-
+      justify-content: center;"
+            :class="{ margin_left: true }"
+            @click="ChangeRole()"
+          >
+            Выдать
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      v-if="showAddPop"
+      class="users_popup-overlay"
+    >
+      <div class="add_popup-content">
+        <img
+          src="/images/history/Vector_1.svg"
+          class="add_popup-close"
+          @click="showAddPop = false; isOpen = false; selectedText = 'leader'"
+        >
+        <div class="add_popup-text">
+          Добавление пользователя в организацию
+        </div>
+        <form class="add_form">
+          <textarea
+            v-model="nameToAdd"
+            placeholder="Введите  username в telegram: @ffadff "
+            maxlength="32"
+          />
+          <div
+            class="add_custom-dropdown"
+            @click="toggleDropdown"
+          >
+            <div class="add_custom-dropdown-selected">
+              {{ options_code[selectedText] }}
+            </div>
+            <div
+              class="add_custom-arrow"
+              :class="{ open: isOpen }"
+            >
+              <img
+                v-if="isOpen"
+                src="/public/images/interactives/open.svg"
+              >
+              <img
+                v-if="!isOpen"
+                src="/public/images/interactives/close.svg"
+              >
+            </div>
+          </div>
+          <div
+            v-if="isOpen"
+            class="add_custom-dropdown-options"
+          >
+            <div class="add_custom-dropdown-option-list">
+              <div
+                v-for="(label, value) in options_code"
+                :key="value"
+                class="add_custom-dropdown-option"
+                @click="selectOption(value)"
+              >
+                <img
+                  v-if="selectedText === value"
+                  class="add_custom-dropdown-circle"
+                  src="/public/images/interactives/picked.svg"
+                >
+                <img
+                  v-else
+                  class="add_custom-dropdown-circle"
+                  src="/public/images/interactives/Ellipse.svg"
+                >
+                <div class="add_custom-dropdown-text">
+                  {{ label }}
                 </div>
+              </div>
             </div>
-        </div>
-        <div v-if='showAddPop' class="users_popup-overlay">
-
-            <div class="add_popup-content">
-                <img src="/images/history/Vector_1.svg" class="add_popup-close"
-                    @click="showAddPop = false; isOpen = false; selectedText = 'leader'" />
-                <div class="add_popup-text">Добавление пользователя в организацию</div>
-                <form class="add_form">
-                    <textarea placeholder="Введите  username в telegram: @ffadff " maxlength="32" v-model="nameToAdd" />
-                    <div class="add_custom-dropdown" @click="toggleDropdown">
-                        <div class="add_custom-dropdown-selected">{{ options_code[selectedText] }}</div>
-                        <div class="add_custom-arrow" :class="{ open: isOpen }">
-                            <img src="/public/images/interactives/open.svg" v-if="isOpen" />
-                            <img src="/public/images/interactives/close.svg" v-if="!isOpen" />
-                        </div>
-                    </div>
-                    <div class="add_custom-dropdown-options" v-if="isOpen">
-                        <div class="add_custom-dropdown-option-list">
-                            <div class="add_custom-dropdown-option" v-for="(label, value) in options_code" :key="value"
-                                @click="selectOption(value)">
-                                <img class="add_custom-dropdown-circle" src="/public/images/interactives/picked.svg"
-                                    v-if="selectedText === value" />
-                                <img class="add_custom-dropdown-circle" src="/public/images/interactives/Ellipse.svg"
-                                    v-else />
-                                <div class="add_custom-dropdown-text">{{ label }}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                </form>
-                <button class="add_popup-btn" @click="addParticipant">Добавить</button>
-            </div>
-        </div>
-    </layout>
+          </div>
+        </form>
+        <button
+          class="add_popup-btn"
+          @click="addParticipant"
+        >
+          Добавить
+        </button>
+      </div>
+    </div>
+  </layout>
 </template>
+
 <style>
 @media (max-width:1918px),
 (max-height:1078px) {
@@ -447,7 +566,6 @@ const nameToAdd = ref('')
         width: calc(2/1280*100dvw);
         border-radius: calc(2/832*100dvh);
     }
-
 
     .users_list_list {
         margin-top: calc((23 / 832) * 100dvh);
@@ -648,7 +766,6 @@ const nameToAdd = ref('')
         border-radius: calc((18/832)*100dvh);
         box-sizing: border-box;
 
-
     }
 
     .users_change_popup-content {
@@ -819,7 +936,6 @@ const nameToAdd = ref('')
         line-height: calc((22 / 832) * 100dvh);
         box-sizing: border-box;
         vertical-align: middle;
-
 
         font-family: Lato;
         font-family: "Lato", sans-serif;
@@ -1031,7 +1147,6 @@ const nameToAdd = ref('')
         border-radius: 2px;
     }
 
-
     .users_list_list {
         margin-top: 23px;
         font-family: "Lato", sans-serif;
@@ -1223,7 +1338,6 @@ const nameToAdd = ref('')
         background-color: #DFDFDF !important;
     }
 
-
     .users_popup-overlay {
         font-family: "Lato", sans-serif;
         position: fixed;
@@ -1244,7 +1358,6 @@ const nameToAdd = ref('')
         height: 233px;
         border-radius: 18px;
         box-sizing: border-box;
-
 
     }
 
@@ -1415,7 +1528,6 @@ const nameToAdd = ref('')
         line-height: 22px;
         box-sizing: border-box;
         vertical-align: middle;
-
 
         font-family: Lato;
         font-family: "Lato", sans-serif;

@@ -1,150 +1,146 @@
 <script setup lang="ts">
-import { postEvent } from '@telegram-apps/sdk';
+import { postEvent } from '@telegram-apps/sdk'
 import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorage'
-import header_logo from "~/components/header_logo.vue"
-import Header from "~/components/header.vue"
-const finder = ref<string>("")
-const isOpen = ref(false)
-const selectedText = ref("all")
+import header_logo from '~/components/header_logo.vue'
+import Header from '~/components/header.vue'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import Layout from '../layout.vue';
-const options = ["Все", "Проведенные", "Не проведенные"]
+import Layout from '../layout.vue'
+
+const finder = ref<string>('')
+const isOpen = ref(false)
+const selectedText = ref('all')
+const options = ['Все', 'Проведенные', 'Не проведенные']
 const options_code = {
-    "all": "Все",
-    "conducted": "Проведенные",
-    "not_conducted": "Не проведенные"
+  all: 'Все',
+  conducted: 'Проведенные',
+  not_conducted: 'Не проведенные',
 }
 function toggleDropdown() {
-    isOpen.value = !isOpen.value
+  isOpen.value = !isOpen.value
 }
 
-const queryClient = useQueryClient() 
+const queryClient = useQueryClient()
 
 const userId = useState('telegramUser')
 const userRole = useState('userRole')?.value?.role
 async function selectOption(option: string) {
-    selectedText.value = option
-    isOpen.value = false
-    to_number.value = 9
+  selectedText.value = option
+  isOpen.value = false
+  to_number.value = 9
 }
 const dropdownRef = ref<HTMLElement | null>(null)
 const dropdownRefsMore = ref<(HTMLElement | null)[]>([])
 
 function handleClickOutside(event: MouseEvent) {
-    if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
-        isOpen.value = false
-    }
+  if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
+    isOpen.value = false
+  }
 
-    // Проверяем все dropdownRefsMore
-    if (openDropdownId.value !== null) {
-        const clickedInsideAnyDropdown = dropdownRefsMore.value.some(ref =>
-            ref && ref.contains(event.target as Node)
-        )
-        if (!clickedInsideAnyDropdown) {
-            openDropdownId.value = null
-        }
+  // Проверяем все dropdownRefsMore
+  if (openDropdownId.value !== null) {
+    const clickedInsideAnyDropdown = dropdownRefsMore.value.some(ref =>
+      ref && ref.contains(event.target as Node),
+    )
+    if (!clickedInsideAnyDropdown) {
+      openDropdownId.value = null
     }
+  }
 }
 
 // Функция для добавления ref в массив
 function setDropdownRef(el: HTMLElement | null, index: number) {
-    dropdownRefsMore.value[index] = el
+  dropdownRefsMore.value[index] = el
 }
 
-const route = useRoute();
+const route = useRoute()
 // Добавляем и удаляем обработчик событий
 onMounted(async () => {
- const fromUrl = route.query.from as string | undefined;
- if (fromUrl){
+  const fromUrl = route.query.from as string | undefined
+  if (fromUrl) {
     console.log(fromUrl?.startsWith('/leader/'))
-  if (fromUrl?.startsWith('/leader/')) {
-    await queryClient.invalidateQueries({
-      predicate: (query) => {
-        return (
-          query.queryKey[0] === 'interactives' &&
-          query.queryKey[1] === userId.value
-        );
-      },
-    });
+    if (fromUrl?.startsWith('/leader/')) {
+      await queryClient.invalidateQueries({
+        predicate: (query) => {
+          return (
+            query.queryKey[0] === 'interactives'
+            && query.queryKey[1] === userId.value
+          )
+        },
+      })
 
-   await queryClient.invalidateQueries({
-      predicate: (query) => {
-        return (
-          query.queryKey[0] === 'broadcasts' &&
-          query.queryKey[1] === userId.value
-        );
-      },
-    });
+      await queryClient.invalidateQueries({
+        predicate: (query) => {
+          return (
+            query.queryKey[0] === 'broadcasts'
+            && query.queryKey[1] === userId.value
+          )
+        },
+      })
 
-    await queryClient.invalidateQueries({
-      predicate: (query) => {
-        return (
-          query.queryKey[0] === 'history' &&
-          query.queryKey[1] === userId.value
-        );
-      },
-    });
-
+      await queryClient.invalidateQueries({
+        predicate: (query) => {
+          return (
+            query.queryKey[0] === 'history'
+            && query.queryKey[1] === userId.value
+          )
+        },
+      })
+    }
   }
- }
-    
-        const saved_to = loadFromDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
-        to_number.value = saved_to || 9
-        const saved_filter = loadFromDeviceStorage(INTERACTIVES_FILTER_KEY)
-        selectedText.value = saved_filter || "all"
-          isReady.value = true
 
-
-
-});
+  const saved_to = loadFromDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
+  to_number.value = saved_to || 9
+  const saved_filter = loadFromDeviceStorage(INTERACTIVES_FILTER_KEY)
+  selectedText.value = saved_filter || 'all'
+  isReady.value = true
+})
 // В onMounted добавь:
 onMounted(() => {
-    document.addEventListener('click', handleClickOutside)
+  document.addEventListener('click', handleClickOutside)
 })
 
 onUnmounted(() => {
-    document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('click', handleClickOutside)
 })
 const is_empty_list = computed(() => {
-    if (interactivesData){
-        if (interactivesData?.value?.interactives_list?.length > 0) {
-        return false;
-    } else {
-        return true;
+  if (interactivesData) {
+    if (interactivesData?.value?.interactives_list?.length > 0) {
+      return false
     }
+    else {
+      return true
     }
-    
+  }
 })
 const webApp = ref(null)
 
 const isReady = ref(false)
-const from_number = ref<Number>(0)
-const to_number = ref<Number>(9)
+const from_number = ref<number>(0)
+const to_number = ref<number>(9)
 const INTERACTIVES_TO_NUMBER_KEY = 'interactives_to_number'
 const INTERACTIVES_FILTER_KEY = 'interactives_filter'
 watch(to_number, (new_Numb) => {
-    saveToDeviceStorage(INTERACTIVES_TO_NUMBER_KEY, new_Numb)
+  saveToDeviceStorage(INTERACTIVES_TO_NUMBER_KEY, new_Numb)
 })
 watch(selectedText, (newText) => {
-    saveToDeviceStorage(INTERACTIVES_FILTER_KEY, newText)
+  saveToDeviceStorage(INTERACTIVES_FILTER_KEY, newText)
 })
-
 
 const router = useRouter()
 async function goTo(url: string, active: string) {
-    if (active === "interactives") return
-    router.push(url)
-    await clearDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
-    await clearDeviceStorage(INTERACTIVES_FILTER_KEY)
+  if (active === 'interactives') return
+  router.push(url)
+  await clearDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
+  await clearDeviceStorage(INTERACTIVES_FILTER_KEY)
 }
-async function checkSettings(id:number){
-    router.push({path:`/leader/edit/${id}`, state:{
-        is_checkSettings:true
-    }})
+async function checkSettings(id: number) {
+  router.push({ path: `/leader/edit/${id}`, state: {
+    is_checkSettings: true,
+  } })
 }
-const is_ready=ref<boolean>()
+const is_ready = ref<boolean>()
 const { data: interactivesData, isLoading, refetch } = useQuery({
-    
+
   queryKey: computed(() => ['interactives', userId.value, selectedText.value, from_number.value, to_number.value]),
   queryFn: async () => {
     if (!userId) return { interactives_list: [], is_end: true }
@@ -153,81 +149,76 @@ const { data: interactivesData, isLoading, refetch } = useQuery({
         telegram_id: userId.value,
         filter: selectedText.value,
         from_number: from_number.value,
-        to_number: to_number.value
-      }
+        to_number: to_number.value,
+      },
     })
-    is_ready.value=true
+    is_ready.value = true
     console.log(userId.value)
     return res
   },
-   enabled: computed(() => Boolean(userId && isReady.value)),
-  staleTime: 1000 * 60 * 30,       // 5 минут данные считаются свежими
+  enabled: computed(() => Boolean(userId && isReady.value)),
+  staleTime: 1000 * 60 * 30, // 5 минут данные считаются свежими
   cacheTime: 1000 * 60 * 30,
   refetchOnWindowFocus: false,
   refetchOnMount: true,
 })
 async function more_load() {
-    to_number.value = to_number.value + 10
-   
+  to_number.value = to_number.value + 10
 }
-const showPopup = ref(false);
+const showPopup = ref(false)
 const currentInteractiveId = ref<string | null>(null)
 function Popup(id: string) {
-    currentInteractiveId.value = id
-    showPopup.value = true
+  currentInteractiveId.value = id
+  showPopup.value = true
 }
 
 // переход на редактирование, если пользователь хочет продублированный интерактив сразу изменить
 function dublicate_interactive(id: string) {
-    showPopup.value = false
-    router.push(`/leader/duplicate/${id}`)
+  showPopup.value = false
+  router.push(`/leader/duplicate/${id}`)
 }
 
 // переход на редактирование интерактива
 function edit_interactive(id: string) {
-    router.push(`/leader/edit/${id}`)
+  router.push(`/leader/edit/${id}`)
 }
 function start_interactive(id: string) {
-    router.push(`/leader/${id}`)
+  router.push(`/leader/${id}`)
 }
 const openDropdownId = ref<string | null>(null)
 function toggleItemDropdown(id: string) {
-    if (openDropdownId.value === id) {
-        openDropdownId.value = null
-    } else {
-        openDropdownId.value = id
-    }
+  if (openDropdownId.value === id) {
+    openDropdownId.value = null
+  }
+  else {
+    openDropdownId.value = id
+  }
 }
-
 
 function closePopup() {
-    showDeletePopap.value = false;
-
+  showDeletePopap.value = false
 }
-const deleteMutation =useMutation({
-    mutationFn: async (id:string) =>{
-         const response = await $fetch(`/api/delete_interactive`, {
-    method: 'DELETE',
-    query: {
-      telegram_id: userId.value,
-      id: id
-    },
+const deleteMutation = useMutation({
+  mutationFn: async (id: string) => {
+    const response = await $fetch(`/api/delete_interactive`, {
+      method: 'DELETE',
+      query: {
+        telegram_id: userId.value,
+        id: id,
+      },
 
-  })
-  showDeletePopap.value=false
-  return true;
-  
-    },
+    })
+    showDeletePopap.value = false
+    return true
+  },
 
-
-    onSuccess: async () => {
+  onSuccess: async () => {
     // 4. После успешного дублирования — рефетчим список интерактивов
     await queryClient.invalidateQueries(['interactives', userId.value])
   },
 })
- function deleteInteractive(id: string) {
+function deleteInteractive(id: string) {
   deleteMutation.mutate(id)
-
 }
 
 const duplicateInteractiveMutation = useMutation({
@@ -235,23 +226,22 @@ const duplicateInteractiveMutation = useMutation({
     // 1. Получаем интерактив
     const data = await $fetch(`/api/get_interactive`, {
       method: 'GET',
-      query: { telegram_id: userId.value, id }
+      query: { telegram_id: userId.value, id },
     })
 
     const plain = JSON.parse(JSON.stringify(data))
 
     // 2. Подготавливаем payload
-    
-    const formData = new FormData();
 
+    const formData = new FormData()
 
-    formData.append("telegram_id", String(userId?.value || 0));
-    formData.append("interactive", JSON.stringify(plain));
+    formData.append('telegram_id', String(userId?.value || 0))
+    formData.append('interactive', JSON.stringify(plain))
     // 3. Создаем интерактив
-    await $fetch("/api/create_interactive", {
-      method: "POST",
+    await $fetch('/api/create_interactive', {
+      method: 'POST',
       query: { telegram_id: userId?.value || 0 },
-      body: formData
+      body: formData,
     })
 
     return true
@@ -263,301 +253,495 @@ const duplicateInteractiveMutation = useMutation({
   onError: (err: any) => {
     console.error('Ошибка дублирования:', err)
     window.Telegram.WebApp.showAlert('Не удалось продублировать интерактив.')
-  }
+  },
 })
 function duplicateAndSaveInteractive(id: string) {
   showPopup.value = false
   duplicateInteractiveMutation.mutate(id)
 }
 const show_report_Popup = ref<boolean>(false)
-const selectedOption = ref<string | null>("");
-const selectedInteractive = ref<number>(0);
+const selectedOption = ref<string | null>('')
+const selectedInteractive = ref<number>(0)
 async function submitReport() {
-    showPopup.value = false
+  showPopup.value = false
 
-    if (selectedInteractive) {
-        if (selectedOption.value !== 'forAnalise' && selectedOption.value !== 'forLeader') {
-            window.Telegram.WebApp.showAlert(`Выберите тип отчета!`);
-            return;
-        }
-        try {
-            const interactiveIds = [{ id: selectedInteractive.value }];
-
-            const body = {
-                telegram_id: userId.value,
-                interactive_id: interactiveIds,
-                report_type: selectedOption.value
-            };
-
-            const data = await $fetch('/api/reports/export', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-});
-    console.log(data)
-
-            if (data) {
-                postEvent('web_app_request_file_download', {
-                    url: data.data,
-                    file_name: data.name
-                })
-            } else {
-                throw new Error(data.error || 'Не удалось получить ссылку на файл')
-            }
-        } catch (error) {
-            window.Telegram.WebApp.showAlert(`Ошибка при выгрузке отчета: ${error.message}`);
-        }
+  if (selectedInteractive.value) {
+    if (selectedOption.value !== 'forAnalise' && selectedOption.value !== 'forLeader') {
+      window.Telegram.WebApp.showAlert(`Выберите тип отчета!`)
+      return
     }
-    else {
-        window.Telegram.WebApp.showAlert(`Выберите хотя бы один интерактив для формирования отчёта!`);
+    try {
+      const interactiveIds = [{ id: selectedInteractive.value }]
+
+      const body = {
+        telegram_id: userId.value,
+        interactive_id: interactiveIds,
+        report_type: selectedOption.value,
+      }
+
+      const data = await $fetch('/api/reports/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      console.log(data)
+
+      if (data) {
+        postEvent('web_app_request_file_download', {
+          url: data.data,
+          file_name: data.name,
+        })
+      }
+      else {
+        throw new Error(data.error || 'Не удалось получить ссылку на файл')
+      }
     }
-    if (window.Telegram?.WebApp?.expand) {
-        setTimeout(() => {
-            Telegram.WebApp.requestFullscreen()
-        }, 0);
+    catch (error) {
+      window.Telegram.WebApp.showAlert(`Ошибка при выгрузке отчета: ${error.message}`)
     }
+  }
+  else {
+    window.Telegram.WebApp.showAlert(`Выберите хотя бы один интерактив для формирования отчёта!`)
+  }
+  if (window.Telegram?.WebApp?.expand) {
+    setTimeout(() => {
+      Telegram.WebApp.requestFullscreen()
+    }, 0)
+  }
 }
-
 
 const showDeletePopap = ref(false)
 const isRunning = ref(false)
 async function deletePopup(id: string) {
-    try {
-        const data = await $fetch(`/api/get_state_interactive`, {
-            method: 'GET',
-            query: {
+  try {
+    const data = await $fetch(`/api/get_state_interactive`, {
+      method: 'GET',
+      query: {
 
-                id: Number(id)
-            }
-        })
-        isRunning.value = data.data
-    }
-    catch (err) {
-        console.error('Ошибка удаления', err)
-        window.Telegram.WebApp.showAlert('Не удалось получить состояние интерактива!')
-    }
-    currentInteractiveId.value = id
-    showDeletePopap.value = true
+        id: Number(id),
+      },
+    })
+    isRunning.value = data.data
+  }
+  catch (err) {
+    console.error('Ошибка удаления', err)
+    window.Telegram.WebApp.showAlert('Не удалось получить состояние интерактива!')
+  }
+  currentInteractiveId.value = id
+  showDeletePopap.value = true
 }
 
-const info =computed(()=>{
-    if (selectedText.value === 'conducted') return "Проведите свой первый интерактив и он отобразится здесь"
-    else return "Создайте свой первый интерактив и он появится здесь"
+const info = computed(() => {
+  if (selectedText.value === 'conducted') return 'Проведите свой первый интерактив и он отобразится здесь'
+  else return 'Создайте свой первый интерактив и он появится здесь'
 })
 function goToBroadcast(interactiveId) {
   router.push({
-    path: '/leader/broadcasts',     // путь к странице рассылки
-    query: { selected: interactiveId } // передаём id интерактива
-  });
+    path: '/leader/broadcasts', // путь к странице рассылки
+    query: { selected: interactiveId }, // передаём id интерактива
+  })
 }
-const showStart=ref(false)
-const currID=ref(0)
+const showStart = ref(false)
+const currID = ref(0)
 
-const showEdit=ref(false)
-function urlReport(value:string){
-    if (selectedOption.value!==value) {return "/images/interactives/circle_report.svg"}
-    else {return "/images/interactives/circle_report_picked.svg"}
+const showEdit = ref(false)
+function urlReport(value: string) {
+  if (selectedOption.value !== value) { return '/images/interactives/circle_report.svg' }
+  else { return '/images/interactives/circle_report_picked.svg' }
 }
-const expandedTitles = reactive<{ [key: string]: boolean }>({});
-const expandedLeaders = reactive<{ [key: string]: boolean }>({});
+const expandedTitles = reactive<{ [key: string]: boolean }>({})
+const expandedLeaders = reactive<{ [key: string]: boolean }>({})
 
 // Функции для переключения раскрытия
 function toggleTitle(id: string) {
-  expandedTitles[id] = !expandedTitles[id];
+  expandedTitles[id] = !expandedTitles[id]
 }
 
 function toggleLeader(id: string) {
-  expandedLeaders[id] = !expandedLeaders[id];
+  expandedLeaders[id] = !expandedLeaders[id]
 }
 const telegramName = useState<string | null>('userName')
 </script>
+
 <template>
+  <Layout :active_nav="'interactives'">
+    <div class="interactives_finder">
+      <div class="interactives_finder_finder">
+        <img
+          src="/public/images/history/finder.svg"
+          class="interactives_input-icon"
+        >
 
-        
-        <Layout :active_nav="'interactives'">
-        <div class="interactives_finder">
-            <div class="interactives_finder_finder">
-                <img src="/public/images/history/finder.svg" class="interactives_input-icon" />
+        <input
+          v-model="finder"
+          type="text"
+          placeholder="Поиск интерактива"
+          class="interactives_search-input"
+        >
+      </div>
+      <div
+        class="interactives_create"
+        @click="goTo('/leader/create_interactive')"
+      >
+        Создать интерактив
+      </div>
+    </div>
+    <div
+      ref="dropdownRef"
+      class="interactives_input-group_type"
+    >
+      <div
+        class="interactives_custom-dropdown"
+        @click="toggleDropdown"
+      >
+        <div class="interactives_custom-dropdown-selected">
+          Фильтр
+        </div>
+        <div
+          class="interactives_custom-arrow"
+          :class="{ open: isOpen }"
+        >
+          <img
+            v-if="isOpen"
+            src="/public/images/interactives/open.svg"
+          >
+          <img
+            v-if="!isOpen"
+            src="/public/images/interactives/close.svg"
+          >
+        </div>
+      </div>
 
-                <input v-model="finder" type="text" placeholder="Поиск интерактива" class="interactives_search-input" />
+      <div
+        v-if="isOpen"
+        class="interactives_custom-dropdown-options"
+      >
+        <div class="interactives_custom-dropdown-option-list">
+          <div
+            v-for="(label, value) in options_code"
+            :key="value"
+            class="interactives_custom-dropdown-option"
+            @click.stop="selectOption(value)"
+          >
+            <img
+              v-if="selectedText === value"
+              class="interactives_custom-dropdown-circle"
+              src="/public/images/interactives/picked.svg"
+            >
+            <img
+              v-else
+              class="interactives_custom-dropdown-circle"
+              src="/public/images/interactives/Ellipse.svg"
+            >
+            <div class="interactives_custom-dropdown-text">
+              {{ label }}
             </div>
-            <div class="interactives_create" @click="goTo('/leader/create_interactive')">
-                Создать интерактив
-            </div>
+          </div>
         </div>
-        <div class="interactives_input-group_type" ref="dropdownRef">
-            <div class="interactives_custom-dropdown" @click="toggleDropdown">
-                <div class="interactives_custom-dropdown-selected">Фильтр</div>
-                <div class="interactives_custom-arrow" :class="{ open: isOpen }">
-                    <img src="/public/images/interactives/open.svg" v-if="isOpen" />
-                    <img src="/public/images/interactives/close.svg" v-if="!isOpen" />
-                </div>
+      </div>
+    </div>
+    <div
+      v-if="interactivesData && is_empty_list "
+      class="interactives_empty_list_info"
+    >
+      <img src="/public/images//history/finder_info.svg">
+      <div class="interactives_empty_list_info_h1">
+        У Вас нет интерактивов
+      </div>
+      <div class="interactives_empty_list_info_h2">
+        {{ info }}
+      </div>
+    </div>
+    <div
+      v-if="interactivesData && !is_empty_list "
+      class="interactives_list"
+    >
+      <div class="interactives_list_header">
+        <div class="interactives_list_header_title">
+          Название
+        </div>
+        <div class="interactives_list_header_leadername">
+          Ведущий
+        </div>
+        <div class="interactives_list_header_date">
+          Дата
+        </div>
+        <div class="interactives_list_header_status">
+          Статус
+        </div>
+        <div class="interactives_list_header_count">
+          Количество участников
+        </div>
+      </div>
+      <div
+        v-for="(item, index) in interactivesData.interactives_list"
+        :key="item.id"
+        class="interactives_list_list"
+      >
+        <div
+          v-if="index === 0"
+          class="interactives_Line"
+        />
+        <div class="interactives_list_list_item">
+          <div
+            class="interactives_list_list_item_title title-clamp"
+            :class="{ expanded: expandedTitles[item.id] }"
+            @click="toggleTitle(item.id)"
+          >
+            {{ item.title }}
+          </div>
+          <div
+            class="interactives_list_list_item_leadername title-clamp"
+            :class="{ expanded: expandedLeaders[item.id] }"
+            @click="toggleLeader(item.id)"
+          >
+            {{ item.username }}
+          </div>
+          <div class="interactives_list_list_item_date">
+            {{ item.date_completed }}
+          </div>
+          <div class="interactives_list_list_item_status">
+            {{ item.is_conducted ? "Проведен" : "Не проведен" }}
+          </div>
+          <div
+            class="interactives_list_list_item_count"
+            :class="{ hidden: !item.is_conducted }"
+          >
+            {{ item.participant_count }}
+          </div>
+          <div class="interactives_buttons">
+            <div
+              class="interactives_dublicate"
+              title="Дублировать интерактив"
+              @click="Popup(item.id)"
+            >
+              <img
+                id="dublicate"
+                src="/images/interactives/dublicate_2.svg"
+              >
             </div>
+            <div
+              v-if="item.is_conducted"
+              class="interactives_leader_board"
+              title="Показать лидерборд"
+              @click="goTo(`/leader/interactive_leader_board/${item.id}`, '')"
+            >
+              <img
+                id="leader_board"
+                src="/images/interactives/leader_board.svg"
+              >
+            </div>
+            <div
+              v-if=" !item.is_you "
+              class="interactives_check"
+              title="Просмотреть настройки интерактива"
+              @click="checkSettings(item.id)"
+            >
+              <img src="/images/interactives/check.svg">
+            </div>
+            <div
+              v-if="!item.is_conducted && item.is_you"
+              class="interactives_edit"
+              title="Редактировать интерактив"
+              @click="showEdit=true; currID=item.id"
+            >
+              <img
+                id="edit"
+                src="/images/interactives/edit_2.svg"
+              >
+            </div>
+            <div
+              v-if="!item.is_conducted && item.is_you"
+              class="interactives_start"
+              title="Запустить интерактив"
+              @click="showStart=true; currID=item.id"
+            >
+              <img src="/images/interactives/start_2.svg">
+            </div>
+            <div
+              v-if="!item.is_conducted && (item.is_you || userRole==='admin' || userRole==='organizer') "
+              class="interactive_delete"
+              title="Удалить интерактив"
+              style="margin-left: auto;"
+              @click="deletePopup(item.id)"
+            >
+              <img
+                id="delete"
+                src="/images/interactives/vector.png"
+              >
+            </div>
+            <div
+              v-if="item.is_conducted"
+              :ref="el => setDropdownRef(el, index)"
+              class="interactives_list_list_item_actions"
+              style="margin-left: auto !important;"
+            >
+              <div
+                class="interactives_more_options"
+                title="Еще"
+                @click="toggleItemDropdown(item.id)"
+              >
+                <img
+                  id="more_options"
+                  src="/images/interactives/more.svg"
+                >
+              </div>
+              <div
+                v-if="openDropdownId === item.id"
+                class="interactives_item-dropdown-options"
+                style=" z-index: 10001 !important;"
+              >
+                <div
+                  id="first_option"
+                  class="interactives_item-dropdown-option"
+                  style="  margin-top: calc((22/832)*100dvh);"
+                  @click="show_report_Popup = true; selectedInteractive = item.id; openDropdownId = null;"
+                >
+                  <img
+                    id="first_option_img"
+                    src="/public/images/interactives/download.svg"
+                    class="interactives_item-dropdown-icon"
+                    style="     height: calc((24/832) * 100dvh) ;width: calc((24 / 1280) * 100dvw) ; margin-left: calc((24/1280)*100dvw);"
+                  >
+                  <span style="margin-left: calc((9/1280)*100dvw);">Выгрузить отчет</span>
+                </div>
+                <div
+                  id="second_option"
+                  class="interactives_item-dropdown-option"
+                  style="  margin-top: calc((14/832)*100dvh);"
+                  @click="goToBroadcast(item.id)"
+                >
+                  <img
+                    id="second_option_img"
+                    src="/public/images/interactives/send.svg"
+                    class="interactives_item-dropdown-icon"
+                    style="     height: calc((24/832) * 100dvh) ;width: calc((24 / 1280) * 100dvw) ; margin-left: calc((24/1280)*100dvw);"
+                  >
+                  <span style="margin-left: calc((9/1280)*100dvw);">Отправить рассылку</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="interactives_Line" />
+      </div>
+      <div
+        v-if="!interactivesData.is_end"
+        class="interactives_show_more"
+        @click="more_load()"
+      >
+        Показать еще
+      </div>
+    </div>
 
-            <div class="interactives_custom-dropdown-options" v-if="isOpen">
-                <div class="interactives_custom-dropdown-option-list">
-                    <div class="interactives_custom-dropdown-option" v-for="(label, value) in options_code" :key="value"
-                        @click.stop="selectOption(value)">
-                        <img class="interactives_custom-dropdown-circle" src="/public/images/interactives/picked.svg"
-                            v-if="selectedText === value" />
-                        <img class="interactives_custom-dropdown-circle" src="/public/images/interactives/Ellipse.svg"
-                            v-else />
-                        <div class="interactives_custom-dropdown-text">{{ label }}</div>
-                    </div>
-                </div>
-            </div>
+    <div
+      v-if="showPopup"
+      class="interactives_popup-overlay"
+    >
+      <div class="interactives_popup">
+        <div class="interactives_popup-header">
+          <div class="interactives_popup-header-text">
+            Вы уверены, что хотите продублировать выбранный интерактив?
+          </div>
         </div>
-        <div class="interactives_empty_list_info" v-if="interactivesData &&  is_empty_list ">
-            <img src="/public/images//history/finder_info.svg" />
-            <div class="interactives_empty_list_info_h1">
-                У Вас нет интерактивов
-            </div>
-            <div class="interactives_empty_list_info_h2">
-                {{info}}
-            </div>
-        </div>
-        <div class="interactives_list" v-if="interactivesData && !is_empty_list ">
-            <div class="interactives_list_header">
-                <div class="interactives_list_header_title">
-                    Название
-                </div>
-                <div class="interactives_list_header_leadername">
-                    Ведущий
-                </div>
-                <div class="interactives_list_header_date">
-                    Дата
-                </div>
-                <div class="interactives_list_header_status">
-                    Статус
-                </div>
-                <div class="interactives_list_header_count">
-                    Количество участников
-                </div>
-            </div>
-            <div class="interactives_list_list" v-for="(item, index) in interactivesData.interactives_list" :key="item.id">
-                <div class="interactives_Line" v-if="index === 0" />
-                <div class="interactives_list_list_item">
-                    <div class="interactives_list_list_item_title title-clamp" :class="{ expanded: expandedTitles[item.id] }" @click="toggleTitle(item.id)">
-                        {{ item.title }}
-                    </div>
-                    <div class="interactives_list_list_item_leadername title-clamp" :class="{ expanded: expandedLeaders[item.id] }" @click="toggleLeader(item.id)">
-                        {{ item.username }}
-                    </div>
-                    <div class="interactives_list_list_item_date" >
-                        {{ item.date_completed }}
-                    </div>
-                    <div class="interactives_list_list_item_status">
-                        {{ item.is_conducted ? "Проведен" : "Не проведен" }}
-                    </div>
-                    <div class="interactives_list_list_item_count" :class="{ hidden: !item.is_conducted }">
-                        {{ item.participant_count }}
-                    </div>
-                    <div class="interactives_buttons">
-                        
-                        <div class="interactives_dublicate" title="Дублировать интерактив" @click="Popup(item.id)">
-                            <img src="/images/interactives/dublicate_2.svg"
-                              id="dublicate"/>
-                        </div>
-                        <div class="interactives_leader_board" v-if="item.is_conducted" title="Показать лидерборд"  @click="goTo(`/leader/interactive_leader_board/${item.id}`, '')">
-                            <img src="/images/interactives/leader_board.svg"
-                                 id="leader_board" />
-                        </div>
-                        <div class="interactives_check" v-if="  !item.is_you " title="Просмотреть настройки интерактива" @click="checkSettings(item.id)">
-                            <img src="/images/interactives/check.svg"
-                                 />
-                        </div>
-                        <div class="interactives_edit" title="Редактировать интерактив" v-if="!item.is_conducted && item.is_you"
-                            @click="showEdit=true; currID=item.id">
-                            <img src="/images/interactives/edit_2.svg"
-                              id="edit" />
-                        </div>
-                        <div class="interactives_start" title="Запустить интерактив" v-if="!item.is_conducted && item.is_you"
-                        @click="showStart=true; currID=item.id" 
-                          >
-                            <img src="/images/interactives/start_2.svg"
-                               />
-                        </div>
-                        <div class="interactive_delete" v-if="!item.is_conducted && (item.is_you || userRole==='admin' || userRole==='organizer') " title="Удалить интерактив"
-                            @click="deletePopup(item.id)" style="margin-left: auto;">
-                            <img src="/images/interactives/vector.png" id="delete" />
-                        </div>
-                        <div class="interactives_list_list_item_actions" :ref="el => setDropdownRef(el, index)"  v-if="item.is_conducted" style="margin-left: auto !important;">
-                            <div class="interactives_more_options"
-                                @click="toggleItemDropdown(item.id)" title="Еще" >
-                                <img src="/images/interactives/more.svg"
-                                  id="more_options" />
-                            </div>
-                            <div class="interactives_item-dropdown-options" v-if="openDropdownId === item.id"
-                                style=" z-index: 10001 !important;">
-                                <div class="interactives_item-dropdown-option" id="first_option"
-                                    @click="show_report_Popup = true; selectedInteractive = item.id; openDropdownId = null;"
-                                    style="  margin-top: calc((22/832)*100dvh);">
-                                    <img src="/public/images/interactives/download.svg" id="first_option_img"
-                                        class="interactives_item-dropdown-icon"
-                                        style="     height: calc((24/832) * 100dvh) ;width: calc((24 / 1280) * 100dvw) ; margin-left: calc((24/1280)*100dvw);" />
-                                    <span style="margin-left: calc((9/1280)*100dvw);">Выгрузить отчет</span>
-                                </div>
-                                <div class="interactives_item-dropdown-option" id="second_option" @click="goToBroadcast(item.id)"
-                                    style="  margin-top: calc((14/832)*100dvh);">
-                                    <img src="/public/images/interactives/send.svg" id="second_option_img"
-                                        class="interactives_item-dropdown-icon"
-                                        style="     height: calc((24/832) * 100dvh) ;width: calc((24 / 1280) * 100dvw) ; margin-left: calc((24/1280)*100dvw);" />
-                                    <span style="margin-left: calc((9/1280)*100dvw);">Отправить рассылку</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <div class="interactives_popup-body">
+          <button
+            class="interactives_popup-button"
+            @click="duplicateAndSaveInteractive(String(currentInteractiveId))"
+          >
+            Дублировать
+          </button>
 
-                </div>
-                <div class="interactives_Line" />
-            </div>
-            <div class="interactives_show_more" v-if="!interactivesData.is_end" @click="more_load()">Показать еще</div>
+          <button
+            class="interactives_popup-button"
+            @click="dublicate_interactive(String(currentInteractiveId))"
+          >
+            Дублировать и редактировать
+          </button>
+          <button
+            class="interactives_popup-button"
+            @click="showPopup=false"
+          >
+            Отменить
+          </button>
         </div>
-    
-        <div v-if="showPopup" class="interactives_popup-overlay">
-            <div class="interactives_popup">
-                <div class="interactives_popup-header">
-                    <div class="interactives_popup-header-text">Вы уверены, что хотите продублировать выбранный интерактив?
-                    </div>
-                </div>
-                <div class="interactives_popup-body">
-
-                    <button class="interactives_popup-button"
-                        @click="duplicateAndSaveInteractive(String(currentInteractiveId))">Дублировать</button>
-    
-                    <button class="interactives_popup-button"
-                        @click="dublicate_interactive(String(currentInteractiveId))">Дублировать и редактировать</button>
-                                        <button class="interactives_popup-button" @click="showPopup=false">Отменить</button>
-                </div>
-            </div>
+      </div>
+    </div>
+    <div
+      v-if="showStart"
+      class="settings_popup-overlay"
+    >
+      <div class="settings_popup-content">
+        <div class="settings_popup-text">
+          Вы уверены, что хотите запустить интерактив?
         </div>
-        <div v-if="showStart" class="settings_popup-overlay">
-            <div class="settings_popup-content">
-                <div class="settings_popup-text">Вы уверены, что хотите запустить интерактив?</div>
-                <div class="settings_popup-text_">По окончании интерактива Вы сможете выгрузить отчет. </div>
-                <div class="settings_popup-buttons">
-                    <button class="settings_popup-btn cancel" @click="showStart=false;currID=0">Отменить</button>
-                    <button class="settings_popup-btn confirm" @click="start_interactive(String(currID));currID=0" style="">Запустить</button>
-                    
-                </div>
-            </div>
+        <div class="settings_popup-text_">
+          По окончании интерактива Вы сможете выгрузить отчет.
         </div>
-        <div v-if="showEdit" class="settings_popup-overlay">
-            <div class="settings_popup-content" :class="{height:true}">
-                <div class="settings_popup-text" :class="{margin_text:true}">Вы уверены, что хотите отредактировать интерактив?</div>
-                <div class="settings_popup-buttons" :class="{margin:true}" >
-                    <button class="settings_popup-btn cancel" @click="showEdit=false;currID=0">Отменить</button>
-                    <button class="settings_popup-btn confirm" @click="edit_interactive(String(currID));currID=0" style="display: flex;
+        <div class="settings_popup-buttons">
+          <button
+            class="settings_popup-btn cancel"
+            @click="showStart=false;currID=0"
+          >
+            Отменить
+          </button>
+          <button
+            class="settings_popup-btn confirm"
+            style=""
+            @click="start_interactive(String(currID));currID=0"
+          >
+            Запустить
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      v-if="showEdit"
+      class="settings_popup-overlay"
+    >
+      <div
+        class="settings_popup-content"
+        :class="{ height: true }"
+      >
+        <div
+          class="settings_popup-text"
+          :class="{ margin_text: true }"
+        >
+          Вы уверены, что хотите отредактировать интерактив?
+        </div>
+        <div
+          class="settings_popup-buttons"
+          :class="{ margin: true }"
+        >
+          <button
+            class="settings_popup-btn cancel"
+            @click="showEdit=false;currID=0"
+          >
+            Отменить
+          </button>
+          <button
+            class="settings_popup-btn confirm"
+            style="display: flex;
       align-items: center;
-      justify-content: center;" :class="{margin_left:true}">Редактировать</button>
-                    
-                </div>
-            </div>
+      justify-content: center;"
+            :class="{ margin_left: true }"
+            @click="edit_interactive(String(currID));currID=0"
+          >
+            Редактировать
+          </button>
         </div>
-        <div v-if="showDeletePopap" class="interactives_delete_popup-overlay">
+      </div>
+    </div>
+    <div
+      v-if="showDeletePopap"
+      class="interactives_delete_popup-overlay"
+    >
       <div class="interactives_delete_popup">
-        <div class="interactives_delete_popup-close" @click="closePopup()">
-            <img src="/public/images/interactives/delete_close.svg"/>
+        <div
+          class="interactives_delete_popup-close"
+          @click="closePopup()"
+        >
+          <img src="/public/images/interactives/delete_close.svg">
         </div>
         <div class="interactives_delete_popup-header">
           <div class="interactives_delete_popup-header-text">
@@ -565,44 +749,75 @@ const telegramName = useState<string | null>('userName')
               ? 'Интерактив запущен! Все данные интерактива будут удалены!'
               : 'Вы уверены, что хотите удалить интерактив?' }}
           </div>
-          <div  class="interactives_delete_popup-header-text_">Это действие отменить будет невозможно. Вопросы и данные интерактива не будут сохранены.</div>
+          <div class="interactives_delete_popup-header-text_">
+            Это действие отменить будет невозможно. Вопросы и данные интерактива не будут сохранены.
+          </div>
         </div>
         <div class="interactives_delete_popup-body">
-            <button class="interactives_delete_popup-button cancel" @click="closePopup()">Отменить</button>
-          <button class="interactives_delete_popup-button confirm" @click="deleteInteractive(String(currentInteractiveId))">
+          <button
+            class="interactives_delete_popup-button cancel"
+            @click="closePopup()"
+          >
+            Отменить
+          </button>
+          <button
+            class="interactives_delete_popup-button confirm"
+            @click="deleteInteractive(String(currentInteractiveId))"
+          >
             {{ isRunning ? 'Закончить и удалить интерактив' : 'Удалить' }}
           </button>
-          
         </div>
       </div>
     </div>
 
-
-    <div v-if="show_report_Popup === true" class="popup-overlay">
-        <div class="popup">
-            <img src="/images/history/Vector_1.svg" class="popup-close"  @click="show_report_Popup = false; selectedInteractive = 0; selectedOption = ''"
-                   /> 
-            <div class="popup-header">
-                <div class="popup-header-text">Выгрузить отчет</div>
-                
-            </div>
-            <div class="popup-body">
-                <div class="popup-option"@click="selectedOption='forLeader'">
-                    <img :src="urlReport('forLeader')" />
-                    <span class="popup-option-span">Отчет для ведущего</span>
-                </div>
-                <div class="popup-option second" @click="selectedOption='forAnalise'">
-                    <img :src="urlReport('forAnalise')"/>
-                    <span class="popup-option-span">Отчет для обработки</span>
-                </div>
-            </div>
-            <div class="popup-footer">
-                      <button @click="show_report_Popup=false" class="popup-cancel">Отменить</button>
-                <button @click="submitReport" class="popup-submit">Выгрузить</button>
-            </div>
+    <div
+      v-if="show_report_Popup === true"
+      class="popup-overlay"
+    >
+      <div class="popup">
+        <img
+          src="/images/history/Vector_1.svg"
+          class="popup-close"
+          @click="show_report_Popup = false; selectedInteractive = 0; selectedOption = ''"
+        >
+        <div class="popup-header">
+          <div class="popup-header-text">
+            Выгрузить отчет
+          </div>
         </div>
+        <div class="popup-body">
+          <div
+            class="popup-option"
+            @click="selectedOption='forLeader'"
+          >
+            <img :src="urlReport('forLeader')">
+            <span class="popup-option-span">Отчет для ведущего</span>
+          </div>
+          <div
+            class="popup-option second"
+            @click="selectedOption='forAnalise'"
+          >
+            <img :src="urlReport('forAnalise')">
+            <span class="popup-option-span">Отчет для обработки</span>
+          </div>
+        </div>
+        <div class="popup-footer">
+          <button
+            class="popup-cancel"
+            @click="show_report_Popup=false"
+          >
+            Отменить
+          </button>
+          <button
+            class="popup-submit"
+            @click="submitReport"
+          >
+            Выгрузить
+          </button>
+        </div>
+      </div>
     </div>
-        </Layout>
+  </Layout>
 </template>
 
 <style>
@@ -628,12 +843,11 @@ button{
 .interactives {
     width: 100dvw;
     height: 100dvh;
-    
+
     background-color: white;
     position: relative;
     overflow-x: hidden;
 }
-
 
 .interactives_finder {
     width: calc((1056/1280) * 100dvw);
@@ -682,7 +896,7 @@ button{
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    color: #A9A9A9; 
+    color: #A9A9A9;
 }
 
 .interactives_input-icon {
@@ -709,7 +923,7 @@ button{
     padding-bottom:   calc((8 / 832) * 100dvh);
     padding-right:  calc((35/1280) * 100dvw) ;;; */
        white-space: nowrap ;
-   
+
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -956,7 +1170,7 @@ input:focus {
 
 .interactives_list_header_title {
     width: calc((89 / 1280) * 100dvw);
-  
+
 }
 .interactives_list_header_leadername{
     width: calc((96 / 1280) * 100dvw);
@@ -1010,7 +1224,7 @@ input:focus {
 
       line-height: calc((19.2/832)*100dvh);
 }
-.interactives_list_list_item_title, 
+.interactives_list_list_item_title,
 .interactives_list_list_item_leadername {
     position: relative; /* для ::after */
     display: -webkit-box;
@@ -1020,7 +1234,7 @@ input:focus {
     white-space: nowrap;
 }
 
-.interactives_list_list_item_title { 
+.interactives_list_list_item_title {
     margin-top:calc((15/832)*100dvh);;
      margin-bottom:calc((15/832)*100dvh);;
     margin-left: calc((22 / 1280) * 100dvw);
@@ -1046,9 +1260,9 @@ input:focus {
 }
 .interactives_list_list_item_leadername.expanded,
 .interactives_list_list_item_title.expanded {
-    white-space: normal;      
-    word-break: break-word;  
-    overflow-wrap: break-word; 
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .title-clamp.expanded::after {
@@ -1060,14 +1274,14 @@ input:focus {
      margin-bottom:calc((15/832)*100dvh);;
      margin-left: calc((13 / 1280) * 100dvw);
     width: calc((111 / 1280) * 100dvw);
-    text-align: center; 
+    text-align: center;
 }
 
 .interactives_list_list_item_status {
      margin-top:calc((15/832)*100dvh);;
      margin-bottom:calc((15/832)*100dvh);;
     margin-left: calc((17 / 1280) * 100dvw) !important;
-    width: calc((128 / 1280) * 100dvw); 
+    width: calc((128 / 1280) * 100dvw);
     text-align: center;
 }
 
@@ -1075,7 +1289,7 @@ input:focus {
       margin-top:calc((15/832)*100dvh);;
      margin-bottom:calc((15/832)*100dvh);;
     margin-left: calc((69 / 1280) * 100dvw);
-    width: calc((68 / 1280) * 100dvw); 
+    width: calc((68 / 1280) * 100dvw);
     text-align: center;
 }
 
@@ -1091,7 +1305,7 @@ input:focus {
     text-align: center;
     vertical-align: middle;
     color: #853CFF;
-    cursor: pointer;position: relative;  
+    cursor: pointer;position: relative;
 }
 /* Полоска */
 .interactives_show_more::after {
@@ -1101,15 +1315,15 @@ input:focus {
     bottom: 1px;             /* расстояние от текста */
     width: 100%;
     height: 1.5px;              /* толщина полоски */
-    background: #853CFF;transform: scaleX(0); 
+    background: #853CFF;transform: scaleX(0);
 }
 
 /* Появляется при наведении */
 .interactives_show_more:hover::after {
     transform: scaleX(1);
 }
-.interactives_buttons { 
-    display: flex;position: relative; 
+.interactives_buttons {
+    display: flex;position: relative;
     width: calc((152 / 1280) * 100dvw);;
     margin-left: calc((77 / 1280) * 100dvw);
     margin-top:calc((5.13/832)*100dvh) !important;
@@ -1235,8 +1449,6 @@ input:focus {
     border-radius: calc((7/832)*100dvh);
 }
 
-
-
 .interactives_more_options {
     display: flex;
     align-items: center;
@@ -1249,13 +1461,11 @@ input:focus {
 .interactives_more_options:hover{
     filter: brightness(11%);
 }
-.interactives_more_options>img { 
+.interactives_more_options>img {
     z-index: 0 !important;
     width: calc((9.75/1280) * 100dvw) !important;
     height: calc((18.75/1280) * 100dvw) !important;
 }
-
-
 
 .interactives_popup-overlay {
     position: fixed;
@@ -1348,9 +1558,6 @@ font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
     background-color:#559130;
 }
 
-
-
-
 .popup-overlay {
     position: fixed;
     top: 0;
@@ -1372,8 +1579,6 @@ font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
     position: relative;
 }
 
-
-
 .popup-header-text {
     font-family: "Lato", sans-serif;
     font-weight: 700;
@@ -1388,20 +1593,19 @@ align-items: center;
 justify-content: center;
 }
 
-
 .popup-close{
 width: calc((16 / 1280) * 100dvw);
     height: calc((16 / 832) * 100dvh);
     position: absolute;
     top: calc((20 / 832) * 100dvh);
     right:  calc((20 / 1280) * 100dvw);
-    cursor: pointer;  
- 
+    cursor: pointer;
+
 }
-.popup-body {margin-top:calc((20 / 832) * 100dvh); 
+.popup-body {margin-top:calc((20 / 832) * 100dvh);
 }
 .popup-option.second{
-margin-top:calc((20 / 832) * 100dvh) !important; 
+margin-top:calc((20 / 832) * 100dvh) !important;
 }
 .popup-option {height: calc(20 / 832 * 100dvh);
     margin-left: calc(20 / 1280 * 100dvw) ;
@@ -1426,14 +1630,8 @@ vertical-align: middle;
 
 }
 
-
-
-
-
-
-
 .popup-footer {
-    margin-top:calc((40 / 832) * 100dvh); 
+    margin-top:calc((40 / 832) * 100dvh);
     display: flex; margin-left: calc(203 / 1280 * 100dvw) ;
 }
 .popup-footer > button{
@@ -1484,7 +1682,7 @@ margin-left: calc(10 / 1280 * 100dvw)  !important;
 
   display: flex;
   justify-content: center;
- 
+
 }
 
 .interactives_delete_popup {
@@ -1531,7 +1729,7 @@ vertical-align: middle;
 }
 .interactives_delete_popup-body {margin-left:  calc((218/1280)*100dvw);;
   display: flex; margin-top:calc((59/832)*100dvh);
-  
+
 }
 .interactives_delete_popup-button {
    width: calc((138/1280)*100dvw) !important;
@@ -1546,7 +1744,6 @@ letter-spacing: 1%;
 text-align: center;
 vertical-align: middle;
 
- 
 }
 .interactives_delete_popup-button:nth-child(1) {
   background-color: white; color:#7D7D7D;border:none;;
@@ -1577,7 +1774,7 @@ vertical-align: middle;
   display: flex;
   justify-content: center;
   z-index: 1000;
- 
+
 }
 
 .settings_popup-content { margin-top:calc((273/832)*100dvh);
@@ -1587,7 +1784,6 @@ vertical-align: middle;
     border-radius: calc((18/832)*100dvh);
     box-sizing: border-box;
 
-  
 }
 
 .settings_popup-text {    margin-top:calc((24/832)*100dvh) !important;
@@ -1615,7 +1811,7 @@ vertical-align: middle;
 }
 .settings_popup-btn.confirm{
       margin-left: calc((10 / 1280) * 100dvw);
-    
+
 }
 .settings_popup-btn {
   width: calc((138 / 1280) * 100dvw);
@@ -1629,7 +1825,7 @@ vertical-align: middle;
 .settings_popup-btn.confirm {
   background-color: #6ab23d;
   border: calc((1.5/832)*100dvh) solid #6ab23d;
-  color: white;  
+  color: white;
 }
 
 .settings_popup-btn.confirm:hover {
@@ -1682,8 +1878,7 @@ vertical-align: middle;
 }
 @media (min-width:1918px) and (min-height:1078px){
 
-
-     .interactives_margins{width: 1056px; 
+     .interactives_margins{width: 1056px;
         box-sizing: border-box;
     padding: 0;
     margin: 0;
@@ -1703,9 +1898,6 @@ vertical-align: middle;
     position: relative;
     overflow-x: hidden;
 }
-
-
-
 
 .interactives_finder {
     width: 1056px;
@@ -1876,7 +2068,7 @@ vertical-align: middle;
     font-family: "Lato", sans-serif;
     font-weight: 600;
     font-size: 16px;;
-   
+
     vertical-align: middle;
     margin-top: 7px;;
     margin-left: 41px;;
@@ -2027,7 +2219,7 @@ input:focus {
 
 .interactives_list_header_title {
     width: 89px;
-  
+
 }
 .interactives_list_header_leadername{
     width: 96px;
@@ -2075,10 +2267,10 @@ input:focus {
     margin-right: 22px;
 }
 .interactives_list_list_item > div{
- 
+
       line-height: 19.2px;
 }
-.interactives_list_list_item_title, 
+.interactives_list_list_item_title,
 .interactives_list_list_item_leadername {
     position: relative; /* для ::after */
     display: -webkit-box;
@@ -2092,14 +2284,14 @@ input:focus {
     height: 1px !important;
 }
 
-.interactives_list_list_item_title { 
+.interactives_list_list_item_title {
        margin-top:15px;;
      margin-bottom:15px;;
     margin-left: 22px;;
     width: 222px;;
     text-align: left;
 }
-.interactives_list_list_item_leadername { 
+.interactives_list_list_item_leadername {
        margin-top:15px;;
      margin-bottom:15px;;
     margin-left: 29px;;
@@ -2118,9 +2310,9 @@ input:focus {
 }
 .interactives_list_list_item_leadername.expanded,
 .interactives_list_list_item_title.expanded {
-    white-space: normal;      
-    word-break: break-word;  
-    overflow-wrap: break-word; 
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .title-clamp.expanded::after {
@@ -2131,14 +2323,14 @@ input:focus {
      margin-bottom:15px;;
      margin-left: 13px;;
     width: 111px;
-    text-align: center; 
+    text-align: center;
 }
 
 .interactives_list_list_item_status {
        margin-top:15px;;
      margin-bottom:15px;;
     margin-left: 17px !important;
-    width: 128px; 
+    width: 128px;
     text-align: center;
 }
 
@@ -2146,7 +2338,7 @@ input:focus {
        margin-top:15px;;
      margin-bottom:15px;;
     margin-left: 69px;
-    width: 68px; 
+    width: 68px;
     text-align: center;
 }
 
@@ -2172,15 +2364,15 @@ input:focus {
     bottom: 1px;             /* расстояние от текста */
     width: 100%;
     height: 1.5px;              /* толщина полоски */
-    background: #853CFF;transform: scaleX(0); 
+    background: #853CFF;transform: scaleX(0);
 }
 
 /* Появляется при наведении */
 .interactives_show_more:hover::after {
     transform: scaleX(1);
 }
-.interactives_buttons { 
-    display: flex;position: relative; 
+.interactives_buttons {
+    display: flex;position: relative;
     width: 152px;;
     margin-left: 77px;
      margin-top:5px !important;
@@ -2194,7 +2386,6 @@ input:focus {
     height: 24px !important;
     width: 24px !important;
 }
-
 
 #leader_board, #dublicate, .interactives_check > img{
      height:24px !important;
@@ -2247,7 +2438,6 @@ input:focus {
     height: 18px !important;
 }
 
-
 .interactives_dublicate,
 .interactives_edit,
 .interactives_start,
@@ -2269,7 +2459,7 @@ input:focus {
     justify-content: center;
     width: 30px;
     height: 30px;
-   
+
     background-color: #7D7D7D;
 }
 
@@ -2333,10 +2523,8 @@ input:focus {
     border-radius: 7px;
 }
 
-
-
 .interactives_more_options {
-   
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2346,13 +2534,11 @@ input:focus {
     z-index: 0 !important;
 }
 
-#more_options { 
+#more_options {
     z-index: 0 !important;
   width:3.75px;;
     height: 18.75px;;
 }
-
-
 
 .interactives_popup-overlay {
     position: fixed;
@@ -2466,7 +2652,6 @@ font-size:20px;
     position: relative;
 }
 
-
 .popup-header-text {
     font-family: "Lato", sans-serif;
     font-weight: 700;
@@ -2491,10 +2676,10 @@ justify-content: center;
     color: #aaa;
 }
 
-.popup-body {margin-top:20px; 
+.popup-body {margin-top:20px;
 }
 .popup-option.second{
-margin-top:20px !important; 
+margin-top:20px !important;
 }
 .popup-option {height: 20px;
     margin-left: 20px;
@@ -2518,12 +2703,6 @@ letter-spacing: 0.20px;
 vertical-align: middle;
 
 }
-
-
-
-
-
-
 
 .popup-footer {
     margin-top:40px;
@@ -2566,7 +2745,6 @@ margin-left: 10px  !important;
  border: 1.5px solid #1D1D1D !important; ; color:  #1D1D1D;
 }
 
-
 .interactives_delete_popup-overlay {
   position: fixed;
   top: 0;
@@ -2579,7 +2757,7 @@ margin-left: 10px  !important;
 
   display: flex;
   justify-content: center;
- 
+
 }
 
 .interactives_delete_popup {
@@ -2621,7 +2799,7 @@ vertical-align: middle;
 }
 .interactives_delete_popup-body {margin-left:  218px;;;
   display: flex; margin-top:59px;
-  
+
 }
 .interactives_delete_popup-button {
    width:138px !important;
@@ -2636,7 +2814,6 @@ letter-spacing: 1%;
 text-align: center;
 vertical-align: middle;
 
- 
 }
 .interactives_delete_popup-button:nth-child(1) {
   background-color: white; color:#7D7D7D;border:none;;
@@ -2676,7 +2853,6 @@ vertical-align: middle;
     border-radius: 18px;
     box-sizing: border-box;
 
-  
 }
 
 .settings_popup-text {    margin-top:24px !important;
@@ -2684,7 +2860,7 @@ vertical-align: middle;
     font-family: "Lato", sans-serif;
 font-weight: 700;font-style: normal;
 font-style: Bold;
-    font-size: 20px; line-height:32px; 
+    font-size: 20px; line-height:32px;
 }
 .settings_popup-text_{height:47px;  ;
      margin-top:19px!important;

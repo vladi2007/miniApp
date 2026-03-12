@@ -1,101 +1,114 @@
 <script setup lang="ts">
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+
 const telegramName = useState<string | null>('userName')
 const userId = useState('telegramUser')
 const userRole = useState('userRole').value.role
-const canEdit = computed(() => userRole === 'organizer');
+const canEdit = computed(() => userRole === 'organizer')
 const { data: org, isLoading, refetch } = useQuery({
-    queryKey: computed(() => ['org', userId.value]),
-    queryFn: async () => {
-        const res = await $fetch('/api/get_org_name', {
-            query: { telegram_id: userId.value, }
+  queryKey: computed(() => ['org', userId.value]),
+  queryFn: async () => {
+    const res = await $fetch('/api/get_org_name', {
+      query: { telegram_id: userId.value },
 
-        })
-        return res
-    },
-    enabled: computed(() => Boolean(userId)),
-    staleTime: 1000 * 60 * 30,
-    cacheTime: 1000 * 60 * 30,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    })
+    return res
+  },
+  enabled: computed(() => Boolean(userId)),
+  staleTime: 1000 * 60 * 30,
+  cacheTime: 1000 * 60 * 30,
+  refetchOnWindowFocus: false,
+  refetchOnMount: false,
 })
 const orgNameInput = ref<string>('')
 const orgDescInput = ref<string>('')
 watch(
   () => org.value,
   (val) => {
-
-      orgNameInput.value = val?.organization_name ?? ''
+    orgNameInput.value = val?.organization_name ?? ''
     orgDescInput.value = val?.organization_description ?? ''
-    
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 const { $queryClient } = useNuxtApp()
-const { mutate: saveOrg  } = useMutation({
+const { mutate: saveOrg } = useMutation({
   mutationFn: () =>
-  
+
     $fetch('/api/patch_org', {
       method: 'PATCH',
       query: {
         telegram_id: userId.value,
         organization_name: orgNameInput.value,
-        organization_description:orgDescInput.value,
+        organization_description: orgDescInput.value,
       },
-    }
-    
+    },
 
-),
+    ),
   onSuccess: (data) => {
     // обновляем кэш, без refetch
-    $queryClient.invalidateQueries(['org'])}
+    $queryClient.invalidateQueries(['org'])
+  },
 
-    
 })
 
 const originalName = computed(() => org.value?.organization_name ?? '')
-const originalDesc= computed(() => org.value?.organization_description ?? '')
+const originalDesc = computed(() => org.value?.organization_description ?? '')
 const canSave = computed(() => {
-    const trimmedName = orgNameInput.value.trim()
-        const trimmedDesc = orgDescInput.value.trim()
-  if (trimmedName.length<3) {
+  const trimmedName = orgNameInput.value.trim()
+  const trimmedDesc = orgDescInput.value.trim()
+  if (trimmedName.length < 3) {
     // Можно показать уведомление
     window.Telegram.WebApp.showAlert('Название вашей организации должно быть длинее 2 символов')
     return
   }
   return (
     trimmedName !== originalName.value.trim() || trimmedDesc !== originalDesc.value.trim()
-    
+
   )
 })
 </script>
+
 <template>
-    <layout :active_nav="'organization_settings'">
-        <form class="org_form">
-            <div class="org_form_input">
-                <div class="org_form_input_title">
-                    Название организации:
-                </div>
-                <textarea class="org_form_input_input" placeholder="Название" maxlength="32" minlength="3" v-model="orgNameInput" :disabled="!canEdit"></textarea>
-
-            </div>
-            <div class="org_form_input">
-                <div class="org_form_input_title">
-                    Описание организации:
-                </div>
-                <textarea class="org_form_input_input"placeholder="Описание"maxlength="200" v-model="orgDescInput" :disabled="!canEdit" ></textarea>
-
-
-            </div>
-            <div class="org_form_input_button" @click="canSave && saveOrg()"  v-if="canEdit">
-                Сохранить изменения
-            </div>
-        </form>
-    </layout>
+  <layout :active_nav="'organization_settings'">
+    <form class="org_form">
+      <div class="org_form_input">
+        <div class="org_form_input_title">
+          Название организации:
+        </div>
+        <textarea
+          v-model="orgNameInput"
+          class="org_form_input_input"
+          placeholder="Название"
+          maxlength="32"
+          minlength="3"
+          :disabled="!canEdit"
+        />
+      </div>
+      <div class="org_form_input">
+        <div class="org_form_input_title">
+          Описание организации:
+        </div>
+        <textarea
+          v-model="orgDescInput"
+          class="org_form_input_input"
+          placeholder="Описание"
+          maxlength="200"
+          :disabled="!canEdit"
+        />
+      </div>
+      <div
+        v-if="canEdit"
+        class="org_form_input_button"
+        @click="canSave && saveOrg()"
+      >
+        Сохранить изменения
+      </div>
+    </form>
+  </layout>
 </template>
+
 <style>
-    
 @media (max-width:1918px),
 (max-height:1078px) {
     .org_form {
@@ -123,10 +136,9 @@ const canSave = computed(() => {
     border-radius: calc((8 / 832) * 100dvh);;
     border: calc((1.5 / 832) * 100dvh) solid #E0E0E0;;
     padding-left:calc(12/1280*100dvw);
-    padding-top:calc((12 / 832) * 100dvh);;  line-height: calc((18 / 832) * 100dvh); 
+    padding-top:calc((12 / 832) * 100dvh);;  line-height: calc((18 / 832) * 100dvh);
     box-sizing: border-box;
     vertical-align: middle;
-
 
     font-family: Lato;
 font-family: "Lato", sans-serif;
@@ -166,10 +178,9 @@ font-family: "Lato", sans-serif;
     border-radius: 8px;;
     border: 1.5px solid #E0E0E0;;
     padding-left:12px;
-    padding-top:12px;;;  line-height: 18px; 
+    padding-top:12px;;;  line-height: 18px;
     box-sizing: border-box;
     vertical-align: middle;
-
 
 font-family: "Lato", sans-serif;
         font-weight: 400;

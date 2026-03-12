@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 // imports
 import { saveToLocaleStorage, loadFromLocalStorage, clearLocalStorage } from '~/utils/deviceStorage'
 
@@ -29,36 +28,43 @@ function endInteractive() {
   props.onStatus('end')
 }
 
-//watcher for button
+// watcher for button
 watch(() => props.pause, (newWal) => {
-  if (newWal === "yes") {
+  if (newWal === 'yes') {
     isPaused.value = true
   }
-  else if (newWal === "no") {
+  else if (newWal === 'no') {
     isPaused.value = false
   }
-}, { immediate: true }
+}, { immediate: true },
 )
 
 // load button state from localStorage
 onMounted(() => {
   const storedValue = loadFromLocalStorage(localStorageKey)
   isPaused.value = storedValue !== null ? storedValue : false
-
 })
-const emit = defineEmits(['show','close'])
+const emit = defineEmits(['show', 'close'])
 </script>
 
 <template>
   <div class="question_leader_buttons_fon">
     <div class="question_leader_buttons">
       <div>
-        <div class="goto_end" @click="emit('show')" style="cursor: pointer;">
+        <div
+          class="goto_end"
+          style="cursor: pointer;"
+          @click="emit('show')"
+        >
           Завершить
         </div>
       </div>
       <div>
-        <div :class="isPaused ? 'continue' : 'pause'" @click="togglePause" style="cursor: pointer;">
+        <div
+          :class="isPaused ? 'continue' : 'pause'"
+          style="cursor: pointer;"
+          @click="togglePause"
+        >
           {{ isPaused ? 'Продолжить' : 'Пауза' }}
         </div>
       </div>

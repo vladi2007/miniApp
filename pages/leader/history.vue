@@ -3,9 +3,9 @@ import history from '~/components/history/new_history.vue'
 </script>
 
 <template>
-    <history/>
+  <history />
 </template>
 
-<style >
+<style>
 
 </style>

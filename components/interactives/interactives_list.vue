@@ -1,13 +1,12 @@
 <script setup lang="ts">
-
 // первичные данные об интерактивах
 const props = defineProps<{
-  header: string,
+  header: string
   interactives_list: {
-    title: string,
-    question_count: string,
-    target_audience: string,
-    id: string,
+    title: string
+    question_count: string
+    target_audience: string
+    id: string
     date_completed: string
   }[]
   status: string
@@ -16,9 +15,8 @@ const props = defineProps<{
 
 // закрытие поп апа с подтверждением дублирования
 function closePopup() {
-  showPopup.value = false;
-  showDeletePopap.value = false;
-
+  showPopup.value = false
+  showDeletePopap.value = false
 }
 // для маршрутизации
 const route = useRouter()
@@ -26,7 +24,7 @@ const route = useRouter()
 // флаг для разделения завершенных интерактивов от не завершенных
 const isEnd = computed(() => props.status === 'end')
 
-// функция старта интерактива и переход на ождиание 
+// функция старта интерактива и переход на ождиание
 function start_interactive(id: string) {
   route.push(`/leader/${id}`)
 }
@@ -47,9 +45,9 @@ function edit_interactive(id: string) {
   route.push(`/leader/edit/${id}`)
 }
 // флаг для поп апа  с подтверждением дублирования
-const showPopup = ref(false);
+const showPopup = ref(false)
 
-// данные о пользователе 
+// данные о пользователе
 const webApp = ref(null)
 const initDataUnsafe = ref(null)
 const userId = ref(null)
@@ -58,82 +56,74 @@ onMounted(async () => {
     webApp.value = window.Telegram.WebApp
     initDataUnsafe.value = window.Telegram.WebApp.initDataUnsafe
 
-
     userId.value = initDataUnsafe.value?.user?.id
   }
 })
-
 
 // запрос на дублирование интерактива
 async function duplicateAndSaveInteractive(id: string) {
   showPopup.value = false
   try {
-
-
     const data = await $fetch(`/api/get_interactive`, {
       method: 'GET',
       query: {
         telegram_id: userId.value,
-        id: id
-      }
+        id: id,
+      },
     })
-    const plain = JSON.parse(JSON.stringify(data));
+    const plain = JSON.parse(JSON.stringify(data))
     const payload = {
-      title: plain.title ?? "",
-      description: plain.description ?? "",
-      target_audience: plain.target_audience ?? "",
-      location: plain.location ?? "",
-      responsible_full_name: plain.responsible_full_name ?? "",
+      title: plain.title ?? '',
+      description: plain.description ?? '',
+      target_audience: plain.target_audience ?? '',
+      location: plain.location ?? '',
+      responsible_full_name: plain.responsible_full_name ?? '',
       answer_duration: plain.answer_duration ?? 10,
       discussion_duration: plain.discussion_duration ?? 5,
       countdown_duration: plain.countdown_duration ?? 5,
       questions: await Promise.all(
         (plain.questions ?? []).map(async (q: any, index: number) => {
-          const imageUrl = q.image || "";
-
-          
+          const imageUrl = q.image || ''
 
           return {
             question: {
-              type: q.type || "one",
+              type: q.type || 'one',
               image: imageUrl,
               score: q.score || 1,
               position: index + 1,
-              text: q.text || "",
+              text: q.text || '',
               answers:
                 q.answers?.map((a: any) => ({
-                  text: a.text || "",
+                  text: a.text || '',
                   is_correct: a.is_correct || false,
                 })) ?? [],
             },
-          };
-        })
+          }
+        }),
       ),
-    };
-    const formData = new FormData();
+    }
+    const formData = new FormData()
 
-    
-    formData.append("telegram_id", String(userId?.value || 0));
-    formData.append("interactive", JSON.stringify(plain));
-    const response = await $fetch("/api/create_interactive", {
-        method: "POST",
-        query: {
-          telegram_id: userId?.value || 0,
-        },
-        body: formData,
-      });
+    formData.append('telegram_id', String(userId?.value || 0))
+    formData.append('interactive', JSON.stringify(plain))
+    const response = await $fetch('/api/create_interactive', {
+      method: 'POST',
+      query: {
+        telegram_id: userId?.value || 0,
+      },
+      body: formData,
+    })
     window.location.reload()
-  } catch (err) {
+  }
+  catch (err) {
     console.error('Ошибка дублирования:', err)
     window.Telegram.WebApp.showAlert('Не удалось продублировать интерактив.')
   }
 }
 
-
 const currentInteractiveId = ref<string | null>(null)
 
 const showDeletePopap = ref(false)
-
 
 const isRunning = ref(false)
 
@@ -143,8 +133,8 @@ async function deletePopup(id: string) {
       method: 'GET',
       query: {
 
-        id: Number(id)
-      }
+        id: Number(id),
+      },
     })
     isRunning.value = data.data
   }
@@ -163,16 +153,15 @@ async function deleteInteractive(id: string) {
     method: 'DELETE',
     query: {
       telegram_id: userId.value,
-      id: id
+      id: id,
     },
 
   })
   if (response) {
     window.Telegram.WebApp.showAlert('Интерактив успешно удалён')
     localInteractives.value = localInteractives.value.filter(item => item.id !== id)
-    showDeletePopap.value = false;
+    showDeletePopap.value = false
   }
-
 }
 </script>
 
@@ -182,9 +171,18 @@ async function deleteInteractive(id: string) {
       {{ props.header }}
     </div>
     <div class="interactive_list_content">
-      <div class="date" v-if="isEnd">Дата проведения</div>
-      <div class="interactive_list_content_list" v-for="interactive in localInteractives" :class="{ margin: !isEnd }"
-        v-if="localInteractives.length > 0">
+      <div
+        v-if="isEnd"
+        class="date"
+      >
+        Дата проведения
+      </div>
+      <div
+        v-for="interactive in localInteractives"
+        v-if="localInteractives.length > 0"
+        class="interactive_list_content_list"
+        :class="{ margin: !isEnd }"
+      >
         <div class="interactive_description">
           <div class="interactive_title">
             {{ interactive.title }}
@@ -197,56 +195,116 @@ async function deleteInteractive(id: string) {
             Целевая аудитория: {{ interactive.target_audience }}
           </div>
           <div class="interactive_buttons">
-            <div class="interactive_dublicate" :class="{ hidden: isEnd }" title="Дублировать интерактив"
-              @click="Popup(interactive.id)">
-              <img src="/images/interactives/dublicate.svg" id="dublicate" />
+            <div
+              class="interactive_dublicate"
+              :class="{ hidden: isEnd }"
+              title="Дублировать интерактив"
+              @click="Popup(interactive.id)"
+            >
+              <img
+                id="dublicate"
+                src="/images/interactives/dublicate.svg"
+              >
             </div>
-            <div class="interactive_delete" v-if="!isEnd" title="Удалить интерактив"
-              @click="deletePopup(interactive.id)">
-              <img src="/images/interactives/vector.png" id="delete" />
+            <div
+              v-if="!isEnd"
+              class="interactive_delete"
+              title="Удалить интерактив"
+              @click="deletePopup(interactive.id)"
+            >
+              <img
+                id="delete"
+                src="/images/interactives/vector.png"
+              >
             </div>
-            <div class="interactive_edit" v-if="!isEnd" @click="edit_interactive(String(interactive.id))"
-              title="Редактировать интерактив">
-              <img src="/images/interactives/edit.svg" id="edit" />
+            <div
+              v-if="!isEnd"
+              class="interactive_edit"
+              title="Редактировать интерактив"
+              @click="edit_interactive(String(interactive.id))"
+            >
+              <img
+                id="edit"
+                src="/images/interactives/edit.svg"
+              >
             </div>
-            <div class="interactive_start" v-if="!isEnd" @click="start_interactive(String(interactive.id))"
-              title="Запустить интерактив">
-              <img src="/images/interactives/start.svg" id="start" />
+            <div
+              v-if="!isEnd"
+              class="interactive_start"
+              title="Запустить интерактив"
+              @click="start_interactive(String(interactive.id))"
+            >
+              <img
+                id="start"
+                src="/images/interactives/start.svg"
+              >
             </div>
           </div>
 
-          <div class="interactive_date" v-if="isEnd">
+          <div
+            v-if="isEnd"
+            class="interactive_date"
+          >
             {{ interactive.date_completed }}
           </div>
-
         </div>
-
       </div>
-      <div class="interactive_list_content_warn" v-if="localInteractives.length === 0 && isEnd">
+      <div
+        v-if="localInteractives.length === 0 && isEnd"
+        class="interactive_list_content_warn"
+      >
         Вы не провели ни один интерактив!
       </div>
-      <div class="interactive_list_content_warn" v-if="localInteractives.length === 0 && !isEnd">
+      <div
+        v-if="localInteractives.length === 0 && !isEnd"
+        class="interactive_list_content_warn"
+      >
         Вы не создали ни один интерактив!
       </div>
     </div>
-    <div v-if="showPopup" class="interactives_popup-overlay">
+    <div
+      v-if="showPopup"
+      class="interactives_popup-overlay"
+    >
       <div class="interactives_popup">
         <div class="interactives_popup-header">
-          <div class="interactives_popup-header-text">Вы точно хотите продублировать выбранный интерактив?</div>
-          <img src="/images/history/Vector_1.svg" class="interactives_popup-close" @click="closePopup" />
+          <div class="interactives_popup-header-text">
+            Вы точно хотите продублировать выбранный интерактив?
+          </div>
+          <img
+            src="/images/history/Vector_1.svg"
+            class="interactives_popup-close"
+            @click="closePopup"
+          >
         </div>
         <div class="interactives_popup-body">
-
-          <button class="interactives_popup-button"
-            @click="duplicateAndSaveInteractive(String(currentInteractiveId))">Да</button>
-          <button class="interactives_popup-button" @click="closePopup()">Нет</button>
-          <button class="interactives_popup-button" @click="dublicate_interactive(String(currentInteractiveId))">Да, и
-            хочу его сразу отредактировать</button>
+          <button
+            class="interactives_popup-button"
+            @click="duplicateAndSaveInteractive(String(currentInteractiveId))"
+          >
+            Да
+          </button>
+          <button
+            class="interactives_popup-button"
+            @click="closePopup()"
+          >
+            Нет
+          </button>
+          <button
+            class="interactives_popup-button"
+            @click="dublicate_interactive(String(currentInteractiveId))"
+          >
+            Да, и
+            хочу его сразу отредактировать
+          </button>
         </div>
       </div>
     </div>
 
-    <div v-if="showDeletePopap" class="interactives_delete_popup-overlay">
+    <div
+      v-if="showDeletePopap"
+      class="interactives_delete_popup-overlay"
+    >
       <div class="interactives_delete_popup">
         <div class="interactives_delete_popup-header">
           <div class="interactives_delete_popup-header-text">
@@ -256,14 +314,21 @@ async function deleteInteractive(id: string) {
           </div>
         </div>
         <div class="interactives_delete_popup-body">
-          <button class="interactives_delete_popup-button" @click="deleteInteractive(String(currentInteractiveId))">
+          <button
+            class="interactives_delete_popup-button"
+            @click="deleteInteractive(String(currentInteractiveId))"
+          >
             {{ isRunning ? 'Закончить и удалить интерактив' : 'Удалить' }}
           </button>
-          <button class="interactives_delete_popup-button" @click="closePopup()">Отмена</button>
+          <button
+            class="interactives_delete_popup-button"
+            @click="closePopup()"
+          >
+            Отмена
+          </button>
         </div>
       </div>
     </div>
-
   </div>
 </template>
 

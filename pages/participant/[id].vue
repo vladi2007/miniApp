@@ -17,7 +17,7 @@ const userId = useState('telegramUser')
 const userRole = useState('userRole')
 // Функция для создания websocket
 function createWebSocket(interactiveId, telegramId) {
-   const config = useRuntimeConfig().public
+  const config = useRuntimeConfig().public
   const wsURL = config.wsFrontend
   // Предполагаю, что useWebSocket возвращает { data, send }
   const ws = useWebSocket(`${wsURL}?interactive_id=${interactiveId}&telegram_id=${telegramId}&role=participant`)
@@ -32,19 +32,18 @@ function createWebSocket(interactiveId, telegramId) {
   send(JSON.stringify({ type: 'init', id: interactiveId }))
 }
 
- if (userId) {
-    createWebSocket(interactiveId, userId.value)
-  }
+if (userId) {
+  createWebSocket(interactiveId, userId.value)
+}
 // props для компонента
 const data_props = ref({
   stage: '',
   data: {},
   pause: {},
   data_answers: {},
-  winners:{},
-  score:{}
+  winners: {},
+  score: {},
 })
-
 
 // Парсим и обновляем data_props при изменении data.value
 watch(data, (newVal) => {
@@ -54,11 +53,12 @@ watch(data, (newVal) => {
     data_props.value.stage = parsedData.stage || ''
     data_props.value.data = parsedData.data || {}
     data_props.value.pause = parsedData.pause || {}
-     data_props.value.data_answers = parsedData.data_answers || {}
-     data_props.value.winners = parsedData.winners || {}
-       data_props.value.score = parsedData.score || {}
-  } catch (error) {
-    console.error("Ошибка при разборе данных WebSocket:", error)
+    data_props.value.data_answers = parsedData.data_answers || {}
+    data_props.value.winners = parsedData.winners || {}
+    data_props.value.score = parsedData.score || {}
+  }
+  catch (error) {
+    console.error('Ошибка при разборе данных WebSocket:', error)
   }
 })
 
@@ -80,9 +80,7 @@ watch(data, (newVal) => {
 //   }
 // }
 
-
 function sendAnswer(answer) {
-
   send(JSON.stringify({ answer_id: String(answer) }))
 }
 const componentMap = {
@@ -93,14 +91,20 @@ const componentMap = {
   end: InteractiveEnd,
 }
 const timerData = ref({})
-
-
 </script>
-
 
 <template>
   <div>
-    <component v-if="data_props.stage" :is="componentMap[data_props.stage]" :data="data_props.data"
-      :stage="data_props.stage" :onAnswer="send" context="participant" :data_answers="data_props.data_answers" :winners="data_props.winners" :score="data_props.score"/>
+    <component
+      :is="componentMap[data_props.stage]"
+      v-if="data_props.stage"
+      :data="data_props.data"
+      :stage="data_props.stage"
+      :on-answer="send"
+      context="participant"
+      :data_answers="data_props.data_answers"
+      :winners="data_props.winners"
+      :score="data_props.score"
+    />
   </div>
 </template>

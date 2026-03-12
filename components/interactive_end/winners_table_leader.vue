@@ -1,10 +1,14 @@
-<script setup lang="ts">import type { EndData, EndWinners } from '~/types/stageData'
+<script setup lang="ts">
+import type { EndData, EndWinners } from '~/types/stageData'
+
+import { useRouter } from 'vue-router'
+
+import simplebar from 'simplebar-vue'
+import 'simplebar-vue/dist/simplebar.min.css'
 // таблица лидеров
 const props = defineProps<{
   winners: { position: number, username: string, time: number, score: number }[]
 }>()
-
-import { useRouter } from 'vue-router'
 
 // Получаем экземпляр маршрутизатора
 const router = useRouter()
@@ -32,9 +36,7 @@ const router = useRouter()
 // ]
 // Функция возврата на предыдущую страницу
 function goToMainMenu() {
-
   router.push({ path: '/leader/new_interactives', query: { from: `/leader/` } })
-
 }
 // форматируем секунды → мм:сс
 function formatTime(secondsStr: number): string {
@@ -45,9 +47,6 @@ function formatTime(secondsStr: number): string {
   const secs = seconds % 60
   return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
 }
-
-import simplebar from 'simplebar-vue';
-import 'simplebar-vue/dist/simplebar.min.css';
 </script>
 
 <template>
@@ -57,38 +56,60 @@ import 'simplebar-vue/dist/simplebar.min.css';
         Лидерборд
       </div>
       <div class="winners_list_header">
-        <div style="width: calc((57 / 1280) * 100dvw) !important; white-space: nowrap;;text-align: center;">место</div>
-        <div style="margin-left: calc((164/1280)*100dvw); width: calc((86 / 1280) * 100dvw);white-space: nowrap;;text-align: center;">участник</div>
-        <div style="margin-left: calc((396/1280)*100dvw); width: calc((57 / 1280) * 100dvw);white-space: nowrap;;text-align: center;">время</div>
-        <div style="margin-left: calc((139/1280)*100dvw); width: calc((52 / 1280) * 100dvw); text-align: center;white-space: nowrap;;text-align: center; ">балл
+        <div style="width: calc((57 / 1280) * 100dvw) !important; white-space: nowrap;;text-align: center;">
+          место
+        </div>
+        <div style="margin-left: calc((164/1280)*100dvw); width: calc((86 / 1280) * 100dvw);white-space: nowrap;;text-align: center;">
+          участник
+        </div>
+        <div style="margin-left: calc((396/1280)*100dvw); width: calc((57 / 1280) * 100dvw);white-space: nowrap;;text-align: center;">
+          время
+        </div>
+        <div style="margin-left: calc((139/1280)*100dvw); width: calc((52 / 1280) * 100dvw); text-align: center;white-space: nowrap;;text-align: center; ">
+          балл
         </div>
       </div>
       <simplebar
-        style="height: calc((318 / 832) * 100dvh);    margin-right: calc((25/1280)*100dvw);  margin-top: calc((10 / 832) * 100dvh);">
-
+        style="height: calc((318 / 832) * 100dvh);    margin-right: calc((25/1280)*100dvw);  margin-top: calc((10 / 832) * 100dvh);"
+      >
         <div class="winners_list">
-
-
-          <div v-for="(winner, index) in props.winners" :key="index" class="winner_row">
-            <div class="Line" v-if="index === 0"></div>
+          <div
+            v-for="(winner, index) in props.winners"
+            :key="index"
+            class="winner_row"
+          >
+            <div
+              v-if="index === 0"
+              class="Line"
+            />
             <div class="winner">
-              <div class="position">{{ winner.position }}</div>
-              <div class="name">{{ winner.username }}</div>
-              <div class="time">{{ formatTime(winner.time) }}</div>
-              <div class="score">{{ winner.score }}</div>
+              <div class="position">
+                {{ winner.position }}
+              </div>
+              <div class="name">
+                {{ winner.username }}
+              </div>
+              <div class="time">
+                {{ formatTime(winner.time) }}
+              </div>
+              <div class="score">
+                {{ winner.score }}
+              </div>
             </div>
-            <div class="Line"></div>
+            <div class="Line" />
           </div>
-
         </div>
       </simplebar>
       <div class="goto_main_menu_end">
-        <button class="goto_main_menu_button_end" @click="goToMainMenu()" style="cursor: pointer;">
+        <button
+          class="goto_main_menu_button_end"
+          style="cursor: pointer;"
+          @click="goToMainMenu()"
+        >
           Выйти
         </button>
       </div>
     </div>
-
   </div>
 </template>
 

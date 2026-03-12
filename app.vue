@@ -1,42 +1,38 @@
 <template>
-
   <head>
-    <meta src='https://telegram.org/js/telegram-web-app.js'>
+    <meta src="https://telegram.org/js/telegram-web-app.js">
     </meta>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    >
   </head>
   <div>
     <NuxtPage />
-
   </div>
 </template>
 
 <script setup>
-
 import { onMounted } from 'vue'
-import * as bridge from "@telegram-apps/sdk"
+import * as bridge from '@telegram-apps/sdk'
+
 window.Telegram.WebApp.expand()
 onMounted(() => {
   if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
-
     const tg = Telegram.WebApp
 
     tg.setBackgroundColor('#ffffff')
     const initData = tg.initDataUnsafe
-  
+
     const platform = Telegram.WebApp.platform
     // Сохраняем весь объект как JSON-строку
-    sessionStorage.setItem('telegram_init_data', JSON.stringify(initData));
+    sessionStorage.setItem('telegram_init_data', JSON.stringify(initData))
 
-    
     if (platform !== 'android' && platform !== 'ios') {
-      Telegram.WebApp.requestFullscreen();
+      Telegram.WebApp.requestFullscreen()
     }
-
   }
-  bridge.postEvent('web_app_setup_closing_behavior', {need_confirmation: true,});
-  
-
+  bridge.postEvent('web_app_setup_closing_behavior', { need_confirmation: true })
 })
 </script>
 
@@ -49,7 +45,6 @@ body,
   padding: 0;
 
 }
-
 
 #app {
   height: 100%;

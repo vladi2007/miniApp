@@ -15,8 +15,8 @@ const userRole = useState('userRole').value.role
 const data = ref(null)
 let send = null // функция отправки
 const userId = useState('telegramUser')
-  const config = useRuntimeConfig().public
-  const wsURL = config.wsFrontend
+const config = useRuntimeConfig().public
+const wsURL = config.wsFrontend
 // Функция для создания websocket
 function createWebSocket(interactiveId, telegramId) {
   console.log(wsURL)
@@ -33,12 +33,9 @@ function createWebSocket(interactiveId, telegramId) {
   send(JSON.stringify({ type: 'init', id: interactiveId }))
 }
 
-
-
- if (userId) {
-    createWebSocket(interactiveId, userId.value)
-  }
-
+if (userId) {
+  createWebSocket(interactiveId, userId.value)
+}
 
 // props для компонента
 const data_props = ref({
@@ -46,7 +43,7 @@ const data_props = ref({
   data: {},
   pause: {},
   data_answers: {},
-  winners:{},
+  winners: {},
 })
 
 // Парсим и обновляем data_props при изменении data.value
@@ -57,10 +54,11 @@ watch(data, (newVal) => {
     data_props.value.stage = parsedData.stage || ''
     data_props.value.data = parsedData.data || {}
     data_props.value.pause = parsedData.pause || {}
-     data_props.value.data_answers = parsedData.data_answers || {}
-     data_props.value.winners = parsedData.winners || {}
-  } catch (error) {
-    console.error("Ошибка при разборе данных WebSocket:", error)
+    data_props.value.data_answers = parsedData.data_answers || {}
+    data_props.value.winners = parsedData.winners || {}
+  }
+  catch (error) {
+    console.error('Ошибка при разборе данных WebSocket:', error)
   }
 })
 
@@ -78,7 +76,18 @@ const componentMap = {
   end: InteractiveEnd_leader,
 }
 </script>
+
 <template>
-  <component :is="componentMap[data_props.stage]" v-if="data_props.stage" :data="data_props.data"
-    :stage="data_props.stage" context="leader" class="component" :onStatus="sendStatus" :pause="data_props.pause" :data_answers="data_props.data_answers" :winners="data_props.winners"/>
+  <component
+    :is="componentMap[data_props.stage]"
+    v-if="data_props.stage"
+    :data="data_props.data"
+    :stage="data_props.stage"
+    context="leader"
+    class="component"
+    :on-status="sendStatus"
+    :pause="data_props.pause"
+    :data_answers="data_props.data_answers"
+    :winners="data_props.winners"
+  />
 </template>

@@ -4,17 +4,17 @@ import type { EndData, EndWinners } from '~/types/stageData'
 import Results from '~/components/interactive_end/results.vue'
 import WinnersTable from '~/components/interactive_end/winners_table.vue'
 import { clearDeviceStorage } from '~/utils/deviceStorage'
+
 onMounted(() => {
   sessionStorage.clear()
-
 })
 
 // Получаем данные через props
 const props = defineProps<{
-  stage: string,
-  data: EndData,
+  stage: string
+  data: EndData
   winners: any
-  score:any  // Используем тип данных EndData
+  score: any // Используем тип данных EndData
 }>()
 
 function formatTime(secondsStr: number): string {
@@ -31,17 +31,24 @@ function formatTime(secondsStr: number): string {
   <div class="interactive_end">
     <div class="interactive_end_timer">
       <div class="interactive_end_logo">
-        <img src="/public/images/interactive_end/Group 7067 (2).svg" id="interactive_end_logo" />
+        <img
+          id="interactive_end_logo"
+          src="/public/images/interactive_end/Group 7067 (2).svg"
+        >
       </div>
 
       <div class="end_description">
         <div class="end_desc-content">
-          <p class="end_interactive-title">{{ props.data.title }}</p>
+          <p class="end_interactive-title">
+            {{ props.data.title }}
+          </p>
           <div class="participants-num">
             <div class="num">
               <p>{{ props.data.participants_total }}</p>
             </div>
-            <p class="participant-text">Участников</p>
+            <p class="participant-text">
+              Участников
+            </p>
           </div>
         </div>
       </div>
@@ -52,81 +59,87 @@ function formatTime(secondsStr: number): string {
         Ваш результат:
       </div>
       <div class="your_score_content">
-        <div class="your_score_content_table_line">
-
-        </div>
-        <div class="your_score_content_table_line_second">
-
-        </div>
+        <div class="your_score_content_table_line" />
+        <div class="your_score_content_table_line_second" />
         <div class="your_score_content_table">
-
-          <div style="font-family: 'Work Sans', sans-serif;
+          <div
+            style="font-family: 'Work Sans', sans-serif;
 font-weight: 700;
 font-style: Bold;
   font-size: clamp(10px, calc((20 / 390) * 100dvw), 40px);
   letter-spacing: clamp(0.10px, calc((20 / 100 / 390) * 100dvw), 0.40px);
 text-align: center; display: flex;
-">
-            <div style="display: flex;">{{props.score?.position}} <div style="color: #A9A9A9 !important;">/{{ props.data.participants_total }}</div>
+"
+          >
+            <div style="display: flex;">
+              {{ props.score?.position }} <div style="color: #A9A9A9 !important;">
+                /{{ props.data.participants_total }}
+              </div>
             </div>
-
           </div>
-          <div style="font-family: 'Lato', sans-serif;
+          <div
+            style="font-family: 'Lato', sans-serif;
 font-weight: 700;
 font-style: Bold;
   font-size: clamp(10px, calc((14 / 390) * 100dvw),28px);
   letter-spacing: clamp(0.10px, calc((14 / 100 / 390) * 100dvw), 0.28px);
 text-align: center;
-">
+"
+          >
             место
           </div>
         </div>
         <div class="your_score_content_table">
-          <div class="your_score_content_table_line">
-
-          </div>
-          <div style="font-family: 'Work Sans', sans-serif;
+          <div class="your_score_content_table_line" />
+          <div
+            style="font-family: 'Work Sans', sans-serif;
 font-weight: 700;
 font-style: Bold;
   font-size: clamp(10px, calc((20 / 390) * 100dvw), 40px);
   letter-spacing: clamp(0.10px, calc((20 / 100 / 390) * 100dvw), 0.40px);
 text-align: center;
-">        {{formatTime(Number(props.score?.time))}}
+"
+          >
+            {{ formatTime(Number(props.score?.time)) }}
           </div>
-          <div style="font-family: 'Lato', sans-serif;
+          <div
+            style="font-family: 'Lato', sans-serif;
 font-weight: 700;
 font-style: Bold;
   font-size: clamp(10px, calc((14 / 390) * 100dvw),28px);
   letter-spacing: clamp(0.10px, calc((14 / 100 / 390) * 100dvw), 0.28px);
 text-align: center;
-">
+"
+          >
             Время
           </div>
         </div>
         <div class="your_score_content_table">
-          <div style="font-family: 'Work Sans', sans-serif;
+          <div
+            style="font-family: 'Work Sans', sans-serif;
 font-weight: 700;
 font-style: Bold;
   font-size: clamp(10px, calc((20 / 390) * 100dvw), 40px);
   letter-spacing: clamp(0.10px, calc((20 / 100 / 390) * 100dvw), 0.40px);
 text-align: center;
-">
-            {{props.score?.score}}
+"
+          >
+            {{ props.score?.score }}
           </div>
-          <div style="font-family: 'Lato', sans-serif;
+          <div
+            style="font-family: 'Lato', sans-serif;
 font-weight: 700;
 font-style: Bold;
   font-size: clamp(10px, calc((14 / 390) * 100dvw),28px);
   letter-spacing: clamp(0.10px, calc((14 / 100 / 390) * 100dvw), 0.28px);
 text-align: center;
-">
+"
+          >
             Баллы
           </div>
         </div>
       </div>
     </div>
-
-
 
     <!-- Передаем данные в компонент WinnersTable -->
     <WinnersTable :winners="props.data.winners" />

@@ -1,21 +1,20 @@
 <script setup lang="ts">
-
 // imports
 import { defineProps } from 'vue'
 import type { QuestionData } from '~/types/stageData'
-import timer from './timer.vue';
-import question_list from './question_list.vue';
-import question_list_many from './question_list_many.vue';
-import question_list_text from './question_list_text.vue';
+import timer from './timer.vue'
+import question_list from './question_list.vue'
+import question_list_many from './question_list_many.vue'
+import question_list_text from './question_list_text.vue'
 // data from backend
 const props = defineProps<{
   stage: string
   data: QuestionData
   context: string
   onAnswer: () => void
-  score:string
+  score: string
   winners: any
-  data_answers?:any | undefined
+  data_answers?: any | undefined
 
 }>()
 onMounted(() => {
@@ -25,42 +24,90 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class='question'>
-    
-     
-     <timer :timer="data.timer" :stage="stage" :timer_duration="data.timer_duration" :context="context"
-      :question_num="data.question.position" :question_count="data.questions_count"  :score="props.score"/>
+  <div class="question">
+    <timer
+      :timer="data.timer"
+      :stage="stage"
+      :timer_duration="data.timer_duration"
+      :context="context"
+      :question_num="data.question.position"
+      :question_count="data.questions_count"
+      :score="props.score"
+    />
 
-     <question_list v-if="data.question.type ==='one'" :timer="data.timer" :question="data.question" :answers="props.data_answers"
-      :id_correct_answer="props.data_answers?.id_correct_answer ?? null" :percentages="props.data_answers.percentages" :stage="stage" :onAnswer="onAnswer"
-      :questions_count="data.questions_count" :context="context" :type="props.data.question.type"/> 
+    <question_list
+      v-if="data.question.type ==='one'"
+      :timer="data.timer"
+      :question="data.question"
+      :answers="props.data_answers"
+      :id_correct_answer="props.data_answers?.id_correct_answer ?? null"
+      :percentages="props.data_answers.percentages"
+      :stage="stage"
+      :on-answer="onAnswer"
+      :questions_count="data.questions_count"
+      :context="context"
+      :type="props.data.question.type"
+    />
 
-    <question_list_many v-if="data.question.type ==='many'" :timer="data.timer" :question="data.question" :answers="props.data_answers"
-     :id_correct_answer="props.data_answers?.id_correct_answer ?? null" :percentages="props.data_answers.percentages" :stage="stage" :onAnswer="onAnswer"
-      :questions_count="data.questions_count" :context="context" :type="props.data.question.type" /> 
-      
-      <question_list_text v-if="data.question.type ==='text'" :timer="data.timer" :question="data.question" :answers="data.data_answers"
-      :id_correct_answer="props.data_answers?.id_correct_answer ?? null" :percentages="data.percentages" :stage="stage" :onAnswer="onAnswer"
-      :questions_count="data.questions_count" :context="context" :data_answers="data_answers" :type="props.data.question.type"/>
-      <div v-if="stage==='discussion'" class ="question_leader_boardboard">
-       
-        <div class ="question_leader_board_line"/>
-        <div class ="question_leader_board_header">
-          <div>
-            Лидеры:
-          </div>
-          <img src="/public/images/question/Vector (1).svg"/>
+    <question_list_many
+      v-if="data.question.type ==='many'"
+      :timer="data.timer"
+      :question="data.question"
+      :answers="props.data_answers"
+      :id_correct_answer="props.data_answers?.id_correct_answer ?? null"
+      :percentages="props.data_answers.percentages"
+      :stage="stage"
+      :on-answer="onAnswer"
+      :questions_count="data.questions_count"
+      :context="context"
+      :type="props.data.question.type"
+    />
+
+    <question_list_text
+      v-if="data.question.type ==='text'"
+      :timer="data.timer"
+      :question="data.question"
+      :answers="data.data_answers"
+      :id_correct_answer="props.data_answers?.id_correct_answer ?? null"
+      :percentages="data.percentages"
+      :stage="stage"
+      :on-answer="onAnswer"
+      :questions_count="data.questions_count"
+      :context="context"
+      :data_answers="data_answers"
+      :type="props.data.question.type"
+    />
+    <div
+      v-if="stage==='discussion'"
+      class="question_leader_boardboard"
+    >
+      <div class="question_leader_board_line" />
+      <div class="question_leader_board_header">
+        <div>
+          Лидеры:
         </div>
-        <div class ="question_leader_board_list_list" >
-          <div class="question_leader_board_winner" v-for="winner in props.winners">
-              <div class="question_leader_board_winner_position">{{ winner.position }}</div>
-              <div class="question_leader_board_winner_name">{{ winner.username }}</div>
-              <div class="question_leader_board_winner_score">{{ winner.score }}</div>
-            </div>
-        </div>
-        <div style=" font-size: 0.001px; color: white; height: calc((30 / 844) * var(--app-height));;;">.</div>
+        <img src="/public/images/question/Vector (1).svg">
       </div>
-      
+      <div class="question_leader_board_list_list">
+        <div
+          v-for="winner in props.winners"
+          class="question_leader_board_winner"
+        >
+          <div class="question_leader_board_winner_position">
+            {{ winner.position }}
+          </div>
+          <div class="question_leader_board_winner_name">
+            {{ winner.username }}
+          </div>
+          <div class="question_leader_board_winner_score">
+            {{ winner.score }}
+          </div>
+        </div>
+      </div>
+      <div style=" font-size: 0.001px; color: white; height: calc((30 / 844) * var(--app-height));;;">
+        .
+      </div>
+    </div>
   </div>
 </template>
 
@@ -74,7 +121,7 @@ onMounted(() => {
 .question_leader_boardboard{
   position: absolute;
   height: calc((118 / 844) * var(--app-height));;
-  
+
   top:calc((804.54 / 844) * var(--app-height));
   bottom: calc((30 / 844) * var(--app-height));;
   left: calc((45 / 390) * 100dvw);;
@@ -128,6 +175,6 @@ vertical-align: middle;
 .question_leader_board_winner_score{
   margin-left: auto;
    margin-right: calc((1 / 390) * 100dvw);;
-  
+
 }
 </style>

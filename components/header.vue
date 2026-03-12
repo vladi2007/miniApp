@@ -1,31 +1,53 @@
 <script setup lang="ts">
 const props = defineProps<{
-    goTo: (url: string, active:string) => void;
-    active:string
+  goTo: (url: string, active: string) => void
+  active: string
 }>()
-
 </script>
-<template>
 
-        <div class="nav" :class="{margins:props.active==='menu'}">
-           
-            <div class="nav_interactives" :class="{active_nav : props.active === 'interactives'}" @click="goTo('/leader/new_interactives',  'interactives')">
-                Интерактивы
-            </div>
-            <div class= "nav_reports" :class="{active_nav : props.active === 'reports'}" @click="goTo('/leader/history', 'reports')">
-                Отчеты
-            </div>
-            <div class="nav_broadcasts" :class="{active_nav : props.active === 'broadcasts'}"  @click="goTo('/leader/broadcasts', 'broadcasts')">
-                Рассылка
-            </div>
-            <div class="nav_broadcasts"  :class="{active_nav : props.active === 'users',nav_margin:true}"  @click="goTo('/leader/users', 'users')">
-                Пользователи
-            </div>
-            <div class="nav_broadcasts" :class="{active_nav : props.active === 'organization_settings'}"  @click="goTo('/leader/organization_settings', 'organization_settings')">
-                Настройки организации
-            </div>
-        </div>
+<template>
+  <div
+    class="nav"
+    :class="{ margins: props.active==='menu' }"
+  >
+    <div
+      class="nav_interactives"
+      :class="{ active_nav: props.active === 'interactives' }"
+      @click="goTo('/leader/new_interactives', 'interactives')"
+    >
+      Интерактивы
+    </div>
+    <div
+      class="nav_reports"
+      :class="{ active_nav: props.active === 'reports' }"
+      @click="goTo('/leader/history', 'reports')"
+    >
+      Отчеты
+    </div>
+    <div
+      class="nav_broadcasts"
+      :class="{ active_nav: props.active === 'broadcasts' }"
+      @click="goTo('/leader/broadcasts', 'broadcasts')"
+    >
+      Рассылка
+    </div>
+    <div
+      class="nav_broadcasts"
+      :class="{ active_nav: props.active === 'users', nav_margin: true }"
+      @click="goTo('/leader/users', 'users')"
+    >
+      Пользователи
+    </div>
+    <div
+      class="nav_broadcasts"
+      :class="{ active_nav: props.active === 'organization_settings' }"
+      @click="goTo('/leader/organization_settings', 'organization_settings')"
+    >
+      Настройки организации
+    </div>
+  </div>
 </template>
+
 <style scoped>
 @media (max-width:1918px), (max-height:1078px){
 .nav_margin{
@@ -48,7 +70,7 @@ margin-left: calc((112/1280)*100dvw) !important;
     text-align: center;
     vertical-align: middle;
     color: #A9A9A9;
-    margin-left: calc((0/1280*100dvw)); 
+    margin-left: calc((0/1280*100dvw));
 }
 
 .nav>div:hover {
@@ -86,7 +108,7 @@ margin-left: calc((112/1280)*100dvw) !important;
 .margins{width: 1056px !important;
     margin:0 auto 0 auto !important;
        margin-top:55px !important;
-       
+
 }
 .nav {
     display: flex;
@@ -100,7 +122,7 @@ margin-left: calc((112/1280)*100dvw) !important;
     text-align: center;
     vertical-align: middle;
     color: #A9A9A9;
-  
+
 }
 
 .nav>div:hover {
@@ -109,7 +131,6 @@ margin-left: calc((112/1280)*100dvw) !important;
 .nav > div{white-space: nowrap;
     cursor: pointer;
 }
-
 
 .active_nav {
     font-family: "Lato", sans-serif;
@@ -132,5 +153,4 @@ margin-left: calc((112/1280)*100dvw) !important;
     background-color: #853CFF;
 }
 }
-
 </style>

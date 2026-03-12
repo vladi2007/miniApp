@@ -1,75 +1,102 @@
 <script setup lang="ts">
-    const telegramName = useState<string | null>('userName')
-        const userPhoto = useState<string>('userPhoto')
-    console.log(telegramName)
-
-    const router = useRouter()
-async function goTo(url: string) {
-    router.push(url)
-}
-const orgs=ref(false)
-const org_name=ref('ИРИТ РТФ')
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+
+const telegramName = useState<string | null>('userName')
+const userPhoto = useState<string>('userPhoto')
+console.log(telegramName)
+
+const router = useRouter()
+async function goTo(url: string) {
+  router.push(url)
+}
+const orgs = ref(false)
+const org_name = ref('ИРИТ РТФ')
 const userId = useState('telegramUser')
 const { data: org, isLoading, refetch } = useQuery({
-    queryKey: computed(() => ['org', userId.value]),
-    queryFn: async () => {
-        const res = await $fetch('/api/get_org_name', {
-            query: { telegram_id: userId.value, }
+  queryKey: computed(() => ['org', userId.value]),
+  queryFn: async () => {
+    const res = await $fetch('/api/get_org_name', {
+      query: { telegram_id: userId.value },
 
-        })
-        return res
-    },
-    enabled: computed(() => Boolean(userId)),
-    staleTime: 1000 * 60 * 30,
-    cacheTime: 1000 * 60 * 30,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    })
+    return res
+  },
+  enabled: computed(() => Boolean(userId)),
+  staleTime: 1000 * 60 * 30,
+  cacheTime: 1000 * 60 * 30,
+  refetchOnWindowFocus: false,
+  refetchOnMount: false,
 })
 </script>
+
 <template>
-    <div class="header_fon">
-        <div class="header">
-            <img src="/public/images/interactive_editor/logo.svg" id="logo_header" />
-            <div class="header_nav">
-                <div class='header_nav_about_us' @click="goTo('/leader/main_menu')">
-                    О нас
-                </div>
-                <div class="header_nav_organization_settings" @click="orgs=!orgs" >
-                    <div class="header_nav_organization_settings_name">
-                        {{ org?.organization_name }}
-                    </div>
-                      <img src="../public/images/Vector.svg" />
-                      <div class="header_nav_item-dropdown-options" v-if="orgs"
-                                style=" z-index: 10001 !important;" >
-                                <div class ='header_nav_item-dropdown-options-header'>
-                                    Выберите организацию:
-                                </div>
-                                <div class="header_nav_item-dropdown-option"  @click="org_name='Джойтека'">
-                                    Джойтека
-                                </div>
-                                <div class="header_nav_item-dropdown-option"  @click="org_name='Звезда'">
-                                    Звезда 
-                                </div>
-                                <div class="header_nav_item-dropdown-option"   @click="org_name='ИРИТ РТФ'">
-                                    ИРИТ РТФ 
-                                </div>
-                            </div>
-                </div>
-                <div class='header_nav_user' @click="goTo('/leader/user')">
-                    @{{ telegramName }}
-                </div>
-                <div class = 'header_nav_photo' @click="goTo('/leader/user')">
-                    <img :src="userPhoto"/>
-                </div>
-            </div>
+  <div class="header_fon">
+    <div class="header">
+      <img
+        id="logo_header"
+        src="/public/images/interactive_editor/logo.svg"
+      >
+      <div class="header_nav">
+        <div
+          class="header_nav_about_us"
+          @click="goTo('/leader/main_menu')"
+        >
+          О нас
         </div>
+        <div
+          class="header_nav_organization_settings"
+          @click="orgs=!orgs"
+        >
+          <div class="header_nav_organization_settings_name">
+            {{ org?.organization_name }}
+          </div>
+          <img src="../public/images/Vector.svg">
+          <div
+            v-if="orgs"
+            class="header_nav_item-dropdown-options"
+            style=" z-index: 10001 !important;"
+          >
+            <div class="header_nav_item-dropdown-options-header">
+              Выберите организацию:
+            </div>
+            <div
+              class="header_nav_item-dropdown-option"
+              @click="org_name='Джойтека'"
+            >
+              Джойтека
+            </div>
+            <div
+              class="header_nav_item-dropdown-option"
+              @click="org_name='Звезда'"
+            >
+              Звезда
+            </div>
+            <div
+              class="header_nav_item-dropdown-option"
+              @click="org_name='ИРИТ РТФ'"
+            >
+              ИРИТ РТФ
+            </div>
+          </div>
+        </div>
+        <div
+          class="header_nav_user"
+          @click="goTo('/leader/user')"
+        >
+          @{{ telegramName }}
+        </div>
+        <div
+          class="header_nav_photo"
+          @click="goTo('/leader/user')"
+        >
+          <img :src="userPhoto">
+        </div>
+      </div>
     </div>
+  </div>
 </template>
 
-
 <style>
-   
 @media (max-width:1918px),
 (max-height:1078px) {
 
@@ -84,10 +111,10 @@ const { data: org, isLoading, refetch } = useQuery({
         width: calc((1224/1280) * 100dvw);height: calc((71 / 832) * 100dvh);
         display: flex;
         align-items: center;
-       
+
         margin: 0 auto;
     }
-    
+
     #logo_header {
         width: calc((123/1280) * 100dvw);
         height: calc((50 / 832) * 100dvh);
@@ -98,7 +125,7 @@ const { data: org, isLoading, refetch } = useQuery({
         gap: calc((30/1280) * 100dvw);
         height: calc((50 / 832) * 100dvh);
         margin-left:  auto;
-        align-items: center; 
+        align-items: center;
     }
 
     .header_nav>div {
@@ -182,7 +209,6 @@ const { data: org, isLoading, refetch } = useQuery({
         background-color: #DFDFDF !important;
     }
 }
-
 
 @media (min-width:1918px) and (min-height:1078px) {
     .header_fon {
