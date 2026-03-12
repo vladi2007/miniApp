@@ -50,11 +50,16 @@ export default defineNuxtConfig({
   },
   ssr:false,
  
-  modules:['@vueuse/nuxt','@pinia/nuxt'],
+  modules:['@vueuse/nuxt','@pinia/nuxt',  '@nuxt/eslint'],
   css: [
     '@fontsource/lato' // Импортируем шрифт Lato
    
   ],
+  eslint: {
+    config: {
+      stylistic: true 
+    }
+  }
 
   
 })

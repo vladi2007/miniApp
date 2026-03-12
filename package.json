@@ -8,7 +8,9 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "start": "concurrently \"node .output/server/index.mjs\" \"node ws-proxy-server.js\""
+    "start": "concurrently \"node .output/server/index.mjs\" \"node ws-proxy-server.js\"",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@fontsource/lato": "^5.2.5",
@@ -46,10 +48,12 @@
     "ws": "^8.19.0"
   },
   "devDependencies": {
+    "@nuxt/eslint": "^1.15.2",
     "concurrently": "^9.1.2",
+    "eslint": "^10.0.3",
     "nuxt-vite": "^0.3.5",
     "sass-embedded": "^1.88.0",
-    "typescript": "^5.8.3",
+    "typescript": "^5.9.3",
     "vite": "^6.3.5"
   }
 }
