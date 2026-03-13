@@ -1,14 +1,13 @@
 import { decode } from 'jwt-js-decode'
 
-
 export const useAuthStore = defineStore('auth', {
-  
+
   state: () => ({
     role: null,
     isAuthenticated: false,
     accessToken: null, // Stored in memory only
   }),
-  
+
   actions: {
     async login(credentials: { pass: string, login: string }) {
       const { $api } = useNuxtApp()
