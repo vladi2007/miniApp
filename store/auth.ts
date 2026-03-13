@@ -1,16 +1,18 @@
 import { decode } from 'jwt-js-decode'
 
-const router = useRouter()
+
 export const useAuthStore = defineStore('auth', {
+  
   state: () => ({
     role: null,
     isAuthenticated: false,
     accessToken: null, // Stored in memory only
   }),
+  
   actions: {
     async login(credentials: { pass: string, login: string }) {
       const { $api } = useNuxtApp()
-
+      const router = useRouter()
       try {
         const response = await $api.post('/auth/login', credentials)
         // получает jwt
@@ -22,13 +24,13 @@ export const useAuthStore = defineStore('auth', {
         this.accessToken = response.data.accessToken
       }
       catch {
-        // тут ошибки самого запроса на логин, могу быть разные
         throw Error('login failed')
       }
 
       router.push({ name: 'main' })
     },
     async clear() {
+      const router = useRouter()
       // чистит store от данных
       this.role = null
       this.isAuthenticated = false

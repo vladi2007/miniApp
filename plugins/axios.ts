@@ -1,8 +1,15 @@
 import { useAuthStore } from '~/store/auth'
 import { handleAuthError } from '~/composables/api/handleAuthError'
-import { api } from '~/composables/api/api'
+import axios from 'axios'
+
+
+
 export default defineNuxtPlugin((nuxtApp) => {
- 
+  const runtimeConfig = useRuntimeConfig()
+const api = axios.create({
+  baseURL: runtimeConfig.app.baseURL,
+  withCredentials: true,
+})
   api.interceptors.request.use(function (config) {
     // Здесь можете сделать что-нибудь с перед отправкой запроса
     const auth = useAuthStore()
