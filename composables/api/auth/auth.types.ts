@@ -1,9 +1,3 @@
-
-
-
-
-
-
 export type LoginCredentials = {
   password: string
   login: string
@@ -11,4 +5,3 @@ export type LoginCredentials = {
 export type AccessToken = {
   accessToken: string
 }
-

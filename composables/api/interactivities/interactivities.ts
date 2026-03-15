@@ -1,8 +1,7 @@
-import type { Interactive, InteractiveLeaderBoard, InteractiveState, InteractivitiesList, InteractivitiesListFilter } from "./interactivities.types"
+import type { Interactive, InteractiveLeaderBoard, InteractiveState, InteractivitiesList, InteractivitiesListFilter } from './interactivities.types'
 
 // список интерактивов
 export const getInteractivities = async (filter: InteractivitiesListFilter, to_number: number, from_number: number): Promise<InteractivitiesList> => {
- 
   const { $api } = useNuxtApp()
   const res = await $api.get(`/interactivities/me`, { params: { filter, to_number, from_number } })
   return res.data

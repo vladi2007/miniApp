@@ -4,25 +4,18 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: Dockerfile.dev
-
-    container_name: frontend_dev
-
+      dockerfile: Dockerfile
+      args:
+        NUXT_APP_BASE_URL: ${NUXT_APP_BASE_URL}
+        NUXT_APP_BUILD_ASSETS_DIR: ${NUXT_APP_BUILD_ASSETS_DIR}
+    container_name: frontend
     ports:
       - "3000:3000"
-
-    volumes:
-      - .:/miniApp
-      - /miniApp/node_modules
-
+      - "4000:4000"
     environment:
-      CHOKIDAR_USEPOLLING: "true"
       NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE}
       NUXT_PUBLIC_WS_BACKEND: ${NUXT_PUBLIC_WS_BACKEND}
       NUXT_PUBLIC_WS_FRONTEND: ${NUXT_PUBLIC_WS_FRONTEND}
-
-    command: yarn dev
-
     networks:
       - app_network
 

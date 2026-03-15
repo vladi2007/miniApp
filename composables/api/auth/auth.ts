@@ -1,5 +1,4 @@
-import type { LoginCredentials, AccessToken } from "./auth.types"
-
+import type { LoginCredentials, AccessToken } from './auth.types'
 
 // запрос на логин
 export const postLogin = async (credentials: LoginCredentials): Promise<AccessToken> => {

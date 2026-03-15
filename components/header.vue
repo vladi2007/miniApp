@@ -1,14 +1,18 @@
 <script setup lang="ts">
+import { useAuthStore } from '~/store/auth'
+
 const props = defineProps<{
   goTo: (url: string, active: string) => void
   active: string
 }>()
+const auth = useAuthStore()
 </script>
 
 <template>
   <div
+    v-if="auth.isAuthenticated"
     class="nav"
-    :class="{ margins: props.active==='menu' }"
+    :class="{ margins: props.active === 'menu' }"
   >
     <div
       class="nav_interactives"
@@ -49,15 +53,19 @@ const props = defineProps<{
 </template>
 
 <style scoped>
-@media (max-width:1918px), (max-height:1078px){
-.nav_margin{
+@media (max-width:1918px),
+(max-height:1078px) {
+  .nav_margin {
     margin-left: auto;
-}
-.margins{width: calc((1056 / 1280) * 100dvw);
-    margin:0 auto 0 auto;
-margin-left: calc((112/1280)*100dvw) !important;
-}
-.nav {
+  }
+
+  .margins {
+    width: calc((1056 / 1280) * 100dvw);
+    margin: 0 auto 0 auto;
+    margin-left: calc((112/1280)*100dvw) !important;
+  }
+
+  .nav {
     display: flex;
     gap: calc((20 / 1280) * 100dvw);
     margin-top: calc((34 / 832) * 100dvh);
@@ -71,16 +79,18 @@ margin-left: calc((112/1280)*100dvw) !important;
     vertical-align: middle;
     color: #A9A9A9;
     margin-left: calc((0/1280*100dvw));
-}
+  }
 
-.nav>div:hover {
+  .nav>div:hover {
     color: #1D1D1D;
-}
-.nav > div{white-space: nowrap;
-    cursor: pointer;
-}
+  }
 
-.active_nav {
+  .nav>div {
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .active_nav {
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -89,9 +99,9 @@ margin-left: calc((112/1280)*100dvw) !important;
     vertical-align: middle;
     display: grid;
     width: fit-content;
-}
+  }
 
-.active_nav::after {
+  .active_nav::after {
     content: "";
     display: block;
     width: 100%;
@@ -99,21 +109,25 @@ margin-left: calc((112/1280)*100dvw) !important;
     color: #1D1D1D !important;
     margin-top: 0px;
     background-color: #853CFF;
+  }
 }
-}
-@media (min-width:1918px) and (min-height:1078px){
-.nav_margin{
-    margin-left: auto;
-}
-.margins{width: 1056px !important;
-    margin:0 auto 0 auto !important;
-       margin-top:55px !important;
 
-}
-.nav {
+@media (min-width:1918px) and (min-height:1078px) {
+  .nav_margin {
+    margin-left: auto;
+  }
+
+  .margins {
+    width: 1056px !important;
+    margin: 0 auto 0 auto !important;
+    margin-top: 55px !important;
+
+  }
+
+  .nav {
     display: flex;
     gap: 20px;
-    margin-top:55px;
+    margin-top: 55px;
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -123,16 +137,18 @@ margin-left: calc((112/1280)*100dvw) !important;
     vertical-align: middle;
     color: #A9A9A9;
 
-}
+  }
 
-.nav>div:hover {
+  .nav>div:hover {
     color: #1D1D1D;
-}
-.nav > div{white-space: nowrap;
-    cursor: pointer;
-}
+  }
 
-.active_nav {
+  .nav>div {
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .active_nav {
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -141,9 +157,9 @@ margin-left: calc((112/1280)*100dvw) !important;
     vertical-align: middle;
     display: grid;
     width: fit-content;
-}
+  }
 
-.active_nav::after {
+  .active_nav::after {
     content: "";
     display: block;
     width: 100%;
@@ -151,6 +167,6 @@ margin-left: calc((112/1280)*100dvw) !important;
     color: #1D1D1D !important;
     margin-top: 0px;
     background-color: #853CFF;
-}
+  }
 }
 </style>

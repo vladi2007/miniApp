@@ -1,25 +1,12 @@
 <script setup lang="ts">
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { mutateOrganizationDescription } from '~/composables/api/organization/useOrganizationMutation'
+import { useAuthStore } from '~/store/auth'
+import { useOrganizationDescription } from '~/composables/api/organization/useOrganizationQuery'
 
-const telegramName = useState<string | null>('userName')
-const userId = useState('telegramUser')
-const userRole = useState('userRole').value.role
+const auth = useAuthStore()
+const userRole = auth.$state.role
 const canEdit = computed(() => userRole === 'organizer')
-const { data: org, isLoading, refetch } = useQuery({
-  queryKey: computed(() => ['org', userId.value]),
-  queryFn: async () => {
-    const res = await $fetch('/api/get_org_name', {
-      query: { telegram_id: userId.value },
-
-    })
-    return res
-  },
-  enabled: computed(() => Boolean(userId)),
-  staleTime: 1000 * 60 * 30,
-  cacheTime: 1000 * 60 * 30,
-  refetchOnWindowFocus: false,
-  refetchOnMount: false,
-})
+const { data: org, isLoading, refetch } = useOrganizationDescription()
 const orgNameInput = ref<string>('')
 const orgDescInput = ref<string>('')
 watch(
@@ -32,25 +19,7 @@ watch(
 )
 
 const { $queryClient } = useNuxtApp()
-const { mutate: saveOrg } = useMutation({
-  mutationFn: () =>
-
-    $fetch('/api/patch_org', {
-      method: 'PATCH',
-      query: {
-        telegram_id: userId.value,
-        organization_name: orgNameInput.value,
-        organization_description: orgDescInput.value,
-      },
-    },
-
-    ),
-  onSuccess: (data) => {
-    // обновляем кэш, без refetch
-    $queryClient.invalidateQueries(['org'])
-  },
-
-})
+const { mutate: saveOrg } = mutateOrganizationDescription()
 
 const originalName = computed(() => org.value?.organization_name ?? '')
 const originalDesc = computed(() => org.value?.organization_description ?? '')
@@ -100,7 +69,7 @@ const canSave = computed(() => {
       <div
         v-if="canEdit"
         class="org_form_input_button"
-        @click="canSave && saveOrg()"
+        @click="canSave && saveOrg({ organization_name: orgNameInput.trim(), organization_description: orgDescInput.trim() })"
       >
         Сохранить изменения
       </div>
@@ -111,91 +80,134 @@ const canSave = computed(() => {
 <style>
 @media (max-width:1918px),
 (max-height:1078px) {
-    .org_form {
-        margin-top: calc((25 / 832) * 100dvh);
-        margin-left: calc(327/1280*100dvw);
-        font-family: "Lato", sans-serif;
-        font-weight: 500;
-        font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-        letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-        width: calc((378 / 1280) * 100dvw);;
-    }
-    .org_form_input {
+  .org_form {
+    margin-top: calc((25 / 832) * 100dvh);
+    margin-left: calc(327/1280*100dvw);
+    font-family: "Lato", sans-serif;
+    font-weight: 500;
+    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
+    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
+    width: calc((378 / 1280) * 100dvw);
+    ;
+  }
+
+  .org_form_input {
     display: flex;
     flex-direction: column;
     gap: calc((10 / 832) * 100dvh);
-    margin-bottom: calc((10 / 832) * 100dvh);;
-}
-.org_form_input_title{
-    height: calc((18 / 832) * 100dvh);;
+    margin-bottom: calc((10 / 832) * 100dvh);
+    ;
+  }
+
+  .org_form_input_title {
+    height: calc((18 / 832) * 100dvh);
+    ;
     display: flex;
     align-items: center;
-}
- .org_form_input > textarea{
-    height: calc((42 / 832) * 100dvh);;
-    border-radius: calc((8 / 832) * 100dvh);;
-    border: calc((1.5 / 832) * 100dvh) solid #E0E0E0;;
-    padding-left:calc(12/1280*100dvw);
-    padding-top:calc((12 / 832) * 100dvh);;  line-height: calc((18 / 832) * 100dvh);
+  }
+
+  .org_form_input>textarea {
+    height: calc((42 / 832) * 100dvh);
+    ;
+    border-radius: calc((8 / 832) * 100dvh);
+    ;
+    border: calc((1.5 / 832) * 100dvh) solid #E0E0E0;
+    ;
+    padding-left: calc(12/1280*100dvw);
+    padding-top: calc((12 / 832) * 100dvh);
+    ;
+    line-height: calc((18 / 832) * 100dvh);
     box-sizing: border-box;
     vertical-align: middle;
 
     font-family: Lato;
-font-family: "Lato", sans-serif;
-        font-weight: 400;
-        font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-        letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
+    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
 
- }
-.org_form_input_button{ width: calc((165 / 1280) * 100dvw);;
-    margin-left: auto;;color:#6AB23D;cursor: pointer;
-}
+  }
+
+  .org_form_input_button {
+    width: calc((165 / 1280) * 100dvw);
+    ;
+    margin-left: auto;
+    ;
+    color: #6AB23D;
+    cursor: pointer;
+  }
 }
 
 @media (min-width:1918px) and (min-height:1078px) {
-       .org_form {
-        margin-top: 25px;;
-        margin-left: 327px;;
-        font-family: "Lato", sans-serif;
-        font-weight: 500;
-        font-size: 16px;
-        letter-spacing: 0.16px;;
-        width:378px;;
-    }
-    .org_form_input {
+  .org_form {
+    margin-top: 25px;
+    ;
+    margin-left: 327px;
+    ;
+    font-family: "Lato", sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    letter-spacing: 0.16px;
+    ;
+    width: 378px;
+    ;
+  }
+
+  .org_form_input {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-bottom: 10px;;
-}
-.org_form_input_title{
-    height: 18px;;
+    margin-bottom: 10px;
+    ;
+  }
+
+  .org_form_input_title {
+    height: 18px;
+    ;
     display: flex;
     align-items: center;
-}
- .org_form_input > textarea{
-     height: 42px;;
-    border-radius: 8px;;
-    border: 1.5px solid #E0E0E0;;
-    padding-left:12px;
-    padding-top:12px;;;  line-height: 18px;
+  }
+
+  .org_form_input>textarea {
+    height: 42px;
+    ;
+    border-radius: 8px;
+    ;
+    border: 1.5px solid #E0E0E0;
+    ;
+    padding-left: 12px;
+    padding-top: 12px;
+    ;
+    ;
+    line-height: 18px;
     box-sizing: border-box;
     vertical-align: middle;
 
-font-family: "Lato", sans-serif;
-        font-weight: 400;
-        font-size: 16px;;
-        letter-spacing: 0.16px;;
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    ;
+    letter-spacing: 0.16px;
+    ;
 
- }
-.org_form_input_button{width:165px;;;
-    margin-left: auto;;color:#6AB23D;cursor: pointer;
+  }
+
+  .org_form_input_button {
+    width: 165px;
+    ;
+    ;
+    margin-left: auto;
+    ;
+    color: #6AB23D;
+    cursor: pointer;
+  }
 }
+
+.org_form_input_button {
+  white-space: nowrap;
 }
-.org_form_input_button{
-    white-space: nowrap;
-}
+
 textarea {
-    resize: none;
+  resize: none;
 }
 </style>

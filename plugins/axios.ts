@@ -32,7 +32,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   }, async function (error) {
     await handleAuthError(error)
 
-     return Promise.reject(error)
+    return Promise.reject(error)
   })
   return {
     provide: { api: api },

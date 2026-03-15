@@ -16,7 +16,7 @@ export type OrganizationParticipants = {
     role: 'leader' | 'admin' | 'organizator'
     id: number
     is_you: boolean
-  }
+  }[]
 }
 export type OrganizationParticipantsFilter = 'all' | 'leader' | 'admin' | 'organizer'
 export type OrganizationParticipantRoleChange = 'leader' | 'admin' | 'remote'

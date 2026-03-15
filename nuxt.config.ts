@@ -2,7 +2,7 @@
 
 export default defineNuxtConfig({
 
-  modules: ['@vueuse/nuxt', '@pinia/nuxt', '@nuxt/eslint'],
+  modules: ['@vueuse/nuxt', '@pinia/nuxt', '@nuxt/eslint', '@nuxt/ui'],
   ssr: false,
   devtools: { enabled: false },
   app: {
@@ -32,7 +32,7 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     public: {
-      backend:process.env.NUXT_PUBLIC_API || '',
+      backend: process.env.NUXT_PUBLIC_API || '',
       apiBase: process.env.NUXT_PUBLIC_API_BASE || '',
       wsBackend: process.env.NUXT_PUBLIC_WS_BACKEND || '',
       wsFrontend: process.env.NUXT_PUBLIC_WS_FRONTEND || '',
@@ -48,17 +48,17 @@ export default defineNuxtConfig({
     server: {
       allowedHosts: ['tidily-viable-mongoose.cloudpub.ru', 'allegedly-innate-dotterel.cloudpub.ru', 'swimmingly-astounding-nyala.cloudpub.ru',
         'heatedly-gleaming-whydah.cloudpub.ru', 'noisily-unattached-otter.cloudpub.ru', 'statically-creative-emu.cloudpub.ru', 'compulsively-tops-accentor.cloudpub.ru'],
-        proxy: {
+      proxy: {
         '/api': {
-          target: process.env.NUXT_PUBLIC_API, 
+          target: process.env.NUXT_PUBLIC_API,
           changeOrigin: true,
           secure: false,
         },
         '/ws': {
-        target: process.env.NUXT_PUBLIC_API,
-        ws: true,
-        changeOrigin: true
-      }
+          target: process.env.NUXT_PUBLIC_API,
+          ws: true,
+          changeOrigin: true,
+        },
       },
     },
     build: {
