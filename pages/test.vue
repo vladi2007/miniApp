@@ -1,8 +1,14 @@
 <template>
-  <check_qestion />
+  <NuxtLayout :name="layout">
+    <NuxtPage />
+
+  </NuxtLayout>
 </template>
 
 <script setup>
-import { VueDevice } from 'vue-devices'
-import check_qestion from '~/components/question/check_qestion.vue'
+
+const layout = 'vk'
+
 </script>
+
+<style></style>

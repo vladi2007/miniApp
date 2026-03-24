@@ -348,16 +348,8 @@ startWaitingCycle()
 
 <template>
   <div>
-    <component
-      :is="componentMap[timerData.stage]"
-      v-if="timerData"
-      :data="timerData.data"
-      :stage="timerData.stage"
-      :on-answer="sendAnswer"
-      :pause="timerData.pause"
-      :winners="timerData.winners"
-      :score="timerData.score"
-      :data_answers="timerData.data_answers"
-    />
+    <component :is="componentMap[timerData.stage]" v-if="timerData" :data="timerData.data" :stage="timerData.stage"
+      :on-answer="sendAnswer" :pause="timerData.pause" :winners="timerData.winners" :score="timerData.score"
+      :data_answers="timerData.data_answers" />
   </div>
 </template>
