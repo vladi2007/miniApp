@@ -2,7 +2,8 @@ export type MeInOrganization = {
   name: string
   username: string
   organization_name: string
-  role: string
+  role: OrganizationParticipantRoleChange
+  email: string
 }
 
 export type OrganizationDescription = {

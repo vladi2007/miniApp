@@ -6,12 +6,14 @@ onBeforeRouteLeave(async (to, from, next) => {
   await clearInteractiveSessionData()
   next()
 })
+definePageMeta({
+  middleware: ['init', 'auth', 'role',
+  ],
+})
 </script>
 
 <template>
   <create_interactive />
 </template>
 
-<style>
-
-</style>
+<style></style>

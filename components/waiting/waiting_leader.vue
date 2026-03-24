@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // imports
-import type { WaitingData, Pause } from '~/types/stageData'
+import type { WaitingData, Pause } from '~/store/types/stageData'
 import Active from '~/components/waiting/active_users.vue'
 import Description from '~/components/waiting/description.vue'
 import Links from '~/components/waiting/links.vue'
@@ -92,7 +92,7 @@ const { morePause, startBeforePause } = UseWaitingLeader(props.pause.timer_n, ro
 @import url("/assets/css/waiting/waiting_links.scss");
 
 * {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 </style>

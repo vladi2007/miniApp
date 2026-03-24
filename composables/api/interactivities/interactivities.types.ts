@@ -1,6 +1,6 @@
 export type InteractivitiesListFilter = 'all' | 'conducted' | 'not_conducted'
 export type InteractivitiesList = {
-  interactives_list: {
+  interactive_list: {
     title: string
     target_audience: string
     participant_count: number

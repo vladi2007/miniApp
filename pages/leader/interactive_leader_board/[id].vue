@@ -1,39 +1,21 @@
 <script setup lang="ts">
-const userId = useState('telegramUser')
-const userRole = useState('userRole')
+import { useEndInteractive } from '~/composables/api/interactivities/useInteractivitesQuery'
+
 const route = useRoute()
 const interactiveId = route.params.id
 const props = ref<any>()
 const isReady = ref(false)
-onMounted(async () => {
-  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-    // вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
-    if (userId) {
-      const data = await useFetch('/api/get_leader_board', {
-
-        query: {
-          telegram_id: userId.value,
-          interactive_id: interactiveId,
-
-        },
-      })
-      if (data) {
-        props.value = data.data.value
-        isReady.value = true
-      }
-    }
-  }
+const { data, isLoading } = useEndInteractive(Number(interactiveId))
+definePageMeta({
+  middleware: ['init', 'auth', 'role',
+  ],
 })
 </script>
 
 <template>
-  <div v-if="isReady && props?.data">
-    <InteractiveEnd_leader
-      :data="props.data"
-      :stage="props.stage"
-    />
+  <div v-if="data">
+    <InteractiveEnd_leader :data="data" />
   </div>
 </template>
 
-<style>
-</style>
+<style></style>

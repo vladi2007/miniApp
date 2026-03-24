@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // imports
-import type { WaitingData } from '~/types/stageData'
+import type { WaitingData } from '~/store/types/stageData'
 import Active from '~/components/waiting/active_users.vue'
 import Description from '~/components/waiting/description.vue'
 

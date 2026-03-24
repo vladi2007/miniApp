@@ -5,9 +5,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        NUXT_APP_BASE_URL: ${NUXT_APP_BASE_URL}
-        NUXT_APP_BUILD_ASSETS_DIR: ${NUXT_APP_BUILD_ASSETS_DIR}
     container_name: frontend
     ports:
       - "3000:3000"
@@ -25,6 +22,7 @@ services:
     environment:
       SECRET_KEY: ${SECRET_KEY}
       URL_BACK: ${URL_BACK}
+      URL_MINIO: ${URL_MINIO}
       TELEGRAM_TEST_CHAT_ID: ${TELEGRAM_TEST_CHAT_ID}
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
@@ -35,6 +33,10 @@ services:
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
       REDIS_HOST: ${REDIS_HOST}
       REDIS_PORT: ${REDIS_PORT}
+      EMAIL_LOGIN: ${EMAIL_LOGIN}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+      EMAIL_SMTP_SERVER: ${EMAIL_SMTP_SERVER}
+      EMAIL_SMTP_PORT: ${EMAIL_SMTP_PORT}
     ports:
       - "8000:8000"
     depends_on:
@@ -125,7 +127,7 @@ services:
 
   minio:
     image: minio/minio
-    container_name: minio_storage
+    container_name: minio_local
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
       MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
@@ -141,6 +143,34 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    networks:
+      - app_network
+  minio-init:
+    image: minio/mc
+    container_name: minio_init
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    entrypoint: >
+      /bin/sh -c "
+      echo 'Waiting for MinIO to be ready...';
+      sleep 5;
+      mc alias set myminio http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD;
+      
+      echo 'Creating buckets...';
+      mc mb myminio/reports --ignore-existing;
+      mc mb myminio/images --ignore-existing;
+      
+      echo 'Setting public access for buckets...';
+      mc anonymous set download myminio/reports;
+      mc anonymous set download myminio/images;
+      
+      echo 'Buckets created and configured successfully!';
+      exit 0;
+      "
     networks:
       - app_network
 

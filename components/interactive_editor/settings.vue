@@ -18,7 +18,6 @@ import { useAnswerQuestion } from '~/composables/interactive_editor/useAnswerQue
 import { useSave } from '~/composables/interactive_editor/useSave'
 import { useEdit } from '~/composables/interactive_editor/useInteractiveEdit'
 import { saveToDeviceStorage } from '~/utils/deviceStorageIndexedDB'
-import { Confirm } from 'vue-tg'
 
 import { onMounted, ref } from 'vue'
 // useRouter()
@@ -28,6 +27,7 @@ const router = useRoute()
 // mode
 const mode = computed(() => router.params.mode)
 const id = computed(() => router.params.id)
+console.log(id.value)
 const userId = useState('telegramUser')
 const userRole = useState('userRole')
 
@@ -36,7 +36,7 @@ const { form, active_step, currentQuestion, currentQuestionIndex, loadDB, take_s
 const { questionErrors, isFormComplete, errors, validateQuestions, validateForm, getIconSrcWithValidation, isQuestionComplete } = useValidateForm(form, active_step, currentQuestion, currentQuestionIndex)
 const { visibleStartIndex, visibleQuestions, addQuestion, deleteQuestion, scrollUp, scrollDown, handleWheelScroll, showDelete, showDeletefn } = useQuestionNavigator(form, currentQuestionIndex, questionErrors, errors)
 const { imageUploaded, uploadedFileName, loadImageDB, handleFileChange, removeImage, imageUrls } = useImage(currentQuestionIndex, form, currentQuestion)
-const { loadFromBackend, getOriginalFileNameFromMeta } = useEdit(mode.value, userId, id, form, currentQuestionIndex, imageUrls)
+const { loadFromBackend, getOriginalFileNameFromMeta } = useEdit(mode.value, userId, id.value, form, currentQuestionIndex, imageUrls)
 const { isOpen, options, typeMap, selectedText, toggleDropdown, handleClickOutside, selectOption } = useTypeQuestion(form, currentQuestionIndex, questionErrors)
 const { score, validateScore } = useScoreQuestion(currentQuestion)
 const { deleteAnswer, toggleCorrect, getIconSrc, addAnswer, limit_answers } = useAnswerQuestion(currentQuestion)
@@ -73,6 +73,7 @@ onMounted(async () => {
   if (savedForm) {
     form.value = savedForm
     isLoading.value = true
+    originalForm.value = snapshot(toRaw(form.value))
     return
   }
   if (mode.value === 'edit' || mode.value === 'duplicate') {
@@ -116,7 +117,10 @@ function closeImagePopup() {
   isImagePopupOpen.value = false
 }
 function isFormChanged() {
-  return snapshot(toRaw(form.value)) !== originalForm.value
+  const currentSnapshot = snapshot(toRaw(form.value))
+  console.log(currentSnapshot)
+  console.log(originalForm.value)
+  return currentSnapshot != originalForm.value
 }
 // for parent component
 defineExpose({
@@ -199,9 +203,9 @@ onMounted(() => {
       :image-urls="imageUrls"
       :is-question-complete="isQuestionComplete"
       @show-delete="showDeletefn"
-      @cancel-delete="showDelete=false"
-      @start="showStart=true"
-      @cancel-start="showStart=false"
+      @cancel-delete="showDelete = false"
+      @start="showStart = true"
+      @cancel-start="showStart = false"
       @update-current-question-index="currentQuestionIndex = $event"
       @show-save="showSavePopup = true"
     />

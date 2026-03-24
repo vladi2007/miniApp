@@ -1,51 +1,41 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorageIndexedDB'
-import header_logo from '~/components/header_logo.vue'
-import Header from '~/components/header.vue'
-import { useQueryClient, useQuery, useMutation } from '@tanstack/vue-query'
+import { useInteractivities } from '~/composables/api/interactivities/useInteractivitesQuery'
+import type { InteractivitiesListFilter } from '~/composables/api/interactivities/interactivities.types'
+import { postBroadcast } from '~/composables/api/broadcasts/broadcasts'
 
-const BROADCASTS_KEY = 'broadcasts_key'
-const BROADCASTS_TEXT_KEY = 'broadcasts_text_key'
-const BROADCASTS_FILE_KEY = 'broadcasts_file_key'
-const BROADCASTS_TO_NUMBER_KEY = 'broadcasts_to_number'
 const selectedInteractives = ref<number[]>([])
-const isReady = ref(false)
-const queryClient = useQueryClient()
-const from_number = ref(0)
-const to_number = ref(9)
-const userId = useState('telegramUser')
-const userRole = useState('userRole')
+const searchParams = useUrlSearchParams('history')
+const from_number = ref<string>(searchParams.from_number as string || '0')
+const to_number = ref<string>(searchParams.to_number as string || '9')
+watch(from_number, (newFrom) => {
+  searchParams.from_number = newFrom
+})
+searchParams.from_number = from_number.value
+
+watch(to_number, (newTo) => {
+  searchParams.to_number = newTo
+})
+searchParams.to_number = to_number.value
 const fileInput = ref<HTMLInputElement | null>(null)
 const uploadedFile = ref<File | null>(null)
 const uploadedFileName = ref<string>('')
-watch(to_number, async (new_Numb) => {
-  localStorage.setItem(BROADCASTS_TO_NUMBER_KEY, String(new_Numb))
-})
-onMounted(async () => {
-  const saved_to = localStorage.getItem(BROADCASTS_TO_NUMBER_KEY)
-  if (saved_to) {
-    to_number.value = Number(saved_to) || 9
-  }
-  isReady.value = true
-})
 
 const sendStatus = ref<'idle' | 'sending' | 'success' | 'error'>('idle')
 
 async function validateBeforeSend() {
   if (count.value === 0) {
-    window.Telegram.WebApp.showAlert(`У выбранных интерактивов должен быть хотя бы один участник!`)
+    window.alert(`У выбранных интерактивов должен быть хотя бы один участник!`)
     return
   }
   if ((text.value.trim().length < 1 && uploadedFile.value === null)) {
-    window.Telegram.WebApp.showAlert(`Прикрепите файл или наберите текст сообщения!`)
+    window.alert(`Прикрепите файл или наберите текст сообщения!`)
     return
   }
   showPopup.value = true
 }
 async function submitBroadcasts() {
   if (selectedInteractives.value.length === 0) {
-    window.Telegram.WebApp.showAlert(`Выберите хотя бы один интерактив!`)
+    window.alert(`Выберите хотя бы один интерактив!`)
     closePopup()
     return
   }
@@ -53,9 +43,6 @@ async function submitBroadcasts() {
   sendStatus.value = 'sending'
   try {
     const formData = new FormData()
-    console.log(userId.value)
-    console.log(selectedInteractives.value)
-    formData.append('telegram_id', userId.value)
     if (text.value === null) {
       formData.append('text', '')
     }
@@ -63,68 +50,30 @@ async function submitBroadcasts() {
       formData.append('text', text.value)
     }
 
-    console.log(text.value)
     formData.append('interactive_id', JSON.stringify(selectedInteractives.value))
 
     if (uploadedFile.value) {
       formData.append('file', uploadedFile.value)
     }
 
-    const response = await $fetch('/api/broadcasts/send', {
-      method: 'POST',
-      body: formData,
-    })
+    const response = await postBroadcast(formData)
 
-    if (response.success) { sendStatus.value = 'success' }
+    if (response.status) { sendStatus.value = 'success' }
 
-    if (showPopup.value === false) { window.Telegram.WebApp.showAlert(`Ваше сообщение успешно отправлено`); sendStatus.value = 'idle' }
+    if (showPopup.value === false) { window.alert(`Ваше сообщение успешно отправлено`); sendStatus.value = 'idle' }
   }
   catch (e) {
     console.log('error')
     sendStatus.value = 'error'
-    if (showPopup.value === false) { window.Telegram.WebApp.showAlert(`${e}`); sendStatus.value = 'idle' }
+    if (showPopup.value === false) { window.alert(`${e}`); sendStatus.value = 'idle' }
   }
 }
-const { data: interactivesData, isLoading, refetch } = useQuery({
-  queryKey: computed(() => ['broadcasts', userId.value, 'conducted', from_number.value, to_number.value]),
-  queryFn: async () => {
-    if (!userId.value) return { interactives_list: [], is_end: true }
-    const res = await $fetch('/api/reports/preview', {
-      query: {
-        telegram_id: userId.value,
-        filter: 'conducted',
-        from_number: from_number.value,
-        to_number: to_number.value,
-      },
-    })
-
-    return res
-  },
-  enabled: computed(() => Boolean(userId && isReady.value)),
-  staleTime: 1000 * 60 * 30, // 5 минут данные считаются свежими
-  cacheTime: 1000 * 60 * 30,
-  refetchOnWindowFocus: false,
-  refetchOnMount: true,
-})
+const filter = ref<InteractivitiesListFilter>('conducted')
+const { data: interactivesData, isLoading, refetch } = useInteractivities(filter, to_number, from_number)
 async function more_load() {
-  to_number.value = to_number.value + 10
+  to_number.value = String(Number(to_number.value) + 10)
 }
 
-const router = useRouter()
-async function goTo(url: string, active: string) {
-  if (active === 'broadcasts') return
-  router.push(url)
-  await clearDeviceStorage(BROADCASTS_FILE_KEY)
-  await clearDeviceStorage(BROADCASTS_KEY)
-  await clearDeviceStorage(BROADCASTS_TEXT_KEY)
-  await localStorage.removeItem(BROADCASTS_TO_NUMBER_KEY)
-}
-
-function openPopUp() {
-  if (uploadedFileName.value.trim().length > 0 || text.value.trim().length) {
-    showPopup.value = true
-  }
-}
 function openFileDialog() {
   if (fileInput.value) {
     fileInput.value.click()
@@ -137,7 +86,7 @@ async function handleFileChange(event: any) {
     const fileSizeMB = file.size / (1024 * 1024) // размер в мегабайтах
 
     if (fileSizeMB > MAX_SIZE_MB) {
-      window.Telegram.WebApp.showAlert(`Файл слишком большой. Максимальный размер: ${MAX_SIZE_MB}MB.`)
+      window.alert(`Файл слишком большой. Максимальный размер: ${MAX_SIZE_MB}MB.`)
       event.target.value = ''
       return
     }
@@ -151,12 +100,11 @@ async function handleFileChange(event: any) {
 async function removeImage() {
   uploadedFile.value = null
   uploadedFileName.value = ''
-  await clearDeviceStorage(BROADCASTS_FILE_KEY)
 }
 
 const finder = ref<string>('')
 const is_empty_list = computed(() => {
-  if (interactivesData?.value?.interactives_list?.length > 0) {
+  if (interactivesData?.value?.interactive_list?.length > 0) {
     return false
   }
   else {
@@ -174,26 +122,10 @@ function selectManyOption(id: number) {
   }
 }
 const text = ref<string>('')
-watch(selectedInteractives, async (value) => {
-  try {
-    const serializable = JSON.parse(JSON.stringify(value))
-
-    await saveToDeviceStorage(BROADCASTS_KEY, serializable)
-  }
-  catch (err) {
-    console.error('Ошибка сериализации интерактивов', err)
-  }
-}, { deep: true })
-watch(uploadedFile, async (file) => {
-  await saveToDeviceStorage(BROADCASTS_FILE_KEY, file)
-}, { deep: true })
-watch(text, async (newtext) => {
-  await saveToDeviceStorage(BROADCASTS_TEXT_KEY, newtext)
-}, { deep: true })
 
 const count = computed(() => {
   return selectedInteractives.value
-    .map(id => Number(interactivesData?.value.interactives_list?.find(item => item.id === id)?.participant_count || 0))
+    .map(id => Number(interactivesData?.value?.interactive_list?.find(item => item.id === id)?.participant_count || 0))
     .reduce((sum, n) => sum + n, 0)
 })
 
@@ -233,7 +165,6 @@ function toggleTitle(id: string) {
 function toggleLeader(id: string) {
   expandedLeaders[id] = !expandedLeaders[id]
 }
-const telegramName = useState<string | null>('userName')
 </script>
 
 <template>
@@ -308,16 +239,18 @@ const telegramName = useState<string | null>('userName')
             :class="['broadcasts_selected_item']"
           >
             <div class="broadcasts_list_list_item_title">
-              {{ interactivesData?.interactives_list?.find(item => item.id === id)?.title }}
+              {{ interactivesData?.interactive_list?.find(item => item.id === id)?.title }}
             </div>
             <div class="broadcasts_list_list_item_date">
-              {{ interactivesData?.interactives_list?.find(item => item.id === id)?.date_completed }}
+              {{ interactivesData?.interactive_list?.find(item => item.id === id)?.date_completed }}
             </div>
             <div
               class="broadcasts_list_list_item_count"
               style="width:calc((226 / 1280) * 100dvw) !important; "
             >
-              Количество участников: {{ interactivesData?.interactives_list?.find(item => item.id === id)?.participant_count }}
+              Количество участников: {{ interactivesData?.interactive_list?.find(item => item.id
+                === id)?.participant_count
+              }}
             </div>
             <img
               src="/public/images/history/history_delete.svg"
@@ -334,7 +267,7 @@ const telegramName = useState<string | null>('userName')
       <div
         v-if="selectedInteractives.length > 0"
         class="broadcasts_list_selected_download"
-        @click="validateBeforeSend() "
+        @click="validateBeforeSend()"
       >
         Отправить рассылку
       </div>
@@ -401,7 +334,7 @@ const telegramName = useState<string | null>('userName')
         </div>
       </div>
       <div
-        v-for="(item, index) in interactivesData.interactives_list"
+        v-for="(item, index) in interactivesData.interactive_list"
         :key="item.id"
         class="broadcasts_list_list"
       >
@@ -450,7 +383,7 @@ const telegramName = useState<string | null>('userName')
     </div>
 
     <div
-      v-if="showPopup "
+      v-if="showPopup"
       class="broadcasts_popup-overlay"
     >
       <div class="broadcasts_popup">

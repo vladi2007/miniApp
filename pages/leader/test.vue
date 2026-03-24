@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useWebApp } from 'vue-tg'
 import Waiting from '~/components/waiting/waiting_leader.vue'
 import Countdown from '~/components/countdown/countdown_leader.vue'
 import Question from '~/components/question/question_leader.vue'

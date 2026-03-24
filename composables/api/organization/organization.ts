@@ -1,43 +1,67 @@
-import type { MeInOrganization, OrganizationDescription, OrganizationParticipantsFilter, OrganizationParticipants, OrganizationParticipantRoleChange } from './organization.types'
+import { safeRequest } from '../api'
+import type {
+  MeInOrganization,
+  OrganizationDescription,
+  OrganizationParticipantsFilter,
+  OrganizationParticipants,
+  OrganizationParticipantRoleChange
+} from './organization.types'
+
 
 // получить данные о себе в организации
-export const getMeInOrganization = async (): Promise<MeInOrganization> => {
-  const { $api } = useNuxtApp()
-  const res = await $api.get(`/organization/me/name`, { params: { x_key: 'super-secret-key', telegram_id: 5480613794 } })
-  console.log(res.data)
-  return res.data
-}
+export const getMeInOrganization = async (): Promise<MeInOrganization> =>
+  safeRequest(async () => {
+    const { $api } = useNuxtApp()
+    const res = await $api.get(`/organization/me/name`)
+    return res.data
+  })
 
 // изменить данные о себе в организации
-export const patchMeInOrganization = async (name: string): Promise<MeInOrganization> => {
-  const { $api } = useNuxtApp()
-  const res = await $api.patch(`/organization/me/name`, null, { params: { name, x_key: 'super-secret-key', telegram_id: 5480613794 } })
-  return res.data
-}
+export const patchMeInOrganization = async (name: string): Promise<MeInOrganization> =>
+  safeRequest(async () => {
+    const { $api } = useNuxtApp()
+    const res = await $api.patch(`/organization/me/name`, null, { params: { name } })
+    return res.data
+  })
 
 // получить описание организации
-export const getOrganizationDescription = async (): Promise<OrganizationDescription> => {
-  const { $api } = useNuxtApp()
-  const res = await $api.get(`/organization/description`, { params: { x_key: 'super-secret-key', telegram_id: 5480613794 } })
-  return res.data
-}
+export const getOrganizationDescription = async (): Promise<OrganizationDescription> =>
+  safeRequest(async () => {
+    const { $api } = useNuxtApp()
+    const res = await $api.get(`/organization/description`)
+    return res.data
+  })
+
 // изменить описание организации
-export const patchOrganizationDescription = async (organization_name: string, organization_description: string): Promise<OrganizationDescription> => {
-  const { $api } = useNuxtApp()
-  const res = await $api.patch(`/organization/description`, null, { params: { organization_name, organization_description, x_key: 'super-secret-key', telegram_id: 5480613794 } })
-  return res.data
-}
+export const patchOrganizationDescription = async (
+  organization_name: string,
+  organization_description: string
+): Promise<OrganizationDescription> =>
+  safeRequest(async () => {
+    const { $api } = useNuxtApp()
+    const res = await $api.patch(`/organization/description`, null, {
+      params: { organization_name, organization_description }
+    })
+    return res.data
+  })
 
 // получить список участников организации
-export const getOrganizationParticipants = async (filter: OrganizationParticipantsFilter): Promise<OrganizationParticipants> => {
-  const { $api } = useNuxtApp()
-  const res = await $api.get(`/organization/participants`, { params: { filter, x_key: 'super-secret-key', telegram_id: 5480613794 } })
-  return res.data
-}
+export const getOrganizationParticipants = async (filter: OrganizationParticipantsFilter): Promise<OrganizationParticipants> =>
+  safeRequest(async () => {
+    const { $api } = useNuxtApp()
+    const res = await $api.get(`/organization/participants`, { params: { filter } })
+    return res.data
+  })
 
 // изменить роль участника организации
-export const patchOrganizationParticipantRole = async (participant_id: number, role: OrganizationParticipantRoleChange): Promise<OrganizationParticipants> => {
-  const { $api } = useNuxtApp()
-  const res = await $api.patch(`/organization/participant_change_role`, { params: { role, participant_id, x_key: 'super-secret-key', telegram_id: 5480613794 } })
-  return res.data
-}
+export const patchOrganizationParticipantRole = async (
+  participant_id: number,
+  role: OrganizationParticipantRoleChange
+): Promise<MeInOrganization> =>
+  safeRequest(async () => {
+    const { $api } = useNuxtApp()
+    const res = await $api.patch(`/organization/participant_change_role`, null, {
+      params: { role, participant_id }
+    })
+    return res.data
+  })

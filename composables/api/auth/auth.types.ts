@@ -1,7 +1,8 @@
 export type LoginCredentials = {
   password: string
-  login: string
+  username: string
 }
 export type AccessToken = {
-  accessToken: string
+  access_token: string
+  token_type: 'bearer'
 }

@@ -1,92 +1,42 @@
 <script setup lang="ts">
-import { postEvent } from '@telegram-apps/sdk'
-import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorage'
-import Header from '~/components/header.vue'
-import header_logo from '~/components/header_logo.vue'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useInteractivities } from '~/composables/api/interactivities/useInteractivitesQuery'
+import type { InteractivitiesListFilter } from '~/composables/api/interactivities/interactivities.types'
+import { postReport } from '~/composables/api/reports/reports'
 
-const HISTORY_KEY = 'history_interactives'
-const HISTORY_SELECT_MANY_KEY = 'history_select_many'
-const HISTORY_SELECT_ONE_KEY = 'history_select_one'
-const HISTORY_TO_NUMBER_KEY = 'history_to_number'
 const showPopup = ref<boolean>(false)
 const selectedInteractives = ref<number[]>([])
 const selectedInteractive = ref<number>(0)
 const selectedOption = ref<string | null>('')
 const selectMany = ref(false)
-const from_number = ref(0)
-const to_number = ref(9)
-watch(selectedInteractives, (newSelectedInteractives) => {
-  saveToDeviceStorage(HISTORY_KEY, newSelectedInteractives)
+const searchParams = useUrlSearchParams('history')
+const from_number = ref<string>(searchParams.from_number as string || '0')
+const to_number = ref<string>(searchParams.to_number as string || '9')
+watch(from_number, (newFrom) => {
+  searchParams.from_number = newFrom
 })
+searchParams.from_number = from_number.value
 
-watch(selectMany, (newSelectMany) => {
-  saveToDeviceStorage(HISTORY_SELECT_MANY_KEY, newSelectMany)
+watch(to_number, (newTo) => {
+  searchParams.to_number = newTo
 })
-watch(selectedInteractive, (newSelectOne) => {
-  saveToDeviceStorage(HISTORY_SELECT_ONE_KEY, newSelectOne)
-})
-watch(to_number, (new_Numb) => {
-  saveToDeviceStorage(HISTORY_TO_NUMBER_KEY, new_Numb)
-})
-
-const webApp = ref(null)
-
+searchParams.to_number = to_number.value
 const props = ref()
-const isReady = ref(false)
-const queryClient = useQueryClient()
-onMounted(async () => {
-  const savedInteractives = loadFromDeviceStorage(HISTORY_KEY)
-  if (Array.isArray(savedInteractives)) {
-    selectedInteractives.value = savedInteractives
-  }
 
-  const savedSelectMany = loadFromDeviceStorage(HISTORY_SELECT_MANY_KEY)
-  if (savedSelectMany && selectedInteractives.value.length > 0) {
-    selectMany.value = savedSelectMany
-  }
-  const saved_to = loadFromDeviceStorage(HISTORY_TO_NUMBER_KEY)
-  to_number.value = saved_to || 9
-  const savedSelectOne = loadFromDeviceStorage(HISTORY_SELECT_ONE_KEY)
-
-  isReady.value = true
-})
-const userId = useState('telegramUser')
-const userRole = useState('userRole')
-const { data: interactivesData, isLoading, refetch } = useQuery({
-  queryKey: computed(() => ['history', userId.value, 'conducted', from_number.value, to_number.value]),
-  queryFn: async () => {
-    const res = await $fetch('/api/reports/preview', {
-      query: {
-        telegram_id: userId.value,
-        filter: 'conducted',
-        from_number: from_number.value,
-        to_number: to_number.value,
-      },
-    })
-
-    return res
-  },
-  enabled: computed(() => Boolean(userId && isReady.value)),
-  staleTime: 1000 * 60 * 30, // 5 минут данные считаются свежими
-  cacheTime: 1000 * 60 * 30,
-  refetchOnWindowFocus: false,
-  refetchOnMount: false,
-})
+const filter = ref<InteractivitiesListFilter>('conducted')
+const { data: interactivesData, isLoading, refetch } = useInteractivities(filter, to_number, from_number)
 async function more_load() {
-  to_number.value = to_number.value + 10
+  to_number.value = String(Number(to_number.value) + 10)
 }
 const is_end = ref<string>('')
 const finder = ref<string>('')
 const is_empty_list = computed(() => {
-  if (interactivesData?.value?.interactives_list?.length > 0) {
+  if (interactivesData?.value && interactivesData?.value.interactive_list.length > 0) {
     return false
   }
   else {
     return true
   }
 })
-console.log(props)
 const list = ref<any>([
 ])
 watch(props, (newProps) => {
@@ -114,7 +64,7 @@ async function submitReport() {
   showPopup.value = false
   if (selectedInteractives.value.length > 0 || selectedInteractive) {
     if (selectedOption.value !== 'forAnalise' && selectedOption.value !== 'forLeader') {
-      window.Telegram.WebApp.showAlert(`Выберите тип отчета!`)
+      window.alert(`Выберите тип отчета!`)
       return
     }
     try {
@@ -128,40 +78,32 @@ async function submitReport() {
       }
 
       const body = {
-        telegram_id: userId.value,
         interactive_id: interactiveIds,
         report_type: selectedOption.value,
       }
 
-      const response = await $fetch('/api/reports/export', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-
+      const response = await postReport(body)
+      // need to fownload file
       if (response) {
-        postEvent('web_app_request_file_download', {
-          url: response.data,
-          file_name: response.name,
-        })
-      }
-      else {
-        throw new Error(response.error || 'Не удалось получить ссылку на файл')
+        if (response?.url) {
+          // Создаем ссылку для скачивания
+          const link = document.createElement('a')
+          link.href = response.url
+          link.download = response.name
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+        }
       }
 
       selectedOption.value = ''
     }
     catch (error) {
-      window.Telegram.WebApp.showAlert(`Ошибка при выгрузке отчета: ${error.message}`)
+      window.alert(`Ошибка при выгрузке отчета: ${12}`)
     }
   }
   else {
-    window.Telegram.WebApp.showAlert(`Выберите хотя бы один интерактив для формирования отчёта!`)
-  }
-  if (window.Telegram?.WebApp?.expand) {
-    setTimeout(() => {
-      Telegram.WebApp.requestFullscreen()
-    }, 0)
+    window.alert(`Выберите хотя бы один интерактив для формирования отчёта!`)
   }
 }
 // для скачивания отчёта одного
@@ -184,16 +126,6 @@ watch(selectedInteractives, (newSelectedInteractives) => {
   selectMany.value = newSelectedInteractives.length > 0
 }, { deep: true })
 
-const router = useRouter()
-async function goTo(url: string, active: string) {
-  if (active === 'reports') return
-  await clearDeviceStorage(HISTORY_KEY)
-  await clearDeviceStorage(HISTORY_SELECT_MANY_KEY)
-  await clearDeviceStorage(HISTORY_SELECT_ONE_KEY)
-  await clearDeviceStorage(HISTORY_TO_NUMBER_KEY)
-  router.push(url)
-}
-
 function urlReport(value: string) {
   if (selectedOption.value !== value) { return '/images/interactives/circle_report.svg' }
   else { return '/images/interactives/circle_report_picked.svg' }
@@ -209,7 +141,6 @@ function toggleTitle(id: string) {
 function toggleLeader(id: string) {
   expandedLeaders[id] = !expandedLeaders[id]
 }
-const telegramName = useState<string | null>('userName')
 </script>
 
 <template>
@@ -242,16 +173,17 @@ const telegramName = useState<string | null>('userName')
             :class="['selected_item']"
           >
             <div class="history_list_list_item_title">
-              {{ interactivesData?.interactives_list?.find(item => item.id === id)?.title }}
+              {{ interactivesData?.interactive_list?.find(item => item.id === id)?.title }}
             </div>
             <div class="history_list_list_item_date">
-              {{ interactivesData?.interactives_list?.find(item => item.id === id)?.date_completed }}
+              {{ interactivesData?.interactive_list?.find(item => item.id === id)?.date_completed }}
             </div>
             <div
               class="history_list_list_item_count"
               style="width:calc((226 / 1280) * 100dvw) !important; "
             >
-              Количество участников: {{ interactivesData?.interactives_list?.find(item => item.id === id)?.participant_count }}
+              Количество участников: {{ interactivesData?.interactive_list?.find(item => item.id
+                === id)?.participant_count }}
             </div>
             <img
               src="/public/images/history/history_delete.svg"
@@ -334,7 +266,7 @@ const telegramName = useState<string | null>('userName')
         </div>
       </div>
       <div
-        v-for="(item, index) in interactivesData.interactives_list"
+        v-for="(item, index) in interactivesData?.interactive_list"
         :key="item.id"
         class="history_list_list"
       >
@@ -346,14 +278,14 @@ const telegramName = useState<string | null>('userName')
           <div
             class="history_list_list_item_title title-clamp"
             :class="{ expanded: expandedTitles[item.id] }"
-            @click="toggleTitle(item.id)"
+            @click="toggleTitle(String(item.id))"
           >
             {{ item.title }}
           </div>
           <div
             class="history_list_list_item_leadername title-clamp"
             :class="{ expanded: expandedLeaders[item.id] }"
-            @click="toggleLeader(item.id)"
+            @click="toggleLeader(String(item.id))"
           >
             {{ item.username }}
           </div>
@@ -406,14 +338,14 @@ const telegramName = useState<string | null>('userName')
         <div class="popup-body">
           <label
             class="popup-option"
-            @click="selectedOption='forLeader'"
+            @click="selectedOption = 'forLeader'"
           >
             <img :src="urlReport('forLeader')">
             <span class="popup-option-span">Отчет для ведущего</span>
           </label>
           <label
             class="popup-option second"
-            @click="selectedOption='forAnalise'"
+            @click="selectedOption = 'forAnalise'"
           >
             <img :src="urlReport('forAnalise')">
             <span class="popup-option-span">Отчет для обработки</span>
@@ -422,7 +354,7 @@ const telegramName = useState<string | null>('userName')
         <div class="popup-footer">
           <button
             class="popup-cancel"
-            @click="showPopup=false"
+            @click="showPopup = false"
           >
             Отменить
           </button>

@@ -1,15 +1,35 @@
 <script setup lang="ts">
-import { postEvent } from '@telegram-apps/sdk'
-import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorage'
-import header_logo from '~/components/header_logo.vue'
-import Header from '~/components/header.vue'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import Layout from '../layout.vue'
+import { useInteractivities } from '~/composables/api/interactivities/useInteractivitesQuery'
+import type { InteractivitiesListFilter } from '~/composables/api/interactivities/interactivities.types'
+import { mutateDeleteInteractive, mutateDuplicateInteractive } from '~/composables/api/interactivities/useInteractivitiesMutation'
+import { getInteractiveState } from '~/composables/api/interactivities/interactivities'
+import { postReport } from '~/composables/api/reports/reports'
+import { useAuthStore } from '~/store/auth'
 
+const searchParams = useUrlSearchParams('history')
+const from_number = computed({
+  get: () => searchParams.from_number || '0',
+  set: v => searchParams.from_number = v,
+})
+
+const to_number = computed({
+  get: () => searchParams.to_number || '9',
+  set: v => searchParams.to_number = v,
+})
+
+const filter = computed<InteractivitiesListFilter>({
+  get: () => {
+    const value = searchParams.filter
+    if (value != 'all' && value != 'conducted' && value != 'not_conducted') {
+      return 'all' as InteractivitiesListFilter
+    }
+    else return value as InteractivitiesListFilter
+  },
+  set: v => searchParams.filter = v,
+})
 const finder = ref<string>('')
 const isOpen = ref(false)
-const selectedText = ref('all')
-const options = ['Все', 'Проведенные', 'Не проведенные']
 const options_code = {
   all: 'Все',
   conducted: 'Проведенные',
@@ -19,14 +39,12 @@ function toggleDropdown() {
   isOpen.value = !isOpen.value
 }
 
-const queryClient = useQueryClient()
-
-const userId = useState('telegramUser')
-const userRole = useState('userRole')?.value?.role
+const auth = useAuthStore()
+const userRole = auth.role
 async function selectOption(option: string) {
-  selectedText.value = option
+  filter.value = option as 'all' | 'conducted' | 'not_conducted'
   isOpen.value = false
-  to_number.value = 9
+  to_number.value = '9'
 }
 const dropdownRef = ref<HTMLElement | null>(null)
 const dropdownRefsMore = ref<(HTMLElement | null)[]>([])
@@ -52,48 +70,6 @@ function setDropdownRef(el: HTMLElement | null, index: number) {
   dropdownRefsMore.value[index] = el
 }
 
-const route = useRoute()
-// Добавляем и удаляем обработчик событий
-onMounted(async () => {
-  const fromUrl = route.query.from as string | undefined
-  if (fromUrl) {
-    console.log(fromUrl?.startsWith('/leader/'))
-    if (fromUrl?.startsWith('/leader/')) {
-      await queryClient.invalidateQueries({
-        predicate: (query) => {
-          return (
-            query.queryKey[0] === 'interactives'
-            && query.queryKey[1] === userId.value
-          )
-        },
-      })
-
-      await queryClient.invalidateQueries({
-        predicate: (query) => {
-          return (
-            query.queryKey[0] === 'broadcasts'
-            && query.queryKey[1] === userId.value
-          )
-        },
-      })
-
-      await queryClient.invalidateQueries({
-        predicate: (query) => {
-          return (
-            query.queryKey[0] === 'history'
-            && query.queryKey[1] === userId.value
-          )
-        },
-      })
-    }
-  }
-
-  const saved_to = loadFromDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
-  to_number.value = saved_to || 9
-  const saved_filter = loadFromDeviceStorage(INTERACTIVES_FILTER_KEY)
-  selectedText.value = saved_filter || 'all'
-  isReady.value = true
-})
 // В onMounted добавь:
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
@@ -103,8 +79,8 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 const is_empty_list = computed(() => {
-  if (interactivesData) {
-    if (interactivesData?.value?.interactives_list?.length > 0) {
+  if (interactivesData.value) {
+    if (interactivesData?.value?.interactive_list?.length > 0) {
       return false
     }
     else {
@@ -112,58 +88,23 @@ const is_empty_list = computed(() => {
     }
   }
 })
-const webApp = ref(null)
-
-const isReady = ref(false)
-const from_number = ref<number>(0)
-const to_number = ref<number>(9)
-const INTERACTIVES_TO_NUMBER_KEY = 'interactives_to_number'
-const INTERACTIVES_FILTER_KEY = 'interactives_filter'
-watch(to_number, (new_Numb) => {
-  saveToDeviceStorage(INTERACTIVES_TO_NUMBER_KEY, new_Numb)
-})
-watch(selectedText, (newText) => {
-  saveToDeviceStorage(INTERACTIVES_FILTER_KEY, newText)
-})
 
 const router = useRouter()
 async function goTo(url: string, active: string) {
   if (active === 'interactives') return
   router.push(url)
-  await clearDeviceStorage(INTERACTIVES_TO_NUMBER_KEY)
-  await clearDeviceStorage(INTERACTIVES_FILTER_KEY)
 }
 async function checkSettings(id: number) {
-  router.push({ path: `/leader/edit/${id}`, state: {
-    is_checkSettings: true,
-  } })
+  router.push({
+    path: `/leader/edit/${id}`, state: {
+      is_checkSettings: true,
+    },
+  })
 }
-const is_ready = ref<boolean>()
-const { data: interactivesData, isLoading, refetch } = useQuery({
+const { data: interactivesData, isLoading, refetch, error } = useInteractivities(filter, to_number as Ref<string>, from_number as Ref<string>)
 
-  queryKey: computed(() => ['interactives', userId.value, selectedText.value, from_number.value, to_number.value]),
-  queryFn: async () => {
-    if (!userId) return { interactives_list: [], is_end: true }
-    const res = await $fetch('/api/reports/preview', {
-      query: {
-        telegram_id: userId.value,
-        filter: selectedText.value,
-        from_number: from_number.value,
-        to_number: to_number.value,
-      },
-    })
-    is_ready.value = true
-    console.log(userId.value)
-    return res
-  },
-  enabled: computed(() => Boolean(userId && isReady.value)),
-  staleTime: 1000 * 60 * 30, // 5 минут данные считаются свежими
-  cacheTime: 1000 * 60 * 30,
-  refetchOnWindowFocus: false,
-  refetchOnMount: true,
-})
 async function more_load() {
-  to_number.value = to_number.value + 10
+  to_number.value = String(Number(to_number.value) + 10)
 }
 const showPopup = ref(false)
 const currentInteractiveId = ref<string | null>(null)
@@ -198,66 +139,16 @@ function toggleItemDropdown(id: string) {
 function closePopup() {
   showDeletePopap.value = false
 }
-const deleteMutation = useMutation({
-  mutationFn: async (id: string) => {
-    const response = await $fetch(`/api/delete_interactive`, {
-      method: 'DELETE',
-      query: {
-        telegram_id: userId.value,
-        id: id,
-      },
-
-    })
-    showDeletePopap.value = false
-    return true
-  },
-
-  onSuccess: async () => {
-    // 4. После успешного дублирования — рефетчим список интерактивов
-    await queryClient.invalidateQueries(['interactives', userId.value])
-  },
-})
-function deleteInteractive(id: string) {
-  deleteMutation.mutate(id)
+const { mutate: deleteMutation } = mutateDeleteInteractive()
+function deleteInteractive(id: number, is_conducted: boolean) {
+  closePopup()
+  deleteMutation({ interactive_id: id })
 }
 
-const duplicateInteractiveMutation = useMutation({
-  mutationFn: async (id: string) => {
-    // 1. Получаем интерактив
-    const data = await $fetch(`/api/get_interactive`, {
-      method: 'GET',
-      query: { telegram_id: userId.value, id },
-    })
-
-    const plain = JSON.parse(JSON.stringify(data))
-
-    // 2. Подготавливаем payload
-
-    const formData = new FormData()
-
-    formData.append('telegram_id', String(userId?.value || 0))
-    formData.append('interactive', JSON.stringify(plain))
-    // 3. Создаем интерактив
-    await $fetch('/api/create_interactive', {
-      method: 'POST',
-      query: { telegram_id: userId?.value || 0 },
-      body: formData,
-    })
-
-    return true
-  },
-  onSuccess: async () => {
-    // 4. После успешного дублирования — рефетчим список интерактивов
-    await queryClient.invalidateQueries(['interactives', userId.value])
-  },
-  onError: (err: any) => {
-    console.error('Ошибка дублирования:', err)
-    window.Telegram.WebApp.showAlert('Не удалось продублировать интерактив.')
-  },
-})
-function duplicateAndSaveInteractive(id: string) {
+const { mutate: duplicateInteractive } = mutateDuplicateInteractive()
+function duplicateAndSaveInteractive(id: number) {
   showPopup.value = false
-  duplicateInteractiveMutation.mutate(id)
+  duplicateInteractive(id)
 }
 const show_report_Popup = ref<boolean>(false)
 const selectedOption = ref<string | null>('')
@@ -267,75 +158,60 @@ async function submitReport() {
 
   if (selectedInteractive.value) {
     if (selectedOption.value !== 'forAnalise' && selectedOption.value !== 'forLeader') {
-      window.Telegram.WebApp.showAlert(`Выберите тип отчета!`)
+      window.alert(`Выберите тип отчета!`)
       return
     }
     try {
       const interactiveIds = [{ id: selectedInteractive.value }]
 
       const body = {
-        telegram_id: userId.value,
         interactive_id: interactiveIds,
         report_type: selectedOption.value,
       }
 
-      const data = await $fetch('/api/reports/export', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      })
-      console.log(data)
+      const response = await postReport(body)
 
-      if (data) {
-        postEvent('web_app_request_file_download', {
-          url: data.data,
-          file_name: data.name,
-        })
-      }
-      else {
-        throw new Error(data.error || 'Не удалось получить ссылку на файл')
+      if (response) {
+        if (response.url) {
+          // Создаем ссылку для скачивания
+          const link = document.createElement('a')
+          link.href = response.url
+          link.download = response.name
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+        }
       }
     }
     catch (error) {
-      window.Telegram.WebApp.showAlert(`Ошибка при выгрузке отчета: ${error.message}`)
+      window.alert(`Ошибка при выгрузке отчета: `)
     }
   }
   else {
-    window.Telegram.WebApp.showAlert(`Выберите хотя бы один интерактив для формирования отчёта!`)
-  }
-  if (window.Telegram?.WebApp?.expand) {
-    setTimeout(() => {
-      Telegram.WebApp.requestFullscreen()
-    }, 0)
+    window.alert(`Выберите хотя бы один интерактив для формирования отчёта!`)
   }
 }
 
 const showDeletePopap = ref(false)
 const isRunning = ref(false)
-async function deletePopup(id: string) {
+async function deletePopup(id: number) {
   try {
-    const data = await $fetch(`/api/get_state_interactive`, {
-      method: 'GET',
-      query: {
-
-        id: Number(id),
-      },
-    })
-    isRunning.value = data.data
+    const data = await getInteractiveState(id)
+    isRunning.value = data
   }
   catch (err) {
     console.error('Ошибка удаления', err)
-    window.Telegram.WebApp.showAlert('Не удалось получить состояние интерактива!')
+    window.alert('Не удалось получить состояние интерактива!')
   }
-  currentInteractiveId.value = id
+  currentInteractiveId.value = String(id)
   showDeletePopap.value = true
 }
 
 const info = computed(() => {
-  if (selectedText.value === 'conducted') return 'Проведите свой первый интерактив и он отобразится здесь'
+  if (filter.value === 'conducted') return 'Проведите свой первый интерактив и он отобразится здесь'
   else return 'Создайте свой первый интерактив и он появится здесь'
 })
-function goToBroadcast(interactiveId) {
+function goToBroadcast(interactiveId: number) {
   router.push({
     path: '/leader/broadcasts', // путь к странице рассылки
     query: { selected: interactiveId }, // передаём id интерактива
@@ -360,79 +236,38 @@ function toggleTitle(id: string) {
 function toggleLeader(id: string) {
   expandedLeaders[id] = !expandedLeaders[id]
 }
-const telegramName = useState<string | null>('userName')
 </script>
 
 <template>
   <Layout :active_nav="'interactives'">
     <div class="interactives_finder">
       <div class="interactives_finder_finder">
-        <img
-          src="/public/images/history/finder.svg"
-          class="interactives_input-icon"
-        >
+        <img src="/public/images/history/finder.svg" class="interactives_input-icon">
 
-        <input
-          v-model="finder"
-          type="text"
-          placeholder="Поиск интерактива"
-          class="interactives_search-input"
-        >
+        <input v-model="finder" type="text" placeholder="Поиск интерактива" class="interactives_search-input">
       </div>
-      <div
-        class="interactives_create"
-        @click="goTo('/leader/create_interactive')"
-      >
+      <div class="interactives_create" @click="goTo('/leader/create_interactive', '')">
         Создать интерактив
       </div>
     </div>
-    <div
-      ref="dropdownRef"
-      class="interactives_input-group_type"
-    >
-      <div
-        class="interactives_custom-dropdown"
-        @click="toggleDropdown"
-      >
+    <div ref="dropdownRef" class="interactives_input-group_type">
+      <div class="interactives_custom-dropdown" @click="toggleDropdown">
         <div class="interactives_custom-dropdown-selected">
           Фильтр
         </div>
-        <div
-          class="interactives_custom-arrow"
-          :class="{ open: isOpen }"
-        >
-          <img
-            v-if="isOpen"
-            src="/public/images/interactives/open.svg"
-          >
-          <img
-            v-if="!isOpen"
-            src="/public/images/interactives/close.svg"
-          >
+        <div class="interactives_custom-arrow" :class="{ open: isOpen }">
+          <img v-if="isOpen" src="/public/images/interactives/open.svg">
+          <img v-if="!isOpen" src="/public/images/interactives/close.svg">
         </div>
       </div>
 
-      <div
-        v-if="isOpen"
-        class="interactives_custom-dropdown-options"
-      >
+      <div v-if="isOpen" class="interactives_custom-dropdown-options">
         <div class="interactives_custom-dropdown-option-list">
-          <div
-            v-for="(label, value) in options_code"
-            :key="value"
-            class="interactives_custom-dropdown-option"
-            @click.stop="selectOption(value)"
-          >
-            <img
-              v-if="selectedText === value"
-              class="interactives_custom-dropdown-circle"
-              src="/public/images/interactives/picked.svg"
-            >
-            <img
-              v-else
-              class="interactives_custom-dropdown-circle"
-              src="/public/images/interactives/Ellipse.svg"
-            >
+          <div v-for="(label, value) in options_code" :key="value" class="interactives_custom-dropdown-option"
+            @click.stop="selectOption(value)">
+            <img v-if="filter === value" class="interactives_custom-dropdown-circle"
+              src="/public/images/interactives/picked.svg">
+            <img v-else class="interactives_custom-dropdown-circle" src="/public/images/interactives/Ellipse.svg">
             <div class="interactives_custom-dropdown-text">
               {{ label }}
             </div>
@@ -440,22 +275,17 @@ const telegramName = useState<string | null>('userName')
         </div>
       </div>
     </div>
-    <div
-      v-if="interactivesData && is_empty_list "
-      class="interactives_empty_list_info"
-    >
+    <div v-if="!isLoading && is_empty_list" class="interactives_empty_list_info">
       <img src="/public/images//history/finder_info.svg">
       <div class="interactives_empty_list_info_h1">
         У Вас нет интерактивов
       </div>
+      {{ }}
       <div class="interactives_empty_list_info_h2">
         {{ info }}
       </div>
     </div>
-    <div
-      v-if="interactivesData && !is_empty_list "
-      class="interactives_list"
-    >
+    <div v-if="!isLoading && !is_empty_list" class="interactives_list">
       <div class="interactives_list_header">
         <div class="interactives_list_header_title">
           Название
@@ -473,28 +303,15 @@ const telegramName = useState<string | null>('userName')
           Количество участников
         </div>
       </div>
-      <div
-        v-for="(item, index) in interactivesData.interactives_list"
-        :key="item.id"
-        class="interactives_list_list"
-      >
-        <div
-          v-if="index === 0"
-          class="interactives_Line"
-        />
+      <div v-for="(item, index) in interactivesData?.interactive_list" :key="item.id" class="interactives_list_list">
+        <div v-if="index === 0" class="interactives_Line" />
         <div class="interactives_list_list_item">
-          <div
-            class="interactives_list_list_item_title title-clamp"
-            :class="{ expanded: expandedTitles[item.id] }"
-            @click="toggleTitle(item.id)"
-          >
+          <div class="interactives_list_list_item_title title-clamp" :class="{ expanded: expandedTitles[item.id] }"
+            @click="toggleTitle(String(item.id))">
             {{ item.title }}
           </div>
-          <div
-            class="interactives_list_list_item_leadername title-clamp"
-            :class="{ expanded: expandedLeaders[item.id] }"
-            @click="toggleLeader(item.id)"
-          >
+          <div class="interactives_list_list_item_leadername title-clamp"
+            :class="{ expanded: expandedLeaders[item.id] }" @click="toggleLeader(String(item.id))">
             {{ item.username }}
           </div>
           <div class="interactives_list_list_item_date">
@@ -503,120 +320,54 @@ const telegramName = useState<string | null>('userName')
           <div class="interactives_list_list_item_status">
             {{ item.is_conducted ? "Проведен" : "Не проведен" }}
           </div>
-          <div
-            class="interactives_list_list_item_count"
-            :class="{ hidden: !item.is_conducted }"
-          >
+          <div class="interactives_list_list_item_count" :class="{ hidden: !item.is_conducted }">
             {{ item.participant_count }}
           </div>
           <div class="interactives_buttons">
-            <div
-              class="interactives_dublicate"
-              title="Дублировать интерактив"
-              @click="Popup(item.id)"
-            >
-              <img
-                id="dublicate"
-                src="/images/interactives/dublicate_2.svg"
-              >
+            <div class="interactives_dublicate" title="Дублировать интерактив" @click="Popup(String(item.id))">
+              <img id="dublicate" src="/images/interactives/dublicate_2.svg">
             </div>
-            <div
-              v-if="item.is_conducted"
-              class="interactives_leader_board"
-              title="Показать лидерборд"
-              @click="goTo(`/leader/interactive_leader_board/${item.id}`, '')"
-            >
-              <img
-                id="leader_board"
-                src="/images/interactives/leader_board.svg"
-              >
+            <div v-if="item.is_conducted" class="interactives_leader_board" title="Показать лидерборд"
+              @click="goTo(`/leader/interactive_leader_board/${item.id}`, '')">
+              <img id="leader_board" src="/images/interactives/leader_board.svg">
             </div>
-            <div
-              v-if=" !item.is_you "
-              class="interactives_check"
-              title="Просмотреть настройки интерактива"
-              @click="checkSettings(item.id)"
-            >
+            <div v-if="!item.is_you" class="interactives_check" title="Просмотреть настройки интерактива"
+              @click="checkSettings(item.id)">
               <img src="/images/interactives/check.svg">
             </div>
-            <div
-              v-if="!item.is_conducted && item.is_you"
-              class="interactives_edit"
-              title="Редактировать интерактив"
-              @click="showEdit=true; currID=item.id"
-            >
-              <img
-                id="edit"
-                src="/images/interactives/edit_2.svg"
-              >
+            <div v-if="!item.is_conducted && item.is_you" class="interactives_edit" title="Редактировать интерактив"
+              @click="showEdit = true; currID = item.id">
+              <img id="edit" src="/images/interactives/edit_2.svg">
             </div>
-            <div
-              v-if="!item.is_conducted && item.is_you"
-              class="interactives_start"
-              title="Запустить интерактив"
-              @click="showStart=true; currID=item.id"
-            >
+            <div v-if="!item.is_conducted && item.is_you" class="interactives_start" title="Запустить интерактив"
+              @click="showStart = true; currID = item.id">
               <img src="/images/interactives/start_2.svg">
             </div>
-            <div
-              v-if="!item.is_conducted && (item.is_you || userRole==='admin' || userRole==='organizer') "
-              class="interactive_delete"
-              title="Удалить интерактив"
-              style="margin-left: auto;"
-              @click="deletePopup(item.id)"
-            >
-              <img
-                id="delete"
-                src="/images/interactives/vector.png"
-              >
+            <div v-if="!item.is_conducted && (item.is_you || userRole === 'admin' || userRole === 'organizer')"
+              class="interactive_delete" title="Удалить интерактив" style="margin-left: auto;"
+              @click="deletePopup(item.id)">
+              <img id="delete" src="/images/interactives/vector.png">
             </div>
-            <div
-              v-if="item.is_conducted"
-              :ref="el => setDropdownRef(el, index)"
-              class="interactives_list_list_item_actions"
-              style="margin-left: auto !important;"
-            >
-              <div
-                class="interactives_more_options"
-                title="Еще"
-                @click="toggleItemDropdown(item.id)"
-              >
-                <img
-                  id="more_options"
-                  src="/images/interactives/more.svg"
-                >
+            <div v-if="item.is_conducted" :ref="el => setDropdownRef(el, index)"
+              class="interactives_list_list_item_actions" style="margin-left: auto !important;">
+              <div class="interactives_more_options" title="Еще" @click="toggleItemDropdown(String(item.id))">
+                <img id="more_options" src="/images/interactives/more.svg">
               </div>
-              <div
-                v-if="openDropdownId === item.id"
-                class="interactives_item-dropdown-options"
-                style=" z-index: 10001 !important;"
-              >
-                <div
-                  id="first_option"
-                  class="interactives_item-dropdown-option"
+              <div v-if="openDropdownId == String(item.id)" class="interactives_item-dropdown-options"
+                style=" z-index: 10001 !important;">
+                <div id="first_option" class="interactives_item-dropdown-option"
                   style="  margin-top: calc((22/832)*100dvh);"
-                  @click="show_report_Popup = true; selectedInteractive = item.id; openDropdownId = null;"
-                >
-                  <img
-                    id="first_option_img"
-                    src="/public/images/interactives/download.svg"
+                  @click="show_report_Popup = true; selectedInteractive = item.id; openDropdownId = null;">
+                  <img id="first_option_img" src="/public/images/interactives/download.svg"
                     class="interactives_item-dropdown-icon"
-                    style="     height: calc((24/832) * 100dvh) ;width: calc((24 / 1280) * 100dvw) ; margin-left: calc((24/1280)*100dvw);"
-                  >
+                    style="     height: calc((24/832) * 100dvh) ;width: calc((24 / 1280) * 100dvw) ; margin-left: calc((24/1280)*100dvw);">
                   <span style="margin-left: calc((9/1280)*100dvw);">Выгрузить отчет</span>
                 </div>
-                <div
-                  id="second_option"
-                  class="interactives_item-dropdown-option"
-                  style="  margin-top: calc((14/832)*100dvh);"
-                  @click="goToBroadcast(item.id)"
-                >
-                  <img
-                    id="second_option_img"
-                    src="/public/images/interactives/send.svg"
+                <div id="second_option" class="interactives_item-dropdown-option"
+                  style="  margin-top: calc((14/832)*100dvh);" @click="goToBroadcast(item.id)">
+                  <img id="second_option_img" src="/public/images/interactives/send.svg"
                     class="interactives_item-dropdown-icon"
-                    style="     height: calc((24/832) * 100dvh) ;width: calc((24 / 1280) * 100dvw) ; margin-left: calc((24/1280)*100dvw);"
-                  >
+                    style="     height: calc((24/832) * 100dvh) ;width: calc((24 / 1280) * 100dvw) ; margin-left: calc((24/1280)*100dvw);">
                   <span style="margin-left: calc((9/1280)*100dvw);">Отправить рассылку</span>
                 </div>
               </div>
@@ -625,19 +376,12 @@ const telegramName = useState<string | null>('userName')
         </div>
         <div class="interactives_Line" />
       </div>
-      <div
-        v-if="!interactivesData.is_end"
-        class="interactives_show_more"
-        @click="more_load()"
-      >
+      <div v-if="!interactivesData!.is_end" class="interactives_show_more" @click="more_load()">
         Показать еще
       </div>
     </div>
 
-    <div
-      v-if="showPopup"
-      class="interactives_popup-overlay"
-    >
+    <div v-if="showPopup" class="interactives_popup-overlay">
       <div class="interactives_popup">
         <div class="interactives_popup-header">
           <div class="interactives_popup-header-text">
@@ -645,32 +389,20 @@ const telegramName = useState<string | null>('userName')
           </div>
         </div>
         <div class="interactives_popup-body">
-          <button
-            class="interactives_popup-button"
-            @click="duplicateAndSaveInteractive(String(currentInteractiveId))"
-          >
+          <button class="interactives_popup-button" @click="duplicateAndSaveInteractive(Number(currentInteractiveId!))">
             Дублировать
           </button>
 
-          <button
-            class="interactives_popup-button"
-            @click="dublicate_interactive(String(currentInteractiveId))"
-          >
+          <button class="interactives_popup-button" @click="dublicate_interactive(String(currentInteractiveId))">
             Дублировать и редактировать
           </button>
-          <button
-            class="interactives_popup-button"
-            @click="showPopup=false"
-          >
+          <button class="interactives_popup-button" @click="showPopup = false">
             Отменить
           </button>
         </div>
       </div>
     </div>
-    <div
-      v-if="showStart"
-      class="settings_popup-overlay"
-    >
+    <div v-if="showStart" class="settings_popup-overlay">
       <div class="settings_popup-content">
         <div class="settings_popup-text">
           Вы уверены, что хотите запустить интерактив?
@@ -679,68 +411,35 @@ const telegramName = useState<string | null>('userName')
           По окончании интерактива Вы сможете выгрузить отчет.
         </div>
         <div class="settings_popup-buttons">
-          <button
-            class="settings_popup-btn cancel"
-            @click="showStart=false;currID=0"
-          >
+          <button class="settings_popup-btn cancel" @click="showStart = false; currID = 0">
             Отменить
           </button>
-          <button
-            class="settings_popup-btn confirm"
-            style=""
-            @click="start_interactive(String(currID));currID=0"
-          >
+          <button class="settings_popup-btn confirm" style="" @click="start_interactive(String(currID)); currID = 0">
             Запустить
           </button>
         </div>
       </div>
     </div>
-    <div
-      v-if="showEdit"
-      class="settings_popup-overlay"
-    >
-      <div
-        class="settings_popup-content"
-        :class="{ height: true }"
-      >
-        <div
-          class="settings_popup-text"
-          :class="{ margin_text: true }"
-        >
+    <div v-if="showEdit" class="settings_popup-overlay">
+      <div class="settings_popup-content" :class="{ height: true }">
+        <div class="settings_popup-text" :class="{ margin_text: true }">
           Вы уверены, что хотите отредактировать интерактив?
         </div>
-        <div
-          class="settings_popup-buttons"
-          :class="{ margin: true }"
-        >
-          <button
-            class="settings_popup-btn cancel"
-            @click="showEdit=false;currID=0"
-          >
+        <div class="settings_popup-buttons" :class="{ margin: true }">
+          <button class="settings_popup-btn cancel" @click="showEdit = false; currID = 0">
             Отменить
           </button>
-          <button
-            class="settings_popup-btn confirm"
-            style="display: flex;
+          <button class="settings_popup-btn confirm" style="display: flex;
       align-items: center;
-      justify-content: center;"
-            :class="{ margin_left: true }"
-            @click="edit_interactive(String(currID));currID=0"
-          >
+      justify-content: center;" :class="{ margin_left: true }" @click="edit_interactive(String(currID)); currID = 0">
             Редактировать
           </button>
         </div>
       </div>
     </div>
-    <div
-      v-if="showDeletePopap"
-      class="interactives_delete_popup-overlay"
-    >
+    <div v-if="showDeletePopap" class="interactives_delete_popup-overlay">
       <div class="interactives_delete_popup">
-        <div
-          class="interactives_delete_popup-close"
-          @click="closePopup()"
-        >
+        <div class="interactives_delete_popup-close" @click="closePopup()">
           <img src="/public/images/interactives/delete_close.svg">
         </div>
         <div class="interactives_delete_popup-header">
@@ -754,64 +453,41 @@ const telegramName = useState<string | null>('userName')
           </div>
         </div>
         <div class="interactives_delete_popup-body">
-          <button
-            class="interactives_delete_popup-button cancel"
-            @click="closePopup()"
-          >
+          <button class="interactives_delete_popup-button cancel" @click="closePopup()">
             Отменить
           </button>
-          <button
-            class="interactives_delete_popup-button confirm"
-            @click="deleteInteractive(String(currentInteractiveId))"
-          >
+          <button class="interactives_delete_popup-button confirm"
+            @click="deleteInteractive(Number(currentInteractiveId), (interactivesData?.interactive_list?.find((v) => v.id == Number(currentInteractiveId)))!.is_conducted)">
             {{ isRunning ? 'Закончить и удалить интерактив' : 'Удалить' }}
           </button>
         </div>
       </div>
     </div>
 
-    <div
-      v-if="show_report_Popup === true"
-      class="popup-overlay"
-    >
+    <div v-if="show_report_Popup === true" class="popup-overlay">
       <div class="popup">
-        <img
-          src="/images/history/Vector_1.svg"
-          class="popup-close"
-          @click="show_report_Popup = false; selectedInteractive = 0; selectedOption = ''"
-        >
+        <img src="/images/history/Vector_1.svg" class="popup-close"
+          @click="show_report_Popup = false; selectedInteractive = 0; selectedOption = ''">
         <div class="popup-header">
           <div class="popup-header-text">
             Выгрузить отчет
           </div>
         </div>
         <div class="popup-body">
-          <div
-            class="popup-option"
-            @click="selectedOption='forLeader'"
-          >
+          <div class="popup-option" @click="selectedOption = 'forLeader'">
             <img :src="urlReport('forLeader')">
             <span class="popup-option-span">Отчет для ведущего</span>
           </div>
-          <div
-            class="popup-option second"
-            @click="selectedOption='forAnalise'"
-          >
+          <div class="popup-option second" @click="selectedOption = 'forAnalise'">
             <img :src="urlReport('forAnalise')">
             <span class="popup-option-span">Отчет для обработки</span>
           </div>
         </div>
         <div class="popup-footer">
-          <button
-            class="popup-cancel"
-            @click="show_report_Popup=false"
-          >
+          <button class="popup-cancel" @click="show_report_Popup = false">
             Отменить
           </button>
-          <button
-            class="popup-submit"
-            @click="submitReport"
-          >
+          <button class="popup-submit" @click="submitReport">
             Выгрузить
           </button>
         </div>
@@ -821,43 +497,48 @@ const telegramName = useState<string | null>('userName')
 </template>
 
 <style>
-button{
-    display: flex;
-    align-items: center;
-    justify-content: center;
+button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 .hidden {
   visibility: hidden;
 }
-@media (max-height:1078px), (max-width:1918px){
-    .interactives_margins{width: calc((1056 / 1280) * 100dvw);
-        box-sizing: border-box;
+
+@media (max-height:1078px),
+(max-width:1918px) {
+  .interactives_margins {
+    width: calc((1056 / 1280) * 100dvw);
+    box-sizing: border-box;
     padding: 0;
     margin: 0;
-       margin-left: calc((112 / 1280) * 100dvw);
-    }
-.interactives_list_list_item_actions {
-    position: relative;
-}
+    margin-left: calc((112 / 1280) * 100dvw);
+  }
 
-.interactives {
+  .interactives_list_list_item_actions {
+    position: relative;
+  }
+
+  .interactives {
     width: 100dvw;
     height: 100dvh;
 
     background-color: white;
     position: relative;
     overflow-x: hidden;
-}
+  }
 
-.interactives_finder {
+  .interactives_finder {
     width: calc((1056/1280) * 100dvw);
     margin-top: calc((25 / 832) * 100dvh);
     display: flex;
     align-items: center;
     justify-content: space-between;
-}
+  }
 
-.interactives_finder_header {
+  .interactives_finder_header {
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -865,15 +546,15 @@ button{
     letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
     vertical-align: middle;
     color: #1D1D1D;
-}
+  }
 
-.interactives_finder_finder {
+  .interactives_finder_finder {
     position: relative;
     display: flex;
     align-items: center;
-}
+  }
 
-.interactives_search-input {
+  .interactives_search-input {
     width: calc((765/1280) * 100dvw);
     height: calc((39 / 832) * 100dvh);
     line-height: calc((39 / 832) * 100dvh);
@@ -886,10 +567,10 @@ button{
     display: flex;
     align-items: center;
     padding-left: calc((50 / 1280) * 100dvw) !important;
-   box-sizing: border-box;
-}
+    box-sizing: border-box;
+  }
 
-.interactives_search-input::placeholder {
+  .interactives_search-input::placeholder {
     line-height: calc((39 / 832) * 100dvh);
     display: flex;
     align-items: center;
@@ -897,9 +578,9 @@ button{
     font-weight: 500;
     font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
     color: #A9A9A9;
-}
+  }
 
-.interactives_input-icon {
+  .interactives_input-icon {
     position: absolute;
     left: calc((17 / 1280) * 100dvw);
     top: 50%;
@@ -907,22 +588,22 @@ button{
     width: calc((19/1280) * 100dvw);
     height: calc((19/1280) * 100dvw);
     pointer-events: none;
-}
+  }
 
-.interactives_create {
+  .interactives_create {
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: #6AB23D;
     border-radius: calc((5/832) * 100dvh);
-    width: calc((261/1280) * 100dvw) ;
-    height: calc((39 / 832) * 100dvh) ;
+    width: calc((261/1280) * 100dvw);
+    height: calc((39 / 832) * 100dvh);
     /* padding-top:   calc((8 / 832) * 100dvh);
     padding-left:  calc((35/1280) * 100dvw) ;;;
     padding-bottom:   calc((8 / 832) * 100dvh);
     padding-right:  calc((35/1280) * 100dvw) ;;; */
-       white-space: nowrap ;
+    white-space: nowrap;
 
     font-family: "Lato", sans-serif;
     font-weight: 500;
@@ -932,20 +613,24 @@ button{
     text-align: center;
     vertical-align: middle;
     color: white;
-    margin-left: calc((30/1280)*100dvw);  border: calc(1.5/832*100dvh) solid #6AB23D;
-}
-.interactives_create:hover{
-    background-color: white;color:#6AB23D;
+    margin-left: calc((30/1280)*100dvw);
     border: calc(1.5/832*100dvh) solid #6AB23D;
-}
-.interactives_input-group_type {
+  }
+
+  .interactives_create:hover {
+    background-color: white;
+    color: #6AB23D;
+    border: calc(1.5/832*100dvh) solid #6AB23D;
+  }
+
+  .interactives_input-group_type {
     position: relative;
     z-index: 1000;
     height: calc((36 / 832) * 100dvh);
     width: calc((159 / 1280) * 100dvw) !important;
-}
+  }
 
-.interactives_input-group_type select {
+  .interactives_input-group_type select {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -953,19 +638,19 @@ button{
     border-radius: calc((14/832)*100dvh);
     box-sizing: border-box;
     font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-}
+  }
 
-.interactives_input-group_row {
+  .interactives_input-group_row {
     display: flex;
     width: calc((159 / 1280) * 100dvw);
     height: calc((47 / 832) * 100dvh);
     align-items: center;
     border-radius: calc((14/832)*100dvh);
     background-color: #F3F3F3;
-}
+  }
 
-/* Кастомный выпадающий список */
-.interactives_custom-dropdown {
+  /* Кастомный выпадающий список */
+  .interactives_custom-dropdown {
     margin-top: calc(20/832*100dvh);
     display: flex;
     justify-content: space-between;
@@ -986,18 +671,20 @@ button{
     box-sizing: border-box;
     padding-left: calc((15/1280)*100dvw);
     padding-right: calc((15/1280)*100dvw);
-}
-.interactives_custom-dropdown:hover{
+  }
+
+  .interactives_custom-dropdown:hover {
     background-color: #DFDFDF;
-}
-.interactives_custom-arrow {
+  }
+
+  .interactives_custom-arrow {
     width: calc((16 / 1280) * 100dvw);
     height: calc((9 / 832) * 100dvh);
     display: flex;
-}
+  }
 
-/* Стили для списка - ИЗМЕНЕНИЯ ЗДЕСЬ */
-.interactives_custom-dropdown-options {
+  /* Стили для списка - ИЗМЕНЕНИЯ ЗДЕСЬ */
+  .interactives_custom-dropdown-options {
     box-shadow: 0px 1px 13.8px 0px #00000040;
     border-radius: calc((8/832)*100dvh);
     width: calc((179 / 1280) * 100dvw) !important;
@@ -1011,16 +698,16 @@ button{
     /* Увеличиваем z-index */
     background-color: white;
     /* Добавляем фон */
-}
+  }
 
-.interactives_custom-dropdown-option-list {
+  .interactives_custom-dropdown-option-list {
     margin-top: calc((15 / 832) * 100dvh);
     margin-left: calc((15 / 1280) * 100dvw);
     z-index: 10000;
     /* Увеличиваем z-index */
-}
+  }
 
-.interactives_custom-dropdown-options_header {
+  .interactives_custom-dropdown-options_header {
     font-family: "Lato", sans-serif;
     font-weight: 600;
     font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
@@ -1029,18 +716,18 @@ button{
     vertical-align: middle;
     margin-top: calc((7 / 832) * 100dvh);
     margin-left: calc((41 / 1280) * 100dvw);
-}
+  }
 
-.interactives_custom-dropdown-selected {
+  .interactives_custom-dropdown-selected {
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
     font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
     letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.34px);
     vertical-align: middle;
-}
+  }
 
-.interactives_custom-dropdown-option {
+  .interactives_custom-dropdown-option {
     display: flex;
     align-items: center;
     margin-top: calc((9 / 832) * 100dvh);
@@ -1052,19 +739,19 @@ button{
     font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
     letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
     vertical-align: middle;
-}
+  }
 
-.interactives_custom-dropdown-circle{
-     width: calc((17 / 1280) * 100dvw);
-    height: calc((17 / 832) * 100dvh);
-}
-
-.interactives_custom-dropdown-circle>img {
+  .interactives_custom-dropdown-circle {
     width: calc((17 / 1280) * 100dvw);
     height: calc((17 / 832) * 100dvh);
-}
+  }
 
-.interactives_custom-dropdown-text {
+  .interactives_custom-dropdown-circle>img {
+    width: calc((17 / 1280) * 100dvw);
+    height: calc((17 / 832) * 100dvh);
+  }
+
+  .interactives_custom-dropdown-text {
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
@@ -1074,22 +761,22 @@ button{
     margin-left: calc((5 / 1280) * 100dvw);
     display: flex;
     align-items: center;
-}
+  }
 
-.interactives_input-group_score {
+  .interactives_input-group_score {
     display: flex;
     align-items: center;
     margin-left: calc((58 / 1280) * 100dvw);
-}
+  }
 
-textarea:focus,
-input:focus {
+  textarea:focus,
+  input:focus {
     border-color: none !important;
     box-shadow: none !important;
     outline: none !important;
-}
+  }
 
-.interactives_input-group_score>input {
+  .interactives_input-group_score>input {
     margin-left: calc((10 / 1280) * 100dvw);
     width: calc((73 / 1280) * 100dvw);
     height: calc((42 / 832) * 100dvh);
@@ -1099,9 +786,9 @@ input:focus {
     box-sizing: border-box;
     padding: calc((12 / 832) * 100dvh) calc((12 / 1280) * 100dvw);
     font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-}
+  }
 
-.interactives_input-group_score>div {
+  .interactives_input-group_score>div {
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
@@ -1110,22 +797,22 @@ input:focus {
     line-height: 120%;
     letter-spacing: 1%;
     vertical-align: middle;
-}
+  }
 
-.interactives_empty_list_info {
+  .interactives_empty_list_info {
     margin-top: calc((34 / 832) * 100dvh);
     margin-left: calc((290 / 1280) * 100dvw);
     width: calc((475/1280) * 100dvw);
     display: grid;
     justify-items: center;
-}
+  }
 
-.interactives_empty_list_info>img {
+  .interactives_empty_list_info>img {
     width: calc((54/1280) * 100dvw);
     height: calc((54/1280) * 100dvw);
-}
+  }
 
-.interactives_empty_list_info_h1 {
+  .interactives_empty_list_info_h1 {
     margin-top: calc((10 / 832) * 100dvh);
     font-family: "Lato", sans-serif;
     font-weight: 700;
@@ -1136,9 +823,9 @@ input:focus {
     text-align: center;
     vertical-align: middle;
     color: #7D7D7D;
-}
+  }
 
-.interactives_empty_list_info_h2 {
+  .interactives_empty_list_info_h2 {
     margin-top: calc((5 / 832) * 100dvh);
     font-family: "Lato", sans-serif;
     font-weight: 500;
@@ -1149,15 +836,15 @@ input:focus {
     text-align: center;
     vertical-align: middle;
     color: #7D7D7D;
-}
+  }
 
-.interactives_list {
+  .interactives_list {
     width: calc((1056 / 1280) * 100dvw);
     margin-top: calc((27 / 832) * 100dvh);
     padding-bottom: calc((100 / 832) * 100dvh);
-}
+  }
 
-.interactives_list_header {
+  .interactives_list_header {
     display: flex;
     margin-left: calc((22 / 1280) * 100dvw);
     font-family: "Lato", sans-serif;
@@ -1166,89 +853,100 @@ input:focus {
     letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
     color: #A9A9A9;
     margin-bottom: calc((15 / 832) * 100dvh);
-}
+  }
 
-.interactives_list_header_title {
+  .interactives_list_header_title {
     width: calc((89 / 1280) * 100dvw);
 
-}
-.interactives_list_header_leadername{
+  }
+
+  .interactives_list_header_leadername {
     width: calc((96 / 1280) * 100dvw);
-      text-align: center;
-      margin-left: calc((189 / 1280) * 100dvw);
-}
-.interactives_list_header_date {
+    text-align: center;
+    margin-left: calc((189 / 1280) * 100dvw);
+  }
+
+  .interactives_list_header_date {
     margin-left: calc((47 / 1280) * 100dvw);
     text-align: center;
     width: calc((96 / 1280) * 100dvw);
-}
+  }
 
-.interactives_list_header_status {
+  .interactives_list_header_status {
     margin-left: calc((38 / 1280) * 100dvw);
     text-align: center;
     width: calc((102 / 1280) * 100dvw);
-}
+  }
 
-.interactives_list_header_count {
+  .interactives_list_header_count {
     margin-left: calc((20 / 1280) * 100dvw);
     text-align: center;
     width: calc((192 / 1280) * 100dvw);
-}
+  }
 
-.interactives_list_list {
+  .interactives_list_list {
     display: flex;
     flex-direction: column;
-}
+  }
 
-.interactives_list_list_item {
+  .interactives_list_list_item {
     display: flex;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
     font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
     letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-}
+  }
 
-.interactives_list_list_item>img {
+  .interactives_list_list_item>img {
     height: calc((18/832) * 100dvh);
     width: calc((14 / 1280) * 100dvw);
     margin-left: auto;
     margin-right: calc((22 / 1280) * 100dvw);
-}
+  }
 
-.interactives_Line {
+  .interactives_Line {
     background-color: #e9e9e9 !important;
     height: calc((1 / 832) * 100dvh) !important;
-}
-.interactives_list_list_item > div{
+  }
 
-      line-height: calc((19.2/832)*100dvh);
-}
-.interactives_list_list_item_title,
-.interactives_list_list_item_leadername {
-    position: relative; /* для ::after */
+  .interactives_list_list_item>div {
+
+    line-height: calc((19.2/832)*100dvh);
+  }
+
+  .interactives_list_list_item_title,
+  .interactives_list_list_item_leadername {
+    position: relative;
+    /* для ::after */
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
     cursor: pointer;
     white-space: nowrap;
-}
+  }
 
-.interactives_list_list_item_title {
-    margin-top:calc((15/832)*100dvh);;
-     margin-bottom:calc((15/832)*100dvh);;
+  .interactives_list_list_item_title {
+    margin-top: calc((15/832)*100dvh);
+    ;
+    margin-bottom: calc((15/832)*100dvh);
+    ;
     margin-left: calc((22 / 1280) * 100dvw);
     width: calc((222 / 1280) * 100dvw);
     text-align: left;
 
-}
-.interactives_list_list_item_leadername {
- margin-top:calc((15/832)*100dvh);;
-     margin-bottom:calc((15/832)*100dvh);;
-  margin-left: calc((29 / 1280) * 100dvw);
-  width: calc((150 / 1280) * 100dvw);
-}
-.title-clamp::after {
+  }
+
+  .interactives_list_list_item_leadername {
+    margin-top: calc((15/832)*100dvh);
+    ;
+    margin-bottom: calc((15/832)*100dvh);
+    ;
+    margin-left: calc((29 / 1280) * 100dvw);
+    width: calc((150 / 1280) * 100dvw);
+  }
+
+  .title-clamp::after {
     content: "";
     position: absolute;
     right: 0;
@@ -1256,44 +954,53 @@ input:focus {
     width: calc((31 / 1280) * 100dvw);
     height: 100%;
     pointer-events: none;
-    background: linear-gradient(85.63deg, rgba(255,255,255,0.4) 29.36%, #ffffff 89.3%);
-}
-.interactives_list_list_item_leadername.expanded,
-.interactives_list_list_item_title.expanded {
+    background: linear-gradient(85.63deg, rgba(255, 255, 255, 0.4) 29.36%, #ffffff 89.3%);
+  }
+
+  .interactives_list_list_item_leadername.expanded,
+  .interactives_list_list_item_title.expanded {
     white-space: normal;
     word-break: break-word;
     overflow-wrap: break-word;
-}
+  }
 
-.title-clamp.expanded::after {
-    display: none; /* только у текущего элемента с expanded */
-}
+  .title-clamp.expanded::after {
+    display: none;
+    /* только у текущего элемента с expanded */
+  }
 
-.interactives_list_list_item_date {
- margin-top:calc((15/832)*100dvh);;
-     margin-bottom:calc((15/832)*100dvh);;
-     margin-left: calc((13 / 1280) * 100dvw);
+  .interactives_list_list_item_date {
+    margin-top: calc((15/832)*100dvh);
+    ;
+    margin-bottom: calc((15/832)*100dvh);
+    ;
+    margin-left: calc((13 / 1280) * 100dvw);
     width: calc((111 / 1280) * 100dvw);
     text-align: center;
-}
+  }
 
-.interactives_list_list_item_status {
-     margin-top:calc((15/832)*100dvh);;
-     margin-bottom:calc((15/832)*100dvh);;
+  .interactives_list_list_item_status {
+    margin-top: calc((15/832)*100dvh);
+    ;
+    margin-bottom: calc((15/832)*100dvh);
+    ;
     margin-left: calc((17 / 1280) * 100dvw) !important;
     width: calc((128 / 1280) * 100dvw);
     text-align: center;
-}
+  }
 
-.interactives_list_list_item_count {
-      margin-top:calc((15/832)*100dvh);;
-     margin-bottom:calc((15/832)*100dvh);;
+  .interactives_list_list_item_count {
+    margin-top: calc((15/832)*100dvh);
+    ;
+    margin-bottom: calc((15/832)*100dvh);
+    ;
     margin-left: calc((69 / 1280) * 100dvw);
     width: calc((68 / 1280) * 100dvw);
     text-align: center;
-}
+  }
 
-.interactives_show_more {white-space: nowrap;
+  .interactives_show_more {
+    white-space: nowrap;
     width: calc((104 / 1280) * 100dvw);
     margin-left: calc((476 / 1280) * 100dvw);
     margin-top: calc((15 / 832) * 100dvh);
@@ -1305,89 +1012,116 @@ input:focus {
     text-align: center;
     vertical-align: middle;
     color: #853CFF;
-    cursor: pointer;position: relative;
-}
-/* Полоска */
-.interactives_show_more::after {
+    cursor: pointer;
+    position: relative;
+  }
+
+  /* Полоска */
+  .interactives_show_more::after {
     content: "";
     position: absolute;
     left: 0;
-    bottom: 1px;             /* расстояние от текста */
+    bottom: 1px;
+    /* расстояние от текста */
     width: 100%;
-    height: 1.5px;              /* толщина полоски */
-    background: #853CFF;transform: scaleX(0);
-}
+    height: 1.5px;
+    /* толщина полоски */
+    background: #853CFF;
+    transform: scaleX(0);
+  }
 
-/* Появляется при наведении */
-.interactives_show_more:hover::after {
+  /* Появляется при наведении */
+  .interactives_show_more:hover::after {
     transform: scaleX(1);
-}
-.interactives_buttons {
-    display: flex;position: relative;
-    width: calc((152 / 1280) * 100dvw);;
-    margin-left: calc((77 / 1280) * 100dvw);
-    margin-top:calc((5.13/832)*100dvh) !important;
-     margin-bottom:calc((5/832)*100dvh) !important;
-     height: calc((36/832)*100dvh);
-     align-items: center;
-     gap:calc((10 / 1280) * 100dvw);;
-}
+  }
 
-.interactive_delete:hover {
-  filter: brightness(11%);
-}
-#leader_board, #dublicate,  .interactives_check > img{
-      width: calc((24/1280) * 100dvw) !important;
+  .interactives_buttons {
+    display: flex;
+    position: relative;
+    width: calc((152 / 1280) * 100dvw);
+    ;
+    margin-left: calc((77 / 1280) * 100dvw);
+    margin-top: calc((5.13/832)*100dvh) !important;
+    margin-bottom: calc((5/832)*100dvh) !important;
+    height: calc((36/832)*100dvh);
+    align-items: center;
+    gap: calc((10 / 1280) * 100dvw);
+    ;
+  }
+
+  .interactive_delete:hover {
+    filter: brightness(11%);
+  }
+
+  #leader_board,
+  #dublicate,
+  .interactives_check>img {
+    width: calc((24/1280) * 100dvw) !important;
     height: calc((24/832) * 100dvh) !important;
-}
-#edit{
+  }
+
+  #edit {
     width: calc((16/1280) * 100dvw) !important;
     height: calc((17/832) * 100dvh) !important;
-}
-.interactives_start > img{
-        width: calc((12/1280) * 100dvw) !important;
+  }
+
+  .interactives_start>img {
+    width: calc((12/1280) * 100dvw) !important;
     height: calc((17/832) * 100dvh) !important;
-}
-.interactives_leader_board, .interactives_check {
+  }
+
+  .interactives_leader_board,
+  .interactives_check {
     background-color: #6AB23D;
-}
-.interactives_leader_board:hover, .interactives_check:hover{
+  }
+
+  .interactives_leader_board:hover,
+  .interactives_check:hover {
     background-color: #9AC57E;
-}
-.interactives_dublicate {
+  }
+
+  .interactives_dublicate {
     background-color: #853CFF;
-}
-.interactives_dublicate:hover{
-    background-color: #AA77FF;;
-}
+  }
 
-.interactives_edit {
+  .interactives_dublicate:hover {
+    background-color: #AA77FF;
+    ;
+  }
+
+  .interactives_edit {
     background-color: #F0436C;
-}
-.interactives_edit:hover{
-    background-color: #DE7D94;;
-}
+  }
 
-.interactives_start {
+  .interactives_edit:hover {
+    background-color: #DE7D94;
+    ;
+  }
+
+  .interactives_start {
     background-color: #6AB23D;
-}
-.interactives_start:hover{
+  }
+
+  .interactives_start:hover {
     background-color: #9AC57E;
-}
-.interactive_delete {
-     width: calc((14 / 1280) * 100dvw);
+  }
+
+  .interactive_delete {
+    width: calc((14 / 1280) * 100dvw);
     height: calc((18 / 832) * 100dvh);
     cursor: pointer;
-}
-.interactive_delete > img{
+  }
+
+  .interactive_delete>img {
     width: calc((14/1280) * 100dvw) !important;
     height: calc((18/832) * 100dvh) !important;
-}
+  }
 
-.interactives_dublicate,
-.interactives_edit,
-.interactives_start,
-.interactives_leader_board, .interactives_check {
+  .interactives_dublicate,
+  .interactives_edit,
+  .interactives_start,
+  .interactives_leader_board,
+  .interactives_check {
     width: calc((36/1280) * 100dvw);
     height: calc((36/832) * 100dvh);
     display: flex;
@@ -1395,10 +1129,10 @@ input:focus {
     justify-content: center;
     border-radius: calc((5/832)*100dvh);
     cursor: pointer;
-}
+  }
 
-/* Стили для троеточия и dropdown */
-.interactives_dots {
+  /* Стили для троеточия и dropdown */
+  .interactives_dots {
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -1406,15 +1140,15 @@ input:focus {
     width: calc((30 / 1280) * 100dvw);
     height: calc((30 / 832) * 100dvh);
     margin: 0 auto;
-}
+  }
 
-.interactives_dots img {
+  .interactives_dots img {
     width: calc((30 / 1280) * 100dvw);
     height: calc((30 / 832) * 100dvh);
     background-color: #6AB23D;
-}
+  }
 
-.interactives_item-dropdown-options {
+  .interactives_item-dropdown-options {
     position: absolute;
     top: calc(100% + calc(7/832)*100dvh);
     box-shadow: 0px 1px 13.8px 0px #00000025;
@@ -1425,16 +1159,16 @@ input:focus {
     background: white;
     z-index: 665455;
 
-}
+  }
 
-.interactives_item-dropdown-option {
+  .interactives_item-dropdown-option {
     margin: 0 auto;
     display: flex;
     align-items: center;
     cursor: pointer;
     font-family: "Lato", sans-serif;
     color: #1D1D1D;
-   white-space: nowrap;
+    white-space: nowrap;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
@@ -1442,32 +1176,34 @@ input:focus {
     letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
     vertical-align: middle;
     width: calc((271/1280) * 100dvw);
-}
+  }
 
-.interactives_item-dropdown-option:hover {
+  .interactives_item-dropdown-option:hover {
     background-color: #DFDFDF;
     border-radius: calc((7/832)*100dvh);
-}
+  }
 
-.interactives_more_options {
+  .interactives_more_options {
     display: flex;
     align-items: center;
     justify-content: center;
-  width: calc((14 / 1280) * 100dvw);
+    width: calc((14 / 1280) * 100dvw);
     height: calc((18 / 832) * 100dvh);
     cursor: pointer;
     z-index: 0 !important;
-}
-.interactives_more_options:hover{
+  }
+
+  .interactives_more_options:hover {
     filter: brightness(11%);
-}
-.interactives_more_options>img {
+  }
+
+  .interactives_more_options>img {
     z-index: 0 !important;
     width: calc((9.75/1280) * 100dvw) !important;
     height: calc((18.75/1280) * 100dvw) !important;
-}
+  }
 
-.interactives_popup-overlay {
+  .interactives_popup-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -1479,169 +1215,188 @@ input:focus {
 
     display: flex;
     justify-content: center;
-}
+  }
 
-.interactives_popup {
+  .interactives_popup {
     background: white;
     border-radius: calc((18 / 832) * 100dvh);
     width: calc((524 / 1280) * 100dvw);
     height: calc((270 / 832) * 100dvh);
-        margin-top:calc((290 / 832) * 100dvh);
+    margin-top: calc((290 / 832) * 100dvh);
 
     position: relative;
-}
+  }
 
-.interactives_popup-close {
+  .interactives_popup-close {
     position: absolute;
     top: 25px;
     right: 25px;
     cursor: pointer;
     font-size: 30px;
     color: #aaa;
-}
+  }
 
-.interactives_popup-header-text {
-font-family: "Lato", sans-serif;
-font-weight: 700;
-font-style: Bold;
-font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-margin-top:calc((24/832)*100dvh);
-margin-left: calc((20/1280)*100dvw);
-line-height: clamp(10px, calc(32 / 1280 * 100dvw), 64px);;
-height: calc((64/832)*100dvh);
-}
+  .interactives_popup-header-text {
+    font-family: "Lato", sans-serif;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
+    margin-top: calc((24/832)*100dvh);
+    margin-left: calc((20/1280)*100dvw);
+    line-height: clamp(10px, calc(32 / 1280 * 100dvw), 64px);
+    ;
+    height: calc((64/832)*100dvh);
+  }
 
-.interactives_popup-body {margin-top:calc((20/832)*100dvh);
+  .interactives_popup-body {
+    margin-top: calc((20/832)*100dvh);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: calc((10/832)*100dvh);
-}
+  }
 
-.interactives_popup-button {
+  .interactives_popup-button {
     width: calc((360 / 1280) * 100dvw);
     height: calc((41 / 832) * 100dvh);
     border-radius: calc((8 / 832) * 100dvh);
     font-family: "Lato", sans-serif;
-font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
+    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
     font-weight: 500;
     border: none;
     cursor: pointer;
-}
+  }
 
-.interactives_popup-button:nth-child(2) {
-    background-color:#853CFF;border: calc((1.5/832)*100dvh) solid #853CFF !important;
+  .interactives_popup-button:nth-child(2) {
+    background-color: #853CFF;
+    border: calc((1.5/832)*100dvh) solid #853CFF !important;
     color: white;
-}
+  }
 
-.interactives_popup-button:nth-child(2):hover {
+  .interactives_popup-button:nth-child(2):hover {
     background-color: #AA77FF;
     border: calc((1.5/832)*100dvh) solid #853CFF !important;
-}
+  }
 
-.interactives_popup-button:nth-child(3) {
-    background-color: white !important;border: calc((1.5/832)*100dvh) solid #853CFF;
-    color:#853CFF;
-}
+  .interactives_popup-button:nth-child(3) {
+    background-color: white !important;
+    border: calc((1.5/832)*100dvh) solid #853CFF;
+    color: #853CFF;
+  }
 
-.interactives_popup-button:nth-child(3):hover {
-    background-color:#853CFF !important ; color: white !important;
-}
+  .interactives_popup-button:nth-child(3):hover {
+    background-color: #853CFF !important;
+    color: white !important;
+  }
 
-.interactives_popup-button:nth-child(1) {
+  .interactives_popup-button:nth-child(1) {
     background-color: #6ab23d;
     color: white;
-}
+  }
 
-.interactives_popup-button:nth-child(1):hover {
-    background-color:#559130;
-}
+  .interactives_popup-button:nth-child(1):hover {
+    background-color: #559130;
+  }
 
-.popup-overlay {
+  .popup-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-  background: #00000052;
+    background: #00000052;
     z-index: 10000999;
     display: flex;
     justify-content: center;
-}
+  }
 
-.popup {
+  .popup {
     background: white;
-      border-radius: calc((18 / 832) * 100dvh);
+    border-radius: calc((18 / 832) * 100dvh);
     width: calc((525 / 1280) * 100dvw);
     height: calc((233 / 832) * 100dvh);
-        margin-top:calc((273 / 832) * 100dvh) !important;
+    margin-top: calc((273 / 832) * 100dvh) !important;
     position: relative;
-}
+  }
 
-.popup-header-text {
+  .popup-header-text {
     font-family: "Lato", sans-serif;
     font-weight: 700;
-font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-line-height: clamp(10px, calc(32 / 1280 * 100dvw), 64px);
-height: calc(32 / 832 * 100dvh);
-letter-spacing: 1%;
-text-align: center;
-margin-top:calc(24 / 832 * 100dvh);
-display: flex;
-align-items: center;
-justify-content: center;
-}
+    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
+    line-height: clamp(10px, calc(32 / 1280 * 100dvw), 64px);
+    height: calc(32 / 832 * 100dvh);
+    letter-spacing: 1%;
+    text-align: center;
+    margin-top: calc(24 / 832 * 100dvh);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.popup-close{
-width: calc((16 / 1280) * 100dvw);
+  .popup-close {
+    width: calc((16 / 1280) * 100dvw);
     height: calc((16 / 832) * 100dvh);
     position: absolute;
     top: calc((20 / 832) * 100dvh);
-    right:  calc((20 / 1280) * 100dvw);
+    right: calc((20 / 1280) * 100dvw);
     cursor: pointer;
 
-}
-.popup-body {margin-top:calc((20 / 832) * 100dvh);
-}
-.popup-option.second{
-margin-top:calc((20 / 832) * 100dvh) !important;
-}
-.popup-option {height: calc(20 / 832 * 100dvh);
-    margin-left: calc(20 / 1280 * 100dvw) ;
+  }
+
+  .popup-body {
+    margin-top: calc((20 / 832) * 100dvh);
+  }
+
+  .popup-option.second {
+    margin-top: calc((20 / 832) * 100dvh) !important;
+  }
+
+  .popup-option {
+    height: calc(20 / 832 * 100dvh);
+    margin-left: calc(20 / 1280 * 100dvw);
     display: flex;
     align-items: center;
-font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
+    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
     cursor: pointer;
     position: relative;
-}
-.popup-option img{ width: calc((20 / 1280) * 100dvw);
+  }
+
+  .popup-option img {
+    width: calc((20 / 1280) * 100dvw);
     height: calc((20 / 832) * 100dvh);
 
-}
-.popup-option span {margin-left: calc(5 / 1280 * 100dvw) ;
+  }
+
+  .popup-option span {
+    margin-left: calc(5 / 1280 * 100dvw);
     font-family: "Lato", sans-serif;
     font-weight: 500;
     position: relative;
 
-font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-letter-spacing: clamp(0.10px, calc(16 /100/ 1280 * 100dvw), 0.32px);;
-vertical-align: middle;
+    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
+    letter-spacing: clamp(0.10px, calc(16 /100/ 1280 * 100dvw), 0.32px);
+    ;
+    vertical-align: middle;
 
-}
+  }
 
-.popup-footer {
-    margin-top:calc((40 / 832) * 100dvh);
-    display: flex; margin-left: calc(203 / 1280 * 100dvw) ;
-}
-.popup-footer > button{
+  .popup-footer {
+    margin-top: calc((40 / 832) * 100dvh);
+    display: flex;
+    margin-left: calc(203 / 1280 * 100dvw);
+  }
+
+  .popup-footer>button {
     width: calc((138 / 1280) * 100dvw);
     height: calc((41 / 832) * 100dvh);
-}
-.popup-submit {
-margin-left: calc(10 / 1280 * 100dvw)  !important;
-}
-.popup-submit {
+  }
+
+  .popup-submit {
+    margin-left: calc(10 / 1280 * 100dvw) !important;
+  }
+
+  .popup-submit {
     background-color: white;
     color: #853cff;
     border: calc((1.5 / 832) * 100dvh) solid #853cff;
@@ -1650,245 +1405,301 @@ margin-left: calc(10 / 1280 * 100dvw)  !important;
     border-radius: calc((8 / 832) * 100dvh);
     cursor: pointer;
     vertical-align: middle;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);;
-}
+    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
+    ;
+  }
 
-.popup-submit:hover {
-  background-color: #AA77FF; color: #FFFFFF;
-}
-.popup-cancel{
-     background-color: white;
-    color:#7D7D7D;
+  .popup-submit:hover {
+    background-color: #AA77FF;
+    color: #FFFFFF;
+  }
+
+  .popup-cancel {
+    background-color: white;
+    color: #7D7D7D;
     border: none;
     font-family: "Lato", sans-serif;
     font-weight: 500;
     border-radius: calc((8 / 832) * 100dvh);
     cursor: pointer;
     vertical-align: middle;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);;
-}
-.popup-cancel:hover {
- border: calc((1.5 / 832) * 100dvh) solid #1D1D1D !important; ; color:  #1D1D1D;
-}
-.interactives_delete_popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-   background: #00000052;
+    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
+    ;
+  }
 
-  z-index: 22222999;
+  .popup-cancel:hover {
+    border: calc((1.5 / 832) * 100dvh) solid #1D1D1D !important;
+    ;
+    color: #1D1D1D;
+  }
 
-  display: flex;
-  justify-content: center;
+  .interactives_delete_popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #00000052;
 
-}
+    z-index: 22222999;
 
-.interactives_delete_popup {
-     margin-top:calc((273/832)*100dvh);
-  background: white;
-  border-radius: calc((18/832)*100dvh);
-  width: calc((524/1280)*100dvw);
-height: calc((233/832)*100dvh);
+    display: flex;
+    justify-content: center;
 
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
 
-  position: relative;
-}
-.interactives_delete_popup-close {
-  position: absolute;
-  top: calc((20/832)*100dvh);
-  right: calc((20/1280)*100dvw);
-   width: calc((16/1280)*100dvw);
-height: calc((16/832)*100dvh);
-  cursor: pointer;
-  color: #aaa;
-}
-.interactives_delete_popup-close > img{
+  .interactives_delete_popup {
+    margin-top: calc((273/832)*100dvh);
+    background: white;
+    border-radius: calc((18/832)*100dvh);
+    width: calc((524/1280)*100dvw);
+    height: calc((233/832)*100dvh);
+
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+    position: relative;
+  }
+
+  .interactives_delete_popup-close {
+    position: absolute;
+    top: calc((20/832)*100dvh);
+    right: calc((20/1280)*100dvw);
     width: calc((16/1280)*100dvw);
-height: calc((16/832)*100dvh);
-}
-.interactives_delete_popup-header-text {
-  font-family: "Lato", sans-serif;
-  font-weight: 700;
-  font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
-  margin: 0 auto;
-  margin-top:calc((24/832)*100dvh);
-  margin-left:  calc((20/1280)*100dvw);;
-}
-.interactives_delete_popup-header-text_{  margin-left:  calc((20/1280)*100dvw);;
-    font-family: "Lato", sans-serif;  margin-top:calc((19/832)*100dvh); color:#7D7D7D;
-font-weight: 400;
-font-style: Regular;
-  font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-line-height: 120%;
-letter-spacing: 1%;
-vertical-align: middle;
+    height: calc((16/832)*100dvh);
+    cursor: pointer;
+    color: #aaa;
+  }
 
-}
-.interactives_delete_popup-body {margin-left:  calc((218/1280)*100dvw);;
-  display: flex; margin-top:calc((59/832)*100dvh);
+  .interactives_delete_popup-close>img {
+    width: calc((16/1280)*100dvw);
+    height: calc((16/832)*100dvh);
+  }
 
-}
-.interactives_delete_popup-button {
-   width: calc((138/1280)*100dvw) !important;
-height: calc((41/832)*100dvh);
-  border-radius: 8px;
-font-family: "Lato", sans-serif;
-font-weight: 500;
-font-style: Medium;
-  font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
-line-height: 120%;
-letter-spacing: 1%;
-text-align: center;
-vertical-align: middle;
+  .interactives_delete_popup-header-text {
+    font-family: "Lato", sans-serif;
+    font-weight: 700;
+    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
+    margin: 0 auto;
+    margin-top: calc((24/832)*100dvh);
+    margin-left: calc((20/1280)*100dvw);
+    ;
+  }
 
-}
-.interactives_delete_popup-button:nth-child(1) {
-  background-color: white; color:#7D7D7D;border:none;;
-}
-.interactives_delete_popup-button:nth-child(1):hover {
-  color: #1D1D1D;
-   border: calc((1.5/832)*100dvh) solid #1D1D1D;
+  .interactives_delete_popup-header-text_ {
+    margin-left: calc((20/1280)*100dvw);
+    ;
+    font-family: "Lato", sans-serif;
+    margin-top: calc((19/832)*100dvh);
+    color: #7D7D7D;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
+    line-height: 120%;
+    letter-spacing: 1%;
+    vertical-align: middle;
 
-}
-.interactives_delete_popup-button:nth-child(2) {margin-left:  calc((10/1280)*100dvw);;
-  background-color: white;
-  color: #F0436C;
-  border: calc((1.5/832)*100dvh) solid #F0436C;
-  border-color: #F0436C;
-}
-.interactives_delete_popup-button:nth-child(2):hover {
-  background-color:  #F0436C;
-  color: white;
-}
-.settings_popup-overlay {
-  font-family: "Lato", sans-serif;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #00000052 !important;
-  display: flex;
-  justify-content: center;
-  z-index: 1000;
+  }
 
-}
+  .interactives_delete_popup-body {
+    margin-left: calc((218/1280)*100dvw);
+    ;
+    display: flex;
+    margin-top: calc((59/832)*100dvh);
 
-.settings_popup-content { margin-top:calc((273/832)*100dvh);
-  background: white;
-   width: calc((524 / 1280) * 100dvw);
+  }
+
+  .interactives_delete_popup-button {
+    width: calc((138/1280)*100dvw) !important;
+    height: calc((41/832)*100dvh);
+    border-radius: 8px;
+    font-family: "Lato", sans-serif;
+    font-weight: 500;
+    font-style: Medium;
+    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
+    line-height: 120%;
+    letter-spacing: 1%;
+    text-align: center;
+    vertical-align: middle;
+
+  }
+
+  .interactives_delete_popup-button:nth-child(1) {
+    background-color: white;
+    color: #7D7D7D;
+    border: none;
+    ;
+  }
+
+  .interactives_delete_popup-button:nth-child(1):hover {
+    color: #1D1D1D;
+    border: calc((1.5/832)*100dvh) solid #1D1D1D;
+
+  }
+
+  .interactives_delete_popup-button:nth-child(2) {
+    margin-left: calc((10/1280)*100dvw);
+    ;
+    background-color: white;
+    color: #F0436C;
+    border: calc((1.5/832)*100dvh) solid #F0436C;
+    border-color: #F0436C;
+  }
+
+  .interactives_delete_popup-button:nth-child(2):hover {
+    background-color: #F0436C;
+    color: white;
+  }
+
+  .settings_popup-overlay {
+    font-family: "Lato", sans-serif;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #00000052 !important;
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+
+  }
+
+  .settings_popup-content {
+    margin-top: calc((273/832)*100dvh);
+    background: white;
+    width: calc((524 / 1280) * 100dvw);
     height: calc((233 / 832) * 100dvh);
     border-radius: calc((18/832)*100dvh);
     box-sizing: border-box;
 
-}
+  }
 
-.settings_popup-text {    margin-top:calc((24/832)*100dvh) !important;
+  .settings_popup-text {
+    margin-top: calc((24/832)*100dvh) !important;
     margin-left: calc((20/1280)*100dvw) !important;
     font-family: "Lato", sans-serif;
-font-weight: 700;
-font-style: Bold;
-    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px); letter-spacing: clamp(0.20px, calc((20 /100/ 1280) * 100dvw), 0.4px);;
-}
-.settings_popup-text_{height:calc((47/832)*100dvh)  ;
-     margin-top:calc((19/832)*100dvh) !important;
-    margin-left: calc((20/1280)*100dvw) !important;line-height:calc((19.2 / 1280) * 100dvw) ;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
+    letter-spacing: clamp(0.20px, calc((20 /100/ 1280) * 100dvw), 0.4px);
+    ;
+  }
+
+  .settings_popup-text_ {
+    height: calc((47/832)*100dvh);
+    margin-top: calc((19/832)*100dvh) !important;
+    margin-left: calc((20/1280)*100dvw) !important;
+    line-height: calc((19.2 / 1280) * 100dvw);
 
     font-family: "Lato", sans-serif;
-font-weight: 400;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);color: #7D7D7D;
-    letter-spacing: clamp(0.10px, calc((16 /100/ 1280) * 100dvw), 0.32px);;
-vertical-align: middle;
+    font-weight: 400;
+    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
+    color: #7D7D7D;
+    letter-spacing: clamp(0.10px, calc((16 /100/ 1280) * 100dvw), 0.32px);
+    ;
+    vertical-align: middle;
 
-}
-.settings_popup-buttons {display: flex;
-  margin-top:calc((50/832)*100dvh) ;
-  margin-left: calc((218 / 1280) * 100dvw);
+  }
 
-}
-.settings_popup-btn.confirm{
-      margin-left: calc((10 / 1280) * 100dvw);
+  .settings_popup-buttons {
+    display: flex;
+    margin-top: calc((50/832)*100dvh);
+    margin-left: calc((218 / 1280) * 100dvw);
 
-}
-.settings_popup-btn {
-  width: calc((138 / 1280) * 100dvw);
-  height: calc((41/832)*100dvh) ;
- font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
-  font-family: "Lato", sans-serif;
-  border-radius: calc((8/832)*100dvh);
-  cursor: pointer;
+  }
+
+  .settings_popup-btn.confirm {
+    margin-left: calc((10 / 1280) * 100dvw);
+
+  }
+
+  .settings_popup-btn {
+    width: calc((138 / 1280) * 100dvw);
+    height: calc((41/832)*100dvh);
+    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
+    font-family: "Lato", sans-serif;
+    border-radius: calc((8/832)*100dvh);
+    cursor: pointer;
+  }
+
+  .settings_popup-btn.confirm {
+    background-color: #6ab23d;
+    border: calc((1.5/832)*100dvh) solid #6ab23d;
+    color: white;
+  }
+
+  .settings_popup-btn.confirm:hover {
+    background-color: #559130;
+    border: calc((1.5/832)*100dvh) solid #559130;
+  }
+
+  .settings_popup-btn.cancel {
+    background-color: #FFFFFF;
+    border: calc((1.5/832)*100dvh) solid #853CFF;
+    color: #853CFF;
+  }
+
+  .settings_popup-btn.cancel:hover {
+    color: #FFFFFF;
+    background-color: #AA77FF;
+  }
+
+  .settings_popup-btn.cancel.delete {
+    background-color: #FFFFFF;
+    border: none;
+    color: #7D7D7D;
+  }
+
+  .settings_popup-btn.cancel.delete:hover {
+    color: #1D1D1D;
+    border: calc((1.5/832)*100dvh) solid#1D1D1D;
+  }
+
+  .settings_popup-btn.confirm.delete {
+    background-color: white;
+    border: calc((1.5/832)*100dvh) #F0436C;
+    color: #F0436C;
+  }
+
+  .settings_popup-btn.confirm.delete:hover {
+    background-color: #F0436C;
+    color: white;
+    border: calc((1.5/832)*100dvh) solid#F0436C;
+  }
+
+  .height {
+    height: calc((173 / 832) * 100dvh) !important;
+  }
+
+  .margin {
+    margin-top: calc((18/832)*100dvh) !important;
+    margin-left: calc((203/1280)*100dvw) !important;
+  }
+
+  .margin_text {
+    height: calc((64 / 832) * 100dvh) !important;
+  }
+
+  .margin_left {
+    width: calc((150 / 1280) * 100dvw) !important;
+  }
 }
 
-.settings_popup-btn.confirm {
-  background-color: #6ab23d;
-  border: calc((1.5/832)*100dvh) solid #6ab23d;
-  color: white;
-}
+@media (min-width:1918px) and (min-height:1078px) {
 
-.settings_popup-btn.confirm:hover {
-   background-color: #559130;
-  border: calc((1.5/832)*100dvh) solid #559130;
-}
-
-.settings_popup-btn.cancel {
-  background-color: #FFFFFF;
-  border: calc((1.5/832)*100dvh) solid #853CFF;
-  color: #853CFF;
-}
-
-.settings_popup-btn.cancel:hover {color: #FFFFFF;
-  background-color: #AA77FF;
-}
-
-.settings_popup-btn.cancel.delete {
-  background-color: #FFFFFF;
-  border:none;
-  color: #7D7D7D;
-}
-
-.settings_popup-btn.cancel.delete:hover {color:#1D1D1D;
-  border: calc((1.5/832)*100dvh) solid#1D1D1D;
-}
-.settings_popup-btn.confirm.delete {
-  background-color:white;
-  border: calc((1.5/832)*100dvh) #F0436C;
-  color: #F0436C;
-}
-
-.settings_popup-btn.confirm.delete:hover {
-   background-color: #F0436C; color: white;
-  border: calc((1.5/832)*100dvh) solid#F0436C;
-}
-.height{
-      height: calc((173 / 832) * 100dvh)  !important;
-}
-.margin{
-      margin-top:calc((18/832)*100dvh)  !important;
-      margin-left: calc((203/1280)*100dvw) !important;
-}
-.margin_text{
-     height: calc((64 / 832) * 100dvh)  !important;
-}
-.margin_left{
-     width: calc((150 / 1280) * 100dvw) !important;
-}
-}
-@media (min-width:1918px) and (min-height:1078px){
-
-     .interactives_margins{width: 1056px;
-        box-sizing: border-box;
+  .interactives_margins {
+    width: 1056px;
+    box-sizing: border-box;
     padding: 0;
     margin: 0;
-       margin:0 auto 0 auto;
-    }
-.interactives_list_list_item_actions {
-    position: relative;
-}
+    margin: 0 auto 0 auto;
+  }
 
-.interactives {
+  .interactives_list_list_item_actions {
+    position: relative;
+  }
+
+  .interactives {
     width: 100dvw;
     height: 100dvh;
     box-sizing: border-box;
@@ -1897,17 +1708,17 @@ vertical-align: middle;
     background-color: white;
     position: relative;
     overflow-x: hidden;
-}
+  }
 
-.interactives_finder {
+  .interactives_finder {
     width: 1056px;
     margin-top: 61px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-}
+  }
 
-.interactives_finder_header {
+  .interactives_finder_header {
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -1915,31 +1726,31 @@ vertical-align: middle;
     letter-spacing: 0.16px;
     vertical-align: middle;
     color: #1D1D1D;
-}
+  }
 
-.interactives_finder_finder {
+  .interactives_finder_finder {
     position: relative;
     display: flex;
     align-items: center;
-}
+  }
 
-.interactives_search-input {
+  .interactives_search-input {
     width: 765px;
     height: 39px;
-    line-height:39px;
+    line-height: 39px;
     color: #1D1D1D !important;
     border: 1.5px solid #E0E0E0;
-    border-radius:8px;
+    border-radius: 8px;
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-size: 16px;
     display: flex;
     align-items: center;
-    padding-left:50px;
-       box-sizing: border-box;
-}
+    padding-left: 50px;
+    box-sizing: border-box;
+  }
 
-.interactives_search-input::placeholder {
+  .interactives_search-input::placeholder {
     line-height: 39px;
     display: flex;
     align-items: center;
@@ -1947,27 +1758,28 @@ vertical-align: middle;
     font-weight: 500;
     font-size: 16px;
     color: #A9A9A9;
-}
+  }
 
-.interactives_input-icon {
+  .interactives_input-icon {
     position: absolute;
     left: 17px;
     top: 50%;
     transform: translateY(-50%);
-    width:19px;
+    width: 19px;
     height: 19px;
     pointer-events: none;
-}
+  }
 
-.interactives_create {
+  .interactives_create {
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: #6AB23D;
-    border-radius:5px;white-space: nowrap ;
-     width: 261px;
-    height:39px;
+    border-radius: 5px;
+    white-space: nowrap;
+    width: 261px;
+    height: 39px;
     font-family: "Lato", sans-serif;
     font-weight: 500;
     font-style: Medium;
@@ -1976,77 +1788,101 @@ vertical-align: middle;
     text-align: center;
     vertical-align: middle;
     color: white;
-    margin-left: 30px;;    border: 1.5px solid #6AB23D;
-}
-.interactives_create:hover{
-    background-color: white;color:#6AB23D;
+    margin-left: 30px;
+    ;
     border: 1.5px solid #6AB23D;
-}
-.interactives_input-group_type {
+  }
+
+  .interactives_create:hover {
+    background-color: white;
+    color: #6AB23D;
+    border: 1.5px solid #6AB23D;
+  }
+
+  .interactives_input-group_type {
     position: relative;
     z-index: 1000;
     height: 36px;
     width: 47px !important;
-}
+  }
 
-.interactives_input-group_type select {
+  .interactives_input-group_type select {
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
     height: 47px;
-    border-radius: 14px;;
+    border-radius: 14px;
+    ;
     box-sizing: border-box;
-    font-size: 16px;;
-}
+    font-size: 16px;
+    ;
+  }
 
-.interactives_input-group_row {
+  .interactives_input-group_row {
     display: flex;
     width: 159px;
-    height: 47px;;
+    height: 47px;
+    ;
     align-items: center;
-    border-radius:14px;;
+    border-radius: 14px;
+    ;
     background-color: #F3F3F3;
-}
+  }
 
-/* Кастомный выпадающий список */
-.interactives_custom-dropdown {
-    margin-top: 20px;;
+  /* Кастомный выпадающий список */
+  .interactives_custom-dropdown {
+    margin-top: 20px;
+    ;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width:121px;;;
-    height:36px;;
-    border-radius: 14px;;
+    width: 121px;
+    ;
+    ;
+    height: 36px;
+    ;
+    border-radius: 14px;
+    ;
     background-color: #F3F3F3;
     box-sizing: border-box;
     cursor: pointer;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
-    font-size: 16px !important;;
+    font-size: 16px !important;
+    ;
     z-index: 999;
     letter-spacing: 0.1px;
     vertical-align: middle;
     box-sizing: border-box;
-    padding-left: 15px;;
-    padding-right: 15px;;
-}
-.interactives_custom-dropdown:hover{
+    padding-left: 15px;
+    ;
+    padding-right: 15px;
+    ;
+  }
+
+  .interactives_custom-dropdown:hover {
     background-color: #DFDFDF;
-}
-.interactives_custom-arrow {
-    width: 16px;;
+  }
+
+  .interactives_custom-arrow {
+    width: 16px;
+    ;
     height: 9px;
     display: flex;
-}
+  }
 
-/* Стили для списка - ИЗМЕНЕНИЯ ЗДЕСЬ */
-.interactives_custom-dropdown-options {
+  /* Стили для списка - ИЗМЕНЕНИЯ ЗДЕСЬ */
+  .interactives_custom-dropdown-options {
     box-shadow: 0px 1px 13.8px 0px #00000040;
-    border-radius: 8px;;
+    border-radius: 8px;
+    ;
     width: 179px !important;
-    height: 103px;;;
-    margin-top: 10px;;
+    height: 103px;
+    ;
+    ;
+    margin-top: 10px;
+    ;
     position: absolute;
     top: 100%;
     /* Позиционируем относительно родителя */
@@ -2055,250 +1891,302 @@ vertical-align: middle;
     /* Увеличиваем z-index */
     background-color: white;
     /* Добавляем фон */
-}
+  }
 
-.interactives_custom-dropdown-option-list {
-    margin-top: 15px;;
-    margin-left: 15px;;
+  .interactives_custom-dropdown-option-list {
+    margin-top: 15px;
+    ;
+    margin-left: 15px;
+    ;
     z-index: 10000;
     /* Увеличиваем z-index */
-}
+  }
 
-.interactives_custom-dropdown-options_header {
+  .interactives_custom-dropdown-options_header {
     font-family: "Lato", sans-serif;
     font-weight: 600;
-    font-size: 16px;;
+    font-size: 16px;
+    ;
 
     vertical-align: middle;
-    margin-top: 7px;;
-    margin-left: 41px;;
-}
+    margin-top: 7px;
+    ;
+    margin-left: 41px;
+    ;
+  }
 
-.interactives_custom-dropdown-selected {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size:16px;;
-    letter-spacing: 0.32px;;
-    vertical-align: middle;
-}
-
-.interactives_custom-dropdown-option {
-    display: flex;
-    align-items: center;
-    margin-top: 9px;
-    height: 19px;;
-    cursor: pointer;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-   font-size:20px;;
-    letter-spacing: 0.2px;;
-    vertical-align: middle;
-}
-
-.interactives_custom-dropdown-circle {
-    width:17px;
-    height: 17px;
-    display: flex;
-    cursor: pointer;
-    justify-content: center;
-}
-
-.interactives_custom-dropdown-circle>img {
-    width: 17px;
-    height:17px;
-}
-
-.interactives_custom-dropdown-text {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-   font-size:16px;;
-    letter-spacing: 0.32px;;
-    vertical-align: middle;
-    margin-left:5px;;;
-    display: flex;
-    align-items: center;
-}
-
-.interactives_input-group_score {
-    display: flex;
-    align-items: center;
-    margin-left: 58px;;
-}
-
-textarea:focus,
-input:focus {
-    border-color: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-.interactives_input-group_score>input {
-    margin-left: 10px;;
-    width: 73px;;
-    height: 42px;;
-    border: 1.5px solid #E0E0E0;
-    box-sizing: border-box;
-    border-radius: 8px;
-    box-sizing: border-box;
-    padding: 12px 12px;;
-    font-size: 16px;;
-}
-
-.interactives_input-group_score>div {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size:16px;;
-    width: 55px;;
-    line-height: 120%;
-    letter-spacing: 1%;
-    vertical-align: middle;
-}
-
-.interactives_empty_list_info {
-    margin-top: 34px;;
-    margin-left:290px;;
-    width: 475px;;
-    display: grid;
-    justify-items: center;
-}
-
-.interactives_empty_list_info>img {
-    width: 54px;
-    height: 54px;
-}
-
-.interactives_empty_list_info_h1 {
-    margin-top: 10px;
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-style: Bold;
- font-size:20px;;
-    letter-spacing: 0.2px;;
-    vertical-align: middle;
-    text-align: center;
-    vertical-align: middle;
-    color: #7D7D7D;
-}
-
-.interactives_empty_list_info_h2 {
-    margin-top: 5px;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-style: Bold;
- font-size:14px;;
-    letter-spacing: 0.14px;;
-    vertical-align: middle;
-    text-align: center;
-    vertical-align: middle;
-    color: #7D7D7D;
-}
-
-.interactives_list {
-    width: 1056px;
-    margin-top:27px;;
-    padding-bottom: 100px;;
-}
-
-.interactives_list_header {
-    display: flex;
-    margin-left: 22px;;
+  .interactives_custom-dropdown-selected {
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
     font-size: 16px;
-    letter-spacing: 0.16px;;
+    ;
+    letter-spacing: 0.32px;
+    ;
+    vertical-align: middle;
+  }
+
+  .interactives_custom-dropdown-option {
+    display: flex;
+    align-items: center;
+    margin-top: 9px;
+    height: 19px;
+    ;
+    cursor: pointer;
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 20px;
+    ;
+    letter-spacing: 0.2px;
+    ;
+    vertical-align: middle;
+  }
+
+  .interactives_custom-dropdown-circle {
+    width: 17px;
+    height: 17px;
+    display: flex;
+    cursor: pointer;
+    justify-content: center;
+  }
+
+  .interactives_custom-dropdown-circle>img {
+    width: 17px;
+    height: 17px;
+  }
+
+  .interactives_custom-dropdown-text {
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 16px;
+    ;
+    letter-spacing: 0.32px;
+    ;
+    vertical-align: middle;
+    margin-left: 5px;
+    ;
+    ;
+    display: flex;
+    align-items: center;
+  }
+
+  .interactives_input-group_score {
+    display: flex;
+    align-items: center;
+    margin-left: 58px;
+    ;
+  }
+
+  textarea:focus,
+  input:focus {
+    border-color: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+
+  .interactives_input-group_score>input {
+    margin-left: 10px;
+    ;
+    width: 73px;
+    ;
+    height: 42px;
+    ;
+    border: 1.5px solid #E0E0E0;
+    box-sizing: border-box;
+    border-radius: 8px;
+    box-sizing: border-box;
+    padding: 12px 12px;
+    ;
+    font-size: 16px;
+    ;
+  }
+
+  .interactives_input-group_score>div {
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 16px;
+    ;
+    width: 55px;
+    ;
+    line-height: 120%;
+    letter-spacing: 1%;
+    vertical-align: middle;
+  }
+
+  .interactives_empty_list_info {
+    margin-top: 34px;
+    ;
+    margin-left: 290px;
+    ;
+    width: 475px;
+    ;
+    display: grid;
+    justify-items: center;
+  }
+
+  .interactives_empty_list_info>img {
+    width: 54px;
+    height: 54px;
+  }
+
+  .interactives_empty_list_info_h1 {
+    margin-top: 10px;
+    font-family: "Lato", sans-serif;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 20px;
+    ;
+    letter-spacing: 0.2px;
+    ;
+    vertical-align: middle;
+    text-align: center;
+    vertical-align: middle;
+    color: #7D7D7D;
+  }
+
+  .interactives_empty_list_info_h2 {
+    margin-top: 5px;
+    font-family: "Lato", sans-serif;
+    font-weight: 500;
+    font-style: Bold;
+    font-size: 14px;
+    ;
+    letter-spacing: 0.14px;
+    ;
+    vertical-align: middle;
+    text-align: center;
+    vertical-align: middle;
+    color: #7D7D7D;
+  }
+
+  .interactives_list {
+    width: 1056px;
+    margin-top: 27px;
+    ;
+    padding-bottom: 100px;
+    ;
+  }
+
+  .interactives_list_header {
+    display: flex;
+    margin-left: 22px;
+    ;
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 16px;
+    letter-spacing: 0.16px;
+    ;
     text-align: center;
     vertical-align: middle;
     color: #A9A9A9;
-    margin-bottom: 15px;;
-}
+    margin-bottom: 15px;
+    ;
+  }
 
-.interactives_list_header_title {
+  .interactives_list_header_title {
     width: 89px;
 
-}
-.interactives_list_header_leadername{
+  }
+
+  .interactives_list_header_leadername {
     width: 96px;
-      text-align: center;
-      margin-left: 189px;;
-}
-.interactives_list_header_date {
+    text-align: center;
+    margin-left: 189px;
+    ;
+  }
+
+  .interactives_list_header_date {
     margin-left: 47px;
     text-align: center;
-    width:96px;
-}
+    width: 96px;
+  }
 
-.interactives_list_header_status {
+  .interactives_list_header_status {
     margin-left: 38px;
     text-align: center;
     width: 102px;
-}
+  }
 
-.interactives_list_header_count {
+  .interactives_list_header_count {
     margin-left: 20px;
     text-align: center;
     width: 192px;
-}
+  }
 
-.interactives_list_list {
+  .interactives_list_list {
     display: flex;
     flex-direction: column;
-}
+  }
 
-.interactives_list_list_item {
+  .interactives_list_list_item {
     display: flex;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
-   font-size: 16px;
-    letter-spacing: 0.16px;;
+    font-size: 16px;
+    letter-spacing: 0.16px;
+    ;
     text-align: center;
     vertical-align: middle;
-}
+  }
 
-.interactives_list_list_item>img {
+  .interactives_list_list_item>img {
     height: 18px;
     width: 14px;
     margin-left: auto;
     margin-right: 22px;
-}
-.interactives_list_list_item > div{
+  }
 
-      line-height: 19.2px;
-}
-.interactives_list_list_item_title,
-.interactives_list_list_item_leadername {
-    position: relative; /* для ::after */
+  .interactives_list_list_item>div {
+
+    line-height: 19.2px;
+  }
+
+  .interactives_list_list_item_title,
+  .interactives_list_list_item_leadername {
+    position: relative;
+    /* для ::after */
     display: -webkit-box;
     -webkit-box-orient: vertical;
     overflow: hidden;
     cursor: pointer;
     white-space: nowrap;
-}
-.interactives_Line {
+  }
+
+  .interactives_Line {
     background-color: #e9e9e9 !important;
     height: 1px !important;
-}
+  }
 
-.interactives_list_list_item_title {
-       margin-top:15px;;
-     margin-bottom:15px;;
-    margin-left: 22px;;
-    width: 222px;;
+  .interactives_list_list_item_title {
+    margin-top: 15px;
+    ;
+    margin-bottom: 15px;
+    ;
+    margin-left: 22px;
+    ;
+    width: 222px;
+    ;
     text-align: left;
-}
-.interactives_list_list_item_leadername {
-       margin-top:15px;;
-     margin-bottom:15px;;
-    margin-left: 29px;;
-    width: 150px;;
+  }
+
+  .interactives_list_list_item_leadername {
+    margin-top: 15px;
+    ;
+    margin-bottom: 15px;
+    ;
+    margin-left: 29px;
+    ;
+    width: 150px;
+    ;
     text-align: left;
-}
-.title-clamp::after {
+  }
+
+  .title-clamp::after {
     content: "";
     position: absolute;
     right: 0;
@@ -2306,153 +2194,195 @@ input:focus {
     width: 31px;
     height: 100%;
     pointer-events: none;
-    background: linear-gradient(85.63deg, rgba(255,255,255,0.4) 29.36%, #ffffff 89.3%);
-}
-.interactives_list_list_item_leadername.expanded,
-.interactives_list_list_item_title.expanded {
+    background: linear-gradient(85.63deg, rgba(255, 255, 255, 0.4) 29.36%, #ffffff 89.3%);
+  }
+
+  .interactives_list_list_item_leadername.expanded,
+  .interactives_list_list_item_title.expanded {
     white-space: normal;
     word-break: break-word;
     overflow-wrap: break-word;
-}
+  }
 
-.title-clamp.expanded::after {
-    display: none; /* только у текущего элемента с expanded */
-}
-.interactives_list_list_item_date {
-       margin-top:15px;;
-     margin-bottom:15px;;
-     margin-left: 13px;;
+  .title-clamp.expanded::after {
+    display: none;
+    /* только у текущего элемента с expanded */
+  }
+
+  .interactives_list_list_item_date {
+    margin-top: 15px;
+    ;
+    margin-bottom: 15px;
+    ;
+    margin-left: 13px;
+    ;
     width: 111px;
     text-align: center;
-}
+  }
 
-.interactives_list_list_item_status {
-       margin-top:15px;;
-     margin-bottom:15px;;
+  .interactives_list_list_item_status {
+    margin-top: 15px;
+    ;
+    margin-bottom: 15px;
+    ;
     margin-left: 17px !important;
     width: 128px;
     text-align: center;
-}
+  }
 
-.interactives_list_list_item_count {
-       margin-top:15px;;
-     margin-bottom:15px;;
+  .interactives_list_list_item_count {
+    margin-top: 15px;
+    ;
+    margin-bottom: 15px;
+    ;
     margin-left: 69px;
     width: 68px;
     text-align: center;
-}
+  }
 
-.interactives_show_more {white-space: nowrap;
-    width: 104px;;
-    margin-left: 476px;;
-    margin-top: 15px;;
+  .interactives_show_more {
+    white-space: nowrap;
+    width: 104px;
+    ;
+    margin-left: 476px;
+    ;
+    margin-top: 15px;
+    ;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
- font-size: 16px;
-    letter-spacing: 0.16px;;
+    font-size: 16px;
+    letter-spacing: 0.16px;
+    ;
     text-align: center;
     vertical-align: middle;
     color: #853CFF;
-    cursor: pointer; position: relative;
-}
-/* Полоска */
-.interactives_show_more::after {
+    cursor: pointer;
+    position: relative;
+  }
+
+  /* Полоска */
+  .interactives_show_more::after {
     content: "";
     position: absolute;
     left: 0;
-    bottom: 1px;             /* расстояние от текста */
+    bottom: 1px;
+    /* расстояние от текста */
     width: 100%;
-    height: 1.5px;              /* толщина полоски */
-    background: #853CFF;transform: scaleX(0);
-}
+    height: 1.5px;
+    /* толщина полоски */
+    background: #853CFF;
+    transform: scaleX(0);
+  }
 
-/* Появляется при наведении */
-.interactives_show_more:hover::after {
+  /* Появляется при наведении */
+  .interactives_show_more:hover::after {
     transform: scaleX(1);
-}
-.interactives_buttons {
-    display: flex;position: relative;
-    width: 152px;;
-    margin-left: 77px;
-     margin-top:5px !important;
-     margin-bottom:5px !important;
-     height: 36px;
-     align-items: center;
-     gap:10px;;;
-}
+  }
 
-#leader_board  {
+  .interactives_buttons {
+    display: flex;
+    position: relative;
+    width: 152px;
+    ;
+    margin-left: 77px;
+    margin-top: 5px !important;
+    margin-bottom: 5px !important;
+    height: 36px;
+    align-items: center;
+    gap: 10px;
+    ;
+    ;
+  }
+
+  #leader_board {
     height: 24px !important;
     width: 24px !important;
-}
+  }
 
-#leader_board, #dublicate, .interactives_check > img{
-     height:24px !important;
+  #leader_board,
+  #dublicate,
+  .interactives_check>img {
+    height: 24px !important;
     width: 24px !important;
-}
-#edit{
-    height:16px !important;
+  }
+
+  #edit {
+    height: 16px !important;
     width: 17px !important;
-}
-.interactives_leader_board, .interactives_check  {
+  }
+
+  .interactives_leader_board,
+  .interactives_check {
     background-color: #6AB23D;
-}
-.interactives_leader_board:hover, .interactives_check:hover {
+  }
+
+  .interactives_leader_board:hover,
+  .interactives_check:hover {
     background-color: #9AC57E;
-}
-.interactives_dublicate {
+  }
+
+  .interactives_dublicate {
     background-color: #853CFF;
-}
-.interactives_dublicate:hover{
+  }
+
+  .interactives_dublicate:hover {
     background-color: #AA77FF;
-}
+  }
 
-.interactives_edit {
+  .interactives_edit {
     background-color: #F0436C;
-}
-.interactives_edit:hover{
-    background-color: #DE7D94;
-}
+  }
 
-.interactives_start {
+  .interactives_edit:hover {
+    background-color: #DE7D94;
+  }
+
+  .interactives_start {
     background-color: #6AB23D;
-}
-.interactives_start:hover{
+  }
+
+  .interactives_start:hover {
     background-color: #9AC57E;
-}
-.interactive_delete {
+  }
+
+  .interactive_delete {
     width: 14px !important;
     height: 18px !important;
     cursor: pointer;
-}
-.interactive_delete:hover {
-  filter: brightness(11%);
-}
-.interactives_more_options:hover{
+  }
+
+  .interactive_delete:hover {
     filter: brightness(11%);
-}
-.interactive_delete > img {
+  }
+
+  .interactives_more_options:hover {
+    filter: brightness(11%);
+  }
+
+  .interactive_delete>img {
 
     width: 14px !important;
     height: 18px !important;
-}
+  }
 
-.interactives_dublicate,
-.interactives_edit,
-.interactives_start,
-.interactives_leader_board,.interactives_check {
+  .interactives_dublicate,
+  .interactives_edit,
+  .interactives_start,
+  .interactives_leader_board,
+  .interactives_check {
     width: 36px !important;
     height: 36px !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 5px;;
+    border-radius: 5px;
+    ;
     cursor: pointer;
-}
+  }
 
-/* Стили для троеточия и dropdown */
-.interactives_dots {
+  /* Стили для троеточия и dropdown */
+  .interactives_dots {
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -2461,16 +2391,16 @@ input:focus {
     height: 30px;
 
     background-color: #7D7D7D;
-}
+  }
 
-.interactives_dots img {
+  .interactives_dots img {
     width: 30px;
     height: 30px;
 
     background-color: #6AB23D;
-}
+  }
 
-.interactives_item-dropdown-options {
+  .interactives_item-dropdown-options {
     position: absolute;
     top: calc(100% + 7px);
     box-shadow: 0px 1px 13.8px 0px #00000025;
@@ -2481,9 +2411,9 @@ input:focus {
     background: white;
     z-index: 665455;
 
-}
+  }
 
-.interactives_item-dropdown-option {
+  .interactives_item-dropdown-option {
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -2494,53 +2424,74 @@ input:focus {
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
-    font-size:20px;
-    letter-spacing:0.2px;
+    font-size: 20px;
+    letter-spacing: 0.2px;
     vertical-align: middle;
     width: 271px;
-}
-#first_option{height: 24px;;
-    margin-top:22px !important;
-}
-#first_option_img{
-    width: 24px !important;height: 24px !important;;
-    margin-left: 24px !important;;
-}
-#first_option> span{
+  }
+
+  #first_option {
+    height: 24px;
+    ;
+    margin-top: 22px !important;
+  }
+
+  #first_option_img {
+    width: 24px !important;
+    height: 24px !important;
+    ;
+    margin-left: 24px !important;
+    ;
+  }
+
+  #first_option>span {
     margin-left: 9px !important;
-}
-#second_option{height: 24px;;
-    margin-top:14px !important;
-}
-#second_option_img{ margin-left: 24px !important;;
-    width: 24px !important;height: 24px !important;;
-}
-#second_option> span{
+  }
+
+  #second_option {
+    height: 24px;
+    ;
+    margin-top: 14px !important;
+  }
+
+  #second_option_img {
+    margin-left: 24px !important;
+    ;
+    width: 24px !important;
+    height: 24px !important;
+    ;
+  }
+
+  #second_option>span {
     margin-left: 9px !important;
-}
-.interactives_item-dropdown-option:hover {
+  }
+
+  .interactives_item-dropdown-option:hover {
     background-color: #DFDFDF;
     border-radius: 7px;
-}
+  }
 
-.interactives_more_options {
+  .interactives_more_options {
 
     display: flex;
     align-items: center;
     justify-content: center;
-      width: 14px;;
+    width: 14px;
+    ;
     height: 18px;
     cursor: pointer;
     z-index: 0 !important;
-}
+  }
 
-#more_options {
+  #more_options {
     z-index: 0 !important;
-  width:3.75px;;
-    height: 18.75px;;
-}
+    width: 3.75px;
+    ;
+    height: 18.75px;
+    ;
+  }
 
-.interactives_popup-overlay {
+  .interactives_popup-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -2552,395 +2503,489 @@ input:focus {
 
     display: flex;
     justify-content: center;
-}
+  }
 
-.interactives_popup {
+  .interactives_popup {
     background: white;
-    border-radius: 18px;;
-    width: 524px;;
+    border-radius: 18px;
+    ;
+    width: 524px;
+    ;
     height: 270px;
-    margin-top:290px;
+    margin-top: 290px;
 
     position: relative;
-}
+  }
 
-.interactives_popup-close {
+  .interactives_popup-close {
     position: absolute;
     top: 25px;
     right: 25px;
     cursor: pointer;
     font-size: 30px;
     color: #aaa;
-}
+  }
 
-.interactives_popup-header-text {
-font-family: "Lato", sans-serif;
-font-weight: 700;
-font-style: Bold;
-font-size: 20px;
-margin-top:24px;;
-margin-left: 20px;
-line-height: 32px;;
-height: 64px;
-}
+  .interactives_popup-header-text {
+    font-family: "Lato", sans-serif;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 20px;
+    margin-top: 24px;
+    ;
+    margin-left: 20px;
+    line-height: 32px;
+    ;
+    height: 64px;
+  }
 
-.interactives_popup-body {margin-top:20px;
+  .interactives_popup-body {
+    margin-top: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 10px;
-}
+  }
 
-.interactives_popup-button {
+  .interactives_popup-button {
     width: 360px;
     height: 41px;
     border-radius: 8px;
     font-family: "Lato", sans-serif;
-font-size:20px;
+    font-size: 20px;
     font-weight: 500;
     border: none;
     cursor: pointer;
-}
+  }
 
-.interactives_popup-button:nth-child(2) {
-    background-color:#853CFF;border: 1.5px solid #853CFF !important;
+  .interactives_popup-button:nth-child(2) {
+    background-color: #853CFF;
+    border: 1.5px solid #853CFF !important;
     color: white;
-}
+  }
 
-.interactives_popup-button:nth-child(2):hover {
+  .interactives_popup-button:nth-child(2):hover {
     background-color: #AA77FF;
-    border: 1.5px  solid #853CFF !important;
-}
+    border: 1.5px solid #853CFF !important;
+  }
 
-.interactives_popup-button:nth-child(3) {
-    background-color: white !important;border: 1.5px  solid #853CFF;
-    color:#853CFF;
-}
+  .interactives_popup-button:nth-child(3) {
+    background-color: white !important;
+    border: 1.5px solid #853CFF;
+    color: #853CFF;
+  }
 
-.interactives_popup-button:nth-child(3):hover {
-    background-color:#853CFF !important ; color: white !important;
-}
+  .interactives_popup-button:nth-child(3):hover {
+    background-color: #853CFF !important;
+    color: white !important;
+  }
 
-.interactives_popup-button:nth-child(1) {
+  .interactives_popup-button:nth-child(1) {
     background-color: #6ab23d;
     color: white;
-}
+  }
 
-.interactives_popup-button:nth-child(1):hover {
-    background-color:#559130;
-}
+  .interactives_popup-button:nth-child(1):hover {
+    background-color: #559130;
+  }
 
-.popup-overlay {
+  .popup-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-  background: #00000052;
+    background: #00000052;
     z-index: 10000999;
     display: flex;
     justify-content: center;
-}
+  }
 
-.popup {
+  .popup {
     background: white;
-      border-radius: 18px;
+    border-radius: 18px;
     width: 525px;
-    height:233px;
-        margin-top:273px !important;
+    height: 233px;
+    margin-top: 273px !important;
     position: relative;
-}
+  }
 
-.popup-header-text {
+  .popup-header-text {
     font-family: "Lato", sans-serif;
     font-weight: 700;
-font-size: 20px;
-line-height: 32px;
-height: 32px;
-letter-spacing: 1%;
-text-align: center;
-margin-top:24px;
-display: flex;
-align-items: center;
-justify-content: center;
-}
+    font-size: 20px;
+    line-height: 32px;
+    height: 32px;
+    letter-spacing: 1%;
+    text-align: center;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-.popup-close {    width:16px;
+  .popup-close {
+    width: 16px;
     height: 16px;
     position: absolute;
     top: 20px;
-    right:  20px;
+    right: 20px;
     cursor: pointer;
     font-size: 30px;
     color: #aaa;
-}
+  }
 
-.popup-body {margin-top:20px;
-}
-.popup-option.second{
-margin-top:20px !important;
-}
-.popup-option {height: 20px;
+  .popup-body {
+    margin-top: 20px;
+  }
+
+  .popup-option.second {
+    margin-top: 20px !important;
+  }
+
+  .popup-option {
+    height: 20px;
     margin-left: 20px;
     display: flex;
     align-items: center;
-font-size: 16px;
+    font-size: 16px;
     cursor: pointer;
     position: relative;
-}
-.popup-option img{ width: 20px;
+  }
+
+  .popup-option img {
+    width: 20px;
     height: 20px;
 
-}
-.popup-option span {margin-left: 5px;
+  }
+
+  .popup-option span {
+    margin-left: 5px;
     font-family: "Lato", sans-serif;
     font-weight: 500;
     position: relative;
 
-font-size: 16px;
-letter-spacing: 0.20px;
-vertical-align: middle;
+    font-size: 16px;
+    letter-spacing: 0.20px;
+    vertical-align: middle;
 
-}
+  }
 
-.popup-footer {
-    margin-top:40px;
-    display: flex; margin-left: 203px;;
-}
-.popup-footer > button{
-    width: 138px;;
-    height: 41px;;
-}
-.popup-submit {
-margin-left: 10px  !important;
-}
-.popup-submit {
+  .popup-footer {
+    margin-top: 40px;
+    display: flex;
+    margin-left: 203px;
+    ;
+  }
+
+  .popup-footer>button {
+    width: 138px;
+    ;
+    height: 41px;
+    ;
+  }
+
+  .popup-submit {
+    margin-left: 10px !important;
+  }
+
+  .popup-submit {
     background-color: white;
     color: #853cff;
     border: 1.5px solid #853cff;
     font-family: "Lato", sans-serif;
     font-weight: 500;
-    border-radius: 8px;;
+    border-radius: 8px;
+    ;
     cursor: pointer;
     vertical-align: middle;
-    font-size: 20px;;
-}
+    font-size: 20px;
+    ;
+  }
 
-.popup-submit:hover {
-  background-color: #AA77FF; color: #FFFFFF;
-}
-.popup-cancel{
-     background-color: white;
-    color:#7D7D7D;
+  .popup-submit:hover {
+    background-color: #AA77FF;
+    color: #FFFFFF;
+  }
+
+  .popup-cancel {
+    background-color: white;
+    color: #7D7D7D;
     border: none;
     font-family: "Lato", sans-serif;
     font-weight: 500;
-    border-radius: 8px;;
+    border-radius: 8px;
+    ;
     cursor: pointer;
     vertical-align: middle;
-    font-size: 20px;;;
-}
-.popup-cancel:hover {
- border: 1.5px solid #1D1D1D !important; ; color:  #1D1D1D;
-}
+    font-size: 20px;
+    ;
+    ;
+  }
 
-.interactives_delete_popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: #00000052;
+  .popup-cancel:hover {
+    border: 1.5px solid #1D1D1D !important;
+    ;
+    color: #1D1D1D;
+  }
 
-  z-index: 22222999;
+  .interactives_delete_popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #00000052;
 
-  display: flex;
-  justify-content: center;
+    z-index: 22222999;
 
-}
+    display: flex;
+    justify-content: center;
 
-.interactives_delete_popup {
-     margin-top:273px;
-  background: white;
-  border-radius: 18px;;
-  width: 524px;;
-height: 233px;;
+  }
 
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  .interactives_delete_popup {
+    margin-top: 273px;
+    background: white;
+    border-radius: 18px;
+    ;
+    width: 524px;
+    ;
+    height: 233px;
+    ;
 
-  position: relative;
-}
-.interactives_delete_popup-close {
-  position: absolute;
-  top: 25px;
-  right: 25px;
-  cursor: pointer;
-  font-size: 30px;
-  color: #aaa;
-}
-.interactives_delete_popup-header-text {
-  font-family: "Lato", sans-serif;
-  font-weight: 700;
-  font-size: 20px;;
-  margin: 0 auto;
-  margin-top:24px;
-  margin-left:  20px;;;
-}
-.interactives_delete_popup-header-text_{  margin-left:  20px;;;
-    font-family: "Lato", sans-serif;  margin-top:19px;; color:#7D7D7D;
-font-weight: 400;
-font-style: Regular;
-  font-size: 16px;;
-line-height: 120%;
-letter-spacing: 1%;
-vertical-align: middle;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 
-}
-.interactives_delete_popup-body {margin-left:  218px;;;
-  display: flex; margin-top:59px;
+    position: relative;
+  }
 
-}
-.interactives_delete_popup-button {
-   width:138px !important;
-height: 41px;;
-  border-radius: 8px;
-font-family: "Lato", sans-serif;
-font-weight: 500;
-font-style: Medium;
-  font-size: 20px;;
-line-height: 120%;
-letter-spacing: 1%;
-text-align: center;
-vertical-align: middle;
+  .interactives_delete_popup-close {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    cursor: pointer;
+    font-size: 30px;
+    color: #aaa;
+  }
 
-}
-.interactives_delete_popup-button:nth-child(1) {
-  background-color: white; color:#7D7D7D;border:none;;
-}
-.interactives_delete_popup-button:nth-child(1):hover {
-  color: #1D1D1D;
-   border: 1.5px solid #1D1D1D;
+  .interactives_delete_popup-header-text {
+    font-family: "Lato", sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    ;
+    margin: 0 auto;
+    margin-top: 24px;
+    margin-left: 20px;
+    ;
+    ;
+  }
 
-}
-.interactives_delete_popup-button:nth-child(2) {margin-left:  10px;;;
-  background-color: white;
-  color: #F0436C;
-  border: 1.5px solid #F0436C;
-  border-color: #F0436C;
-}
-.interactives_delete_popup-button:nth-child(2):hover {
-  background-color:  #F0436C;
-  color: white;
-}
-.settings_popup-overlay {
-  font-family: "Lato", sans-serif;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #00000052 !important;
-  display: flex;
-  justify-content: center;
-  z-index: 1000;
-}
+  .interactives_delete_popup-header-text_ {
+    margin-left: 20px;
+    ;
+    ;
+    font-family: "Lato", sans-serif;
+    margin-top: 19px;
+    ;
+    color: #7D7D7D;
+    font-weight: 400;
+    font-style: Regular;
+    font-size: 16px;
+    ;
+    line-height: 120%;
+    letter-spacing: 1%;
+    vertical-align: middle;
 
-.settings_popup-content { margin-top:273px;
-  background: white;
-   width: 524px;
+  }
+
+  .interactives_delete_popup-body {
+    margin-left: 218px;
+    ;
+    ;
+    display: flex;
+    margin-top: 59px;
+
+  }
+
+  .interactives_delete_popup-button {
+    width: 138px !important;
+    height: 41px;
+    ;
+    border-radius: 8px;
+    font-family: "Lato", sans-serif;
+    font-weight: 500;
+    font-style: Medium;
+    font-size: 20px;
+    ;
+    line-height: 120%;
+    letter-spacing: 1%;
+    text-align: center;
+    vertical-align: middle;
+
+  }
+
+  .interactives_delete_popup-button:nth-child(1) {
+    background-color: white;
+    color: #7D7D7D;
+    border: none;
+    ;
+  }
+
+  .interactives_delete_popup-button:nth-child(1):hover {
+    color: #1D1D1D;
+    border: 1.5px solid #1D1D1D;
+
+  }
+
+  .interactives_delete_popup-button:nth-child(2) {
+    margin-left: 10px;
+    ;
+    ;
+    background-color: white;
+    color: #F0436C;
+    border: 1.5px solid #F0436C;
+    border-color: #F0436C;
+  }
+
+  .interactives_delete_popup-button:nth-child(2):hover {
+    background-color: #F0436C;
+    color: white;
+  }
+
+  .settings_popup-overlay {
+    font-family: "Lato", sans-serif;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #00000052 !important;
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .settings_popup-content {
+    margin-top: 273px;
+    background: white;
+    width: 524px;
     height: 233px;
     border-radius: 18px;
     box-sizing: border-box;
 
-}
+  }
 
-.settings_popup-text {    margin-top:24px !important;
+  .settings_popup-text {
+    margin-top: 24px !important;
     margin-left: 20px !important;
     font-family: "Lato", sans-serif;
-font-weight: 700;font-style: normal;
-font-style: Bold;
-    font-size: 20px; line-height:32px;
-}
-.settings_popup-text_{height:47px;  ;
-     margin-top:19px!important;
-    margin-left: 20px !important;line-height:19.2px; ;
+    font-weight: 700;
+    font-style: normal;
+    font-style: Bold;
+    font-size: 20px;
+    line-height: 32px;
+  }
+
+  .settings_popup-text_ {
+    height: 47px;
+    ;
+    margin-top: 19px !important;
+    margin-left: 20px !important;
+    line-height: 19.2px;
+    ;
 
     font-family: "Lato", sans-serif;
-font-weight: 400;
-    font-size: 16px;color: #7D7D7D;
-    letter-spacing: 0.16px !important;;;
-vertical-align: middle;font-style: normal
+    font-weight: 400;
+    font-size: 16px;
+    color: #7D7D7D;
+    letter-spacing: 0.16px !important;
+    ;
+    ;
+    vertical-align: middle;
+    font-style: normal
+  }
 
-}
-.settings_popup-buttons {display: flex;
-  margin-top:50px ;
-  margin-left: 218px;
+  .settings_popup-buttons {
+    display: flex;
+    margin-top: 50px;
+    margin-left: 218px;
 
-}
-.settings_popup-btn.confirm{
-      margin-left: 10px;
-}
-.settings_popup-btn {
-  width: 138px;
-  height: 41px ;
- font-size: 20px;
-  font-family: "Lato", sans-serif;
-  border-radius: 8px;
-  cursor: pointer;
-}
+  }
 
-.settings_popup-btn.confirm {
-  background-color: #6ab23d;
-  border: 1.5px solid #6ab23d;
-  color: white;
-}
+  .settings_popup-btn.confirm {
+    margin-left: 10px;
+  }
 
-.settings_popup-btn.confirm:hover {
-  background-color: #559130;
-  border: 1.5px solid#559130;
-}
+  .settings_popup-btn {
+    width: 138px;
+    height: 41px;
+    font-size: 20px;
+    font-family: "Lato", sans-serif;
+    border-radius: 8px;
+    cursor: pointer;
+  }
 
-.settings_popup-btn.cancel {
-  background-color: #FFFFFF;
-  border: 1.5px solid #853CFF;
-  color: #853CFF;
-}
+  .settings_popup-btn.confirm {
+    background-color: #6ab23d;
+    border: 1.5px solid #6ab23d;
+    color: white;
+  }
 
-.settings_popup-btn.cancel:hover {color: #FFFFFF;
-  background-color: #AA77FF;
-}
+  .settings_popup-btn.confirm:hover {
+    background-color: #559130;
+    border: 1.5px solid#559130;
+  }
 
-.settings_popup-btn.cancel.delete {
-  background-color: #FFFFFF;
-  border:none;
-  color: #7D7D7D;
-}
+  .settings_popup-btn.cancel {
+    background-color: #FFFFFF;
+    border: 1.5px solid #853CFF;
+    color: #853CFF;
+  }
 
-.settings_popup-btn.cancel.delete:hover {color:#1D1D1D;
-  border: 1.5px solid#1D1D1D;
-}
-.settings_popup-btn.confirm.delete {
-  background-color:white;
-  border: 1.5px#F0436C;
-  color: #F0436C;
-}
+  .settings_popup-btn.cancel:hover {
+    color: #FFFFFF;
+    background-color: #AA77FF;
+  }
 
-.settings_popup-btn.confirm.delete:hover {
-   background-color: #F0436C; color: white;
-  border:1.5px solid#F0436C;
-}
-.height{
-      height: 173px !important;
-}
-.margin{
-      margin-top:18px !important;      margin-left: 203px !important;
-}
-.margin_text{
-     height: 64px  !important;
-}
-.margin_left{
-     width: 150px !important;
-}
+  .settings_popup-btn.cancel.delete {
+    background-color: #FFFFFF;
+    border: none;
+    color: #7D7D7D;
+  }
+
+  .settings_popup-btn.cancel.delete:hover {
+    color: #1D1D1D;
+    border: 1.5px solid#1D1D1D;
+  }
+
+  .settings_popup-btn.confirm.delete {
+    background-color: white;
+    border: 1.5px#F0436C;
+    color: #F0436C;
+  }
+
+  .settings_popup-btn.confirm.delete:hover {
+    background-color: #F0436C;
+    color: white;
+    border: 1.5px solid#F0436C;
+  }
+
+  .height {
+    height: 173px !important;
+  }
+
+  .margin {
+    margin-top: 18px !important;
+    margin-left: 203px !important;
+  }
+
+  .margin_text {
+    height: 64px !important;
+  }
+
+  .margin_left {
+    width: 150px !important;
+  }
 }
 </style>

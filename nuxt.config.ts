@@ -1,7 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
 export default defineNuxtConfig({
-
   modules: ['@vueuse/nuxt', '@pinia/nuxt', '@nuxt/eslint', '@nuxt/ui'],
   ssr: false,
   devtools: { enabled: false },
@@ -15,7 +14,7 @@ export default defineNuxtConfig({
           content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
         },
       ],
-      script: [{ src: 'https://telegram.org/js/telegram-web-app.js' }],
+
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' },
@@ -32,10 +31,10 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     public: {
-      backend: process.env.NUXT_PUBLIC_API || '',
+
       apiBase: process.env.NUXT_PUBLIC_API_BASE || '',
       wsBackend: process.env.NUXT_PUBLIC_WS_BACKEND || '',
-      wsFrontend: process.env.NUXT_PUBLIC_WS_FRONTEND || '',
+
     },
   },
   compatibilityDate: '2024-11-01', nitro: {

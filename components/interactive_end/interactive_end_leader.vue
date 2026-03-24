@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
-import type { EndData, EndWinners } from '~/types/stageData'
+import type { EndData, EndWinners } from '~/store/types/stageData'
 import Results_leader from '~/components/interactive_end/results_leader.vue'
 import WinnersTable_leader from '~/components/interactive_end/winners_table_leader.vue'
+import { useAuthStore } from '~/store/auth'
 
 // Получаем данные через props
 const props = defineProps<{
@@ -12,9 +13,12 @@ const props = defineProps<{
 }>()
 
 onMounted(() => {
-  clearAllDeviceStorage()
+  const auth = useAuthStore()
   const { $queryClient } = useNuxtApp()
-  $queryClient.invalidateQueries(['interactives'])
+  $queryClient.removeQueries({
+    queryKey: ['interactives', auth.id],
+  })
+  clearAllDeviceStorage()
 })
 </script>
 

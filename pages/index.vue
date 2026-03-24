@@ -1,11 +1,15 @@
-<script setup>
-import new_interactives from '~/components/interactives/new_interactives.vue'
+<script setup lang="ts">
+import header_logo from '~/components/header_logo.vue'
+import login from '~/components/login/login.vue'
+
+definePageMeta({
+  middleware: ['init', 'hide-login'],
+})
 </script>
 
 <template>
-  <new_interactives />
+  <header_logo />
+  <login />
 </template>
 
-<style>
-
-</style>
+<style></style>

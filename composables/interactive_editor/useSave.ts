@@ -1,5 +1,7 @@
 import { IMAGE_STATE_KEY } from '~/constants/interactiveKeys'
 import { toRaw, isRef } from 'vue'
+import { mutateCreateInteractivities, mutateEditInteractive } from '../api/interactivities/useInteractivitiesMutation'
+import { patchInteractive } from '../api/interactivities/interactivities'
 
 export function useSave(
   route,
@@ -11,6 +13,8 @@ export function useSave(
   userId?,
   id?,
 ) {
+  const { mutate: saveInteractive } = mutateCreateInteractivities()
+  const { mutate: editInteractive } = mutateEditInteractive()
   const { $queryClient } = useNuxtApp()
   const showSavePopup = ref(false)
   function cleanFormBeforeSave(formValue) {
@@ -64,7 +68,6 @@ export function useSave(
     const formData = new FormData()
 
     const cleanedForm = cleanFormBeforeSave(plainForm)
-    formData.append('telegram_id', String(userId?.value || 0))
     formData.append('interactive', JSON.stringify(cleanedForm))
 
     for (const file of images) {
@@ -72,37 +75,13 @@ export function useSave(
         formData.append('images', file)
       }
     }
-    let response: CreateInteractiveResponse
     if (mode.value === 'edit') {
-      console.log('mode')
-      const response = await $fetch('/api/edit_interatcive', {
-
-        method: 'PATCH',
-        query: {
-          telegram_id: userId?.value || 0,
-          interactive_id: id,
-        },
-        body: formData,
-
-      })
+      await editInteractive({ formData: formData, interactive_id: Number(id) })
       route.push({ path: '/leader/new_interactives', query: { from: `/leader/` } })
-      console.log(response)
-
-      $queryClient.invalidateQueries(['interactives'])
-      return response.data.interactive_id
     }
     else {
-      response = await $fetch('/api/create_interactive', {
-        method: 'POST',
-        query: {
-          telegram_id: userId?.value || 0,
-        },
-        body: formData,
-      })
+      await saveInteractive(formData)
       route.push({ path: '/leader/new_interactives', query: { from: `/leader/` } })
-      console.log(response.data)
-      $queryClient.invalidateQueries(['interactives'])
-      return response.data
     }
   }
   type CreateInteractiveResponse = {

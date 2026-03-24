@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useWebApp } from 'vue-tg'
 import Waiting from '~/components/waiting/waiting.vue'
 import Countdown from '~/components/countdown/countdown.vue'
 import Question from '~/components/question/question.vue'
@@ -272,7 +271,9 @@ const startDiscussionCycle = () => {
           percentage: '23',
         },
 
-      ] } }
+      ],
+    },
+  }
 
   clearInterval(intervalId)
   intervalId = setInterval(() => {

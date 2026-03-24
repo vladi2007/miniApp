@@ -44,6 +44,10 @@ onMounted(async () => {
     }
   }
 })
+definePageMeta({
+  middleware: ['init', 'auth', 'role',
+  ],
+})
 </script>
 
 <template>

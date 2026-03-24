@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // imports
-import { defineProps } from 'vue'
-import type { QuestionData } from '~/types/stageData'
+import type { QuestionData } from '~/store/types/stageData'
 import timer from './timer.vue'
 import question_list from './question_list.vue'
 import question_list_many from './question_list_many.vue'
@@ -36,7 +35,7 @@ onMounted(() => {
     />
 
     <question_list
-      v-if="data.question.type ==='one'"
+      v-if="data.question.type === 'one'"
       :timer="data.timer"
       :question="data.question"
       :answers="props.data_answers"
@@ -50,7 +49,7 @@ onMounted(() => {
     />
 
     <question_list_many
-      v-if="data.question.type ==='many'"
+      v-if="data.question.type === 'many'"
       :timer="data.timer"
       :question="data.question"
       :answers="props.data_answers"
@@ -64,7 +63,7 @@ onMounted(() => {
     />
 
     <question_list_text
-      v-if="data.question.type ==='text'"
+      v-if="data.question.type === 'text'"
       :timer="data.timer"
       :question="data.question"
       :answers="data.data_answers"
@@ -78,7 +77,7 @@ onMounted(() => {
       :type="props.data.question.type"
     />
     <div
-      v-if="stage==='discussion'"
+      v-if="stage === 'discussion'"
       class="question_leader_boardboard"
     >
       <div class="question_leader_board_line" />
@@ -115,66 +114,90 @@ onMounted(() => {
 @import url("~/assets/css/question/question.scss");
 @import url("~/assets/css/question/question_list.scss");
 @import url("~/assets/css/question/timer.scss");
+
 :root {
   --app-height: 100vh;
 }
-.question_leader_boardboard{
-  position: absolute;
-  height: calc((118 / 844) * var(--app-height));;
 
-  top:calc((804.54 / 844) * var(--app-height));
-  bottom: calc((30 / 844) * var(--app-height));;
-  left: calc((45 / 390) * 100dvw);;
+.question_leader_boardboard {
+  position: absolute;
+  height: calc((118 / 844) * var(--app-height));
+  ;
+
+  top: calc((804.54 / 844) * var(--app-height));
+  bottom: calc((30 / 844) * var(--app-height));
+  ;
+  left: calc((45 / 390) * 100dvw);
+  ;
   width: calc((300 / 390) * 100dvw);
-  margin: 0 auto;;
-  padding-bottom: calc((28 / 844) * var(--app-height));;;
+  margin: 0 auto;
+  ;
+  padding-bottom: calc((28 / 844) * var(--app-height));
+  ;
+  ;
 
   font-family: "Lato", sans-serif;
-font-weight: 400;
-font-size: clamp(10px, calc((16 / 390) * 100dvw),32px);
+  font-weight: 400;
+  font-size: clamp(10px, calc((16 / 390) * 100dvw), 32px);
 
-letter-spacing:  clamp(0.10px, calc((16 / 100 / 390) * 100dvw),0.32px);
-vertical-align: middle;
+  letter-spacing: clamp(0.10px, calc((16 / 100 / 390) * 100dvw), 0.32px);
+  vertical-align: middle;
 
 }
 
-.question_leader_board_line{
-  height: calc((1 / 844) * var(--app-height));;
+.question_leader_board_line {
+  height: calc((1 / 844) * var(--app-height));
+  ;
   background-color: #E9E9E9;
   width: 100%;
 }
-.question_leader_board_header{
+
+.question_leader_board_header {
   display: flex;
   align-items: center;
   font-weight: 500;
-  height: calc((24 / 844) * var(--app-height));;
-  margin-top:calc((3 / 844) * var(--app-height));;
-}
-.question_leader_board_header > img{
-  margin-left: calc((10 / 390) * 100dvw);;
+  height: calc((24 / 844) * var(--app-height));
+  ;
+  margin-top: calc((3 / 844) * var(--app-height));
+  ;
 }
 
-.question_leader_board_list_list{
-    margin-top:calc((12 / 844) * var(--app-height));;
-  height: calc((78 / 844) * var(--app-height));;
+.question_leader_board_header>img {
+  margin-left: calc((10 / 390) * 100dvw);
+  ;
+}
+
+.question_leader_board_list_list {
+  margin-top: calc((12 / 844) * var(--app-height));
+  ;
+  height: calc((78 / 844) * var(--app-height));
+  ;
   display: grid;
-  gap:calc((18 / 844) * var(--app-height));;
+  gap: calc((18 / 844) * var(--app-height));
+  ;
 }
 
-.question_leader_board_list_list >div{
-  line-height:calc((14 / 844) * var(--app-height));; ;
-  height: calc((14 / 844) * var(--app-height));;
+.question_leader_board_list_list>div {
+  line-height: calc((14 / 844) * var(--app-height));
+  ;
+  ;
+  height: calc((14 / 844) * var(--app-height));
+  ;
 }
 
-.question_leader_board_winner{
+.question_leader_board_winner {
   display: flex;
 }
-.question_leader_board_winner_name{
-   margin-left: calc((14 / 390) * 100dvw);;
+
+.question_leader_board_winner_name {
+  margin-left: calc((14 / 390) * 100dvw);
+  ;
 }
-.question_leader_board_winner_score{
+
+.question_leader_board_winner_score {
   margin-left: auto;
-   margin-right: calc((1 / 390) * 100dvw);;
+  margin-right: calc((1 / 390) * 100dvw);
+  ;
 
 }
 </style>

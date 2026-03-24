@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { EndData, EndWinners } from '~/types/stageData'
+import type { EndData, EndWinners } from '~/store/types/stageData'
 
 import { useRouter } from 'vue-router'
 
@@ -36,7 +36,7 @@ const router = useRouter()
 // ]
 // Функция возврата на предыдущую страницу
 function goToMainMenu() {
-  router.push({ path: '/leader/new_interactives', query: { from: `/leader/` } })
+  router.push({ path: '/leader/new_interactives' })
 }
 // форматируем секунды → мм:сс
 function formatTime(secondsStr: number): string {
@@ -59,13 +59,19 @@ function formatTime(secondsStr: number): string {
         <div style="width: calc((57 / 1280) * 100dvw) !important; white-space: nowrap;;text-align: center;">
           место
         </div>
-        <div style="margin-left: calc((164/1280)*100dvw); width: calc((86 / 1280) * 100dvw);white-space: nowrap;;text-align: center;">
+        <div
+          style="margin-left: calc((164/1280)*100dvw); width: calc((86 / 1280) * 100dvw);white-space: nowrap;;text-align: center;"
+        >
           участник
         </div>
-        <div style="margin-left: calc((396/1280)*100dvw); width: calc((57 / 1280) * 100dvw);white-space: nowrap;;text-align: center;">
+        <div
+          style="margin-left: calc((396/1280)*100dvw); width: calc((57 / 1280) * 100dvw);white-space: nowrap;;text-align: center;"
+        >
           время
         </div>
-        <div style="margin-left: calc((139/1280)*100dvw); width: calc((52 / 1280) * 100dvw); text-align: center;white-space: nowrap;;text-align: center; ">
+        <div
+          style="margin-left: calc((139/1280)*100dvw); width: calc((52 / 1280) * 100dvw); text-align: center;white-space: nowrap;;text-align: center; "
+        >
           балл
         </div>
       </div>
@@ -149,7 +155,10 @@ function formatTime(secondsStr: number): string {
   vertical-align: middle;
   color: #853CFF;
 }
-.goto_main_menu_button_end:hover{
-  background-color: #AA77FF;;color: #FFFFFF;
+
+.goto_main_menu_button_end:hover {
+  background-color: #AA77FF;
+  ;
+  color: #FFFFFF;
 }
 </style>

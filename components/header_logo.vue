@@ -15,7 +15,10 @@ async function goTo(url: string) {
 const orgs = ref(false)
 const org_name = ref('ИРИТ РТФ')
 const userId = useState('telegramUser')
-const { data: org, isLoading, refetch } = useMeInOrganization()
+const { data: org, isLoading, refetch } = useMeInOrganization({
+  enabled: computed(() => auth.isAuthenticated),
+},
+)
 const showLogout = ref(false)
 </script>
 
@@ -29,7 +32,7 @@ const showLogout = ref(false)
       <div class="header_nav">
         <div
           class="header_nav_about_us"
-          @click="goTo('/leader/main_menu')"
+          @click="goTo('/main')"
         >
           О нас
         </div>
@@ -75,7 +78,7 @@ const showLogout = ref(false)
           class="header_nav_user"
           @click="goTo('/leader/user')"
         >
-          @{{ telegramName }}
+          @{{ org?.username }}
         </div>
         <div
           v-if="auth.isAuthenticated"
@@ -94,7 +97,7 @@ const showLogout = ref(false)
         <div
           v-if="!auth.isAuthenticated"
           class="header_nav_login"
-          @click="goTo('/leader/login')"
+          @click="goTo('/')"
         >
           Вход/Регистрация
         </div>
@@ -125,7 +128,7 @@ const showLogout = ref(false)
           </button>
           <button
             class="logout_popup-button confirm"
-            @click="auth.clear()"
+            @click="showLogout = false; auth.logout();"
           >
             Выйти
           </button>

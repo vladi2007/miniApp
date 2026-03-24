@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
-import type { CountdownData, Pause } from '~/types/stageData'
+import type { CountdownData, Pause } from '~/store/types/stageData'
 
 // пропс для обработки данных на фазе интерактива: countdown. тип CountdownData описан в файле types/stageData.ts
 const props = defineProps<{

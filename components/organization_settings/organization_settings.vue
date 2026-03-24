@@ -18,7 +18,6 @@ watch(
   { immediate: true },
 )
 
-const { $queryClient } = useNuxtApp()
 const { mutate: saveOrg } = mutateOrganizationDescription()
 
 const originalName = computed(() => org.value?.organization_name ?? '')
@@ -28,7 +27,7 @@ const canSave = computed(() => {
   const trimmedDesc = orgDescInput.value.trim()
   if (trimmedName.length < 3) {
     // Можно показать уведомление
-    window.Telegram.WebApp.showAlert('Название вашей организации должно быть длинее 2 символов')
+    window.alert('Название вашей организации должно быть длинее 2 символов')
     return
   }
   return (

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
-import type { EndData, EndWinners } from '~/types/stageData'
+import type { EndData, EndWinners } from '~/store/types/stageData'
 import Results from '~/components/interactive_end/results.vue'
 import WinnersTable from '~/components/interactive_end/winners_table.vue'
 import { clearDeviceStorage } from '~/utils/deviceStorage'

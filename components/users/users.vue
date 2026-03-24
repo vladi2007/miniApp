@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import type { FormSubmitEvent } from '@nuxt/ui'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { object, string, type InferType } from 'yup'
+import { mutateAddParticipant } from '~/composables/api/auth/useAuthMutation'
 import type { OrganizationParticipantRoleChange, OrganizationParticipantsFilter } from '~/composables/api/organization/organization.types'
 import { mutateOrganizationParticipants } from '~/composables/api/organization/useOrganizationMutation'
 import { useOrganizationParticipants } from '~/composables/api/organization/useOrganizationQuery'
@@ -13,53 +16,27 @@ const { data: org_participants, isLoading, refetch } = useOrganizationParticipan
 const { $queryClient } = useNuxtApp()
 const { mutate: patchRole } = mutateOrganizationParticipants()
 
-const { mutate: addParticipantFn } = useMutation({
-  mutationFn: (payload: { role: string, participant_username: string }) =>
+const { mutate: addParticipantFn } = mutateAddParticipant()
 
-    $fetch('/api/post_add_participant_to_org', {
-      method: 'POST',
-      query: {
-        telegram_id: userId.value,
-        participant_username: payload.participant_username,
-        role: payload.role,
-      },
-    },
-
-    ),
-  onSuccess: (data) => {
-    // обновляем кэш, без refetch
-    $queryClient.invalidateQueries(['org_participants', userId.value])
-    selectedText.value = 'leader'
-    nameToAdd.value = ''
-  },
-  onError: (error: any) => {
-    if (error?.statusCode === 404) {
-      window.Telegram.WebApp.showAlert(
-        'Этот пользователь уже состоит в вашей организации',
-      )
-    }
-    if (error?.statusCode === 409) {
-      const inviteLink = `https://t.me/ClikInteractive_Bot?start=${userId.value}_${selectedText.value}`
-
-      navigator.clipboard.writeText(inviteLink)
-        .then(() => {
-          // показываем alert с текстом
-          window.Telegram.WebApp.showAlert(
-            `Пользователь не найден. Ссылка для приглашения уже скопирована в буфер:\n${inviteLink}`,
-          )
-        })
-        .catch(() => {
-          window.Telegram.WebApp.showAlert(
-            `Пользователь не найден. Не удалось скопировать ссылку, вот она:\n${inviteLink}`,
-          )
-        })
-    }
-    selectedText.value = 'leader'
-    nameToAdd.value = ''
-    return
-  },
+const schemaAdd = object({
+  email: string().email('Введите корректную почту').required('Введите почту').max(32, 'Максимальная длина 32 символа'),
 
 })
+type SchemaAdd = InferType<typeof schemaAdd>
+const initialAdd = {
+  email: '',
+}
+const stateAdd = reactive({ ...initialAdd })
+const formAdd = useTemplateRef('formAdd')
+async function onSubmitAdd(event: FormSubmitEvent<SchemaAdd>) {
+  try {
+    await addParticipantFn({ role: selectedText.value, email: event.data.email })
+    closeAddPopup()
+  }
+  catch {
+    window.alert('sad')
+  }
+}
 const groups = {
   all: 'Все',
   admin: 'Администраторы',
@@ -161,17 +138,26 @@ async function selectOption(option: string) {
   isOpen.value = false
 }
 async function addParticipant() {
-  if (nameToAdd.value.length < 2) {
-    window.Telegram.WebApp.showAlert(`Заполните поле с username!`)
-    return
-  }
-  addParticipantFn({ role: selectedText.value, participant_username: nameToAdd.value })
+  addParticipantFn({ role: selectedText.value, email: nameToAdd.value })
 }
 function onAddClick() {
-  if (userRole === 'leader') return
   showAddPop.value = true
 }
 const nameToAdd = ref('')
+function resetAddForm() {
+  // Сбрасываем поля
+  Object.assign(stateAdd, initialAdd)
+  // Сбрасываем выбранный вариант
+  selectedText.value = 'leader'
+  // Сбрасываем ошибки формы (если используешь UForm, есть метод reset)
+  formAdd.value?.clear()
+}
+// Кнопка закрытия попапа
+function closeAddPopup() {
+  showAddPop.value = false
+  isOpen.value = false
+  resetAddForm()
+}
 </script>
 
 <template>
@@ -181,23 +167,11 @@ const nameToAdd = ref('')
     </div>
     <form class="users_form">
       <div class="users_form_finder_finder">
-        <img
-          src="/public/images/history/finder.svg"
-          class="users_form_input-icon"
-        >
+        <img src="/public/images/history/finder.svg" class="users_form_input-icon">
 
-        <input
-          type="text"
-          placeholder="Поиск интерактива"
-          class="users_form_search-input"
-          maxlength="32"
-        >
+        <input type="text" placeholder="Поиск интерактива" class="users_form_search-input" maxlength="32">
       </div>
-      <div
-        v-if="userRole !== 'leader'"
-        class="users_form_button"
-        @click="onAddClick()"
-      >
+      <div class="users_form_button" @click="onAddClick()">
         <div>
           Добавить
         </div>
@@ -206,29 +180,16 @@ const nameToAdd = ref('')
     </form>
     <div class="users_list">
       <div class="users_list_groups">
-        <div
-          v-for="(value, key) in groups"
-          class="group"
-          @click="activeGroup = key; current_id = undefined;"
-        >
-          <div
-            v-if="activeGroup == key"
-            class="group_active"
-          />
-          <div
-            class="group_value"
-            :style="{ fontWeight: activeGroup === key ? 600 : 400 }"
-          >
+        <div v-for="(value, key) in groups" class="group" @click="activeGroup = key; current_id = undefined;">
+          <div v-if="activeGroup == key" class="group_active" />
+          <div class="group_value" :style="{ fontWeight: activeGroup === key ? 600 : 400 }">
             {{ value }}
           </div>
         </div>
       </div>
       <div class="users_list_list_column">
         <div class="users_list_list">
-          <div
-            class="users_list_list_header"
-            style="color: #853CFF;"
-          >
+          <div class="users_list_list_header" style="color: #853CFF;">
             <span class="users_list_list_name">
               Имя
             </span>
@@ -238,11 +199,7 @@ const nameToAdd = ref('')
           </div>
           <div class="users_list_list_line" />
         </div>
-        <div
-          v-for="(user, key) in org_participants?.participants"
-          :key="key"
-          class="users_list_list_list"
-        >
+        <div v-for="(user, key) in org_participants?.participants" :key="key" class="users_list_list_list">
           <div class="users_list_list_header">
             <div style="display: grid;">
               <span class="users_list_list_name">
@@ -254,60 +211,38 @@ const nameToAdd = ref('')
             </div>
 
             <div :class="{ users_list_list_role: userRole !== 'organizer' }">
-              <div
-                style="display: flex; align-items: center  ;"
-                :style="{ cursor: canChangeRole(user.role, userRole, user.is_you) ? 'pointer' : 'default' }"
-                @click=" canChangeRole(user.role, userRole, user.is_you) && toggleItemDropdown(user.id)"
-              >
-                <div
-                  style="color:#7D7D7D;"
-                  :class="{ users_list_list_role_margin: userRole !== 'organizer' }"
-                >
-                  {{ roles[userRole] }}
-                </div>
+              <div class="users_list_list_role_block">
+                <div style="display: flex; align-items: center  ;"
+                  :style="{ cursor: canChangeRole(user.role, userRole, user.is_you) ? 'pointer' : 'default' }"
+                  @click=" canChangeRole(user.role, userRole, user.is_you) && toggleItemDropdown(user.id)">
+                  <div style="color:#7D7D7D;" :class="{ users_list_list_role_margin: userRole !== 'organizer' }">
+                    {{ roles[user.role] }}
+                  </div>
 
-                <img
-                  v-if="canChangeRole(user.role, userRole, user.is_you)"
-                  class="open_role"
-                  :src="getDropdownIcon(user.id)"
-                >
+                  <img v-if="canChangeRole(user.role, userRole, user.is_you)" class="open_role"
+                    :src="getDropdownIcon(user.id)">
+                </div>
+                <img v-if="canChangeRole(user.role, userRole, user.is_you)" class="kick_user"
+                  src="/public/images/users/kick_user.svg" @click=" showDelete(user.name, user.id)">
               </div>
-              <div
-                v-if="current_id === user.id && canChangeRole(user.role, userRole, user.is_you)"
-                class="users_list_item-dropdown-options"
-                style=" z-index: 10001 !important;"
-              >
-                <div
-                  class="users_list_item-dropdown-option"
-                  :class="{ option_margin: true }"
-                  @click="user.role !== 'admin' && showChange('admin', user.name, user.id)"
-                >
+              <div v-if="current_id === user.id && canChangeRole(user.role, userRole, user.is_you)"
+                class="users_list_item-dropdown-options" style=" z-index: 10001 !important;">
+                <div class="users_list_item-dropdown-option" :class="{ option_margin: true }"
+                  @click="user.role !== 'admin' && showChange('admin', user.name, user.id)">
                   <span>Выдать роль “Администратор”</span>
                 </div>
-                <div
-                  class="users_list_item-dropdown-option"
-                  :class="{ option_second_margin: true }"
-                  @click="user.role !== 'leader' && showChange('leader', user.name, user.id)"
-                >
+                <div class="users_list_item-dropdown-option" :class="{ option_second_margin: true }"
+                  @click="user.role !== 'leader' && showChange('leader', user.name, user.id)">
                   <span>Выдать роль “Ведущий”</span>
                 </div>
               </div>
             </div>
-            <img
-              v-if="canChangeRole(user.role, userRole, user.is_you)"
-              class="kick_user"
-              src="/public/images/users/kick_user.svg"
-              @click=" showDelete(user.name, user.id)"
-            >
           </div>
           <div class="users_list_list_line" />
         </div>
       </div>
     </div>
-    <div
-      v-if="showDeletePop"
-      class="users_popup-overlay"
-    >
+    <div v-if="showDeletePop" class="users_popup-overlay">
       <div class="users_popup-content">
         <div class="users_popup-text">
           Вы уверены, что хотите удалить пользователя<br><span style="color: #853CFF;">{{ currentName }}</span>?
@@ -316,140 +251,125 @@ const nameToAdd = ref('')
           Это действие отменить будет невозможно.
         </div>
         <div class="users_popup-buttons">
-          <button
-            class="users_popup-btn cancel delete"
-            @click="hidePopup()"
-          >
+          <button class="users_popup-btn cancel delete" @click="hidePopup()">
             Отменить
           </button>
-          <button
-            class="users_popup-btn confirm delete"
-            @click="deleteParticipants()"
-          >
+          <button class="users_popup-btn confirm delete" @click="deleteParticipants()">
             Удалить
           </button>
         </div>
       </div>
     </div>
-    <div
-      v-if="showChangeRole"
-      class="users_popup-overlay"
-    >
-      <div
-        class="users_change_popup-content"
-        :class="{ height: true }"
-      >
-        <div
-          class="users_popup-text"
-          :class="{ margin_text: true }"
-        >
+    <div v-if="showChangeRole" class="users_popup-overlay">
+      <div class="users_change_popup-content" :class="{ height: true }">
+        <div class="users_popup-text" :class="{ margin_text: true }">
           Вы уверены, что хотите выдать роль
           “{{ tochangeRole === 'leader' ? "Ведущий" : "Администратор" }}” пользователю <span style="color: #853CFF;">{{
             currentName }}</span>?
         </div>
-        <div
-          class="users_popup-buttons"
-          :class="{ margin: true }"
-        >
-          <button
-            class="users_popup-btn cancel"
-            @click="hidePopupChange()"
-          >
+        <div class="users_popup-buttons" :class="{ margin: true }">
+          <button class="users_popup-btn cancel" @click="hidePopupChange()">
             Отменить
           </button>
-          <button
-            class="users_popup-btn confirm"
-            style="display: flex;
+          <button class="users_popup-btn confirm" style="display: flex;
       align-items: center;
-      justify-content: center;"
-            :class="{ margin_left: true }"
-            @click="ChangeRole()"
-          >
+      justify-content: center;" :class="{ margin_left: true }" @click="ChangeRole()">
             Выдать
           </button>
         </div>
       </div>
     </div>
-    <div
-      v-if="showAddPop"
-      class="users_popup-overlay"
-    >
+    <div v-if="showAddPop" class="users_popup-overlay">
       <div class="add_popup-content">
-        <img
-          src="/images/history/Vector_1.svg"
-          class="add_popup-close"
-          @click="showAddPop = false; isOpen = false; selectedText = 'leader'"
-        >
+        <img src="/images/history/Vector_1.svg" class="add_popup-close" @click="closeAddPopup()">
         <div class="add_popup-text">
           Добавление пользователя в организацию
         </div>
-        <form class="add_form">
-          <textarea
-            v-model="nameToAdd"
-            placeholder="Введите email добавляемого пользователя"
-            maxlength="32"
-          />
-          <div
-            class="add_custom-dropdown"
-            @click="toggleDropdown"
-          >
+        <UForm ref="formAdd" :validate-on="['input']" :schema="schemaAdd" :state="stateAdd" class="add_form"
+          @submit="onSubmitAdd">
+          <UFormField v-slot="{ error }" :ui="{ error: 'error' }" :validate-on-input-delay="0" :eager-validation="true"
+            label="" name="email">
+            <UInput v-model="stateAdd.email" placeholder="Введите email"
+              :ui="{ base: error ? 'input error' : (stateAdd.email ? 'input success' : 'input') }" />
+          </UFormField>
+
+          <div class="add_custom-dropdown" @click="toggleDropdown">
             <div class="add_custom-dropdown-selected">
               {{ options_code[selectedText] }}
             </div>
-            <div
-              class="add_custom-arrow"
-              :class="{ open: isOpen }"
-            >
-              <img
-                v-if="isOpen"
-                src="/public/images/interactives/open.svg"
-              >
-              <img
-                v-if="!isOpen"
-                src="/public/images/interactives/close.svg"
-              >
+            <div class="add_custom-arrow" :class="{ open: isOpen }">
+              <img v-if="isOpen" src="/public/images/interactives/open.svg">
+              <img v-if="!isOpen" src="/public/images/interactives/close.svg">
             </div>
           </div>
-          <div
-            v-if="isOpen"
-            class="add_custom-dropdown-options"
-          >
+          <div v-if="isOpen" class="add_custom-dropdown-options">
             <div class="add_custom-dropdown-option-list">
-              <div
-                v-for="(label, value) in options_code"
-                :key="value"
-                class="add_custom-dropdown-option"
-                @click="selectOption(value)"
-              >
-                <img
-                  v-if="selectedText === value"
-                  class="add_custom-dropdown-circle"
-                  src="/public/images/interactives/picked.svg"
-                >
-                <img
-                  v-else
-                  class="add_custom-dropdown-circle"
-                  src="/public/images/interactives/Ellipse.svg"
-                >
+              <div v-for="(label, value) in options_code" :key="value" class="add_custom-dropdown-option"
+                @click="selectOption(value)">
+                <img v-if="selectedText === value" class="add_custom-dropdown-circle"
+                  src="/public/images/interactives/picked.svg">
+                <img v-else class="add_custom-dropdown-circle" src="/public/images/interactives/Ellipse.svg">
                 <div class="add_custom-dropdown-text">
                   {{ label }}
                 </div>
               </div>
             </div>
           </div>
-        </form>
-        <button
-          class="add_popup-btn"
-          @click="addParticipant"
-        >
-          Добавить
-        </button>
+          <UButton class="add_popup-btn" type="submit">
+            Добавить
+          </UButton>
+        </UForm>
       </div>
     </div>
   </layout>
 </template>
 
-<style>
+<style lang="scss">
+.input,
+input,
+textarea {
+  outline: none;
+  /* убирает стандартную подсветку при фокусе */
+  border: 1.5px solid #E0E0E0;
+  /* ваш обычный бордер */
+  transition: border-color 0.2s;
+  /* плавное изменение цвета, если нужно */
+}
+
+.input:focus,
+input:focus,
+textarea:focus {
+  border-color: #853CFF;
+  /* можно задать цвет бордера при фокусе */
+  outline: none;
+  /* убедимся, что черная подсветка точно не появится */
+}
+
+.error {
+  margin-top: calc((6 / 832) * 100dvh);
+  color: #F0436C;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
+  line-height: 110.00000000000001%;
+  letter-spacing: 0%;
+  vertical-align: middle;
+  margin-left: calc((20 / 1280) * 100dvw);
+
+  @media (min-width:1918px) and (min-height:1078px) {
+    margin-top: 6px;
+    color: #F0436C;
+    font-family: 'Lato', sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    ;
+    line-height: 110.00000000000001%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+    margin-left: 20px;
+  }
+}
+
 @media (max-width:1918px),
 (max-height:1078px) {
   .option_margin {
@@ -490,7 +410,7 @@ const nameToAdd = ref('')
     height: calc((107 / 832) * 100dvh) !important;
     padding-left: calc(10 / 1280 * 100dvw);
     padding-top: calc((15 / 832) * 100dvh);
-    border: calc(1.5/832*100dvh)solid #E0E0E0;
+    border: calc(3/2/832*100dvh) solid #E0E0E0;
     border-radius: calc(8/832*100dvh);
   }
 
@@ -556,6 +476,12 @@ const nameToAdd = ref('')
     width: calc(146/1280*100dvw) !important;
   }
 
+  .users_list_list_role_block {
+    display: flex;
+    align-items: center;
+    width: calc(281.73/1280*100dvw) !important;
+  }
+
   .open_role {
     margin-left: calc(10/1280*100dvw);
     width: calc(16 / 1280 * 100dvw);
@@ -563,7 +489,7 @@ const nameToAdd = ref('')
   }
 
   .kick_user {
-    margin-left: calc(110/1280*100dvw);
+    margin-left: auto;
     width: calc(24 / 1280 * 100dvw);
     height: calc((24 / 832) * 100dvh);
     cursor: pointer;
@@ -652,8 +578,6 @@ const nameToAdd = ref('')
     border-radius: calc((5 / 832)*100dvh);
     cursor: pointer;
   }
-
-  .users_form_button>div {}
 
   .users_form_button>img {
     width: calc((19/1280) * 100dvw);
@@ -838,6 +762,7 @@ const nameToAdd = ref('')
   }
 
   .add_popup-content {
+    position: relative;
     margin-top: calc((273/832)*100dvh);
     background: white;
     width: calc((525 / 1280) * 100dvw);
@@ -869,7 +794,7 @@ const nameToAdd = ref('')
     cursor: pointer;
   }
 
-  .add_form>textarea {
+  .add_form .input {
     width: calc((321 / 1280) * 100dvw);
     margin-left: calc((20 / 1280) * 100dvw);
     ;
@@ -882,9 +807,9 @@ const nameToAdd = ref('')
     border: calc((1.5 / 832) * 100dvh) solid #E0E0E0;
     ;
     padding-left: calc(15/1280*100dvw);
-    padding-top: calc((8 / 832) * 100dvh);
+
     ;
-    line-height: calc((22 / 832) * 100dvh);
+    line-height: calc((39 / 832) * 100dvh);
     box-sizing: border-box;
     vertical-align: middle;
 
@@ -894,6 +819,15 @@ const nameToAdd = ref('')
     font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
     letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
 
+  }
+
+  .input.error {
+    border: calc((1.5 / 832) * 100dvh) solid #F0436C !important;
+  }
+
+  .input.success {
+    border: calc((1.5 / 832) * 100dvh) solid #6AB23D !important;
+    color: #6AB23D;
   }
 
   .add_custom-dropdown {
@@ -1011,6 +945,7 @@ const nameToAdd = ref('')
   }
 
   .add_popup-btn {
+    position: absolute;
     width: calc((138 / 1280) * 100dvw);
     height: calc((41/832)*100dvh);
     font-size: clamp(20px, calc((20 / 1280) * 100dvw), 40px);
@@ -1020,15 +955,17 @@ const nameToAdd = ref('')
     color: #6AB23D;
     border: calc((1.5/832)*100dvh) solid #6AB23D;
     background-color: white;
-    margin-left: calc((366 / 1280) * 100dvw);
-    ;
-    margin-top: calc((45/832)*100dvh);
-    ;
+    bottom: calc((20/832)*100dvh);
+    right: calc((20 / 1280) * 100dvw);
+
+    &:hover {
+      background-color: #6AB23D;
+      color: white;
+    }
   }
 }
 
-@media (min-width:1918px),
-(min-height:1078px) {
+@media (min-width:1918px) and (min-height:1078px) {
   .option_margin {
     margin-top: 17px !important;
   }
@@ -1140,6 +1077,12 @@ const nameToAdd = ref('')
     width: 146px !important;
   }
 
+  .users_list_list_role_block {
+    display: flex;
+    align-items: center;
+    width: 281.73px !important;
+  }
+
   .open_role {
     margin-left: 10px;
     width: 16px;
@@ -1147,7 +1090,7 @@ const nameToAdd = ref('')
   }
 
   .kick_user {
-    margin-left: 110px;
+    margin-left: auto;
     width: 24px;
     height: 24px;
     cursor: pointer;
@@ -1245,8 +1188,6 @@ const nameToAdd = ref('')
     border-radius: 5px;
     cursor: pointer;
   }
-
-  .users_form_button>div {}
 
   .users_form_button>img {
     width: 19px;
@@ -1430,6 +1371,7 @@ const nameToAdd = ref('')
   }
 
   .add_popup-content {
+    position: relative;
     margin-top: 273px;
     background: white;
     width: 525px;
@@ -1461,7 +1403,7 @@ const nameToAdd = ref('')
     cursor: pointer;
   }
 
-  .add_form>textarea {
+  .add_form .input {
     width: 321px;
     margin-left: 20px;
     ;
@@ -1474,7 +1416,7 @@ const nameToAdd = ref('')
     border: 1.5px solid #E0E0E0;
     ;
     padding-left: 15px;
-    padding-top: 8px;
+
     ;
     line-height: 22px;
     box-sizing: border-box;
@@ -1486,6 +1428,15 @@ const nameToAdd = ref('')
     font-size: 16px;
     letter-spacing: 0.16px;
 
+  }
+
+  .input.error {
+    border: 1.5px solid #F0436C !important;
+  }
+
+  .input.success {
+    border: 1.5px solid #6AB23D !important;
+    color: #6AB23D;
   }
 
   .add_custom-dropdown {
@@ -1605,6 +1556,7 @@ const nameToAdd = ref('')
   }
 
   .add_popup-btn {
+    position: absolute;
     width: 138px;
     height: 41px;
     font-size: 20px;
@@ -1614,8 +1566,13 @@ const nameToAdd = ref('')
     color: #6AB23D;
     border: 1.5px solid #6AB23D;
     background-color: white;
-    margin-left: 366px;
-    margin-top: 45px;
+    right: 20px;
+    bottom: 20px;
+
+    &:hover {
+      background-color: #6AB23D;
+      color: white;
+    }
   }
 }
 

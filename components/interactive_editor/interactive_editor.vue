@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import type { CountdownData } from '~/types/stageData'
+import type { CountdownData } from '~/store/types/stageData'
 import nav_bar from '~/components/main_menu/nav_bar.vue'
 import general_settings from '~/components/interactive_editor/general_settings.vue'
 import { ref } from 'vue'

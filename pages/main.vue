@@ -1,5 +1,9 @@
 <script setup>
 import main_menu from '~/components/main_menu/main_menu.vue'
+
+definePageMeta({
+  middleware: ['init'],
+})
 </script>
 
 <template>

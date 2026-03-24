@@ -5,14 +5,15 @@ import axios from 'axios'
 export default defineNuxtPlugin((nuxtApp) => {
   const runtimeConfig = useRuntimeConfig()
   const api = axios.create({
-    baseURL: runtimeConfig.public.apiBase,
+    baseURL: runtimeConfig.public.apiBase + '/api',
     withCredentials: true,
   })
   api.interceptors.request.use(function (config) {
     // Здесь можете сделать что-нибудь с перед отправкой запроса
     const auth = useAuthStore()
+    console.log(auth.role)
     if (auth.accessToken) {
-      config.headers.Authorization = `Bearer ${auth.accessToken}`
+      config.headers['Authorization'] = `Bearer ${auth.accessToken}`
     }
     // Добавляется в конфиг запроса access_token
     return config

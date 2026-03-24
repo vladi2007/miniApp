@@ -1,6 +1,5 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useWebApp } from 'vue-tg'
 import Waiting from '~/components/waiting/waiting.vue'
 import Countdown from '~/components/countdown/countdown.vue'
 import Question from '~/components/question/question.vue'
@@ -18,9 +17,9 @@ const userRole = useState('userRole')
 // Функция для создания websocket
 function createWebSocket(interactiveId, telegramId) {
   const config = useRuntimeConfig().public
-  const wsURL = config.wsFrontend
+  const ulr = config.wsBackend
   // Предполагаю, что useWebSocket возвращает { data, send }
-  const ws = useWebSocket(`${wsURL}?interactive_id=${interactiveId}&telegram_id=${telegramId}&role=participant`)
+  const ws = useWebSocket(`${ulr}/${interactiveId}&telegram_id&role=participant&x_key=super-secret-key`)
   send = ws.send
 
   // Обновляем реактивный data

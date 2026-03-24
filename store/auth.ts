@@ -1,74 +1,89 @@
 import { decode } from 'jwt-js-decode'
 import { navigateTo } from '#app'
+import { postLogin, postRefreshToken, deleteActiveSession } from '~/composables/api/auth/auth'
 
 export const useAuthStore = defineStore('auth', {
 
   state: () => ({
-    role: 'organizer',
-    isAuthenticated: true,
-    accessToken: null, // Stored in memory only
+    role: '',
+    isAuthenticated: false,
+    accessToken: '', // Stored in memory only
+    initialized: false,
+    id: 0,
   }),
 
   actions: {
-    async login(credentials: { pass: string, login: string }) {
-      const { $api } = useNuxtApp()
+    async login(credentials: { password: string, username: string }) {
       try {
-        const response = await $api.post('/auth/login', credentials)
+        const response = await postLogin(credentials)
         // получает jwt
-        const decoded = decode(response.data.accessToken)
+        const decoded = decode(response.access_token)
+
         this.role = decoded.payload.role
         // записывает в store данные  о user
         this.isAuthenticated = true // флаг что user is Auth
         // Short-lived access token in memory
-        this.accessToken = response.data.accessToken
-      }
-      catch {
-        throw Error('login failed')
-      }
+        this.accessToken = response.access_token
+        this.id = decoded.payload.participant_id
 
-      navigateTo('/leader/main_menu')
+        return navigateTo('/leader/new_interactives')
+      }
+      catch (error) {
+        throw error;
+      }
     },
     async clear() {
       // чистит store от данных
-      this.role = 'remote'
-      this.isAuthenticated = false
-      this.accessToken = null
-
-      // редиректит на главную страницу
-      navigateTo('/leader/main_menu')
+      try{
+            this.role = ''
+          this.isAuthenticated = false
+          this.accessToken = ''
+      }
+      catch (error) {
+        throw error;
+      }
     },
     async logout() {
       try {
-        const { $api } = useNuxtApp()
-        await $api.delete('/auth/sessions/')
-        this.clear()
+        await deleteActiveSession()
+        await this.clear()
+        return navigateTo('/')
       }
 
-      catch {
-        // ошибки самого запроса на логаут
-        throw Error('')
+      catch (error) {
+        throw error;
       }
     },
     async refreshToken() {
       try {
-        const { $api } = useNuxtApp()
-        const response = await $api.post('/auth/refresh')
+        const response = await postRefreshToken()
         // отдаёт refresh cookie
+
         // если бекенд вернул токен то записываем его в storage
         // получает jwt
-        const decoded = decode(response.data.accessToken)
+        const decoded = decode(response.access_token)
         this.role = decoded.payload.role
         // записывает в store данные  о user
         this.isAuthenticated = true
         // флаг что user is Auth
         // Short-lived access token in memory
-        this.accessToken = response.data.accessToken
+        this.id = decoded.payload.participant_id
+        this.accessToken = response.access_token
         return true
       }
-      catch {
-        // тут ошибки самого запроса на рефреш
-        throw Error('')
+      catch (error) {
+        return false
       }
+    },
+    async init() {
+      try{
+        if (this.initialized) return
+      this.initialized = true
+      await this.refreshToken()
+      }catch (error) {
+        throw error;
+      }
+      
     },
   },
 

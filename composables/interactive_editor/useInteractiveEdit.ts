@@ -4,6 +4,7 @@ import {
   STEP_KEY,
   IMAGE_STATE_KEY,
 } from '~/constants/interactiveKeys'
+import { getInteractive } from '../api/interactivities/interactivities'
 
 export function useEdit(
   mode?: string,
@@ -27,14 +28,11 @@ export function useEdit(
     }
   }
 
-  async function loadFromBackend(userId) {
+  async function loadFromBackend() {
     if (!id) return
 
     try {
-      const data = await $fetch(`/api/get_interactive`, {
-        method: 'GET',
-        query: { telegram_id: userId.value, id: id.value },
-      })
+      const data = await getInteractive(Number(id))
 
       // Преобразуем полученные данные в plain-структуру
       const plain = JSON.parse(JSON.stringify(data))

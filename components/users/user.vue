@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-
 import { mutateMeInOrganization } from '~/composables/api/organization/useOrganizationMutation'
 import { useMeInOrganization } from '~/composables/api/organization/useOrganizationQuery'
 
-const telegramName = useState<string | null>('userName')
-const userId = useState('telegramUser')
 const { data: org, isLoading, refetch } = useMeInOrganization()
 const userNameInput = ref('')
 watch(
@@ -17,21 +13,24 @@ watch(
   },
   { immediate: true },
 )
-
 const { mutate: saveName } = mutateMeInOrganization()
 const originalName = computed(() => org.value?.name ?? '')
-
 const canSave = computed(() => {
   const trimmed = userNameInput.value.trim()
   if (trimmed.length < 3) {
     // Можно показать уведомление
-    window.Telegram.WebApp.showAlert('Имя должно быть длинее 2 символов')
+    window.alert('Имя должно быть длинее 2 символов')
     return
   }
   return (
     trimmed !== originalName.value.trim()
 
   )
+})
+const role = computed(() => {
+  if (org?.value?.role == 'admin') return 'Администратор'
+  if (org?.value?.role == 'leader') return 'Ведущий'
+  if (org?.value?.role as 'organizer' == 'organizer') return 'Организатор'
 })
 </script>
 
@@ -43,24 +42,14 @@ const canSave = computed(() => {
           Имя пользователя:
         </div>
         <div class="user_form_input_group">
-          <textarea
-            v-model="userNameInput"
-            class="user_form_input_group_input"
-            placeholder="Сергеев Сергей Сергеевич"
-            maxlength="32"
-          />
-          <div
-            class="user_form_input_group_button"
-            @click="canSave && saveName(userNameInput)"
-          >
+          <textarea v-model="userNameInput" class="user_form_input_group_input" placeholder="Сергеев Сергей Сергеевич"
+            maxlength="32" />
+          <div class="user_form_input_group_button" @click="canSave && saveName(userNameInput)">
             Сохранить
           </div>
         </div>
         <div class="user_form_input_info">
-          <img
-            src="/public/images/icon.svg"
-            class="user_form_input_info_icon"
-          >
+          <img src="/public/images/icon.svg" class="user_form_input_info_icon">
           <div class="user_form_input_info_text">
             Данное имя будет отображаться при создании интерактива и в отчетах
           </div>
@@ -72,13 +61,13 @@ const canSave = computed(() => {
         Логин: <span>@{{ org?.username }}</span>
       </div>
       <div class="user_info_part">
-        Электронная почта: <span>@{{ org?.username }}</span>
+        Электронная почта: <span>{{ org?.email }}</span>
       </div>
       <div class="user_info_part">
         Организация: <span>{{ org?.organization_name }}</span>
       </div>
       <div class="user_info_part">
-        Роль в организации: <span>Администратор</span>
+        Роль в организации: <span>{{ role! }}</span>
       </div>
     </div>
   </layout>
@@ -199,7 +188,7 @@ const canSave = computed(() => {
     ;
     padding-top: 12px;
     ;
-    line-height: 12px;
+    line-height: 18px;
     ;
     box-sizing: border-box;
     vertical-align: middle;
