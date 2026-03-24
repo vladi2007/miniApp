@@ -1,15 +1,14 @@
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
-  
 
-  const { telegram_id, interactive_id} = query
+  const { telegram_id, interactive_id } = query
 
-const config = useRuntimeConfig().public
-  const apiBase =config.apiBase
+  const config = useRuntimeConfig().public
+  const apiBase = config.apiBase
   try {
     // Тип явно указываем
     const response = await fetch(
-      `${apiBase}/api/interactivities/end/${interactive_id}?x_key=super-secret-key&telegram_id=${telegram_id}`
+      `${apiBase}/api/interactivities/end/${interactive_id}?x_key=super-secret-key&telegram_id=${telegram_id}`,
     )
 
     if (!response.ok) {
@@ -20,7 +19,8 @@ const config = useRuntimeConfig().public
 
     const data = await response.json()
     return data
-  } catch (error) {
+  }
+  catch (error) {
     return error
   }
 })

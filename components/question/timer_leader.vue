@@ -20,7 +20,7 @@ watch(
       timerDuration.value = numeric
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 const isLeader = computed(() => props.stage !== 'participant')
 // Вычисляем прогресс в процентах
@@ -32,7 +32,6 @@ const progressPercent = computed(() => {
 
 // Метка таймера
 const timerLabel = computed(() => {
-
   if (!isLeader.value) return props.stage === 'discussion'
     ? 'Следующий вопрос через:'
     : 'Времени осталось:'
@@ -41,24 +40,39 @@ const timerLabel = computed(() => {
 
 <template>
   <div class="question_timer">
-    <div class="question_logo" v-if="!isLeader">
-      <img src="/images/waiting/Clik.svg" />
-      <img src="/images/waiting/Group.svg" />
+    <div
+      v-if="!isLeader"
+      class="question_logo"
+    >
+      <img src="/images/waiting/Clik.svg">
+      <img src="/images/waiting/Group.svg">
     </div>
 
-    <div class="question_timer-text-wrapper" v-if="isLeaderContext">
+    <div
+      v-if="isLeaderContext"
+      class="question_timer-text-wrapper"
+    >
       <div class="question_timer-text">
         {{ timer }}
       </div>
     </div>
-    <div v-else class="question_timer-text">
+    <div
+      v-else
+      class="question_timer-text"
+    >
       {{ timerLabel }} {{ timer }}
     </div>
 
     <!-- Серый фон -->
-    <div class="question_grey-line" v-if="!isLeader">
+    <div
+      v-if="!isLeader"
+      class="question_grey-line"
+    >
       <!-- Прогресс -->
-      <div class="question_green-line" :style="{ width: progressPercent + '%' }"></div>
+      <div
+        class="question_green-line"
+        :style="{ width: progressPercent + '%' }"
+      />
     </div>
   </div>
 </template>

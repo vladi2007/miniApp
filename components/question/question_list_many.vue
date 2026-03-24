@@ -2,9 +2,6 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { saveToLocaleStorage, loadFromLocalStorage, clearLocalStorage } from '~/utils/deviceStorage'
 
-
-
-
 const props = defineProps<{
   questions_count: string
   question: {
@@ -25,7 +22,7 @@ const props = defineProps<{
 }>()
 
 // несколько выбранных ответов
-const selectedAnswers = ref<Number[]>([])
+const selectedAnswers = ref<number[]>([])
 const route = useRoute()
 const STORAGE_KEY_PREFIX = 'interactive_selected_answers_'
 const storageKey = computed(() => STORAGE_KEY_PREFIX + props.question.id)
@@ -58,17 +55,17 @@ onMounted(() => {
   isAnswerSent.value = savedState === true
 })
 
-
 // выбор/отмена ответа
 function toggleAnswer(answerId: string) {
-  if (isAnswerSent.value || isDiscussion.value ||  String(props.timer)===String(0)) return
+  if (isAnswerSent.value || isDiscussion.value || String(props.timer) === String(0)) return
 
   const index = selectedAnswers.value.indexOf(Number(answerId))
 
   if (index > -1) {
     // снять выбор
     selectedAnswers.value.splice(index, 1)
-  } else {
+  }
+  else {
     // добавить выбор
     selectedAnswers.value.push(Number(answerId))
   }
@@ -82,7 +79,7 @@ function toggleAnswer(answerId: string) {
 
 // отправка ответа
 function sendAnswer() {
-  if (selectedAnswers.value?.length === 0  || isAnswerSent.value ) return
+  if (selectedAnswers.value?.length === 0 || isAnswerSent.value) return
   const answer_ids = selectedAnswers.value.map(String)
   props.onAnswer((JSON.stringify({ answer_ids: answer_ids })))
   isButtonDisabled.value = true
@@ -92,9 +89,8 @@ function sendAnswer() {
 
 // проценты для результатов
 const getPercentage = (id: string) => {
-  return props.percentages.find((p) => p.id === id)?.percentage ?? 0
+  return props.percentages.find(p => p.id === id)?.percentage ?? 0
 }
-
 
 // отслеживаем смену фазы интерактива
 const currStage = ref(props.stage)
@@ -105,14 +101,14 @@ watch(
   (newVal, oldVal) => {
     prevStage.value = oldVal
     currStage.value = newVal
-    if (oldVal === "discussion" && newVal === "question") {
+    if (oldVal === 'discussion' && newVal === 'question') {
       selectedAnswers.value = []
       isAnswerSent.value = false
       isButtonDisabled.value = false
       clearLocalStorage(storageKey.value)
       clearLocalStorage(isAnsweredKey.value)
     }
-  }
+  },
 )
 // тип вопроса
 const type = computed(() => {
@@ -127,7 +123,7 @@ watch(
       saveToLocaleStorage(ANSWERS_STORAGE_KEY.value, newAnswers)
     }
   },
-  { deep: true }
+  { deep: true },
 )
 
 const isAllCorrect = computed(() => {
@@ -140,8 +136,8 @@ const isAllCorrect = computed(() => {
 
   // Совпадает ли состав
   return (
-    correct.length === selected.length &&
-    correct.every((id, i) => id === selected[i])
+    correct.length === selected.length
+    && correct.every((id, i) => id === selected[i])
   )
 })
 
@@ -149,60 +145,97 @@ watch(
   () => props.stage,
   async (newStage, oldStage) => {
     // Когда время вопроса истекает и переходим в обсуждение
-    if (oldStage === "question" && newStage === "discussion") {
+    if (oldStage === 'question' && newStage === 'discussion') {
       // Если пользователь выбрал ответ, но не отправил — отправляем автоматически
       if (selectedAnswers.value !== null && !isAnswerSent.value) {
         await sendAnswer()
       }
     }
-  }
+  },
 )
 </script>
 
 <template>
   <div class="question_question-list">
     <div class="question_number">
-      <img src="/public/images/question/Group 7099.svg" class="question_icon" />
+      <img
+        src="/public/images/question/Group 7099.svg"
+        class="question_icon"
+      >
       <div class="question_question-num-text">
         Вопрос {{ props.question.position }}
         <span style="color: #A9A9A9;">/{{ props.questions_count }}</span>
       </div>
     </div>
 
-    <div class="question_title">{{ props.question.text }}</div>
-    <div class="question_type">{{ type }}</div>
-    <div class="question_weight">баллов за вопрос: {{ props.question.question_weight }}</div>
+    <div class="question_title">
+      {{ props.question.text }}
+    </div>
+    <div class="question_type">
+      {{ type }}
+    </div>
+    <div class="question_weight">
+      баллов за вопрос: {{ props.question.question_weight }}
+    </div>
 
-    <img class="question_image" :src="props.question.image" v-if="props.question.image !== ''" />
+    <img
+      v-if="props.question.image !== ''"
+      class="question_image"
+      :src="props.question.image"
+    >
 
     <div class="question_list">
-      <div v-for="answer in answers" :key="answer.id" class="question_answer" :class="{
-        selected: selectedAnswers.includes(Number(answer.id)) && !isDiscussion,
-        correct: isAnswerSent && isDiscussion && selectedAnswers.includes(Number(answer.id)) &&
-          String(props.id_correct_answer).includes(String(answer.id)),
-        incorrect: isAnswerSent && isDiscussion && selectedAnswers.includes(Number(answer.id)) &&
-          !String(props.id_correct_answer).includes(String(answer.id)),
-        correctOutline: isDiscussion && !selectedAnswers.includes(Number(answer.id)) &&   String(props.id_correct_answer).includes(String(answer.id)),
-        wrongOutline: isDiscussion && !selectedAnswers.includes(Number(answer.id)) &&   !String(props.id_correct_answer).includes(String(answer.id))
-      }" @click="toggleAnswer(String(answer.id))">
+      <div
+        v-for="answer in answers"
+        :key="answer.id"
+        class="question_answer"
+        :class="{
+          selected: selectedAnswers.includes(Number(answer.id)) && !isDiscussion,
+          correct: isAnswerSent && isDiscussion && selectedAnswers.includes(Number(answer.id))
+            && String(props.id_correct_answer).includes(String(answer.id)),
+          incorrect: isAnswerSent && isDiscussion && selectedAnswers.includes(Number(answer.id))
+            && !String(props.id_correct_answer).includes(String(answer.id)),
+          correctOutline: isDiscussion && !selectedAnswers.includes(Number(answer.id)) && String(props.id_correct_answer).includes(String(answer.id)),
+          wrongOutline: isDiscussion && !selectedAnswers.includes(Number(answer.id)) && !String(props.id_correct_answer).includes(String(answer.id)),
+        }"
+        @click="toggleAnswer(String(answer.id))"
+      >
         <span class="question_text">{{ answer.text }}</span>
 
-        <span v-if="isDiscussion" class="question_percent" :class="{ white: selectedAnswers.includes(answer.id) }">
+        <span
+          v-if="isDiscussion"
+          class="question_percent"
+          :class="{ white: selectedAnswers.includes(answer.id) }"
+        >
           {{ getPercentage(answer.id) }}%
         </span>
       </div>
     </div>
-    <div class="question_actions" v-if="!isDiscussion && showBanner">
-      <button class="send_button" :disabled="isButtonDisabled" :class="{ answer_sent: isAnswerSent }"
-        @click="sendAnswer">
+    <div
+      v-if="!isDiscussion && showBanner"
+      class="question_actions"
+    >
+      <button
+        class="send_button"
+        :disabled="isButtonDisabled"
+        :class="{ answer_sent: isAnswerSent }"
+        @click="sendAnswer"
+      >
         {{ isAnswerSent ? 'Ответ отправлен' : 'Отправить ответ' }}
       </button>
     </div>
-    <div v-if="isDiscussion && isAllCorrect"
-      :class="['question_accepted-banner', 'success']">
-      <img src="/public/images/question/Group_1.svg" style="height: calc((20 / 844) * var(--app-height)); 
-  width: calc((15 / 390) * 100dvw);; " />
-      <div style=" margin-left: calc((2 / 390) * 100dvw);; ">Правильный ответ</div>
+    <div
+      v-if="isDiscussion && isAllCorrect"
+      :class="['question_accepted-banner', 'success']"
+    >
+      <img
+        src="/public/images/question/Group_1.svg"
+        style="height: calc((20 / 844) * var(--app-height));
+  width: calc((15 / 390) * 100dvw);; "
+      >
+      <div style=" margin-left: calc((2 / 390) * 100dvw);; ">
+        Правильный ответ
+      </div>
     </div>
   </div>
 </template>

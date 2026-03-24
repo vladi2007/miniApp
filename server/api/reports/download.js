@@ -14,7 +14,8 @@ export default defineEventHandler((event) => {
   try {
     // Можно проверить асинхронно, но для простоты — синхронно
     require('fs').accessSync(filePath)
-  } catch {
+  }
+  catch {
     event.res.statusCode = 404
     return 'Файл не найден'
   }
@@ -29,7 +30,6 @@ export default defineEventHandler((event) => {
   stream.on('end', () => {
     unlink(filePath, (err) => {
       if (err) console.error('Ошибка удаления файла:', err)
-  
     })
   })
 
@@ -41,6 +41,5 @@ export default defineEventHandler((event) => {
     }
   })
 
- 
   return event.node.res
 })

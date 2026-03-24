@@ -2,11 +2,10 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const body = await readBody(event)
 
-  const { telegram_id,  id} = query
-
+  const { telegram_id, id } = query
 
   const config = useRuntimeConfig().public
-  const apiBase =config.apiBase
+  const apiBase = config.apiBase
   try {
     // Тип явно указываем
     const response = await fetch(
@@ -14,10 +13,10 @@ export default defineEventHandler(async (event) => {
       {
         method: 'DELETE',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-       
-      }
+
+      },
     )
 
     if (!response.ok) {
@@ -28,7 +27,8 @@ export default defineEventHandler(async (event) => {
 
     const data = await response.json()
     return { success: true, data }
-  } catch (error) {
+  }
+  catch (error) {
     return { success: false, error }
   }
 })

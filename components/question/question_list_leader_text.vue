@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 // imports
 import { ref, computed, watch } from 'vue'
 
@@ -13,9 +12,9 @@ const props = defineProps<{
     question_weight: string
     type: string
   }
-  data_answers:{
-    text:string,
-    percentage:string
+  data_answers: {
+    text: string
+    percentage: string
   }[]
   answers: any
   percentages: {
@@ -30,7 +29,6 @@ const props = defineProps<{
   type: string
 }>()
 
-
 // ref for Props.answers
 const answers = ref(props.answers.correct_answers)
 
@@ -44,7 +42,8 @@ onMounted(() => {
   const savedAnswers = loadFromLocalStorage(ANSWERS_STORAGE_KEY.value)
   if (Array.isArray(savedAnswers)) {
     answers.value = savedAnswers
-  } else {
+  }
+  else {
     answers.value = props.answers.correct_answers
   }
 })
@@ -58,33 +57,37 @@ watch(
       saveToLocaleStorage(ANSWERS_STORAGE_KEY.value, newAnswers)
     }
   },
-  { deep: true }
+  { deep: true },
 )
 
 // flag for styles props.answers on stage==='discussion'
 const isDiscussion = computed(() => props.stage === 'discussion')
-
 </script>
 
 <template>
   <div class="question_question-list">
-
-
-    <div class="question_question_type">{{ props.type }}</div>
-    <div class="question_question_weight">баллов за вопрос: {{ props.question.question_weight }}</div>
+    <div class="question_question_type">
+      {{ props.type }}
+    </div>
+    <div class="question_question_weight">
+      баллов за вопрос: {{ props.question.question_weight }}
+    </div>
     <div class="question_list">
-
-      <div v-if="stage==='discussion'" v-for="answer in answers"  class="question_answer text_answer">
+      <div
+        v-for="answer in answers"
+        v-if="stage==='discussion'"
+        class="question_answer text_answer"
+      >
         <span class="question_text">{{ answer.text }}</span>
 
-        <span v-if="isDiscussion" class="question_percent">
+        <span
+          v-if="isDiscussion"
+          class="question_percent"
+        >
           {{ answer.percentage }}%
         </span>
       </div>
-
     </div>
-
-
   </div>
 </template>
 

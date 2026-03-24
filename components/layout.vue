@@ -1,27 +1,30 @@
 <script setup lang="ts">
-import header_logo from '../components/header_logo.vue';
-import Header from "../components/header.vue"
+import header_logo from '../components/header_logo.vue'
+import Header from '../components/header.vue'
+
 const router = useRouter()
 const props = defineProps<{
-    active_nav:string
+  active_nav: string
 }>()
-async function goTo(url: string, active: string):Promise<void> {
-    if (active === props.active_nav) return
-    router.push(url)
+async function goTo(url: string, active: string): Promise<void> {
+  if (active === props.active_nav) return
+  router.push(url)
 }
 </script>
-<template>
-    <div class="layot">
-        <header_logo/>
-        <div class ="layot_margins" >
 
-        
-              
-         <Header :goTo="goTo" :active="props.active_nav" ></Header>
-         <slot  ></slot>
-         </div>
+<template>
+  <div class="layot">
+    <header_logo />
+    <div class="layot_margins">
+      <Header
+        :go-to="goTo"
+        :active="props.active_nav"
+      />
+      <slot />
     </div>
+  </div>
 </template>
+
 <style>
 @media (max-height:1078px),
 (max-width:1918px) {
@@ -34,7 +37,7 @@ async function goTo(url: string, active: string):Promise<void> {
 }
 
 @media (min-width:1918px) and (min-height:1078px) {
- .layot_margins{width: 1056px; 
+ .layot_margins{width: 1056px;
         box-sizing: border-box;
     padding: 0;
     margin: 0;

@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-    const { telegram_id,participant_username ,role } = getQuery(event)
+  const { telegram_id, participant_username, role } = getQuery(event)
 
   if (!telegram_id) {
     return createError({
@@ -7,9 +7,9 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'Missing telegram_id',
     })
   }
-const config = useRuntimeConfig().public
-  const apiBase =config.apiBase
-  const response = await fetch(`${apiBase}/api/organization/participants?x_key=super-secret-key&telegram_id=${telegram_id}&participant_username=${participant_username}&role=${role}`, {method:"POST"})
+  const config = useRuntimeConfig().public
+  const apiBase = config.apiBase
+  const response = await fetch(`${apiBase}/api/organization/participants?x_key=super-secret-key&telegram_id=${telegram_id}&participant_username=${participant_username}&role=${role}`, { method: 'POST' })
 
   if (!response.ok) {
     const error = await response.json()

@@ -422,6 +422,7 @@ overflow: hidden;
 }
 .broadcasts_list_list_item_selected{
     overflow-x: hidden;
+    overflow-y: hidden;
     display: flex;
     align-items: center;
      height: calc((46.13/832) * 100dvh);

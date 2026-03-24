@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import user from '~/components/users/user.vue';
+import user from '~/components/users/user.vue'
+
+definePageMeta({
+  middleware: ['init', 'auth', 'role',
+  ],
+})
 </script>
+
 <template>
-    <user/>
+  <user />
 </template>
-<style>
-    
-</style>
+
+<style></style>

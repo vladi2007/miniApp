@@ -50,15 +50,13 @@ onMounted(() => {
 
 // отслеживаем изменение текста
 watch(userAnswer, (val) => {
-  if (  String(props.timer)===String(0)){
+  if (String(props.timer) === String(0)) {
 
   }
-  else{
-
-  
-  showBanner.value = val.trim().length > 0
-  isButtonDisabled.value = val.trim().length === 0
-  saveToLocaleStorage(storageKey.value, val)
+  else {
+    showBanner.value = val.trim().length > 0
+    isButtonDisabled.value = val.trim().length === 0
+    saveToLocaleStorage(storageKey.value, val)
   }
 })
 
@@ -79,14 +77,14 @@ watch(
   (newVal, oldVal) => {
     prevStage.value = oldVal
     currStage.value = newVal
-    if (oldVal === "discussion" && newVal === "question") {
+    if (oldVal === 'discussion' && newVal === 'question') {
       isAnswerSent.value = false
       isButtonDisabled.value = false
-      userAnswer.value = ""
+      userAnswer.value = ''
       clearLocalStorage(storageKey.value)
       clearLocalStorage(isAnsweredKey.value)
     }
-  }
+  },
 )
 // // Отправка ответа
 // function sendAnswer(answer) {
@@ -112,58 +110,101 @@ watch(
   () => props.stage,
   async (newStage, oldStage) => {
     // Когда время вопроса истекает и переходим в обсуждение
-    if (oldStage === "question" && newStage === "discussion") {
+    if (oldStage === 'question' && newStage === 'discussion') {
       // Если пользователь выбрал ответ, но не отправил — отправляем автоматически
       if (userAnswer.value !== null && !isAnswerSent.value) {
         await sendAnswer()
       }
     }
-  }
+  },
 )
 </script>
 
 <template>
   <div class="question_question-list">
     <div class="question_number">
-      <img src="/public/images/question/Group 7099.svg" class="question_icon" />
+      <img
+        src="/public/images/question/Group 7099.svg"
+        class="question_icon"
+      >
       <div class="question_question-num-text">
         Вопрос {{ props.question.position }}
         <span style="color: #A9A9A9;">/{{ props.questions_count }}</span>
       </div>
     </div>
 
-    <div class="question_title">{{ props.question.text }}</div>
-    <div class="question_type">{{ type }}</div>
-    <div class="question_weight">баллов за вопрос: {{ props.question.question_weight }}</div>
+    <div class="question_title">
+      {{ props.question.text }}
+    </div>
+    <div class="question_type">
+      {{ type }}
+    </div>
+    <div class="question_weight">
+      баллов за вопрос: {{ props.question.question_weight }}
+    </div>
 
-    <img class="question_image" :src="props.question.image" v-if="props.question.image !== ''" />
+    <img
+      v-if="props.question.image !== ''"
+      class="question_image"
+      :src="props.question.image"
+    >
 
     <div class="question_input-container">
-      <textarea v-model="userAnswer" class="question_input" placeholder="Введите текст"
-        :class="{ text_correct: isDiscussion && props.data_answers.is_correct,text_not_correct:isDiscussion && !props.data_answers.is_correct }"
-        :disabled="isAnswerSent || isDiscussion">asdasd123123</textarea>
-      <span v-if="isDiscussion && props.data_answers.percentage !== undefined" class="textarea-percentage">
+      <textarea
+        v-model="userAnswer"
+        class="question_input"
+        placeholder="Введите текст"
+        :class="{ text_correct: isDiscussion && props.data_answers.is_correct, text_not_correct: isDiscussion && !props.data_answers.is_correct }"
+        :disabled="isAnswerSent || isDiscussion"
+      >asdasd123123</textarea>
+      <span
+        v-if="isDiscussion && props.data_answers.percentage !== undefined"
+        class="textarea-percentage"
+      >
         {{ props.data_answers.percentage }}%
       </span>
     </div>
-    <div class="question_actions" v-if="!isDiscussion && showBanner">
-      <button class="send_button" :disabled="isButtonDisabled" :class="{ answer_sent: isAnswerSent }"
-        @click="sendAnswer">
+    <div
+      v-if="!isDiscussion && showBanner"
+      class="question_actions"
+    >
+      <button
+        class="send_button"
+        :disabled="isButtonDisabled"
+        :class="{ answer_sent: isAnswerSent }"
+        @click="sendAnswer"
+      >
         {{ isAnswerSent ? 'Ответ отправлен' : 'Отправить ответ' }}
       </button>
     </div>
-    <div v-if="isDiscussion && props.data_answers.is_correct" :class="['question_accepted-banner', 'success']">
-      <img src="/public/images/question/Group_1.svg" style="height: calc((20 / 844) * var(--app-height)); 
-  width: calc((15 / 390) * 100dvw);; " />
-      <div style=" margin-left: calc((2 / 390) * 100dvw);; ">Правильный ответ</div>
+    <div
+      v-if="isDiscussion && props.data_answers.is_correct"
+      :class="['question_accepted-banner', 'success']"
+    >
+      <img
+        src="/public/images/question/Group_1.svg"
+        style="height: calc((20 / 844) * var(--app-height));
+  width: calc((15 / 390) * 100dvw);; "
+      >
+      <div style=" margin-left: calc((2 / 390) * 100dvw);; ">
+        Правильный ответ
+      </div>
     </div>
-    <div v-if="isDiscussion && !props.data_answers.is_correct" class="no_correct_text">
-      <div class="no_correct_text_header">Правильные ответы</div>
-      <div v-for="correct in props.data_answers?.answers" class="no_correct_list">
+    <div
+      v-if="isDiscussion && !props.data_answers.is_correct"
+      class="no_correct_text"
+    >
+      <div class="no_correct_text_header">
+        Правильные ответы
+      </div>
+      <div
+        v-for="correct in props.data_answers?.answers"
+        class="no_correct_list"
+      >
         <div class="no_correct_item">
-        {{ correct.text }}<span
-         >{{ correct.percentage
-          }}%</span></div>
+          {{ correct.text }}<span>{{ correct.percentage
+          }}%</span>
+        </div>
       </div>
     </div>
   </div>
@@ -221,7 +262,6 @@ watch(
   color: #1D1D1D;
   border: calc((1.5 / 844) * var(--app-height)) solid #F7F7F7 !important;
 }
-
 
 .question_actions>button {
   height: calc((45 / 844) * var(--app-height));
@@ -292,7 +332,7 @@ watch(
 }
 /* Первый элемент списка — чуть больше сверху */
 
-.no_correct_list{   
+.no_correct_list{
   border: none !important;
   background-color: #C6E2B5;
   width: calc((346 / 390) * 100dvw);

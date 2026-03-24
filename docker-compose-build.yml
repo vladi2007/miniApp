@@ -1,0 +1,184 @@
+version: "3.9"
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:3000"
+      - "4000:4000"
+    environment:
+      NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE}
+      NUXT_PUBLIC_WS_BACKEND: ${NUXT_PUBLIC_WS_BACKEND}
+      NUXT_PUBLIC_WS_FRONTEND: ${NUXT_PUBLIC_WS_FRONTEND}
+    networks:
+      - app_network
+
+  fastapi_app:
+    image: mrbob1kk/fastapiminiapp
+    container_name: fastapi_app_local
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      URL_BACK: ${URL_BACK}
+      URL_MINIO: ${URL_MINIO}
+      TELEGRAM_TEST_CHAT_ID: ${TELEGRAM_TEST_CHAT_ID}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      EMAIL_LOGIN: ${EMAIL_LOGIN}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+      EMAIL_SMTP_SERVER: ${EMAIL_SMTP_SERVER}
+      EMAIL_SMTP_PORT: ${EMAIL_SMTP_PORT}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  rq_worker:
+    image: mrbob1kk/workerminiapp
+    container_name: rq_worker
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - app_network
+
+  telegram_bot:
+    image: mrbob1kk/botminiapp
+    container_name: telegram_bot
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      BOT_TOKEN: ${BOT_TOKEN}
+      URL_FRONT: ${URL_FRONT}
+      URL_BACK: ${URL_BACK}
+    depends_on:
+      - fastapi_app
+    networks:
+      - app_network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    expose:
+      - 5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - app_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis_queue
+    expose:
+      - 6379
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
+  minio:
+    image: minio/minio
+    container_name: minio_local
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - app_network
+  minio-init:
+    image: minio/mc
+    container_name: minio_init
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    entrypoint: >
+      /bin/sh -c "
+      echo 'Waiting for MinIO to be ready...';
+      sleep 5;
+      mc alias set myminio http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD;
+      
+      echo 'Creating buckets...';
+      mc mb myminio/reports --ignore-existing;
+      mc mb myminio/images --ignore-existing;
+      
+      echo 'Setting public access for buckets...';
+      mc anonymous set download myminio/reports;
+      mc anonymous set download myminio/images;
+      
+      echo 'Buckets created and configured successfully!';
+      exit 0;
+      "
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  minio_data:
+  pgadmin_data:

@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, defineProps, defineEmits, onMounted, watch } from 'vue'
+import { ref, computed, defineProps, defineEmits, onMounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { saveToDeviceStorage, loadFromDeviceStorage, clearDeviceStorage } from '~/utils/deviceStorage'
-import { nextTick } from 'vue'
 
 const questionButtonsRefs = ref<HTMLElement[]>([])
 
 const FORM_STORAGE_KEY = 'interactive_form_draft'
 const CURRENT_INDEX_KEY = 'interactive_current_index'
-
 
 const props = defineProps<{
   step: number
@@ -33,9 +31,9 @@ const form = ref({
     {
       text: '',
       position: 1,
-      answers: Array(4).fill(null).map(() => ({ text: '', is_correct: false }))
-    }
-  ]
+      answers: Array(4).fill(null).map(() => ({ text: '', is_correct: false })),
+    },
+  ],
 })
 
 const currentQuestionIndex = ref(0)
@@ -57,7 +55,7 @@ const STEP_KEY = 'interactive_editor_step'
 onMounted(async () => {
   if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
     webApp.value = window.Telegram.WebApp
-    //вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
+    // вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
   }
 
   // Подождём до отрисовки DOM
@@ -79,15 +77,14 @@ onMounted(async () => {
 
   const id = route.params.id as string
 
-
   if (props.mode === 'edit' || props.mode === 'dublicate') {
     try {
       const data = await $fetch(`/api/get_interactive`, {
         method: 'GET',
         query: {
           telegram_id: userId.value,
-          id: id
-        }
+          id: id,
+        },
       })
 
       form.value = {
@@ -104,22 +101,18 @@ onMounted(async () => {
           position: index + 1,
           answers: q.answers.map((a: any) => ({
             text: a.text,
-            is_correct: a.is_correct
-          }))
-        }))
+            is_correct: a.is_correct,
+          })),
+        })),
       }
 
       currentQuestionIndex.value = 0
-    } catch (err) {
+    }
+    catch (err) {
       console.error('Ошибка загрузки интерактива:', err)
       window.Telegram.WebApp.showAlert('Не удалось загрузить данные интерактива.')
     }
-
-
   }
-
-
-
 
   const savedForm = loadFromDeviceStorage(FORM_STORAGE_KEY)
   console.log('Loaded form from storage:', savedForm)
@@ -141,14 +134,13 @@ onMounted(async () => {
       el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' })
     }
   }
-
 })
 
 async function addQuestion() {
   form.value.questions.push({
     text: '',
     position: form.value.questions.length + 1,
-    answers: Array(4).fill(null).map(() => ({ text: '', is_correct: false }))
+    answers: Array(4).fill(null).map(() => ({ text: '', is_correct: false })),
   })
   currentQuestionIndex.value = form.value.questions.length - 1
 
@@ -176,24 +168,25 @@ function removeQuestion() {
 function goToQuestions() {
   const f = form.value
   if (
-    f.title &&
-    f.description &&
-    f.target_audience &&
-    f.location &&
-    f.responsible_full_name &&
-    f.answer_duration > 0 &&
-    f.discussion_duration > 0 &&
-    f.countdown_duration >= 0
+    f.title
+    && f.description
+    && f.target_audience
+    && f.location
+    && f.responsible_full_name
+    && f.answer_duration > 0
+    && f.discussion_duration > 0
+    && f.countdown_duration >= 0
   ) {
     emit('update-step', 2)
     window.scrollTo(0, 0)
-  } else {
+  }
+  else {
     window.Telegram.WebApp.showAlert('Пожалуйста, заполните все обязательные поля')
   }
 }
 
 defineExpose({
-  saveInteractive
+  saveInteractive,
 })
 
 function markCorrectAnswer(questionIndex: number, answerIndex: number) {
@@ -254,9 +247,9 @@ async function submitInteractive(): Promise<number | null> {
       position: q.position,
       answers: q.answers.map(ans => ({
         text: ans.text,
-        is_correct: ans.is_correct
-      }))
-    }))
+        is_correct: ans.is_correct,
+      })),
+    })),
   }
 
   try {
@@ -268,27 +261,28 @@ async function submitInteractive(): Promise<number | null> {
         method: 'PATCH',
         query: {
           telegram_id: userId.value,
-          id: id
+          id: id,
         },
-        body: payload
+        body: payload,
       })
-    } else {
+    }
+    else {
       response = await $fetch<CreateInteractiveResponse>(`/api/create_interactive`, {
         method: 'POST',
         query: {
           telegram_id: userId.value,
-          id: id
+          id: id,
         },
-        body: payload
+        body: payload,
       })
     }
 
     clearDeviceStorage(FORM_STORAGE_KEY)
     clearDeviceStorage(CURRENT_INDEX_KEY)
 
-
     return response.data.interactive_id
-  } catch (err) {
+  }
+  catch (err) {
     console.error('Ошибка при отправке:', err)
     window.Telegram.WebApp.showAlert('Произошла ошибка при отправке.')
     return null
@@ -329,124 +323,218 @@ watch(currentQuestionIndex, (newIndex) => {
   console.log('Saving index to storage', newIndex)
   saveToDeviceStorage(CURRENT_INDEX_KEY, newIndex)
 })
-
-
-
 </script>
 
 <template>
   <div class="general_settings">
-
-
     <div class="form-wrapper">
-
       <!-- Step 1: General Settings -->
-      <div v-if="props.step === 1" class="general_settings">
-
-
+      <div
+        v-if="props.step === 1"
+        class="general_settings"
+      >
         <div class="form-grid">
           <div class="form-column-first">
             <div class="input-group">
-              <label>Название интерактива*<textarea v-model="form.title" maxlength="40" /></label>
-              <label>Описание интерактива*<textarea v-model="form.description" id="description_input"
-                  maxlength="115" /></label>
+              <label>Название интерактива*<textarea
+                v-model="form.title"
+                maxlength="40"
+              /></label>
+              <label>Описание интерактива*<textarea
+                id="description_input"
+                v-model="form.description"
+                maxlength="115"
+              /></label>
             </div>
 
             <div class="input-group">
-              <label>Место проведения интерактива*<textarea v-model="form.location" maxlength="40" /></label>
+              <label>Место проведения интерактива*<textarea
+                v-model="form.location"
+                maxlength="40"
+              /></label>
             </div>
             <div class="input-group">
-              <label>Целевая аудитория участников*<textarea v-model="form.target_audience" maxlength="40" /></label>
+              <label>Целевая аудитория участников*<textarea
+                v-model="form.target_audience"
+                maxlength="40"
+              /></label>
             </div>
           </div>
 
           <div class="form-column-second">
             <div class="input-group">
-              <label>ФИО ведущего*<textarea v-model="form.responsible_full_name" maxlength="40" /></label>
+              <label>ФИО ведущего*<textarea
+                v-model="form.responsible_full_name"
+                maxlength="40"
+              /></label>
             </div>
             <div class="input-group">
-              <label>Время ответа (сек.)*<textarea type="number" v-model.number="form.answer_duration"
-                  maxlength="2" /></label>
-              <label>Время на показ ответа (сек.)*<textarea type="number" v-model.number="form.discussion_duration"
-                  maxlength="2" /></label>
-              <label>Обратный отсчет перед стартом (сек.)*<textarea type="number"
-                  v-model.number="form.countdown_duration" maxlength="2" /></label>
+              <label>Время ответа (сек.)*<textarea
+                v-model.number="form.answer_duration"
+                type="number"
+                maxlength="2"
+              /></label>
+              <label>Время на показ ответа (сек.)*<textarea
+                v-model.number="form.discussion_duration"
+                type="number"
+                maxlength="2"
+              /></label>
+              <label>Обратный отсчет перед стартом (сек.)*<textarea
+                v-model.number="form.countdown_duration"
+                type="number"
+                maxlength="2"
+              /></label>
             </div>
-            <div class="next-btn" @click="goToQuestions">
-              <div class="next-btn-text">Наполнение интерактива</div>
+            <div
+              class="next-btn"
+              @click="goToQuestions"
+            >
+              <div class="next-btn-text">
+                Наполнение интерактива
+              </div>
             </div>
           </div>
         </div>
-
-
       </div>
 
       <!-- Step 2: Questions -->
-      <div v-else-if="props.step === 2" class="questions_section">
-
+      <div
+        v-else-if="props.step === 2"
+        class="questions_section"
+      >
         <!-- Панель навигации по вопросам -->
         <div class="question-nav">
-          <div class="question_nav_header">Навигатор по вопросам</div>
-          <div class="question-buttons" ref="questionNavRef">
-            <button class="quest-nav-button" v-for="(q, index) in form.questions" :key="index"
-              :ref="el => questionButtonsRefs[index] = el" :class="{ active: index === currentQuestionIndex }"
-              @click="currentQuestionIndex = index">
+          <div class="question_nav_header">
+            Навигатор по вопросам
+          </div>
+          <div
+            ref="questionNavRef"
+            class="question-buttons"
+          >
+            <button
+              v-for="(q, index) in form.questions"
+              :key="index"
+              :ref="el => questionButtonsRefs[index] = el"
+              class="quest-nav-button"
+              :class="{ active: index === currentQuestionIndex }"
+              @click="currentQuestionIndex = index"
+            >
               {{ index + 1 }}
             </button>
           </div>
           <div class="question-actions">
-            <button @click="removeQuestion" :disabled="form.questions.length === 1"
-              id="delete_question">Удалить</button>
-            <button @click="addQuestion" id="add_question">Добавить</button>
-
+            <button
+              id="delete_question"
+              :disabled="form.questions.length === 1"
+              @click="removeQuestion"
+            >
+              Удалить
+            </button>
+            <button
+              id="add_question"
+              @click="addQuestion"
+            >
+              Добавить
+            </button>
           </div>
         </div>
 
         <!-- Редактирование вопроса -->
-        <div v-if="currentQuestion" class="question-form" id="answers_form">
-          <div class="question-header">Вопрос {{ currentQuestion.position }}</div>
-          <div class="input-group" id="question-text">
+        <div
+          v-if="currentQuestion"
+          id="answers_form"
+          class="question-form"
+        >
+          <div class="question-header">
+            Вопрос {{ currentQuestion.position }}
+          </div>
+          <div
+            id="question-text"
+            class="input-group"
+          >
             <label class="question_label">Вопрос*</label>
-            <textarea v-model="currentQuestion.text" type="text" id="question_textarea" maxlength="100" />
-
+            <textarea
+              id="question_textarea"
+              v-model="currentQuestion.text"
+              type="text"
+              maxlength="100"
+            />
           </div>
 
-          <div class="input-group" id="answers">
-            <label class="question_label" id="answers-text">Ответы*</label>
-            <div v-for="(answer, index) in currentQuestion.answers" :key="index" class="answer-item">
+          <div
+            id="answers"
+            class="input-group"
+          >
+            <label
+              id="answers-text"
+              class="question_label"
+            >Ответы*</label>
+            <div
+              v-for="(answer, index) in currentQuestion.answers"
+              :key="index"
+              class="answer-item"
+            >
               <label class="answer-wrapper">
-                <input type="radio" :name="'correct-answer-' + currentQuestionIndex" :checked="answer.is_correct"
-                  @change="markCorrectAnswer(currentQuestionIndex, index)" />
-                <input v-model="answer.text" type="text" class="answer-input" placeholder="Поле для ввода ответа"
-                  maxlength="50" />
+                <input
+                  type="radio"
+                  :name="'correct-answer-' + currentQuestionIndex"
+                  :checked="answer.is_correct"
+                  @change="markCorrectAnswer(currentQuestionIndex, index)"
+                >
+                <input
+                  v-model="answer.text"
+                  type="text"
+                  class="answer-input"
+                  placeholder="Поле для ввода ответа"
+                  maxlength="50"
+                >
               </label>
             </div>
-
           </div>
           <!-- Кнопки "Сохранить" и "Запуск" -->
           <div class="question-controls">
-            <button class="start-button" @click="startInteractive()">Запуск</button>
-            <button class="save-button" @click="showSavePopup = true">Сохранить</button>
-
+            <button
+              class="start-button"
+              @click="startInteractive()"
+            >
+              Запуск
+            </button>
+            <button
+              class="save-button"
+              @click="showSavePopup = true"
+            >
+              Сохранить
+            </button>
           </div>
-
         </div>
-
-
       </div>
     </div>
-    <div v-if="showSavePopup" class="settings_popup-overlay">
+    <div
+      v-if="showSavePopup"
+      class="settings_popup-overlay"
+    >
       <div class="settings_popup-content">
-        <div class="settings_popup-text">Сохранить интерактив и перейти к списку всех интерактивов?</div>
+        <div class="settings_popup-text">
+          Сохранить интерактив и перейти к списку всех интерактивов?
+        </div>
         <div class="settings_popup-buttons">
-          <button class="settings_popup-btn confirm" @click="saveInteractiveButton()">Да</button>
-          <button class="settings_popup-btn cancel" @click="showSavePopup = false">Нет</button>
+          <button
+            class="settings_popup-btn confirm"
+            @click="saveInteractiveButton()"
+          >
+            Да
+          </button>
+          <button
+            class="settings_popup-btn cancel"
+            @click="showSavePopup = false"
+          >
+            Нет
+          </button>
         </div>
       </div>
     </div>
   </div>
 </template>
-
 
 <style>
 @import url("~/assets/css/interactive_editor/general_settings.scss");

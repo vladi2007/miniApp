@@ -1,7 +1,6 @@
 <script setup lang="ts">
-
 // imports
-import type { WaitingData } from '~/types/stageData'
+import type { WaitingData } from '~/store/types/stageData'
 import Active from '~/components/waiting/active_users.vue'
 import Description from '~/components/waiting/description.vue'
 
@@ -12,27 +11,37 @@ const props = defineProps<{
   context: string
 
 }>()
-
 </script>
 
 <template>
   <div class="waiting_participant_waiting">
-    <div class="waiting_grey"></div>
+    <div class="waiting_grey" />
 
     <div class="waiting_logo">
-      <img src="/public/images/waiting/Group 7067.svg" id = "_waiting_logo"/>
-      <img src="/public/images/waiting/Group 7095 (2).svg" class="waiting_fixed" />
+      <img
+        id="_waiting_logo"
+        src="/public/images/waiting/Group 7067.svg"
+      >
+      <img
+        src="/public/images/waiting/Group 7095 (2).svg"
+        class="waiting_fixed"
+      >
     </div>
 
-    <div class="waiting_description">
-     
-    </div>
-     <div class="waiting_grey-line"></div>
+    <div class="waiting_description" />
+    <div class="waiting_grey-line" />
     <div class="waiting_description-content">
       <p>Ждём участников, скоро начнём.</p>
 
-      <Active :count="props.data.participants_active" :context="context" />
-      <Description :title="props.data?.title || ''" :description="props.data?.description || ''" :context="context" />
+      <Active
+        :count="props.data.participants_active"
+        :context="context"
+      />
+      <Description
+        :title="props.data?.title || ''"
+        :description="props.data?.description || ''"
+        :context="context"
+      />
     </div>
   </div>
 </template>

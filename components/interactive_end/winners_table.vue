@@ -1,8 +1,7 @@
 <script setup lang="ts">
-
 // таблица лидеров
 const props = defineProps<{
-  winners: { position: number, username: string , time:number,score:number}[]
+  winners: { position: number, username: string, time: number, score: number }[]
 }>()
 
 function formatTime(secondsStr: number): string {
@@ -22,19 +21,21 @@ function formatTime(secondsStr: number): string {
         Лидерборд
       </div>
       <div class="winner_participant_header">
-          <span class="position_participant_header">место</span>
-          <span class="name_participant_header">игрок</span>
-          <span class="time_participant_header">время</span>
-           <span class="score_participant_header">балл</span>
-        </div>
+        <span class="position_participant_header">место</span>
+        <span class="name_participant_header">игрок</span>
+        <span class="time_participant_header">время</span>
+        <span class="score_participant_header">балл</span>
+      </div>
       <div class="winners_list">
-        
-
-        <div v-for="(winner, index) in props.winners" :key="index" class="winner_participant">
+        <div
+          v-for="(winner, index) in props.winners"
+          :key="index"
+          class="winner_participant"
+        >
           <span class="position_participant">{{ winner.position }}</span>
           <span class="name_participant">{{ winner.username }}</span>
-          <span class="time_participant">{{formatTime(winner.time) }}</span>
-           <span class="score_participant">{{ winner.score }}</span>
+          <span class="time_participant">{{ formatTime(winner.time) }}</span>
+          <span class="score_participant">{{ winner.score }}</span>
         </div>
       </div>
     </div>
@@ -42,7 +43,6 @@ function formatTime(secondsStr: number): string {
 </template>
 
 <style>
-
 .winners_list_header{
   display: flex;
 }
@@ -58,7 +58,7 @@ letter-spacing:  clamp(0.10px, calc((14 / 100 / 390) * 100dvw),0.28px) !importan
   margin-left:calc((5 / 390) * 100dvw); ;
   display: flex;
   align-items: center;
-  justify-content: center; 
+  justify-content: center;
 
 }
 .winners_list{
@@ -84,13 +84,13 @@ display: flex;
 .score_participant_header{ width: calc((37 / 390) * 100dvw);;margin-left:  calc((2 / 390) * 100dvw);;
   display: flex;
   align-items: center;
-  justify-content: center; 
+  justify-content: center;
 }
 .time_participant_header{width: calc((48 / 390) * 100dvw);;margin-left:  calc((106 / 390) * 100dvw);;
 
  display: flex;
   align-items: center;
-  justify-content: center; 
+  justify-content: center;
 }
 .winner_participant{margin:0 auto;
 
@@ -104,7 +104,7 @@ border-radius:  calc((5 / 844) * var(--app-height));
   font-size: clamp(10px, calc((14 / 390) * 100dvw),28px) !important;
 letter-spacing:  clamp(0.10px, calc((14 / 100 / 390) * 100dvw),0.28px) !important;
 line-height: clamp(10px, calc((24  / 390) * 100dvw),48px) !important;
-   
+
 }
 .winner_participant:last-child {
   margin-bottom: 0;
@@ -114,7 +114,7 @@ line-height: clamp(10px, calc((24  / 390) * 100dvw),48px) !important;
   margin-left:calc((5 / 390) * 100dvw); ;
   display: flex;
   align-items: center;
-  justify-content: center; 
+  justify-content: center;
 }
 
 .name_participant{  margin-left:calc((14 / 390) * 100dvw); ; width: calc((199 / 390) * 100dvw);
@@ -125,13 +125,12 @@ display: flex;
 .score_participant{width: calc((20 / 390) * 100dvw);margin-left:  calc((15 / 390) * 100dvw);;
   display: flex;
   align-items: center;
-  justify-content: center; 
+  justify-content: center;
 }
 .time_participant{margin-left:  calc((37 / 390) * 100dvw);;
 
  display: flex;
   align-items: center;
-  justify-content: center; 
+  justify-content: center;
 }
-
 </style>

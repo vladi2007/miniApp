@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 // imports
 import { ref, computed, watch } from 'vue'
 
@@ -39,12 +38,13 @@ onMounted(() => {
   const savedAnswers = loadFromLocalStorage(ANSWERS_STORAGE_KEY.value)
   const savedState = loadFromLocalStorage(isAnsweredKey.value)
   const savedAnswer = loadFromLocalStorage(storageKey.value)
-  if (savedAnswer){
-    selectedAnswer.value=savedAnswer
+  if (savedAnswer) {
+    selectedAnswer.value = savedAnswer
   }
   if (Array.isArray(savedAnswers)) {
     answers.value = savedAnswers
-  } else {
+  }
+  else {
     answers.value = props.answers
   }
   isAnswerSent.value = savedState === true
@@ -59,28 +59,24 @@ watch(
       saveToLocaleStorage(ANSWERS_STORAGE_KEY.value, newAnswers)
     }
   },
-  { deep: true }
+  { deep: true },
 )
-
-
-
 
 // flag for styles props.answers on stage==='discussion'
 const isDiscussion = computed(() => props.stage === 'discussion')
 
 // find answer`s percentage
 const getPercentage = (id: string) => {
-  return props.percentages.find((p) => p.id === id)?.percentage ?? 0
+  return props.percentages.find(p => p.id === id)?.percentage ?? 0
 }
 
-// return array of answers id 
+// return array of answers id
 const correctAnswers = computed<string[]>(() => {
   const val = props.id_correct_answer
   if (Array.isArray(val)) return val.map(String)
   if (val == null) return []
   return [String(val)]
 })
-
 
 const selectedAnswer = ref<number | null>(null)
 
@@ -91,21 +87,15 @@ const answersStorageKey = computed(() => ANSWERS_STORAGE_KEY_PREFIX + props.ques
 const ANSWERED_KEY_PREFIX = 'isAnswered'
 const isAnsweredKey = computed(() => ANSWERED_KEY_PREFIX + props.question.id)
 
-
-
-
-
 // текст выбранного ответа
 
 const showBanner = ref(false) // Состояние для плашки
 // Загружаем сохранённый ответ при монтировании
 
-
-
 const isButtonDisabled = ref(true)
 // Позволяет выбирать только в режиме "question"
 async function selectAnswer(answerId: string) {
-  if (isDiscussion.value || isAnswerSent.value || String(props.timer)==="0") return
+  if (isDiscussion.value || isAnswerSent.value || String(props.timer) === '0') return
 
   if (selectedAnswer.value === Number(answerId)) {
     // Повторный клик — сброс
@@ -128,10 +118,7 @@ async function selectAnswer(answerId: string) {
 
 // --- ОТПРАВКА ОТВЕТА ---
 async function sendAnswer() {
-  if ( isAnswerSent.value) return
-
-
-
+  if (isAnswerSent.value) return
 
   props.onAnswer(JSON.stringify({ answer_id: String(selectedAnswer.value) }))
 
@@ -139,8 +126,6 @@ async function sendAnswer() {
   isButtonDisabled.value = true
   saveToLocaleStorage(isAnsweredKey.value, true)
 }
-
-
 
 // отслеживаем смену фазы интерактива
 const currStage = ref(props.stage)
@@ -151,14 +136,14 @@ watch(
   (newVal, oldVal) => {
     prevStage.value = oldVal
     currStage.value = newVal
-    if (oldVal === "discussion" && newVal === "question") {
+    if (oldVal === 'discussion' && newVal === 'question') {
       selectedAnswer.value = null
       isAnswerSent.value = false
       isButtonDisabled.value = false
       clearLocalStorage(storageKey.value)
       clearLocalStorage(isAnsweredKey.value)
     }
-  }
+  },
 )
 // Следим за приходом idCorrectAnswer
 watch(
@@ -166,77 +151,111 @@ watch(
   () => {
     if (selectedAnswer.value && selectedAnswer.value !== Number(props.id_correct_answer)) {
       showBanner.value = false // Скрываем плашку, если ответ неправильный
-
-
     }
     () => {
 
     }
-  }
+  },
 )
 const type = computed(() => {
-  if (props.question.type === "one") {
-    return "Один правильный ответ";
-  } else if (props.question.type === "many") {
-    return "Несколько правильных ответов";
-  } else {
-    return "Введите правильный ответ";
+  if (props.question.type === 'one') {
+    return 'Один правильный ответ'
   }
-});
+  else if (props.question.type === 'many') {
+    return 'Несколько правильных ответов'
+  }
+  else {
+    return 'Введите правильный ответ'
+  }
+})
 
 watch(
   () => props.stage,
   async (newStage, oldStage) => {
     // Когда время вопроса истекает и переходим в обсуждение
-    if (oldStage === "question" && newStage === "discussion") {
+    if (oldStage === 'question' && newStage === 'discussion') {
       // Если пользователь выбрал ответ, но не отправил — отправляем автоматически
       if (selectedAnswer.value !== null && !isAnswerSent.value) {
         await sendAnswer()
       }
     }
-  }
+  },
 )
 </script>
 
 <template>
-
   <div class="question_question-list">
     <div class="question_number">
-
-      <img src="/public/images/question/Group 7099.svg" class="question_icon" />
-      <div class="question_question-num-text">Вопрос {{ props.question.position }}<span style="color: #A9A9A9;">/{{
-        props.questions_count }}</span></div>
+      <img
+        src="/public/images/question/Group 7099.svg"
+        class="question_icon"
+      >
+      <div class="question_question-num-text">
+        Вопрос {{ props.question.position }}<span style="color: #A9A9A9;">/{{
+          props.questions_count }}</span>
+      </div>
     </div>
 
-    <div class="question_title">{{ props.question.text }}</div>
-    <div class="question_type">{{ type }}</div>
-    <div class="question_weight">баллов за вопрос: {{ props.question.question_weight }}</div>
-    <img class="question_image" :src="props.question.image" v-if="props.question.image !== ''" />
+    <div class="question_title">
+      {{ props.question.text }}
+    </div>
+    <div class="question_type">
+      {{ type }}
+    </div>
+    <div class="question_weight">
+      баллов за вопрос: {{ props.question.question_weight }}
+    </div>
+    <img
+      v-if="props.question.image !== ''"
+      class="question_image"
+      :src="props.question.image"
+    >
     <div class="question_list">
-      <div v-for="answer in answers" :key="answer.id" class="question_answer" :class="{
-        selected: selectedAnswer === Number(answer.id) && !isDiscussion,
-        correct:  isAnswerSent && isDiscussion && selectedAnswer === Number(answer.id) && String(props.id_correct_answer) === String(answer.id),
-        incorrect: isAnswerSent && isDiscussion && selectedAnswer === Number(answer.id) && String(props.id_correct_answer) !== String(answer.id),
-        correctOutline: isDiscussion && String(props.id_correct_answer) === String(answer.id) && selectedAnswer !== Number(answer.id),
-        wrongOutline: isDiscussion && String(props.id_correct_answer) !== String(answer.id) && Number(answer.id) !== selectedAnswer
-      }" @click="selectAnswer(String(answer.id))">
+      <div
+        v-for="answer in answers"
+        :key="answer.id"
+        class="question_answer"
+        :class="{
+          selected: selectedAnswer === Number(answer.id) && !isDiscussion,
+          correct: isAnswerSent && isDiscussion && selectedAnswer === Number(answer.id) && String(props.id_correct_answer) === String(answer.id),
+          incorrect: isAnswerSent && isDiscussion && selectedAnswer === Number(answer.id) && String(props.id_correct_answer) !== String(answer.id),
+          correctOutline: isDiscussion && String(props.id_correct_answer) === String(answer.id) && selectedAnswer !== Number(answer.id),
+          wrongOutline: isDiscussion && String(props.id_correct_answer) !== String(answer.id) && Number(answer.id) !== selectedAnswer,
+        }"
+        @click="selectAnswer(String(answer.id))"
+      >
         <span class="question_text">{{ answer.text }}</span>
 
-        <span v-if="isDiscussion" class="question_percent" :class="{ white: selectedAnswer === answer.id }">
+        <span
+          v-if="isDiscussion"
+          class="question_percent"
+          :class="{ white: selectedAnswer === answer.id }"
+        >
           {{ getPercentage(answer.id) }}%
         </span>
       </div>
-
     </div>
-    <button v-if="!isDiscussion && showBanner" class="send_button" :class="{ answer_sent: isAnswerSent }"
-      :disabled="isButtonDisabled" @click="sendAnswer">
+    <button
+      v-if="!isDiscussion && showBanner"
+      class="send_button"
+      :class="{ answer_sent: isAnswerSent }"
+      :disabled="isButtonDisabled"
+      @click="sendAnswer"
+    >
       {{ isAnswerSent ? 'Ответ отправлен' : 'Отправить ответ' }}
     </button>
-    <div v-if="isDiscussion && String(props.id_correct_answer) === String(selectedAnswer)"
-      :class="['question_accepted-banner', 'success']">
-      <img src="/public/images/question/Group_1.svg" style="height: calc((20 / 844) * var(--app-height)); 
-  width: calc((15 / 390) * 100dvw);; " />
-      <div style=" margin-left: calc((2 / 390) * 100dvw);; ">Правильный ответ</div>
+    <div
+      v-if="isDiscussion && String(props.id_correct_answer) === String(selectedAnswer)"
+      :class="['question_accepted-banner', 'success']"
+    >
+      <img
+        src="/public/images/question/Group_1.svg"
+        style="height: calc((20 / 844) * var(--app-height));
+  width: calc((15 / 390) * 100dvw);; "
+      >
+      <div style=" margin-left: calc((2 / 390) * 100dvw);; ">
+        Правильный ответ
+      </div>
     </div>
   </div>
 </template>
@@ -298,7 +317,6 @@ watch(
   background-color: #6AB23D !important;
   color: #fff !important;
 }
-
 
 .send_button {
   position: relative;

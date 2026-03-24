@@ -1,20 +1,19 @@
 <script setup>
 import main_menu from '~/components/main_menu/main_menu.vue'
 
-
+definePageMeta({
+  middleware: ['init'],
+})
 </script>
 
 <template>
   <div>
     <main_menu />
-
-
   </div>
 </template>
 
 <style>
 .you_are_not_leader {
-
 
   display: flex;
   /* Используем Flexbox */

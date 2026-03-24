@@ -1,5 +1,8 @@
-import { IMAGE_STATE_KEY } from "~/constants/interactiveKeys";
-import { toRaw, isRef } from "vue";
+import { IMAGE_STATE_KEY } from '~/constants/interactiveKeys'
+import { toRaw, isRef } from 'vue'
+import { mutateCreateInteractivities, mutateEditInteractive } from '../api/interactivities/useInteractivitiesMutation'
+import { patchInteractive } from '../api/interactivities/interactivities'
+
 export function useSave(
   route,
   active_step,
@@ -8,129 +11,103 @@ export function useSave(
   validateQuestions,
   mode?,
   userId?,
-  id?
+  id?,
 ) {
+  const { mutate: saveInteractive } = mutateCreateInteractivities()
+  const { mutate: editInteractive } = mutateEditInteractive()
   const { $queryClient } = useNuxtApp()
-  const showSavePopup = ref(false);
+  const showSavePopup = ref(false)
   function cleanFormBeforeSave(formValue) {
-    const cleaned = JSON.parse(JSON.stringify(formValue)); // делаем копию
+    const cleaned = JSON.parse(JSON.stringify(formValue)) // делаем копию
     cleaned.questions = cleaned.questions.map((q) => {
       if (q.question) {
-        delete q.question.uploadedFileName;
+        delete q.question.uploadedFileName
       }
-      return q;
-    });
-    return cleaned;
+      return q
+    })
+    return cleaned
   }
   async function collectImagesFromDB() {
-    const allKeys = await getAllDeviceStorageKeys();
-    const imageKeys = allKeys.filter((key) => key.startsWith(IMAGE_STATE_KEY));
-    const files = [];
+    const allKeys = await getAllDeviceStorageKeys()
+    const imageKeys = allKeys.filter(key => key.startsWith(IMAGE_STATE_KEY))
+    const files = []
 
     for (const key of imageKeys) {
-      const item = await loadFromDeviceStorage(key);
-      files.push(item?.file);
+      const item = await loadFromDeviceStorage(key)
+      files.push(item?.file)
     }
-    return files;
+    return files
   }
 
   async function handleSave() {
-    
-    showSavePopup.value = false;
-    const isMainValid = validateForm();
+    showSavePopup.value = false
+    const isMainValid = validateForm()
     if (!isMainValid) {
-      active_step.value = "main";
-      return false;
+      active_step.value = 'main'
+      return false
     }
 
-    const isQuestionsValid = validateQuestions();
+    const isQuestionsValid = validateQuestions()
     if (!isQuestionsValid) {
-      active_step.value = "questions";
-      return false;
+      active_step.value = 'questions'
+      return false
     }
 
-    const plainForm = structuredClone(toRaw(form.value));
+    const plainForm = structuredClone(toRaw(form.value))
 
     if (Array.isArray(plainForm.questions)) {
-      plainForm.questions = plainForm.questions.map((q) => q.question || q);
+      plainForm.questions = plainForm.questions.map(q => q.question || q)
       plainForm.questions.forEach((q, index) => {
-        q.position = index + 1;
-      });
+        q.position = index + 1
+      })
     }
 
     // Собираем изображения из локального стора
-    const images = await collectImagesFromDB();
+    const images = await collectImagesFromDB()
 
-    const formData = new FormData();
+    const formData = new FormData()
 
-    const cleanedForm = cleanFormBeforeSave(plainForm);
-    formData.append("telegram_id", String(userId?.value || 0));
-    formData.append("interactive", JSON.stringify(cleanedForm));
+    const cleanedForm = cleanFormBeforeSave(plainForm)
+    formData.append('interactive', JSON.stringify(cleanedForm))
 
     for (const file of images) {
       if (file instanceof File) {
-        formData.append("images", file);
+        formData.append('images', file)
       }
     }
-     let response: CreateInteractiveResponse
-    if (mode.value === "edit") {
-      console.log("mode");
-      const response = await $fetch("/api/edit_interatcive", {
-        
-        method: "PATCH",
-        query: {
-          telegram_id: userId?.value || 0,
-          interactive_id: id
-        },
-        body: formData,
-        
-      });
-      route.push({path:'/leader/new_interactives',  query: { from: `/leader/` }})
-      console.log(response);
-      
-    $queryClient.invalidateQueries(['interactives'])
-      return response.data.interactive_id;
-      
-    } else {
-       response = await $fetch("/api/create_interactive", {
-        method: "POST",
-        query: {
-          telegram_id: userId?.value || 0,
-        },
-        body: formData,
-      });
-      route.push({path:'/leader/new_interactives',  query: { from: `/leader/` }})
-       console.log(response.data)
-    $queryClient.invalidateQueries(['interactives'])
-      return response.data;
-     
+    if (mode.value === 'edit') {
+      await editInteractive({ formData: formData, interactive_id: Number(id) })
+      route.push({ path: '/leader/new_interactives', query: { from: `/leader/` } })
     }
-    
+    else {
+      await saveInteractive(formData)
+      route.push({ path: '/leader/new_interactives', query: { from: `/leader/` } })
+    }
   }
-type CreateInteractiveResponse = {
-  data: {
-    interactive_id: number
+  type CreateInteractiveResponse = {
+    data: {
+      interactive_id: number
+    }
   }
-}
 
-const showStart=ref(false)
- async function handleStart() {
-    const isMainValid = validateForm();
+  const showStart = ref(false)
+  async function handleStart() {
+    const isMainValid = validateForm()
     if (!isMainValid) {
-      active_step.value = "main";
-      showStart.value=false
-      return false;
+      active_step.value = 'main'
+      showStart.value = false
+      return false
     }
-    const isQuestionsValid = validateQuestions();
+    const isQuestionsValid = validateQuestions()
     if (!isQuestionsValid) {
-      active_step.value = "questions";
-      showStart.value=false
-      return false;
+      active_step.value = 'questions'
+      showStart.value = false
+      return false
     }
-    const response = await handleSave();
+    const response = await handleSave()
     $queryClient.invalidateQueries(['interactives'])
     route.push(`/leader/${response}`)
   }
 
-  return { showSavePopup, handleSave, handleStart,showStart };
+  return { showSavePopup, handleSave, handleStart, showStart }
 }
