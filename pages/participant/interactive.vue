@@ -4,6 +4,7 @@ import Waiting from '~/components/waiting/waiting.vue'
 import Countdown from '~/components/countdown/countdown.vue'
 import Question from '~/components/question/question.vue'
 import InteractiveEnd from '~/components/interactive_end/interactive_end.vue'
+import connection from '~/components/participant_interactive/connection.vue'
 // Реактивные переменные
 const route = useRoute()
 
@@ -182,12 +183,18 @@ const componentMap = {
   end: InteractiveEnd,
 }
 const timerData = ref({})
+const nameIsSended = ref<boolean>(false)
+onMounted(() => {
+  // Сохраняем изначальную высоту экрана в CSS переменную
+  document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`)
+})
 </script>
 
 <template>
   <div>
-    <component :is="componentMap[data_props.stage]" v-if="data_props.stage" :data="data_props.data"
+    <component :is="componentMap[data_props.stage]" v-if="nameIsSended" :data="data_props.data"
       :stage="data_props.stage" :on-answer="send" context="participant" :data_answers="data_props.data_answers"
       :winners="data_props.winners" :score="data_props.score" />
+    <connection :nameIsSended="!nameIsSended" v-else :on-name-sent="() => { nameIsSended = true }" />
   </div>
 </template>
