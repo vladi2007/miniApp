@@ -24,62 +24,24 @@ onMounted(() => {
 
 <template>
   <div class="question">
-    <timer
-      :timer="data.timer"
-      :stage="stage"
-      :timer_duration="data.timer_duration"
-      :context="context"
-      :question_num="data.question.position"
-      :question_count="data.questions_count"
-      :score="props.score"
-    />
+    <timer :timer="data.timer" :stage="stage" :timer_duration="data.timer_duration" :context="context"
+      :question_num="data.question.position" :question_count="data.questions_count" :score="props.score" />
 
-    <question_list
-      v-if="data.question.type === 'one'"
-      :timer="data.timer"
-      :question="data.question"
-      :answers="props.data_answers"
-      :id_correct_answer="props.data_answers?.id_correct_answer ?? null"
-      :percentages="props.data_answers.percentages"
-      :stage="stage"
-      :on-answer="onAnswer"
-      :questions_count="data.questions_count"
-      :context="context"
-      :type="props.data.question.type"
-    />
+    <question_list v-if="data.question.type === 'one'" :timer="data.timer" :question="data.question"
+      :answers="props.data_answers" :id_correct_answer="props.data_answers?.id_correct_answer ?? null"
+      :percentages="props.data_answers.percentages" :stage="stage" :on-answer="onAnswer"
+      :questions_count="data.questions_count" :context="context" :type="props.data.question.type" />
 
-    <question_list_many
-      v-if="data.question.type === 'many'"
-      :timer="data.timer"
-      :question="data.question"
-      :answers="props.data_answers"
-      :id_correct_answer="props.data_answers?.id_correct_answer ?? null"
-      :percentages="props.data_answers.percentages"
-      :stage="stage"
-      :on-answer="onAnswer"
-      :questions_count="data.questions_count"
-      :context="context"
-      :type="props.data.question.type"
-    />
+    <question_list_many v-if="data.question.type === 'many'" :timer="data.timer" :question="data.question"
+      :answers="props.data_answers" :id_correct_answer="props.data_answers?.id_correct_answer ?? null"
+      :percentages="props.data_answers.percentages" :stage="stage" :on-answer="onAnswer"
+      :questions_count="data.questions_count" :context="context" :type="props.data.question.type" />
 
-    <question_list_text
-      v-if="data.question.type === 'text'"
-      :timer="data.timer"
-      :question="data.question"
-      :answers="data.data_answers"
-      :id_correct_answer="props.data_answers?.id_correct_answer ?? null"
-      :percentages="data.percentages"
-      :stage="stage"
-      :on-answer="onAnswer"
-      :questions_count="data.questions_count"
-      :context="context"
-      :data_answers="data_answers"
-      :type="props.data.question.type"
-    />
-    <div
-      v-if="stage === 'discussion'"
-      class="question_leader_boardboard"
-    >
+    <question_list_text v-if="data.question.type === 'text'" :timer="data.timer" :question="data.question"
+      :answers="data.data_answers" :id_correct_answer="props.data_answers?.id_correct_answer ?? null"
+      :percentages="data.percentages" :stage="stage" :on-answer="onAnswer" :questions_count="data.questions_count"
+      :context="context" :data_answers="data_answers" :type="props.data.question.type" />
+    <div v-if="stage === 'discussion'" class="question_leader_boardboard">
       <div class="question_leader_board_line" />
       <div class="question_leader_board_header">
         <div>
@@ -88,10 +50,7 @@ onMounted(() => {
         <img src="/public/images/question/Vector (1).svg">
       </div>
       <div class="question_leader_board_list_list">
-        <div
-          v-for="winner in props.winners"
-          class="question_leader_board_winner"
-        >
+        <div v-for="winner in props.winners" class="question_leader_board_winner">
           <div class="question_leader_board_winner_position">
             {{ winner.position }}
           </div>

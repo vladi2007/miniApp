@@ -8,8 +8,9 @@ import { UseLinks } from '~/composables/interactive/interactive_leader/waiting_l
 // data from backend
 const props = defineProps<{
   code: string
+  id: string
 }>()
-const { copyToClipboard, participantUrl, qrSize } = UseLinks(props.code)
+const { copyToClipboard, participantUrl, qrSize } = UseLinks(props.id)
 </script>
 
 <template>
@@ -21,32 +22,18 @@ const { copyToClipboard, participantUrl, qrSize } = UseLinks(props.code)
       {{ props.code }}
     </div>
     <div class="waiting_qr_code">
-      <QrcodeVue
-        :value="participantUrl"
-        :size="qrSize"
-        class="qr"
-      />
+      <QrcodeVue :value="participantUrl" :size="qrSize" class="qr" />
     </div>
     <div class="waiting_link">
       <div>
-        <img
-          id="link"
-          src="/images/waiting/line-md_link.svg"
-          title="Скопировать ссылку"
-          @click="copyToClipboard"
-        >
+        <img id="link" src="/images/waiting/line-md_link.svg" title="Скопировать ссылку" @click="copyToClipboard">
       </div>
       <div class="waiting-link_text">
-        <a
-          href="participantUrl"
-          target="_blank"
-          rel="noopener noreferrer"
-        />{{
+        <a href="participantUrl" target="_blank" rel="noopener noreferrer" />{{
           participantUrl }}
       </div>
     </div>
   </div>
 </template>
 
-<style>
-</style>
+<style></style>
