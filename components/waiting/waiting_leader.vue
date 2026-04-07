@@ -20,6 +20,17 @@ const props = defineProps<{
 }>()
 const { router, go_Back } = UseGoBack()
 const { morePause, startBeforePause } = UseWaitingLeader(props.pause.timer_n, router, props.onStatus)
+
+async function openModeration(id: string) {
+  // Проверяем, есть ли id
+  if (!id) return;
+
+  // Формируем URL (подставляем id)
+  const url = `/leader/moderation/${id}`;
+
+  // Открываем в новой вкладке
+  window.open(url, '_blank');
+}
 </script>
 
 <template>
@@ -33,6 +44,7 @@ const { morePause, startBeforePause } = UseWaitingLeader(props.pause.timer_n, ro
           <div class="waiting_logo_img">
             <img id="logo" src="/images/waiting/Group_7055.svg">
           </div>
+          <img id='open_moderation' src="/images/waiting/open_moderation.svg" @click="openModeration(code)" />
         </div>
         <div class="waiting_description-content">
           <div class="waiting_desc-comp">
