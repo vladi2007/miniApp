@@ -1,5 +1,5 @@
 export function UseLinks(code: string) {
-  const participantUrl = `https://t.me/ClikInteractive_Bot?start=${code}`
+  const participantUrl = `https://vk.com/app54504620#interactive?id=${code}`
   function copyToClipboard() {
     try {
       // Создаём скрытое поле ввода

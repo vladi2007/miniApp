@@ -12,7 +12,6 @@ services:
     environment:
       NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE}
       NUXT_PUBLIC_WS_BACKEND: ${NUXT_PUBLIC_WS_BACKEND}
-      NUXT_PUBLIC_WS_FRONTEND: ${NUXT_PUBLIC_WS_FRONTEND}
     networks:
       - app_network
 
@@ -23,6 +22,7 @@ services:
       SECRET_KEY: ${SECRET_KEY}
       URL_BACK: ${URL_BACK}
       URL_MINIO: ${URL_MINIO}
+      URL_FRONT: ${URL_FRONT}
       TELEGRAM_TEST_CHAT_ID: ${TELEGRAM_TEST_CHAT_ID}
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
@@ -37,6 +37,8 @@ services:
       EMAIL_PASSWORD: ${EMAIL_PASSWORD}
       EMAIL_SMTP_SERVER: ${EMAIL_SMTP_SERVER}
       EMAIL_SMTP_PORT: ${EMAIL_SMTP_PORT}
+      VK_APP_ID: ${VK_APP_ID}
+      VK_CLIENT_SECRET: ${VK_CLIENT_SECRET}
     ports:
       - "8000:8000"
     depends_on:

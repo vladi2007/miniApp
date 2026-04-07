@@ -31,16 +31,11 @@ FROM node:22-alpine
 
 WORKDIR /miniApp
 
-# Копируем только результат билда из builder stage
+# Копируем только результат билда
 COPY --from=builder /miniApp/.output ./.output
-COPY server/api/ws-proxy-server.js ./ws-proxy-server.js
-
-# Устанавливаем только те зависимости, которые нужны для runtime
-# (ws нужен для прокси, concurrent можно убрать и запускать через sh)
-RUN yarn add ws
 
 # Открываем порт
 EXPOSE 3000
 
-# Запуск сервера Nuxt + ws-прокси без concurrently
-CMD sh -c "node .output/server/index.mjs & node ws-proxy-server.js"
+# Запуск только Nuxt сервера
+CMD ["node", ".output/server/index.mjs"]

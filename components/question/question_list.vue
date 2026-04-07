@@ -33,13 +33,18 @@ const route = useRoute()
 const interactiveId = route.params.id as string
 const ANSWERS_STORAGE_KEY = computed(() => `interactive_answers_${interactiveId}_${props.question.id}`)
 
+const STORAGE_KEY_PREFIX = 'interactive_selected_answer_'
+const storageKey = computed(() => STORAGE_KEY_PREFIX + props.question.id)
+const ANSWERED_KEY_PREFIX = 'isAnswered'
+const isAnsweredKey = computed(() => ANSWERED_KEY_PREFIX + props.question.id)
 // load props.answers from localStorage
 onMounted(() => {
   const savedAnswers = loadFromLocalStorage(ANSWERS_STORAGE_KEY.value)
   const savedState = loadFromLocalStorage(isAnsweredKey.value)
   const savedAnswer = loadFromLocalStorage(storageKey.value)
   if (savedAnswer) {
-    selectedAnswer.value = savedAnswer
+    selectedAnswer.value = Number(savedAnswer)
+    showBanner.value = true
   }
   if (Array.isArray(savedAnswers)) {
     answers.value = savedAnswers
@@ -80,12 +85,6 @@ const correctAnswers = computed<string[]>(() => {
 
 const selectedAnswer = ref<number | null>(null)
 
-const STORAGE_KEY_PREFIX = 'interactive_selected_answer_'
-const storageKey = computed(() => STORAGE_KEY_PREFIX + props.question.id)
-const ANSWERS_STORAGE_KEY_PREFIX = 'interactive_answers_'
-const answersStorageKey = computed(() => ANSWERS_STORAGE_KEY_PREFIX + props.question.id)
-const ANSWERED_KEY_PREFIX = 'isAnswered'
-const isAnsweredKey = computed(() => ANSWERED_KEY_PREFIX + props.question.id)
 
 // текст выбранного ответа
 
@@ -186,10 +185,7 @@ watch(
 <template>
   <div class="question_question-list">
     <div class="question_number">
-      <img
-        src="/public/images/question/Group 7099.svg"
-        class="question_icon"
-      >
+      <img src="/public/images/question/Group 7099.svg" class="question_icon">
       <div class="question_question-num-text">
         Вопрос {{ props.question.position }}<span style="color: #A9A9A9;">/{{
           props.questions_count }}</span>
@@ -205,54 +201,30 @@ watch(
     <div class="question_weight">
       баллов за вопрос: {{ props.question.question_weight }}
     </div>
-    <img
-      v-if="props.question.image !== ''"
-      class="question_image"
-      :src="props.question.image"
-    >
+    <img v-if="props.question.image !== ''" class="question_image" :src="props.question.image">
     <div class="question_list">
-      <div
-        v-for="answer in answers"
-        :key="answer.id"
-        class="question_answer"
-        :class="{
-          selected: selectedAnswer === Number(answer.id) && !isDiscussion,
-          correct: isAnswerSent && isDiscussion && selectedAnswer === Number(answer.id) && String(props.id_correct_answer) === String(answer.id),
-          incorrect: isAnswerSent && isDiscussion && selectedAnswer === Number(answer.id) && String(props.id_correct_answer) !== String(answer.id),
-          correctOutline: isDiscussion && String(props.id_correct_answer) === String(answer.id) && selectedAnswer !== Number(answer.id),
-          wrongOutline: isDiscussion && String(props.id_correct_answer) !== String(answer.id) && Number(answer.id) !== selectedAnswer,
-        }"
-        @click="selectAnswer(String(answer.id))"
-      >
+      <div v-for="answer in answers" :key="answer.id" class="question_answer" :class="{
+        selected: selectedAnswer === Number(answer.id) && !isDiscussion,
+        correct: isAnswerSent && isDiscussion && selectedAnswer === Number(answer.id) && String(props.id_correct_answer) === String(answer.id),
+        incorrect: isAnswerSent && isDiscussion && selectedAnswer === Number(answer.id) && String(props.id_correct_answer) !== String(answer.id),
+        correctOutline: isDiscussion && String(props.id_correct_answer) === String(answer.id) && selectedAnswer !== Number(answer.id),
+        wrongOutline: isDiscussion && String(props.id_correct_answer) !== String(answer.id) && Number(answer.id) !== selectedAnswer,
+      }" @click="selectAnswer(String(answer.id))">
         <span class="question_text">{{ answer.text }}</span>
 
-        <span
-          v-if="isDiscussion"
-          class="question_percent"
-          :class="{ white: selectedAnswer === answer.id }"
-        >
+        <span v-if="isDiscussion" class="question_percent" :class="{ white: selectedAnswer === answer.id }">
           {{ getPercentage(answer.id) }}%
         </span>
       </div>
     </div>
-    <button
-      v-if="!isDiscussion && showBanner"
-      class="send_button"
-      :class="{ answer_sent: isAnswerSent }"
-      :disabled="isButtonDisabled"
-      @click="sendAnswer"
-    >
+    <button v-if="!isDiscussion && showBanner" class="send_button" :class="{ answer_sent: isAnswerSent }"
+      :disabled="isButtonDisabled" @click="sendAnswer">
       {{ isAnswerSent ? 'Ответ отправлен' : 'Отправить ответ' }}
     </button>
-    <div
-      v-if="isDiscussion && String(props.id_correct_answer) === String(selectedAnswer)"
-      :class="['question_accepted-banner', 'success']"
-    >
-      <img
-        src="/public/images/question/Group_1.svg"
-        style="height: calc((20 / 844) * var(--app-height));
-  width: calc((15 / 390) * 100dvw);; "
-      >
+    <div v-if="isDiscussion && String(props.id_correct_answer) === String(selectedAnswer)"
+      :class="['question_accepted-banner', 'success']">
+      <img src="/public/images/question/Group_1.svg" style="height: calc((20 / 844) * var(--app-height));
+  width: calc((15 / 390) * 100dvw);; ">
       <div style=" margin-left: calc((2 / 390) * 100dvw);; ">
         Правильный ответ
       </div>
