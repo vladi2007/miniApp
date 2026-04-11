@@ -31,15 +31,31 @@ const { timerLabel, type, progressPercent, resetting } = useTimer(
   computed(() => props.data.timer_duration),
 )
 const showPopup = ref(false)
+const defaultWinners = [
+  { position: 1, score: 5, username: "Иванов Иван Сергеевич", participant_id: "1", is_hidden: false, is_blocked: false },
+  { position: 1, score: 5, username: "Петров Петр Петрович", participant_id: "2", is_hidden: true, is_blocked: false },
+  { position: 1, score: 5, username: "Сидоров Сидор Сидорович", participant_id: "3", is_hidden: false, is_blocked: true },
+]
+
+const participants = ref(
+  (Array.isArray(props.winners) ? props.winners : defaultWinners).map((winner, index) => ({
+    ...winner,
+    participant_id: winner.participant_id ?? String(index + 1),
+    is_hidden: winner.is_hidden ?? true,
+  }))
+)
+function toggleHidden(id: string) {
+  const winner = participants.value.find(w => w.participant_id === id)
+  if (winner) {
+    winner.is_hidden = !winner.is_hidden
+  }
+}
 </script>
 
 <template>
   <div class="question_leader">
     <div class="question_leader_logo">
-      <img
-        id="logo_2"
-        src="/images/waiting/Group_7055.svg"
-      >
+      <img id="logo_2" src="/images/waiting/Group_7055.svg">
     </div>
     <div class="question_leader_content">
       <div class="question_leader_top">
@@ -53,11 +69,8 @@ const showPopup = ref(false)
         <div class="question_leader_top_timer">
           {{ timerLabel }} {{ data.timer }}
           <div class="question_grey-line">
-            <div
-              class="question_green-line"
-              :style="{ width: progressPercent + '%' }"
-              :class="{ 'no-transition': resetting }"
-            />
+            <div class="question_green-line" :style="{ width: progressPercent + '%' }"
+              :class="{ 'no-transition': resetting }" />
           </div>
         </div>
       </div>
@@ -66,46 +79,22 @@ const showPopup = ref(false)
       </div>
       <div class="question_leader_answers_image">
         <div class="question_leader_list_fone">
-          <question_list_leader_one
-            v-if="props.data.question.type === 'one' || props.data.question.type === 'many'"
-            :timer="data.timer"
-            :question="data.question"
-            :answers="props.data_answers"
-            :id_correct_answer="props.data_answers.id_correct_answer"
-            :percentages="props.data_answers.percentages"
-            :stage="stage"
-            :on-answer="onAnswer"
-            :questions_count="data.questions_count"
-            :context="context"
-            :type="type"
-          />
-          <question_list_leader_text
-            v-if="props.data.question.type === 'text'"
-            :timer="data.timer"
-            :question="data.question"
-            :answers="props.data_answers"
-            :id_correct_answer="data.id_correct_answer"
-            :percentages="data.percentages"
-            :stage="stage"
-            :on-answer="onAnswer"
-            :questions_count="data.questions_count"
-            :context="context"
-            :type="type"
-            :data_answers="data.data_answers"
-          />
+          <question_list_leader_one v-if="props.data.question.type === 'one' || props.data.question.type === 'many'"
+            :timer="data.timer" :question="data.question" :answers="props.data_answers"
+            :id_correct_answer="props.data_answers.id_correct_answer" :percentages="props.data_answers.percentages"
+            :stage="stage" :on-answer="onAnswer" :questions_count="data.questions_count" :context="context"
+            :type="type" />
+          <question_list_leader_text v-if="props.data.question.type === 'text'" :timer="data.timer"
+            :question="data.question" :answers="props.data_answers" :id_correct_answer="data.id_correct_answer"
+            :percentages="data.percentages" :stage="stage" :on-answer="onAnswer" :questions_count="data.questions_count"
+            :context="context" :type="type" :data_answers="data.data_answers" />
         </div>
 
         <div class="question_leader_image">
-          <img
-            v-if="props.data.question.image !== ''"
-            class="question_leader_image_image"
-            :src="props.data.question.image"
-          >
-          <div
-            v-if="stage === 'discussion'"
-            class="question_leader_winners"
-            :class="{ no_image: props.data.question.image === '' }"
-          >
+          <img v-if="props.data.question.image !== ''" class="question_leader_image_image"
+            :src="props.data.question.image">
+          <div v-if="stage === 'discussion'" class="question_leader_winners"
+            :class="{ no_image: props.data.question.image === '' }">
             <div class="question_leader_winners_header">
               Лидеры: <div class="winners_table_score">
                 баллы
@@ -114,45 +103,51 @@ const showPopup = ref(false)
 
             <div class="question_leader_winners_header_line" />
             <div class="question_leader_winners_list">
-              <div
-                v-for="winner in props.winners"
-                class="question_leader_winners_list_item"
-              >
+              <div v-for="winner in participants" :key="winner.participant_id"
+                class="question_leader_winners_list_item">
+
                 <div style="width: calc((14/1280)*100dvw);">
                   {{ winner.position }}
                 </div>
-                <div style="margin-left: calc((14/1280)*100dvw);">
-                  {{ winner.username }}
+                <img :src="winner.is_hidden ? '/images/moderation/hide_name.svg' : '/images/moderation/open_name.svg'"
+                  @click="toggleHidden(winner.participant_id)" :style="!winner.is_hidden
+                    ? {
+                      width: 'calc((22/1280) * 100dvw)',
+                      height: 'calc((26/832) * 100dvh)',
+                      marginLeft: 'calc((20/1280) * 100dvw)'
+                    }
+                    : {
+                      width: 'calc((22/1280) * 100dvw)',
+                      height: 'calc((18/832) * 100dvh)',
+                      marginLeft: 'calc((20/1280) * 100dvw)'
+                    }" />
+                <div :style="!winner.is_hidden
+                  ? {
+                    marginLeft: 'calc((7/1280) * 100dvw)'
+                  }
+                  : {
+                    marginLeft: 'calc((5/1280) * 100dvw)'
+                  }">
+                  {{ !winner.is_hidden ? '•••' : winner.username
+                  }}
                 </div>
-                <div
-                  style="margin-left:auto; margin-right:calc((20/1280)*100dvw); width: calc((16/1280)*100dvw); display: flex;align-items: center;
+                <div style="margin-left:auto; margin-right:calc((20/1280)*100dvw); width: calc((16/1280)*100dvw); display: flex;align-items: center;
                 justify-content: center;
-                "
-                >
+                ">
                   {{ winner.score }}
                 </div>
               </div>
             </div>
           </div>
-          <question_leader_buttons
-            :on-status="onStatus"
-            :pause="pauseRef"
-            :class="{ no_image_buttons: props.data.question.image === '' }"
-            @show="showPopup = true"
-            @close="showPopup = false"
-          />
+          <question_leader_buttons :on-status="onStatus" :pause="pauseRef"
+            :class="{ no_image_buttons: props.data.question.image === '' }" @show="showPopup = true"
+            @close="showPopup = false" />
         </div>
       </div>
     </div>
-    <div
-      v-if="showPopup"
-      class="interactives_delete_popup-overlay"
-    >
+    <div v-if="showPopup" class="interactives_delete_popup-overlay">
       <div class="interactives_delete_popup">
-        <div
-          class="interactives_delete_popup-close"
-          @click="showPopup = false"
-        >
+        <div class="interactives_delete_popup-close" @click="showPopup = false">
           <img src="/public/images/interactives/delete_close.svg">
         </div>
         <div class="interactives_delete_popup-header">
@@ -165,25 +160,16 @@ const showPopup = ref(false)
           </div>
         </div>
         <div class="interactives_delete_popup-body">
-          <button
-            class="interactives_delete_popup-button cancel"
-            @click="showPopup = false"
-          >
+          <button class="interactives_delete_popup-button cancel" @click="showPopup = false">
             Отменить
           </button>
-          <button
-            class="interactives_delete_popup-button confirm"
-            @click="props.onStatus('end')"
-          >
+          <button class="interactives_delete_popup-button confirm" @click="props.onStatus('end')">
             Завершить
           </button>
         </div>
       </div>
     </div>
-    <div
-      v-if="props.pause.state === 'timer_n'"
-      class="question_leader_popup-overlay"
-    >
+    <div v-if="props.pause.state === 'timer_n'" class="question_leader_popup-overlay">
       <div class="question_leader_popup-content">
         <div class="question_leader_popup-text">
           Вы слишком долго бездействовали, запустите интерактив или через {{
@@ -191,16 +177,10 @@ const showPopup = ref(false)
           он будет закрыт
         </div>
         <div class="question_leader_popup-actions">
-          <button
-            class="question_leader_popup-btn save"
-            @click="removeFromPause()"
-          >
+          <button class="question_leader_popup-btn save" @click="removeFromPause()">
             Снять с паузы
           </button>
-          <button
-            class="question_leader_popup-btn cancel"
-            @click="morePause()"
-          >
+          <button class="question_leader_popup-btn cancel" @click="morePause()">
             Еще подождать
           </button>
         </div>

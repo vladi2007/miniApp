@@ -34,6 +34,15 @@ const router = useRouter()
 //   { position: 4, username: 'NoobMaster', time: 180, score: 1100 },
 //   { position: 5, username: 'Legend27', time: 210, score: 900 },
 // ]
+
+const participants = ref(
+  props.winners.map((winner, index) => ({
+    ...winner,
+    participant_id: String(index + 1), // если нет participant_id, ставим индекс
+    is_hidden: false, // по умолчанию имя видно
+  }))
+)
+
 // Функция возврата на предыдущую страницу
 function goToMainMenu() {
   router.push({ path: '/leader/new_interactives' })
@@ -46,6 +55,12 @@ function formatTime(secondsStr: number): string {
   const minutes = Math.floor(seconds / 60)
   const secs = seconds % 60
   return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+}
+function toggleHidden(id: string) {
+  const winner = participants.value.find(w => w.participant_id === id)
+  if (winner) {
+    winner.is_hidden = !winner.is_hidden
+  }
 }
 </script>
 
@@ -60,40 +75,43 @@ function formatTime(secondsStr: number): string {
           место
         </div>
         <div
-          style="margin-left: calc((164/1280)*100dvw); width: calc((86 / 1280) * 100dvw);white-space: nowrap;;text-align: center;"
-        >
+          style="margin-left: calc((164/1280)*100dvw); width: calc((86 / 1280) * 100dvw);white-space: nowrap;;text-align: center;">
           участник
         </div>
         <div
-          style="margin-left: calc((396/1280)*100dvw); width: calc((57 / 1280) * 100dvw);white-space: nowrap;;text-align: center;"
-        >
+          style="margin-left: calc((396/1280)*100dvw); width: calc((57 / 1280) * 100dvw);white-space: nowrap;;text-align: center;">
           время
         </div>
         <div
-          style="margin-left: calc((139/1280)*100dvw); width: calc((52 / 1280) * 100dvw); text-align: center;white-space: nowrap;;text-align: center; "
-        >
+          style="margin-left: calc((139/1280)*100dvw); width: calc((52 / 1280) * 100dvw); text-align: center;white-space: nowrap;;text-align: center; ">
           балл
         </div>
       </div>
       <simplebar
-        style="height: calc((318 / 832) * 100dvh);    margin-right: calc((25/1280)*100dvw);  margin-top: calc((10 / 832) * 100dvh);"
-      >
+        style="height: calc((318 / 832) * 100dvh);    margin-right: calc((25/1280)*100dvw);  margin-top: calc((10 / 832) * 100dvh);">
         <div class="winners_list">
-          <div
-            v-for="(winner, index) in props.winners"
-            :key="index"
-            class="winner_row"
-          >
-            <div
-              v-if="index === 0"
-              class="Line"
-            />
+          <div v-for="(winner, index) in participants" :key="index" class="winner_row">
+            <div v-if="index === 0" class="Line" />
             <div class="winner">
               <div class="position">
                 {{ winner.position }}
               </div>
+              <img :src="winner.is_hidden ? '/images/moderation/hide_name.svg' : '/images/moderation/open_name.svg'"
+                @click="toggleHidden(winner.participant_id)" :style="!winner.is_hidden
+                  ? {
+                    width: 'calc((22/1280) * 100dvw)',
+                    height: 'calc((26/832) * 100dvh)',
+                    marginLeft: 'calc((71/1280) * 100dvw)'
+                  }
+                  : {
+                    width: 'calc((22/1280) * 100dvw)',
+                    height: 'calc((18/832) * 100dvh)',
+                    marginLeft: 'calc((71/1280) * 100dvw)'
+                  }" />
               <div class="name">
-                {{ winner.username }}
+
+                {{ !winner.is_hidden ? '•••' : winner.username
+                }}
               </div>
               <div class="time">
                 {{ formatTime(winner.time) }}
@@ -107,11 +125,7 @@ function formatTime(secondsStr: number): string {
         </div>
       </simplebar>
       <div class="goto_main_menu_end">
-        <button
-          class="goto_main_menu_button_end"
-          style="cursor: pointer;"
-          @click="goToMainMenu()"
-        >
+        <button class="goto_main_menu_button_end" style="cursor: pointer;" @click="goToMainMenu()">
           Выйти
         </button>
       </div>

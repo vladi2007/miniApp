@@ -20,6 +20,20 @@ onMounted(() => {
   // Сохраняем изначальную высоту экрана в CSS переменную
   document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`)
 })
+const defaultWinners = [
+  { position: 1, score: 5, username: "Иванов Иван Сергеевич", participant_id: "1", is_hidden: false, is_blocked: false },
+  { position: 1, score: 5, username: "Петров Петр Петрович", participant_id: "2", is_hidden: true, is_blocked: false },
+  { position: 1, score: 5, username: "Сидоров Сидор Сидорович", participant_id: "3", is_hidden: false, is_blocked: true },
+]
+
+const participants = ref(
+  (Array.isArray(props.winners) ? props.winners : defaultWinners).map((winner, index) => ({
+    ...winner,
+    participant_id: winner.participant_id ?? String(index + 1),
+    is_hidden: winner.is_hidden ?? true,
+  }))
+)
+
 </script>
 
 <template>
@@ -50,12 +64,13 @@ onMounted(() => {
         <img src="/public/images/question/Vector (1).svg">
       </div>
       <div class="question_leader_board_list_list">
-        <div v-for="winner in props.winners" class="question_leader_board_winner">
+        <div v-for="(winner, index) in participants" class="question_leader_board_winner">
           <div class="question_leader_board_winner_position">
             {{ winner.position }}
           </div>
           <div class="question_leader_board_winner_name">
-            {{ winner.username }}
+            {{ !winner.is_hidden ? '•••' : winner.username
+            }}
           </div>
           <div class="question_leader_board_winner_score">
             {{ winner.score }}
