@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import desktop from '~/components/moderation/desktop.vue';
+import mobile from '~/components/moderation/mobile.vue';
 </script>
 
 <template>
-    <desktop />
+    <mobile />
 </template>
 
 <style></style>
