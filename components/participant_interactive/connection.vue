@@ -21,7 +21,8 @@ const forgotPending = ref(false)
 const isSended = ref(false)
 async function onSubmitCon(event: FormSubmitEvent<SchemaCon>) {
     isSended.value = true
-    props.onNameSent()
+    props.onNameSent();
+    props.onAnswer?.(JSON.stringify({ name: stateCon.name }))
 }
 onMounted(async () => {
     const data = await $bridge?.send('VKWebAppGetUserInfo')
@@ -30,7 +31,8 @@ onMounted(async () => {
 })
 const props = defineProps<{
     nameIsSended: boolean
-    onNameSent: () => void
+    onNameSent: () => void;
+    onAnswer: ((msg: string) => void) | null
 }>()
 </script>
 <template>

@@ -27,6 +27,7 @@ async function parseHash() {
 }
 const data = ref(null)
 let send = null
+const sendName = ref<((msg: string) => void) | null>(null)
 // Функция для создания websocket
 function createWebSocket(interactiveId: string) {
   const config = useRuntimeConfig().public
@@ -53,7 +54,9 @@ function createWebSocket(interactiveId: string) {
 
   const ws = useWebSocket(wsUrl)
   send = ws.send
-
+  sendName.value = (msg: string) => {
+    ws.send(msg)
+  }
   // Обновляем реактивный data
   watch(ws.data, (val) => {
     data.value = val
@@ -157,23 +160,7 @@ watch(data, (newVal) => {
   }
 })
 
-// // Отправка ответа
-// function sendAnswer(answer) {
 
-//   // Если ответ — число
-//   if (data_props.data?.question?.type ==='one') {
-//     send(JSON.stringify({ answer_id: String(answer) }))
-//   }
-//   // Если ответ — массив чисел
-//   else if (data_props.data?.question?.type ==='many') {
-//     const answer_ids = answer.map(String)
-//     send(JSON.stringify({ answer_ids:answer_ids }))
-//   }
-//   // Всё остальное — считаем текстом
-//   else {
-//     send(JSON.stringify({ answer_text: answer }))
-//   }
-// }
 
 const componentMap = {
   waiting: Waiting,
@@ -195,6 +182,8 @@ onMounted(() => {
     <component :is="componentMap[data_props.stage]" v-if="nameIsSended" :data="data_props.data"
       :stage="data_props.stage" :on-answer="send" context="participant" :data_answers="data_props.data_answers"
       :winners="data_props.winners" :score="data_props.score" />
-    <connection :nameIsSended="!nameIsSended" v-else :on-name-sent="() => { nameIsSended = true }" />
+    <connection :nameIsSended="!nameIsSended" v-else :on-name-sent="() => { nameIsSended = true }"
+      :on-answer="sendName" />
+
   </div>
 </template>
