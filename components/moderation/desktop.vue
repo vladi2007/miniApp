@@ -1,43 +1,79 @@
 <script setup lang="ts">
-const participants = ref([
-    { username: "Иванов Иван Сергеевич", participant_id: "1", is_hidden: false, is_blocked: false },
-    { username: "Петров Петр Петрович", participant_id: "2", is_hidden: true, is_blocked: false },
-    { username: "Сидоров Сидор Сидорович", participant_id: "3", is_hidden: false, is_blocked: true },
-    { username: "Кузнецов Алексей Андреевич", participant_id: "4", is_hidden: false, is_blocked: false },
-    { username: "Смирнова Анна Олеговна", participant_id: "5", is_hidden: true, is_blocked: true },
-    { username: "Попов Дмитрий Сергеевич", participant_id: "6", is_hidden: false, is_blocked: false },
-    { username: "Васильева Мария Ивановна", participant_id: "7", is_hidden: true, is_blocked: false },
-    { username: "Новиков Артем Павлович", participant_id: "8", is_hidden: false, is_blocked: true },
-    { username: "Федорова Екатерина Ильинична", participant_id: "9", is_hidden: false, is_blocked: false },
-    { username: "Морозов Николай Викторович", participant_id: "10", is_hidden: true, is_blocked: true },
-    { username: "Волков Сергей Анатольевич", participant_id: "11", is_hidden: false, is_blocked: false },
-    { username: "Алексеев Максим Игоревич", participant_id: "12", is_hidden: true, is_blocked: false },
-    { username: "Лебедева Ольга Сергеевна", participant_id: "13", is_hidden: false, is_blocked: true },
-    { username: "Семенов Роман Евгеньевич", participant_id: "14", is_hidden: false, is_blocked: false },
-    { username: "Егорова Татьяна Викторовна", participant_id: "15", is_hidden: true, is_blocked: true },
-    { username: "Козлов Андрей Николаевич", participant_id: "16", is_hidden: false, is_blocked: false },
-    { username: "Никитина Юлия Андреевна", participant_id: "17", is_hidden: true, is_blocked: false },
-    { username: "Орлов Денис Сергеевич", participant_id: "18", is_hidden: false, is_blocked: true },
-    { username: "Григорьева Анастасия Павловна", participant_id: "19", is_hidden: false, is_blocked: false },
-    { username: "Юрий Борисович Мельников", participant_id: "20", is_hidden: true, is_blocked: true },
-    { username: "Михаил Петрович Воронов", participant_id: "21", is_hidden: false, is_blocked: false },
-    { username: "Беляева Дарья Сергеевна", participant_id: "22", is_hidden: true, is_blocked: false }
-]);
-//сортируем в порядке очереди - участник имеющий больший id зашел позже - выводим его выше в таблице
-const sortedParticipants = computed(() =>
-    [...participants.value].sort((a, b) => Number(b.participant_id) - Number(a.participant_id))
-);
-function toggleHidden(id: string) {
-    const participant = participants.value.find(p => p.participant_id === id);
-    if (participant) {
-        participant.is_hidden = !participant.is_hidden;
+import { useAuthStore } from '~/store/auth'
+const route = useRoute()
+const interactiveId = route.params.id
+const config = useRuntimeConfig().public
+const auth = useAuthStore()
+const data = ref(null)
+let send = null // функция отправки
+// Функция для создания websocket
+type moderationList = {
+    username: string, participant_id: string,
+    is_hidden: boolean,
+    is_blocked: boolean
+}
+function createWebSocket(interactiveId: string) {
+    const url = config.wsBackend
+    // Предполагаю, что useWebSocket возвращает { data, send }
+    const ws = useWebSocket(`${url}/moderation/${interactiveId}?token=${auth.accessToken}`)
+    send = ws.send
+    ws.open = () => {
+        // Отправляем текущий токен серверу
+        send(JSON.stringify({ type: 'auth', token: auth.accessToken }))
     }
+
+    // Обновляем реактивный data
+    watch(ws.data, (val) => {
+        data.value = val
+    })
+
+    // // Отслеживаем закрытие WebSocket
+    // watch(ws.status, (newStatus) => {
+    //   if (newStatus === 'CLOSED') {
+    //     console.log('WebSocket закрыт')
+    //     router.push('/leader/new_interactives') // редирект при закрытии
+    //   }
+    // })
 }
-function banParticipant(id: string) {
-    const participant = participants.value.find(p => p.participant_id === id);
-    if (participant?.is_blocked) return
+
+onMounted(() => {
+    createWebSocket(interactiveId as string)
+})
+
+// props для компонента
+const data_props = ref({
+    data: {} as moderationList[],
+})
+
+// Парсим и обновляем data_props при изменении data.value
+watch(data, (newVal) => {
+    if (!newVal) return
+    try {
+        const parsedData = JSON.parse(newVal)
+        data_props.value.data = parsedData.data || {}
+    }
+    catch (error) {
+        console.error('Ошибка при разборе данных WebSocket:', error)
+    }
+})
+
+function toggleHidden(id: string) {
+    const winner = data_props.value.data.find(w => w.participant_id === id)
+    if (winner) {
+        winner.is_hidden = !winner.is_hidden
+    }
+    send(JSON.stringify({ hide: id }))
+}
+function showBanPopup(id: string) {
+    const winner = data_props.value.data.find(w => w.participant_id === id)
+    if (winner?.is_blocked) return
     showBan.value = true
+    banId.value = Number(id)
 }
+function banParticipant() {
+    send(JSON.stringify({ block: banId.value }))
+}
+const banId = ref(0)
 const showBan = ref(false)
 </script>
 
@@ -72,7 +108,7 @@ const showBan = ref(false)
                         Модерация
                     </span>
                 </div>
-                <div v-for="(participant, index) in sortedParticipants" :key="participant.participant_id"
+                <div v-for="(participant, index) in data_props.data" :key="participant.participant_id"
                     :class="$style.moderation__list_body" :style="{
                         backgroundColor: Number(participant.participant_id) % 2 === 0
                             ? '#F5F5F5'
@@ -82,9 +118,19 @@ const showBan = ref(false)
                         {{ index + 1 }}
                     </span>
                     <div>
-                        <img :src="participant.is_hidden ? '/images/moderation/hide_name.svg' : '/images/moderation/open_name.svg'"
-                            @click="toggleHidden(participant.participant_id)" />
-                        <span>{{ !participant.is_hidden ? '•••' : participant.username
+                        <img :src="!participant.is_hidden ? '/images/moderation/hide_name.svg' : '/images/moderation/open_name.svg'"
+                            @click="toggleHidden(participant.participant_id)" :style="!participant.is_hidden
+                                ? {
+                                    width: 'calc((22/1280) * 100dvw)',
+                                    height: 'calc((26/832) * 100dvh)',
+
+                                }
+                                : {
+                                    width: 'calc((22/1280) * 100dvw)',
+                                    height: 'calc((28/832) * 100dvh)',
+
+                                }" />
+                        <span>{{ participant.is_hidden ? '•••' : participant.username
                             }}</span>
                     </div>
                     <span :style="{
@@ -92,7 +138,7 @@ const showBan = ref(false)
                         backgroundColor: participant.is_blocked ? '#F0436C' : '#F0436C4D',
                         cursor: participant.is_blocked ? 'default' : 'pointer'
 
-                    }" @click="banParticipant(participant.participant_id)">
+                    }" @click="showBanPopup(participant.participant_id)">
                         {{ participant.is_blocked ? 'Заблокирован' : 'Заблокировать' }}
                     </span>
                 </div>
@@ -100,16 +146,17 @@ const showBan = ref(false)
         </div>
         <div v-if="showBan" class="settings_popup-overlay">
             <div class="settings_popup-content">
-                <img src="/images/moderation/close_popup.svg" @click="showBan = false" />
+                <img src="/images/moderation/close_popup.svg" @click="showBan = false; banId = 0;" />
                 <div class="settings_popup-text">
                     Вы уверены, что хотите заблокировать <br /> участника?
                 </div>
 
                 <div class="settings_popup-buttons">
-                    <button class="settings_popup-btn cancel delete" @click="showBan = false">
+                    <button class="settings_popup-btn cancel delete" @click="showBan = false; banId = 0">
                         Отмена
                     </button>
-                    <button class="settings_popup-btn confirm delete">
+                    <button class="settings_popup-btn confirm delete"
+                        @click="banParticipant(); showBan = false; banId = 0">
                         Заблокировать
                     </button>
                 </div>
@@ -281,16 +328,15 @@ const showBan = ref(false)
                 align-items: center;
                 height: calc(24/832*var(--app-height));
 
-                margin-left: calc(33/1280*100dvw);
+                margin-left: calc(30/1280*100dvw);
 
                 &>img {
                     cursor: pointer;
-                    height: calc(18/832*var(--app-height));
-                    width: calc(18/1280*100dvw);
+
                 }
 
                 &>span {
-                    margin-left: calc(12/1280*100dvw);
+                    margin-left: calc(10/1280*100dvw);
                 }
             }
 

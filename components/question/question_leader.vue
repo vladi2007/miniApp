@@ -119,7 +119,7 @@ function toggleHidden(id: string) {
                     }
                     : {
                       width: 'calc((22/1280) * 100dvw)',
-                      height: 'calc((18/832) * 100dvh)',
+                      height: 'calc((28/832) * 100dvh)',
                       marginLeft: 'calc((20/1280) * 100dvw)'
                     }" />
                 <div :style="!winner.is_hidden

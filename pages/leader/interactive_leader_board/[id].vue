@@ -14,7 +14,7 @@ definePageMeta({
 
 <template>
   <div v-if="data">
-    <InteractiveEnd_leader :data="data" />
+    <InteractiveEnd_leader :data="data.data" :isCheck="true" />
   </div>
 </template>
 

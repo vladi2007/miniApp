@@ -34,7 +34,7 @@ function formatTime(secondsStr: number): string {
       <div class="winners_list">
         <div v-for="(winner, index) in props.winners" :key="index" class="winner_participant">
           <span class="position_participant">{{ winner.position }}</span>
-          <span class="name_participant">{{ !winner.is_hidden ? '•••' : winner.username
+          <span class="name_participant">{{ winner.is_hidden ? '•••' : winner.username
           }}</span>
           <span class="time_participant">{{ formatTime(winner.time) }}</span>
           <span class="score_participant">{{ winner.score }}</span>

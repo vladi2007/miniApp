@@ -97,5 +97,5 @@ definePageMeta({
   <component :is="componentMap[data_props.stage]" v-if="data_props.stage" :data="data_props.data"
     :stage="data_props.stage" context="leader" class="component" :on-status="sendStatus" :on-answer="hide"
     :pause="data_props.pause" :data_answers="data_props.data_answers" :winners="data_props.winners"
-    :code="interactiveId" />
+    :code="interactiveId" :isCheck="false" />
 </template>

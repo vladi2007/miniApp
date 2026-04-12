@@ -7,42 +7,13 @@ import simplebar from 'simplebar-vue'
 import 'simplebar-vue/dist/simplebar.min.css'
 // таблица лидеров
 const props = defineProps<{
+  isCheck?: boolean
   winners: QuestionWinners[]
-  onAnswer: (id: string) => void
+  onAnswer?: (id: string) => void
 }>()
 
 // Получаем экземпляр маршрутизатора
 const router = useRouter()
-// const winners = [
-//   { position: 1, username: 'PlayerOne', time: 125, score: 1500 },
-//   { position: 2, username: 'FastRunner', time: 138, score: 1420 },
-//   { position: 3, username: 'Speedy', time: 150, score: 1300 },
-//   { position: 4, username: 'NoobMaster', time: 180, score: 1100 },
-//   { position: 5, username: 'Legend27', time: 210, score: 900 },
-//   { position: 1, username: 'PlayerOne', time: 125, score: 1500 },
-//   { position: 2, username: 'FastRunner', time: 138, score: 1420 },
-//   { position: 3, username: 'Speedy', time: 150, score: 1300 },
-//   { position: 4, username: 'NoobMaster', time: 180, score: 1100 },
-//   { position: 5, username: 'Legend27', time: 210, score: 900 },
-//   { position: 1, username: 'PlayerOne', time: 125, score: 1500 },
-//   { position: 2, username: 'FastRunner', time: 138, score: 1420 },
-//   { position: 3, username: 'Speedy', time: 150, score: 1300 },
-//   { position: 4, username: 'NoobMaster', time: 180, score: 1100 },
-//   { position: 5, username: 'Legend27', time: 210, score: 900 },
-//   { position: 1, username: 'PlayerOne', time: 125, score: 1500 },
-//   { position: 2, username: 'FastRunner', time: 138, score: 1420 },
-//   { position: 3, username: 'Speedy', time: 150, score: 1300 },
-//   { position: 4, username: 'NoobMaster', time: 180, score: 1100 },
-//   { position: 5, username: 'Legend27', time: 210, score: 900 },
-// ]
-
-const participants = ref(
-  props.winners.map((winner, index) => ({
-    ...winner,
-    participant_id: String(index + 1), // если нет participant_id, ставим индекс
-    is_hidden: false, // по умолчанию имя видно
-  }))
-)
 
 // Функция возврата на предыдущую страницу
 function goToMainMenu() {
@@ -58,11 +29,14 @@ function formatTime(secondsStr: number): string {
   return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
 }
 function toggleHidden(id: string) {
+  if (props.isCheck)
+    return
   const winner = props.winners.find(w => w.participant_id === id)
   if (winner) {
     winner.is_hidden = !winner.is_hidden
   }
-  props.onAnswer(id)
+
+  if (props.onAnswer) props.onAnswer(id)
 }
 </script>
 
@@ -98,21 +72,39 @@ function toggleHidden(id: string) {
               <div class="position">
                 {{ winner.position }}
               </div>
-              <img :src="winner.is_hidden ? '/images/moderation/hide_name.svg' : '/images/moderation/open_name.svg'"
-                @click="toggleHidden(winner.participant_id)" :style="!winner.is_hidden
-                  ? {
-                    width: 'calc((22/1280) * 100dvw)',
-                    height: 'calc((26/832) * 100dvh)',
-                    marginLeft: 'calc((71/1280) * 100dvw)'
-                  }
-                  : {
-                    width: 'calc((22/1280) * 100dvw)',
-                    height: 'calc((18/832) * 100dvh)',
-                    marginLeft: 'calc((71/1280) * 100dvw)'
-                  }" />
+              <div @click="toggleHidden(winner.participant_id)" :style="!winner.is_hidden
+                ? {
+                  width: 'calc((22/1280) * 100dvw)',
+                  height: 'calc((26/832) * 100dvh)',
+                  marginLeft: 'calc((71/1280) * 100dvw)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }
+                : {
+                  width: 'calc((22/1280) * 100dvw)',
+                  height: 'calc((28/832) * 100dvh)',
+                  marginLeft: 'calc((71/1280) * 100dvw)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }">
+                <img v-if="!isCheck"
+                  :src="!winner.is_hidden ? '/images/moderation/hide_name.svg' : '/images/moderation/open_name.svg'"
+                  :style="!winner.is_hidden
+                    ? {
+                      width: 'calc((22/1280) * 100dvw)',
+                      height: 'calc((26/832) * 100dvh)',
+                    }
+                    : {
+                      width: 'calc((22/1280) * 100dvw)',
+                      height: 'calc((28/832) * 100dvh)',
+                    }" />
+              </div>
+
               <div class="name">
 
-                {{ !winner.is_hidden ? '•••' : winner.username
+                {{ winner.is_hidden && !isCheck ? '•••' : winner.username
                 }}
               </div>
               <div class="time">
