@@ -4,7 +4,7 @@ import { toRef } from 'vue'
 import question_list_leader_one from '~/components/question/question_list_leader_one.vue'
 import question_list_leader_text from '~/components/question/question_list_leader_text.vue'
 import question_leader_buttons from '~/components/question/question_leader_buttons.vue'
-import type { Pause, QuestionData, QuestionWinners } from '~/store/types/stageData'
+import type { Pause, QuestionData, QuestionWinners } from '~/types/stageData'
 
 // composables
 import { UseQuestionLeader } from '~/composables/interactive/interactive_leader/question_leader/question_leader'
@@ -15,7 +15,7 @@ const props = defineProps<{
   stage: string
   data: QuestionData
   context: string
-  onAnswer: () => void
+  onAnswer: (id: string) => void
   onStatus: (status: string) => void
   pause: Pause
   winners: QuestionWinners[]
@@ -45,10 +45,11 @@ const participants = ref(
   }))
 )
 function toggleHidden(id: string) {
-  const winner = participants.value.find(w => w.participant_id === id)
+  const winner = props.winners.find(w => w.participant_id === id)
   if (winner) {
     winner.is_hidden = !winner.is_hidden
   }
+  props.onAnswer(id)
 }
 </script>
 
@@ -103,13 +104,13 @@ function toggleHidden(id: string) {
 
             <div class="question_leader_winners_header_line" />
             <div class="question_leader_winners_list">
-              <div v-for="winner in participants" :key="winner.participant_id"
+              <div v-for="winner in props.winners" :key="winner.participant_id"
                 class="question_leader_winners_list_item">
 
                 <div style="width: calc((14/1280)*100dvw);">
                   {{ winner.position }}
                 </div>
-                <img :src="winner.is_hidden ? '/images/moderation/hide_name.svg' : '/images/moderation/open_name.svg'"
+                <img :src="!winner.is_hidden ? '/images/moderation/hide_name.svg' : '/images/moderation/open_name.svg'"
                   @click="toggleHidden(winner.participant_id)" :style="!winner.is_hidden
                     ? {
                       width: 'calc((22/1280) * 100dvw)',
@@ -128,7 +129,7 @@ function toggleHidden(id: string) {
                   : {
                     marginLeft: 'calc((5/1280) * 100dvw)'
                   }">
-                  {{ !winner.is_hidden ? '•••' : winner.username
+                  {{ winner.is_hidden ? '•••' : winner.username
                   }}
                 </div>
                 <div style="margin-left:auto; margin-right:calc((20/1280)*100dvw); width: calc((16/1280)*100dvw); display: flex;align-items: center;

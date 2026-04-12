@@ -7,6 +7,7 @@ import { useAuthStore } from '~/store/auth'
 
 // Получаем данные через props
 const props = defineProps<{
+  onAnswer: (id: string) => void
   stage: string
   data: EndData
   winners: { position: number, username: string, time: number, score: number }[]
@@ -25,21 +26,15 @@ onMounted(() => {
 <template>
   <div class="interactive_leader_end">
     <div class="interactive_end_leader_results">
-      <img
-        id="logo_leader"
-        src="/images/waiting/Group_7055.svg"
-      >
+      <img id="logo_leader" src="/images/waiting/Group_7055.svg">
       <div style="height: 0px; font-size: 0.01px; color: blueviolet;">
         sd
       </div>
-      <Results_leader
-        :title="props.data.title"
-        :participants-total="props.data.participants_total"
-        :stage="props.stage"
-      />
+      <Results_leader :title="props.data.title" :participants-total="props.data.participants_total"
+        :stage="props.stage" />
     </div>
 
-    <WinnersTable_leader :winners="props.data.winners" />
+    <WinnersTable_leader :winners="props.data.winners" :on-answer="onAnswer" />
   </div>
 </template>
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // imports
-import type { QuestionData } from '~/store/types/stageData'
+import type { Pause, QuestionData, QuestionWinners } from '~/types/stageData'
 import timer from './timer.vue'
 import question_list from './question_list.vue'
 import question_list_many from './question_list_many.vue'
@@ -12,7 +12,7 @@ const props = defineProps<{
   context: string
   onAnswer: () => void
   score: string
-  winners: any
+  winners: QuestionWinners[]
   data_answers?: any | undefined
 
 }>()
@@ -64,12 +64,12 @@ const participants = ref(
         <img src="/public/images/question/Vector (1).svg">
       </div>
       <div class="question_leader_board_list_list">
-        <div v-for="(winner, index) in participants" class="question_leader_board_winner">
+        <div v-for="(winner, index) in props.winners" class="question_leader_board_winner">
           <div class="question_leader_board_winner_position">
             {{ winner.position }}
           </div>
           <div class="question_leader_board_winner_name">
-            {{ !winner.is_hidden ? '•••' : winner.username
+            {{ winner.is_hidden ? '•••' : winner.username
             }}
           </div>
           <div class="question_leader_board_winner_score">

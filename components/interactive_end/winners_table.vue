@@ -32,7 +32,7 @@ function formatTime(secondsStr: number): string {
         <span class="score_participant_header">балл</span>
       </div>
       <div class="winners_list">
-        <div v-for="(winner, index) in defaultWinners" :key="index" class="winner_participant">
+        <div v-for="(winner, index) in props.winners" :key="index" class="winner_participant">
           <span class="position_participant">{{ winner.position }}</span>
           <span class="name_participant">{{ !winner.is_hidden ? '•••' : winner.username
           }}</span>

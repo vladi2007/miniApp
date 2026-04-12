@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { EndData, EndWinners } from '~/store/types/stageData'
+import type { Pause, QuestionData, QuestionWinners } from '~/types/stageData'
 
 import { useRouter } from 'vue-router'
 
@@ -7,7 +7,8 @@ import simplebar from 'simplebar-vue'
 import 'simplebar-vue/dist/simplebar.min.css'
 // таблица лидеров
 const props = defineProps<{
-  winners: { position: number, username: string, time: number, score: number }[]
+  winners: QuestionWinners[]
+  onAnswer: (id: string) => void
 }>()
 
 // Получаем экземпляр маршрутизатора
@@ -57,10 +58,11 @@ function formatTime(secondsStr: number): string {
   return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
 }
 function toggleHidden(id: string) {
-  const winner = participants.value.find(w => w.participant_id === id)
+  const winner = props.winners.find(w => w.participant_id === id)
   if (winner) {
     winner.is_hidden = !winner.is_hidden
   }
+  props.onAnswer(id)
 }
 </script>
 
@@ -90,7 +92,7 @@ function toggleHidden(id: string) {
       <simplebar
         style="height: calc((318 / 832) * 100dvh);    margin-right: calc((25/1280)*100dvw);  margin-top: calc((10 / 832) * 100dvh);">
         <div class="winners_list">
-          <div v-for="(winner, index) in participants" :key="index" class="winner_row">
+          <div v-for="(winner, index) in props.winners" :key="index" class="winner_row">
             <div v-if="index === 0" class="Line" />
             <div class="winner">
               <div class="position">
