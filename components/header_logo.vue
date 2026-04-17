@@ -25,93 +25,48 @@ const showLogout = ref(false)
 <template>
   <div class="header_fon">
     <div class="header">
-      <img
-        id="logo_header"
-        src="/public/images/interactive_editor/logo.svg"
-      >
+      <img id="logo_header" src="/public/images/interactive_editor/logo.svg">
       <div class="header_nav">
-        <div
-          class="header_nav_about_us"
-          @click="goTo('/main')"
-        >
+        <div class="header_nav_about_us" @click="goTo('/main')">
           О нас
         </div>
-        <div
-          v-if="auth.isAuthenticated"
-          class="header_nav_organization_settings"
-          @click="orgs = !orgs"
-        >
+        <div v-if="auth.isAuthenticated" class="header_nav_organization_settings" @click="orgs = !orgs">
           <div class="header_nav_organization_settings_name">
             {{ org?.organization_name }}
           </div>
           <img src="../public/images/Vector.svg">
-          <div
-            v-if="orgs"
-            class="header_nav_item-dropdown-options"
-            style=" z-index: 10001 !important;"
-          >
+          <div v-if="orgs" class="header_nav_item-dropdown-options" style=" z-index: 10001 !important;">
             <div class="header_nav_item-dropdown-options-header">
               Выберите организацию:
             </div>
-            <div
-              class="header_nav_item-dropdown-option"
-              @click="org_name = 'Джойтека'"
-            >
+            <div class="header_nav_item-dropdown-option" @click="org_name = 'Джойтека'">
               Джойтека
             </div>
-            <div
-              class="header_nav_item-dropdown-option"
-              @click="org_name = 'Звезда'"
-            >
+            <div class="header_nav_item-dropdown-option" @click="org_name = 'Звезда'">
               Звезда
             </div>
-            <div
-              class="header_nav_item-dropdown-option"
-              @click="org_name = 'ИРИТ РТФ'"
-            >
+            <div class="header_nav_item-dropdown-option" @click="org_name = 'ИРИТ РТФ'">
               ИРИТ РТФ
             </div>
           </div>
         </div>
-        <div
-          v-if="auth.isAuthenticated"
-          class="header_nav_user"
-          @click="goTo('/leader/user')"
-        >
-          @{{ org?.username }}
+        <div v-if="auth.isAuthenticated" class="header_nav_user" @click="goTo('/leader/user')">
+          {{ org?.name }}
         </div>
-        <div
-          v-if="auth.isAuthenticated"
-          class="header_nav_photo"
-          @click="goTo('/leader/user')"
-        >
+        <div v-if="auth.isAuthenticated" class="header_nav_photo" @click="goTo('/leader/user')">
           <img src="../public/images/profile.svg">
         </div>
-        <div
-          v-if="auth.isAuthenticated"
-          class="header_nav_logout"
-          @click="showLogout = true"
-        >
+        <div v-if="auth.isAuthenticated" class="header_nav_logout" @click="showLogout = true">
           <img src="../public/images/logout.svg">
         </div>
-        <div
-          v-if="!auth.isAuthenticated"
-          class="header_nav_login"
-          @click="goTo('/')"
-        >
+        <div v-if="!auth.isAuthenticated" class="header_nav_login" @click="goTo('/')">
           Вход/Регистрация
         </div>
       </div>
     </div>
-    <div
-      v-if="showLogout"
-      class="logout_popup-overlay"
-    >
+    <div v-if="showLogout" class="logout_popup-overlay">
       <div class="logout_popup">
-        <div
-          class="logout_popup-close"
-          @click="showLogout = false"
-        >
+        <div class="logout_popup-close" @click="showLogout = false">
           <img src="/public/images/interactives/delete_close.svg">
         </div>
         <div class="logout_popup-header">
@@ -120,16 +75,10 @@ const showLogout = ref(false)
           </div>
         </div>
         <div class="logout_popup-body">
-          <button
-            class="logout_popup-button cancel"
-            @click="showLogout = false"
-          >
+          <button class="logout_popup-button cancel" @click="showLogout = false">
             Отменить
           </button>
-          <button
-            class="logout_popup-button confirm"
-            @click="showLogout = false; auth.logout();"
-          >
+          <button class="logout_popup-button confirm" @click="showLogout = false; auth.logout();">
             Выйти
           </button>
         </div>

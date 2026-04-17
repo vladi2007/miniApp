@@ -62,6 +62,8 @@ export interface QuestionWinners {
   position: string
   username: string
   score: string
+  participant_id:string
+  is_hidden:boolean
 }
 // данные для фазы ожидания waiting
 export interface WaitingData {

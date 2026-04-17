@@ -4,6 +4,7 @@ import Waiting from '~/components/waiting/waiting.vue'
 import Countdown from '~/components/countdown/countdown.vue'
 import Question from '~/components/question/question.vue'
 import InteractiveEnd from '~/components/interactive_end/interactive_end.vue'
+import connection from '~/components/participant_interactive/connection.vue'
 // Реактивные переменные
 const route = useRoute()
 
@@ -26,6 +27,8 @@ async function parseHash() {
 }
 const data = ref(null)
 let send = null
+const isBanned = ref(false)
+const sendName = ref<((msg: string) => void) | null>(null)
 // Функция для создания websocket
 function createWebSocket(interactiveId: string) {
   const config = useRuntimeConfig().public
@@ -50,9 +53,25 @@ function createWebSocket(interactiveId: string) {
 
   const wsUrl = `${ulr}/${interactiveId}?${params.toString()}`
 
-  const ws = useWebSocket(wsUrl)
+  const ws = useWebSocket(wsUrl, {
+    onConnected(ws) {
+      console.log('Connected!')
+    },
+    onDisconnected(ws, event) {
+      console.log('Disconnected!', event.code, JSON.parse(event.reason).detail)
+      isBanned.value = JSON.parse(event.reason).detail
+    },
+    onError(ws, event) {
+      console.error('Error:', event)
+    },
+    onMessage(ws, event) {
+      console.log('Message:', event.data)
+    },
+  })
   send = ws.send
-
+  sendName.value = (msg: string) => {
+    ws.send(msg)
+  }
   // Обновляем реактивный data
   watch(ws.data, (val) => {
     data.value = val
@@ -78,19 +97,15 @@ onMounted(async () => {
   await parseHash();
   await $bridge.send("VKWebAppGetLaunchParams")
     .then((data) => {
-      console.log("Launch params:", data);
       const base64 = encodeBase64(data);
-      console.log("Launch params (Base64):", base64);
       launchParams.value = base64
     })
     .catch((error) => console.error("VKWebAppGetLaunchParams error:", error));
 
   await $bridge.send("VKWebAppGetEmail")
     .then((data) => {
-      console.log("Email data:", data);
       if (data) {
         const base64 = encodeBase64(data);
-        console.log("Email (Base64):", base64);
         email.value = base64
       }
     })
@@ -98,10 +113,8 @@ onMounted(async () => {
 
   await $bridge.send("VKWebAppGetPhoneNumber")
     .then((data) => {
-      console.log("Phone data:", data);
       if (data.phone_number) {
         const base64 = encodeBase64(data);
-        console.log("Phone (Base64):", base64);
         phone.value = base64
       }
     })
@@ -109,10 +122,8 @@ onMounted(async () => {
 
   await $bridge.send("VKWebAppGetUserInfo")
     .then((data) => {
-      console.log("User info:", data);
       if (data.id) {
         const base64 = encodeBase64(data);
-        console.log("User info (Base64):", base64);
         userInfo.value = base64
       }
     })
@@ -156,23 +167,7 @@ watch(data, (newVal) => {
   }
 })
 
-// // Отправка ответа
-// function sendAnswer(answer) {
 
-//   // Если ответ — число
-//   if (data_props.data?.question?.type ==='one') {
-//     send(JSON.stringify({ answer_id: String(answer) }))
-//   }
-//   // Если ответ — массив чисел
-//   else if (data_props.data?.question?.type ==='many') {
-//     const answer_ids = answer.map(String)
-//     send(JSON.stringify({ answer_ids:answer_ids }))
-//   }
-//   // Всё остальное — считаем текстом
-//   else {
-//     send(JSON.stringify({ answer_text: answer }))
-//   }
-// }
 
 const componentMap = {
   waiting: Waiting,
@@ -182,12 +177,20 @@ const componentMap = {
   end: InteractiveEnd,
 }
 const timerData = ref({})
+const nameIsSended = ref<boolean>(false)
+onMounted(() => {
+  // Сохраняем изначальную высоту экрана в CSS переменную
+  document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`)
+})
 </script>
 
 <template>
   <div>
-    <component :is="componentMap[data_props.stage]" v-if="data_props.stage" :data="data_props.data"
+    <component :is="componentMap[data_props.stage]" v-if="nameIsSended" :data="data_props.data"
       :stage="data_props.stage" :on-answer="send" context="participant" :data_answers="data_props.data_answers"
-      :winners="data_props.winners" :score="data_props.score" />
+      :winners="data_props.winners" :score="data_props.score" :isBanned="isBanned" />
+    <connection :nameIsSended="!nameIsSended" v-else :on-name-sent="() => { nameIsSended = true }"
+      :on-answer="sendName" />
+
   </div>
 </template>

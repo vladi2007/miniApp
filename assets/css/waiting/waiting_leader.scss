@@ -30,12 +30,18 @@
 
 #logo {
   position: absolute;
-  right: calc((40 / 1280) * 100dvw);
+  right: calc((77 / 1280) * 100dvw);
   top: calc((12 / 832) * 100dvh);
-  width: calc((123 / 1280) * 100dvw);
 height: calc((50 / 832) * 100dvh);
 }
-
+#open_moderation{
+  position: absolute;
+  right: calc((40 / 1280) * 100dvw);
+  top: calc((28 / 832) * 100dvh);
+  height: calc((18 / 832) * 100dvh);
+  width: calc((27 / 1280) * 100dvw);
+  cursor: pointer;
+}
 .waiting_desc-comp {
   background-color: #ffffff;
 margin:0 auto;

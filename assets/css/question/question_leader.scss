@@ -210,8 +210,8 @@ margin-top: calc((8 / 832) * 100dvh);;
   font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
   letter-spacing: clamp(0.1px, calc((20 / 100 / 1280) * 100dvw), 0.4px);
    display: flex;
+   align-items: center;
    width: calc((433/1280) * 100dvw);
-
 }
 .winners_table_score{
   margin-left: auto;
@@ -230,7 +230,11 @@ margin-top: calc((8 / 832) * 100dvh);;
   height: calc((83/832) * 100dvh);
   margin-top: calc((15 / 832) * 100dvh);
 }
-
+.question_leader_winners_list_item > img{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .question_leader_winners_list_item {
   font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
   letter-spacing: clamp(0.10px, calc((20 / 100/ 1280) * 100dvw), 0.40px);
