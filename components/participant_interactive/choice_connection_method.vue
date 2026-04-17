@@ -1,13 +1,62 @@
 <script setup lang="ts">
+import type { FormSubmitEvent } from '@nuxt/ui';
+import { object, string, type InferType } from 'yup';
+
+const choiceEmail = ref(true)
+const schemaCon = object({
+    email: string()
+        .required('Введите почту')
+        .email('Введите корректную почту')
+
+
+})
+type SchemaCon = InferType<typeof schemaCon>
+const initialCon = {
+    email: ''
+}
+const stateCon = reactive({ ...initialCon })
+const formCon = useTemplateRef('formCon')
+const isSended = ref(false)
+async function onSubmitCon(event: FormSubmitEvent<SchemaCon>) {
+    isSended.value = true
+}
 </script>
 
 <template>
     <div :class="$style.connection">
         <div :class="$style.connection__header">
+            <div :class="$style.connection__goback" v-if="choiceEmail" @click="choiceEmail = false">
+                <img src="/public/images/moderation/goback.svg">
+            </div>
             <img src="/public/images/logo.svg" :class="$style.connection__logo" />
 
         </div>
-        <div :class="$style.formInfo">
+        <div :class="$style.formInfo" v-if="choiceEmail">
+            <span :class="$style.formInfo__header">
+                Введите адрес электронной почты
+            </span>
+
+        </div>
+        <UForm ref="formCon" v-if="choiceEmail" :class="$style.connection__form" :validate-on="['input']"
+            :state="stateCon" :schema="schemaCon" @submit="onSubmitCon">
+            <UFormField v-slot="{ error }" name="email" :eager-validation="true" :validate-on-input-delay="0" label=""
+                :ui="{ error: $style.connection__form_error }">
+
+                <div :class="$style.connection__input_wrapper">
+                    <UInput v-model="stateCon.email" :ui="{
+                        base: error
+                            ? [$style.connection__input, $style.connection__form_errorInput]
+                            : $style.connection__input
+                    }" placeholder="E-mail">
+
+                    </UInput>
+                </div>
+            </UFormField>
+            <UButton :class="$style.connection__form_submit" type="submit" :disabled="isSended">
+                Далее
+            </UButton>
+        </UForm>
+        <div :class="$style.formInfo" v-if="!choiceEmail">
             <span :class="$style.formInfo__header">
                 Выберите способ подключения<br />к интерактиву
             </span>
@@ -17,7 +66,7 @@
             </svg>
 
         </div>
-        <div :class="$style.methods">
+        <div :class="$style.methods" v-if="!choiceEmail">
             <div :class="$style.methods__vk">
                 <img src="/public/images/connection/vk.svg">
                 <span>
@@ -42,7 +91,7 @@
                 </svg>
 
             </div>
-            <div :class="$style.methods__email">
+            <div :class="$style.methods__email" @click="choiceEmail = true">
                 <span>
                     E-mail
                 </span>
@@ -97,6 +146,76 @@
         margin-left: auto;
         height: calc(20/844*var(--app-height));
         width: calc(50/390*100dvw);
+    }
+
+    &__form {
+        margin-top: calc((40/844) * var(--app-height));
+
+        &_error {
+            position: absolute;
+            margin-top: 5px;
+            color: #F0436C !important;
+            font-family: "Lato", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            font-size: clamp(10px, calc(12 / 390 * 100dvw), 12px);
+            line-height: 110.00000000000001%;
+            letter-spacing: 0%;
+            vertical-align: middle;
+
+        }
+
+        &_errorInput {
+            color: #F0436C !important;
+            border: 1px solid #F0436C !important;
+        }
+
+        &_submit {
+            margin-top: calc((40/844) * var(--app-height));
+            border-radius: 8px;
+            border: none;
+            background-color: #6AB23D;
+            height: calc(44/844*var(--app-height));
+            width: calc(346/390*100dvw);
+            color: white;
+            font-family: "Lato", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            font-size: clamp(10px, calc(16 / 390 * 100dvw), 16px);
+            line-height: 24px;
+            letter-spacing: 1%;
+            text-align: center;
+            vertical-align: middle;
+
+        }
+
+
+    }
+
+    &__input {
+        height: calc(37/844*var(--app-height));
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0 10px;
+
+        &:focus {
+            border-color: #7D7D7D;
+            outline: none;
+        }
+
+        border-radius: 8px;
+        border: 1px solid #A9A9A9;
+
+    }
+
+    &__goback {
+
+
+
+        &>img {
+            height: 18px;
+            width: 10px;
+        }
     }
 }
 
