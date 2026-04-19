@@ -1,5 +1,5 @@
 export function UseLinks(code: string) {
-  const participantUrl = `https://vk.com/app54504620#interactive?id=${code}`
+  const participantUrl = `${window.location.origin}/participant/choice/${code}`
   function copyToClipboard() {
     try {
       // Создаём скрытое поле ввода

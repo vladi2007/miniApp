@@ -1,4 +1,10 @@
 <script setup lang="ts">
+const props = defineProps<{
+    vk: boolean
+    nameIsSended: boolean
+    onNameSent: () => void;
+    onAnswer: ((msg: string) => void) | null
+}>()
 const { $bridge } = useNuxtApp()
 import type { FormSubmitEvent } from '@nuxt/ui';
 import { boolean, object, Schema, string, type InferType } from 'yup';
@@ -19,21 +25,64 @@ const formCon = useTemplateRef('formCon')
 const ready = ref(false)
 const forgotPending = ref(false)
 const isSended = ref(false)
+const route = useRoute()
+
 async function onSubmitCon(event: FormSubmitEvent<SchemaCon>) {
+    const id = route.params.id as string
     isSended.value = true
     props.onNameSent();
     props.onAnswer?.(JSON.stringify({ name: stateCon.name }))
+    if (props.vk) {
+        localStorage.setItem(`name_${interactiveId.value}`, stateCon.name)
+    }
+    else {
+        localStorage.setItem(`name_${id}`, stateCon.name)
+    }
+
+}
+
+const interactiveId = ref<string | null>(null)
+async function parseHash() {
+    const hash = window.location.hash
+    if (!hash) return
+
+    const cleanHash = hash.slice(1) // убрали #
+    const [path, queryString] = cleanHash.split('?')
+
+    if (path !== 'interactive') return
+
+    const query = Object.fromEntries(
+        new URLSearchParams(queryString || '')
+    )
+
+    interactiveId.value = query.id as string
 }
 onMounted(async () => {
-    const data = await $bridge?.send('VKWebAppGetUserInfo')
-    stateCon.name = data.first_name + ' ' + data.last_name
+    await parseHash()
+    const id = route.params.id as string
+    if (props.vk) {
+
+        const data = await $bridge?.send('VKWebAppGetUserInfo')
+        stateCon.name = data.first_name + ' ' + data.last_name
+        const nameFlag = localStorage.getItem(`name_${interactiveId.value}`)
+        console.log(nameFlag)
+        if (nameFlag) {
+            isSended.value = true
+            props.onNameSent();
+            props.onAnswer?.(JSON.stringify({ name: nameFlag }))
+            return
+        }
+    }
+    const nameFlag = localStorage.getItem(`name_${id}`)
+    if (nameFlag) {
+        isSended.value = true
+        props.onNameSent();
+        props.onAnswer?.(JSON.stringify({ name: nameFlag }))
+        return
+    }
     ready.value = true
 })
-const props = defineProps<{
-    nameIsSended: boolean
-    onNameSent: () => void;
-    onAnswer: ((msg: string) => void) | null
-}>()
+
 </script>
 <template>
     <div :class="$style.connection" v-if="ready">

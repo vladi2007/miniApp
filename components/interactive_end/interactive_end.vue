@@ -7,6 +7,7 @@ import { clearDeviceStorage } from '~/utils/deviceStorage'
 
 onMounted(() => {
   sessionStorage.clear()
+  localStorage.clear()
 })
 
 // Получаем данные через props
@@ -31,10 +32,7 @@ function formatTime(secondsStr: number): string {
   <div class="interactive_end">
     <div class="interactive_end_timer">
       <div class="interactive_end_logo">
-        <img
-          id="interactive_end_logo"
-          src="/public/images/interactive_end/Group 7067 (2).svg"
-        >
+        <img id="interactive_end_logo" src="/public/images/interactive_end/Group 7067 (2).svg">
       </div>
 
       <div class="end_description">
@@ -62,79 +60,67 @@ function formatTime(secondsStr: number): string {
         <div class="your_score_content_table_line" />
         <div class="your_score_content_table_line_second" />
         <div class="your_score_content_table">
-          <div
-            style="font-family: 'Work Sans', sans-serif;
+          <div style="font-family: 'Work Sans', sans-serif;
 font-weight: 700;
 font-style: Bold;
   font-size: clamp(10px, calc((20 / 390) * 100dvw), 40px);
   letter-spacing: clamp(0.10px, calc((20 / 100 / 390) * 100dvw), 0.40px);
 text-align: center; display: flex;
-"
-          >
+">
             <div style="display: flex;">
               {{ props.score?.position }} <div style="color: #A9A9A9 !important;">
                 /{{ props.data.participants_total }}
               </div>
             </div>
           </div>
-          <div
-            style="font-family: 'Lato', sans-serif;
+          <div style="font-family: 'Lato', sans-serif;
 font-weight: 700;
 font-style: Bold;
   font-size: clamp(10px, calc((14 / 390) * 100dvw),28px);
   letter-spacing: clamp(0.10px, calc((14 / 100 / 390) * 100dvw), 0.28px);
 text-align: center;
-"
-          >
+">
             место
           </div>
         </div>
         <div class="your_score_content_table">
           <div class="your_score_content_table_line" />
-          <div
-            style="font-family: 'Work Sans', sans-serif;
+          <div style="font-family: 'Work Sans', sans-serif;
 font-weight: 700;
 font-style: Bold;
   font-size: clamp(10px, calc((20 / 390) * 100dvw), 40px);
   letter-spacing: clamp(0.10px, calc((20 / 100 / 390) * 100dvw), 0.40px);
 text-align: center;
-"
-          >
+">
             {{ formatTime(Number(props.score?.time)) }}
           </div>
-          <div
-            style="font-family: 'Lato', sans-serif;
+          <div style="font-family: 'Lato', sans-serif;
 font-weight: 700;
 font-style: Bold;
   font-size: clamp(10px, calc((14 / 390) * 100dvw),28px);
   letter-spacing: clamp(0.10px, calc((14 / 100 / 390) * 100dvw), 0.28px);
 text-align: center;
-"
-          >
+">
             Время
           </div>
         </div>
         <div class="your_score_content_table">
-          <div
-            style="font-family: 'Work Sans', sans-serif;
+          <div style="font-family: 'Work Sans', sans-serif;
 font-weight: 700;
 font-style: Bold;
   font-size: clamp(10px, calc((20 / 390) * 100dvw), 40px);
   letter-spacing: clamp(0.10px, calc((20 / 100 / 390) * 100dvw), 0.40px);
 text-align: center;
-"
-          >
+">
             {{ props.score?.score }}
           </div>
-          <div
-            style="font-family: 'Lato', sans-serif;
+          <div style="font-family: 'Lato', sans-serif;
 font-weight: 700;
 font-style: Bold;
   font-size: clamp(10px, calc((14 / 390) * 100dvw),28px);
   letter-spacing: clamp(0.10px, calc((14 / 100 / 390) * 100dvw), 0.28px);
 text-align: center;
-"
-          >
+">
             Баллы
           </div>
         </div>

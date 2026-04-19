@@ -57,3 +57,19 @@ export const postForgotPassword = async (mail: string) =>
     const res = await $api.post(`/auth/reset_password`, null, { params: { email: mail } })
     return res.data
   })
+
+export const postAnonymLogin= async () =>{
+  return safeRequest(async () => {
+    const { $api } = useNuxtApp()
+    const res = await $api.post('/auth/anonym_login')
+    return res.data
+  })
+}
+
+export const postEmailLogin= async (email:string) =>{
+  return safeRequest(async () => {
+    const { $api } = useNuxtApp()
+    const res = await $api.post('/auth/email_login', null, { params: { email: email } })
+    return res.data
+  })
+}

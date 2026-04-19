@@ -1,8 +1,12 @@
 <script setup lang="ts">
+const { $api } = useNuxtApp()
+const router = useRouter()
+const route = useRoute()
+import { postAnonymLogin, postEmailLogin } from '~/composables/api/auth/auth';
 import type { FormSubmitEvent } from '@nuxt/ui';
 import { object, string, type InferType } from 'yup';
 
-const choiceEmail = ref(true)
+const choiceEmail = ref(false)
 const schemaCon = object({
     email: string()
         .required('Введите почту')
@@ -20,10 +24,49 @@ const isSended = ref(false)
 async function onSubmitCon(event: FormSubmitEvent<SchemaCon>) {
     isSended.value = true
 }
+async function getVK() {
+    const id = route.params.id as string
+
+    window.location.href = `https://vk.com/app54504620#interactive?id=${id}`
+
+    localStorage.setItem(`vk_${id}`, 'true')
+}
+async function getEmailToken() {
+    const id = route.params.id as string
+    const anonymToken = await postEmailLogin(stateCon.email);
+    localStorage.setItem(`email_${id}`, anonymToken?.access_token)
+    router.push(`/participant/email/${id}`)
+}
+async function getAnonymToken() {
+    const id = route.params.id as string
+    const anonymToken = await postAnonymLogin();
+    localStorage.setItem(`anonym_${id}`, anonymToken?.access_token)
+    router.push(`/participant/${id}`)
+}
+const ready = ref(false)
+onMounted(async () => {
+    const id = route.params.id as string
+    const vk = await localStorage.getItem(`vk_${id}`)
+    if (vk) {
+        window.location.href = `https://vk.com/app54504620#interactive?id=${id}`
+        return
+    }
+    const email = await localStorage.getItem(`email_${id}`)
+    if (email) {
+        router.push(`/participant/email/${id}`)
+        return
+    }
+    const anon = await localStorage.getItem(`anonym_${id}`)
+    if (anon) {
+        router.push(`/participant/${id}`)
+        return
+    }
+    ready.value = true
+})
 </script>
 
 <template>
-    <div :class="$style.connection">
+    <div :class="$style.connection" v-if="ready">
         <div :class="$style.connection__header">
             <div :class="$style.connection__goback" v-if="choiceEmail" @click="choiceEmail = false">
                 <img src="/public/images/moderation/goback.svg">
@@ -52,7 +95,8 @@ async function onSubmitCon(event: FormSubmitEvent<SchemaCon>) {
                     </UInput>
                 </div>
             </UFormField>
-            <UButton :class="$style.connection__form_submit" type="submit" :disabled="isSended">
+            <UButton :class="$style.connection__form_submit" type="submit" :disabled="isSended"
+                @click="getEmailToken()">
                 Далее
             </UButton>
         </UForm>
@@ -67,7 +111,7 @@ async function onSubmitCon(event: FormSubmitEvent<SchemaCon>) {
 
         </div>
         <div :class="$style.methods" v-if="!choiceEmail">
-            <div :class="$style.methods__vk">
+            <div :class="$style.methods__vk" @click="getVK()">
                 <img src="/public/images/connection/vk.svg">
                 <span>
                     Войти через VK ID
@@ -102,7 +146,7 @@ async function onSubmitCon(event: FormSubmitEvent<SchemaCon>) {
                 </svg>
 
             </div>
-            <div :class="$style.methods__anonym">
+            <div :class="$style.methods__anonym" @click="getAnonymToken">
                 <span>
                     Пропустить
                 </span>
