@@ -35,7 +35,7 @@ async function getEmailToken() {
     const id = route.params.id as string
     const anonymToken = await postEmailLogin(stateCon.email);
     localStorage.setItem(`email_${id}`, anonymToken?.access_token)
-    router.push(`/participant/email/${id}`)
+    router.push(`/participant/email/${id}?email=${stateCon.email} `)
 }
 async function getAnonymToken() {
     const id = route.params.id as string

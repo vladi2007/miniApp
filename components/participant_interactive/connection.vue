@@ -4,6 +4,7 @@ const props = defineProps<{
     nameIsSended: boolean
     onNameSent: () => void;
     onAnswer: ((msg: string) => void) | null
+    initName: string
 }>()
 const { $bridge } = useNuxtApp()
 import type { FormSubmitEvent } from '@nuxt/ui';
@@ -18,7 +19,7 @@ const schemaCon = object({
 })
 type SchemaCon = InferType<typeof schemaCon>
 const initialCon = {
-    name: ''
+    name: props.initName
 }
 const stateCon = reactive({ ...initialCon })
 const formCon = useTemplateRef('formCon')
