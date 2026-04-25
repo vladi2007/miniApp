@@ -152,61 +152,33 @@ function toggleLeader(id: string) {
         Доступна функция выгрузки отчетов с нескольких интерактивов.
       </div>
     </div>
-    <div
-      v-if="!is_empty_list"
-      class="history_selected_interactives"
-    >
+    <div v-if="!is_empty_list" class="history_selected_interactives">
       <div class="history_selected_interactives_header">
         Список выбранных интерактивов
       </div>
       <div :class="{ selected_list: selectedInteractives.length > 0 }">
-        <div
-          v-for="id in selectedInteractives"
-          v-if="selectedInteractives.length > 0"
-          id="history_list_list"
-          :key="id"
-          class="history_list_list"
-          style="height: calc((36/832)*100dvh);"
-        >
-          <div
-            class="history_list_list_item_selected"
-            :class="['selected_item']"
-          >
+        <div v-for="id in selectedInteractives" v-if="selectedInteractives.length > 0" id="history_list_list" :key="id">
+          <div class="history_list_list_item_selected" :class="['selected_item']">
             <div class="history_list_list_item_title">
-              {{ interactivesData?.interactive_list?.find(item => item.id === id)?.title }}
+              {{interactivesData?.interactive_list?.find(item => item.id === id)?.title}}
             </div>
             <div class="history_list_list_item_date">
-              {{ interactivesData?.interactive_list?.find(item => item.id === id)?.date_completed }}
+              {{interactivesData?.interactive_list?.find(item => item.id === id)?.date_completed}}
             </div>
-            <div
-              class="history_list_list_item_count"
-              style="width:calc((226 / 1280) * 100dvw) !important; "
-            >
-              Количество участников: {{ interactivesData?.interactive_list?.find(item => item.id
-                === id)?.participant_count }}
+            <div class="history_list_list_item_count" style="width:calc((226 / 1280) * 100dvw) !important; ">
+              Количество участников: {{interactivesData?.interactive_list?.find(item => item.id
+                === id)?.participant_count}}
             </div>
-            <img
-              src="/public/images/history/history_delete.svg"
-              @click="selectedInteractives = selectedInteractives.filter(item => item !== id)"
-            >
+            <img src="/public/images/history/history_delete.svg"
+              @click="selectedInteractives = selectedInteractives.filter(item => item !== id)">
           </div>
-          <div
-            class="Line"
-            style="width: calc((1030/1280)*100dvw); margin: 0 auto;"
-          />
+
         </div>
       </div>
-      <div
-        v-if="selectedInteractives.length > 0"
-        class="history_list_selected_download"
-        @click="showPopup = true"
-      >
+      <div v-if="selectedInteractives.length > 0" class="history_list_selected_download" @click="showPopup = true">
         Выгрузить
       </div>
-      <div
-        v-if="selectedInteractives.length === 0"
-        class="history_selected_interactives_info"
-      >
+      <div v-if="selectedInteractives.length === 0" class="history_selected_interactives_info">
         <img src="/public/images//history/finder_info.svg">
 
         <div class="history_selected_interactives_info_h2">
@@ -214,31 +186,17 @@ function toggleLeader(id: string) {
         </div>
       </div>
     </div>
-    <div
-      class="history_finder"
-      :class="{ margin_24: !is_empty_list }"
-    >
+    <div class="history_finder" :class="{ margin_24: !is_empty_list }">
       <div class="history_finder_header">
         Список проведенных интерактивов
       </div>
       <div class="history_finder_finder">
-        <img
-          src="/public/images/history/finder.svg"
-          class="input-icon"
-        >
+        <img src="/public/images/history/finder.svg" class="input-icon">
 
-        <input
-          v-model="finder"
-          type="text"
-          placeholder="Поиск интерактива"
-          class="search-input"
-        >
+        <input v-model="finder" type="text" placeholder="Поиск интерактива" class="search-input">
       </div>
     </div>
-    <div
-      v-if="interactivesData && is_empty_list"
-      class="history_empty_list_info"
-    >
+    <div v-if="interactivesData && is_empty_list" class="history_empty_list_info">
       <img src="/public/images//history/finder_info.svg">
       <div class="history_empty_list_info_h1">
         У Вас нет интерактивов
@@ -247,10 +205,7 @@ function toggleLeader(id: string) {
         Проведите свой первый интерактив и он отобразится здесь
       </div>
     </div>
-    <div
-      v-if="interactivesData && !is_empty_list"
-      class="history_list"
-    >
+    <div v-if="interactivesData && !is_empty_list" class="history_list">
       <div class="history_list_header">
         <div class="history_list_header_title">
           Название
@@ -265,28 +220,15 @@ function toggleLeader(id: string) {
           Количество участников
         </div>
       </div>
-      <div
-        v-for="(item, index) in interactivesData?.interactive_list"
-        :key="item.id"
-        class="history_list_list"
-      >
-        <div
-          v-if="index === 0"
-          class="Line"
-        />
+      <div v-for="(item, index) in interactivesData?.interactive_list" :key="item.id" class="history_list_list">
+
         <div class="history_list_list_item">
-          <div
-            class="history_list_list_item_title title-clamp"
-            :class="{ expanded: expandedTitles[item.id] }"
-            @click="toggleTitle(String(item.id))"
-          >
+          <div class="history_list_list_item_title title-clamp" :class="{ expanded: expandedTitles[item.id] }"
+            @click="toggleTitle(String(item.id))">
             {{ item.title }}
           </div>
-          <div
-            class="history_list_list_item_leadername title-clamp"
-            :class="{ expanded: expandedLeaders[item.id] }"
-            @click="toggleLeader(String(item.id))"
-          >
+          <div class="history_list_list_item_leadername title-clamp" :class="{ expanded: expandedLeaders[item.id] }"
+            @click="toggleLeader(String(item.id))">
             {{ item.username }}
           </div>
           <div class="history_list_list_item_date">
@@ -295,73 +237,44 @@ function toggleLeader(id: string) {
           <div class="history_list_list_item_count">
             {{ item.participant_count }}
           </div>
-          <div
-            class="history_list_list_item_download_one"
-            @click="openPopup(item.id)"
-          >
+          <div class="history_list_list_item_download_one" @click="openPopup(item.id)">
             Выгрузить
           </div>
-          <div
-            class="history_list_list_item_download_many"
+          <div class="history_list_list_item_download_many"
             :style="{ visibility: selectedInteractives.includes(item.id) ? 'hidden' : 'visible' }"
-            @click="selectManyOption(item.id)"
-          >
+            @click="selectManyOption(item.id)">
             Выбрать
           </div>
         </div>
-        <div class="Line" />
       </div>
-      <div
-        v-if="!interactivesData.is_end"
-        class="history_show_more"
-        @click="more_load()"
-      >
+      <div v-if="!interactivesData.is_end" class="history_show_more" @click="more_load()">
         Показать еще
       </div>
     </div>
 
-    <div
-      v-if="showPopup"
-      class="popup-overlay"
-    >
+    <div v-if="showPopup" class="popup-overlay">
       <div class="popup">
         <div class="popup-header">
           <div class="popup-header-text">
             Какой отчет хотите выгрузить
           </div>
-          <img
-            src="/images/history/Vector_1.svg"
-            class="popup-close"
-            @click="closePopup"
-          >
+          <img src="/images/history/Vector_1.svg" class="popup-close" @click="closePopup">
         </div>
         <div class="popup-body">
-          <label
-            class="popup-option"
-            @click="selectedOption = 'forLeader'"
-          >
+          <label class="popup-option" @click="selectedOption = 'forLeader'">
             <img :src="urlReport('forLeader')">
             <span class="popup-option-span">Отчет для ведущего</span>
           </label>
-          <label
-            class="popup-option second"
-            @click="selectedOption = 'forAnalise'"
-          >
+          <label class="popup-option second" @click="selectedOption = 'forAnalise'">
             <img :src="urlReport('forAnalise')">
             <span class="popup-option-span">Отчет для обработки</span>
           </label>
         </div>
         <div class="popup-footer">
-          <button
-            class="popup-cancel"
-            @click="showPopup = false"
-          >
+          <button class="popup-cancel" @click="showPopup = false">
             Отменить
           </button>
-          <button
-            class="popup-submit"
-            @click="submitReport"
-          >
+          <button class="popup-submit" @click="submitReport">
             Выгрузить
           </button>
         </div>

@@ -166,9 +166,8 @@
     letter-spacing: 0.16px;
     vertical-align: middle;
     color: #1D1D1D;
-    overflow-x: hidden;
+    overflow: hidden;
     min-height: 162px;
-
 }
 
 .history_list_selected_download {border-radius: 5px;    display: flex;align-items: center;justify-content: center;
@@ -228,17 +227,19 @@
 
 .history_list_header {
     display: flex;
-    margin-left: 22px;
+    align-items: center;
+    padding-left: 22px;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
  font-size: 16px;
+ height: 46px;;
     letter-spacing: 0.16px;
     text-align: center;
     vertical-align: middle;
     color: #A9A9A9;
-    margin-bottom: 15px;
     overflow-x: hidden;
+     border-bottom: 1px solid  #1D1D1D1D;
 }
 
 .history_list_header_title {
@@ -267,9 +268,7 @@
     flex-direction: column;
     overflow-x: hidden;
 }
-#history_list_list{
-    height: 36.15px !important; ;
-}
+
 .history_list_list_item {
     overflow-x: hidden;
     display: flex;
@@ -280,13 +279,14 @@
     letter-spacing: 0.16px;
     text-align: center;
     vertical-align: middle;
+    border-bottom: 1px solid  #1D1D1D1D;
 }
 .history_list_list_item_selected{
      overflow-x: hidden;
      overflow-y: hidden;
     display: flex;
     align-items: center;
-     height: 46.13px;
+     height: 46px !important;;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
@@ -294,6 +294,7 @@
     letter-spacing: 0.16px;
     text-align: center;
     vertical-align: middle;
+    border-bottom: 1px solid  #1D1D1D1D;
 }
 .history_list_list_item_selected>img {
     height: 18px;
@@ -329,7 +330,7 @@
 
 }
 .history_list_list_item_leadername {margin-left: 12px;;
-  text-align: left;
+  text-align: center;
  margin-top:15px;;
      margin-bottom:15px;;
   width:  137px;;
