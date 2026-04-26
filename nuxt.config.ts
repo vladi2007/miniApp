@@ -16,8 +16,7 @@ export default defineNuxtConfig({
       ],
 
       link: [
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' },
+      
         {
           rel: 'stylesheet',
           href: 'https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap',
@@ -42,7 +41,9 @@ export default defineNuxtConfig({
       websocket: true,
     },
   },
-
+ ui: {
+    fonts: false
+  },
   vite: {
     server: {
       allowedHosts: ['tidily-viable-mongoose.cloudpub.ru', 'allegedly-innate-dotterel.cloudpub.ru', 'swimmingly-astounding-nyala.cloudpub.ru',
