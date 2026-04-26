@@ -61,20 +61,20 @@ services:
     networks:
       - app_network
 
-  # rq_worker:
-  #   image: mrbob1kk/workerminiapp
-  #   container_name: rq_worker
-  #   environment:
-  #     BOT_TOKEN: ${BOT_TOKEN}
-  #     MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-  #     MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-  #     REDIS_HOST: ${REDIS_HOST}
-  #     REDIS_PORT: ${REDIS_PORT}
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #   networks:
-  #     - app_network
+  rq_worker:
+    image: mrbob1kk/workerminiapp
+    container_name: rq_worker
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - app_network
 
   # telegram_bot:
   #   image: mrbob1kk/botminiapp

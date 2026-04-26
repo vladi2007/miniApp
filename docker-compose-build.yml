@@ -66,18 +66,18 @@ services:
     networks:
       - app_network
 
-  telegram_bot:
-    image: mrbob1kk/botminiapp
-    container_name: telegram_bot
-    environment:
-      SECRET_KEY: ${SECRET_KEY}
-      BOT_TOKEN: ${BOT_TOKEN}
-      URL_FRONT: ${URL_FRONT}
-      URL_BACK: ${URL_BACK}
-    depends_on:
-      - fastapi_app
-    networks:
-      - app_network
+  # telegram_bot:
+  #   image: mrbob1kk/botminiapp
+  #   container_name: telegram_bot
+  #   environment:
+  #     SECRET_KEY: ${SECRET_KEY}
+  #     BOT_TOKEN: ${BOT_TOKEN}
+  #     URL_FRONT: ${URL_FRONT}
+  #     URL_BACK: ${URL_BACK}
+  #   depends_on:
+  #     - fastapi_app
+  #   networks:
+  #     - app_network
 
   postgres:
     image: postgres:15-alpine
@@ -99,20 +99,20 @@ services:
       - app_network
 
 
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - "5050:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    depends_on:
-      - postgres
-    networks:
-      - app_network
+  # pgadmin:
+  #   image: dpage/pgadmin4:latest
+  #   container_name: pgadmin
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@admin.com
+  #     PGADMIN_DEFAULT_PASSWORD: admin
+  #   ports:
+  #     - "5050:80"
+  #   volumes:
+  #     - pgadmin_data:/var/lib/pgadmin
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - app_network
 
   redis:
     image: redis:7-alpine

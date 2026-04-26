@@ -49,12 +49,27 @@ export const postRegister = async (email: string, role: string) =>
     const res = await $api.post(`/auth/register`, null, { params: { email, role } })
     return res.data
   })
+// запрос на регистрацию
+export const postRegisterConfirm = async (login: string, password: string, token:string) =>
+  safeRequest(async () => {
+    const { $api } = useNuxtApp()
+    const res = await $api.post(`/auth/register/confirm`, null, { params: { login, password,token } })
+    return res.data
+  })
 
 // запрос на сброс пароля
 export const postForgotPassword = async (mail: string) =>
   safeRequest(async () => {
     const { $api } = useNuxtApp()
     const res = await $api.post(`/auth/reset_password`, null, { params: { email: mail } })
+    return res.data
+  })
+
+  // запрос на сброс пароля
+export const postForgotPasswordConfirm = async (password: string, token:string) =>
+  safeRequest(async () => {
+    const { $api } = useNuxtApp()
+    const res = await $api.post(`/auth/reset_password/confirm`, null, { params: { password: password, token:token } })
     return res.data
   })
 

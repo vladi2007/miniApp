@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { object, string, type InferType } from 'yup';
 import * as yup from "yup";
+import { decode } from 'jwt-js-decode'
+import { postForgotPasswordConfirm } from '~/composables/api/auth/auth';
 const schemaReset = object({
 
 
@@ -23,14 +25,26 @@ const initialReset = {
 }
 type SchemaReset = InferType<typeof schemaReset>
 const stateReset = reactive({ ...initialReset })
+const auth = useAuthStore()
+const route = useRoute()
 async function onSubmitReset(event: FormSubmitEvent<SchemaReset>) {
-    console.log(event.data)
+    try {
+        await postForgotPasswordConfirm(event.data.password, route.query!.jwt! as string)
+    }
+    catch {
+
+    }
+    finally {
+        console.log(decode(route.query.jwt! as string).payload)
+        await auth.login({ password: event.data.password, username: decode(route.query.jwt! as string).payload.login })
+    }
 }
 const showPasswordReset = ref(false)
 const showSecondPasswordReset = ref(false)
 import show from '../../public/images/login/showPass.svg'
 import hide from '../../public/images/login/hidePass.svg'
 import type { FormSubmitEvent } from '@nuxt/ui';
+import { useAuthStore } from '~/store/auth';
 </script>
 
 <template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { object, string, type InferType } from 'yup';
-
+import { postRegisterConfirm } from '~/composables/api/auth/auth';
+const route = useRoute()
 const schemaReg = object({
 
 
@@ -23,13 +24,32 @@ const initialReg = {
 }
 type SchemaReg = InferType<typeof schemaReg>
 const stateReg = reactive({ ...initialReg })
+const auth = useAuthStore()
 async function onSubmitReg(event: FormSubmitEvent<SchemaReg>) {
-    console.log(event.data)
+    try {
+        await postRegisterConfirm(event.data.login, event.data.password, route.query!.jwt! as string)
+
+    }
+    catch (err) {
+        const error = err as AxiosError<ApiErrorResponse>;
+        const code = error.response?.data?.detail?.code
+        switch (code) {
+            case 'EMAIL_SEND':
+                window.alert('Ошибка отправки email')
+                break
+        }
+    }
+    finally {
+        await auth.login({ password: event.data.password, username: event.data.login })
+    }
 }
 const showPasswordReg = ref(false)
 import show from '../../public/images/login/showPass.svg'
 import hide from '../../public/images/login/hidePass.svg'
 import type { FormSubmitEvent } from '@nuxt/ui';
+import type { AxiosError } from 'axios';
+import type { ApiErrorResponse } from '~/composables/api/handleAuthError';
+import { useAuthStore } from '~/store/auth';
 </script>
 
 <template>

@@ -76,6 +76,8 @@ export async function handleAuthError(error: AxiosError<ApiErrorResponse>) {
     // пусть 401 - код ошибки, что refresh token истёк, тогда чистим сессию
     if (auth.isAuthenticated){
       await auth.clear()
+      const router=useRouter()
+      router.push('/')
     }
     return Promise.reject(error)
   }
