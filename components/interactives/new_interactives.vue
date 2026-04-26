@@ -304,7 +304,6 @@ function toggleLeader(id: string) {
         </div>
       </div>
       <div v-for="(item, index) in interactivesData?.interactive_list" :key="item.id" class="interactives_list_list">
-        <div v-if="index === 0" class="interactives_Line" />
         <div class="interactives_list_list_item">
           <div class="interactives_list_list_item_title title-clamp" :class="{ expanded: expandedTitles[item.id] }"
             @click="toggleTitle(String(item.id))">
@@ -374,7 +373,6 @@ function toggleLeader(id: string) {
             </div>
           </div>
         </div>
-        <div class="interactives_Line" />
       </div>
       <div v-if="!interactivesData!.is_end" class="interactives_show_more" @click="more_load()">
         Показать еще
@@ -846,13 +844,17 @@ button {
 
   .interactives_list_header {
     display: flex;
-    margin-left: calc((22 / 1280) * 100dvw);
+    align-items: center;
+    padding-left: calc((22 / 1280) * 100dvw);
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
     letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
     color: #A9A9A9;
-    margin-bottom: calc((15 / 832) * 100dvh);
+    height: calc((46 / 832) * 100dvh);
+    min-height: 46px;
+    ;
+    border-bottom: 1px solid #1D1D1D1D;
   }
 
   .interactives_list_header_title {
@@ -891,11 +893,16 @@ button {
 
   .interactives_list_list_item {
     display: flex;
+    align-items: center;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
     font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
     letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
+    height: calc((46 / 832) * 100dvh);
+    min-height: 46px;
+    ;
+    border-bottom: 1px solid #1D1D1D1D;
   }
 
   .interactives_list_list_item>img {
@@ -911,8 +918,8 @@ button {
   }
 
   .interactives_list_list_item>div {
-
-    line-height: calc((19.2/832)*100dvh);
+    display: flex;
+    align-items: center;
   }
 
   .interactives_list_list_item_title,
@@ -940,10 +947,12 @@ button {
   .interactives_list_list_item_leadername {
     margin-top: calc((15/832)*100dvh);
     ;
+    text-align: center !important;
     margin-bottom: calc((15/832)*100dvh);
-    ;
     margin-left: calc((29 / 1280) * 100dvw);
     width: calc((150 / 1280) * 100dvw);
+    display: flex;
+    justify-content: center;
   }
 
   .title-clamp::after {
@@ -984,9 +993,9 @@ button {
     ;
     margin-bottom: calc((15/832)*100dvh);
     ;
-    margin-left: calc((17 / 1280) * 100dvw) !important;
-    width: calc((128 / 1280) * 100dvw);
-    text-align: center;
+    margin-left: calc((31 / 1280) * 100dvw) !important;
+    width: calc((100 / 1280) * 100dvw);
+    text-align: left;
   }
 
   .interactives_list_list_item_count {
@@ -2072,8 +2081,9 @@ button {
 
   .interactives_list_header {
     display: flex;
-    margin-left: 22px;
+    padding-left: 22px;
     ;
+    align-items: center;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
@@ -2083,8 +2093,9 @@ button {
     text-align: center;
     vertical-align: middle;
     color: #A9A9A9;
-    margin-bottom: 15px;
+    height: 46px;
     ;
+    border-bottom: 1px solid #1D1D1D1D;
   }
 
   .interactives_list_header_title {
@@ -2124,6 +2135,7 @@ button {
 
   .interactives_list_list_item {
     display: flex;
+    align-items: center;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
@@ -2132,6 +2144,9 @@ button {
     ;
     text-align: center;
     vertical-align: middle;
+    height: 46px;
+    ;
+    border-bottom: 1px solid #1D1D1D1D;
   }
 
   .interactives_list_list_item>img {
@@ -2142,8 +2157,8 @@ button {
   }
 
   .interactives_list_list_item>div {
-
-    line-height: 19.2px;
+    display: flex;
+    align-items: center;
   }
 
   .interactives_list_list_item_title,
@@ -2183,7 +2198,9 @@ button {
     ;
     width: 150px;
     ;
-    text-align: left;
+    text-align: center;
+    display: flex;
+    justify-content: center;
   }
 
   .title-clamp::after {
@@ -2225,9 +2242,9 @@ button {
     ;
     margin-bottom: 15px;
     ;
-    margin-left: 17px !important;
-    width: 128px;
-    text-align: center;
+    margin-left: 31px !important;
+    width: 100px;
+    text-align: left;
   }
 
   .interactives_list_list_item_count {

@@ -189,8 +189,8 @@ onMounted(() => {
     <component :is="componentMap[data_props.stage]" v-if="nameIsSended" :data="data_props.data"
       :stage="data_props.stage" :on-answer="send" context="participant" :data_answers="data_props.data_answers"
       :winners="data_props.winners" :score="data_props.score" :isBanned="isBanned" />
-    <connection :nameIsSended="!nameIsSended" v-else :on-name-sent="() => { nameIsSended = true }"
-      :on-answer="sendName" />
+    <connection :nameIsSended="!nameIsSended" v-else :on-name-sent="() => { nameIsSended = true }" :on-answer="sendName"
+      :vk="true" />
 
   </div>
 </template>

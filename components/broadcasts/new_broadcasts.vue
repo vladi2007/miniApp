@@ -170,32 +170,17 @@ function toggleLeader(id: string) {
 <template>
   <Layout :active_nav="'broadcasts'">
     <div class="broadcasts_input">
-      <label>Введите текст рассылки<textarea
-        id="description_input"
-        v-model="text"
-        placeholder="Текст"
-        maxlength="200"
-      /></label>
+      <label>Введите текст рассылки<textarea id="description_input" v-model="text" placeholder="Текст"
+          maxlength="200" /></label>
     </div>
-    <div
-      class="broadcasts_custom-file-upload"
-      :class="{ 'broadcasts_file-uploaded': uploadedFileName }"
-      @click="!uploadedFileName && openFileDialog()"
-    >
-      <input
-        ref="fileInput"
-        type="file"
-        hidden
-        @change="handleFileChange"
-      >
+    <div class="broadcasts_custom-file-upload" :class="{ 'broadcasts_file-uploaded': uploadedFileName }"
+      @click="!uploadedFileName && openFileDialog()">
+      <input ref="fileInput" type="file" hidden @change="handleFileChange">
 
       <template v-if="uploadedFileName">
         <span class="uploadedFileName"> {{ uploadedFileName }} </span>
-        <img
-          src="/public/images/interactive_editor/delete.svg"
-          class="broadcasts_remove-icon"
-          @click.stop="removeImage"
-        >
+        <img src="/public/images/interactive_editor/delete.svg" class="broadcasts_remove-icon"
+          @click.stop="removeImage">
       </template>
 
       <template v-else>
@@ -203,78 +188,43 @@ function toggleLeader(id: string) {
         <span style="margin-left: auto; color:#A9A9A9;">Не выбрано</span>
       </template>
     </div>
-    <div
-      v-if="!is_empty_list"
-      class="broadcasts_selected_interactives"
-    >
-      <div
-        class="broadcasts_selected_interactives_header"
-        style="display: flex; align-items: center; justify-content: space-between; "
-      >
+    <div v-if="!is_empty_list" class="broadcasts_selected_interactives">
+      <div class="broadcasts_selected_interactives_header"
+        style="display: flex; align-items: center; justify-content: space-between; ">
         <div>
           Выбрать участников интерактива
         </div>
-        <div
-          v-if="selectedInteractives.length > 0"
-          id="count_address"
-        >
+        <div v-if="selectedInteractives.length > 0" id="count_address">
           Количество получателей: <span style="color: #6AB23D;">{{
             count }}
             чел.</span>
         </div>
       </div>
-      <div
-        id="selected_list"
-        :class="{ broadcasts_selected_list: selectedInteractives.length > 0 }"
-      >
-        <div
-          v-for="id in selectedInteractives"
-          v-if="selectedInteractives.length > 0"
-          :key="id"
-          class="broadcasts_list_list"
-          style="height: calc((36/832)*100dvh);"
-        >
-          <div
-            class="broadcasts_list_list_item_selected"
-            :class="['broadcasts_selected_item']"
-          >
+      <div id="selected_list" :class="{ broadcasts_selected_list: selectedInteractives.length > 0 }">
+        <div v-for="id in selectedInteractives" v-if="selectedInteractives.length > 0" :key="id"
+          class="broadcasts_list_list">
+          <div class="broadcasts_list_list_item_selected" :class="['broadcasts_selected_item']">
             <div class="broadcasts_list_list_item_title">
-              {{ interactivesData?.interactive_list?.find(item => item.id === id)?.title }}
+              {{interactivesData?.interactive_list?.find(item => item.id === id)?.title}}
             </div>
             <div class="broadcasts_list_list_item_date">
-              {{ interactivesData?.interactive_list?.find(item => item.id === id)?.date_completed }}
+              {{interactivesData?.interactive_list?.find(item => item.id === id)?.date_completed}}
             </div>
-            <div
-              class="broadcasts_list_list_item_count"
-              style="width:calc((226 / 1280) * 100dvw) !important; "
-            >
-              Количество участников: {{ interactivesData?.interactive_list?.find(item => item.id
+            <div class="broadcasts_list_list_item_count" style="width:calc((226 / 1280) * 100dvw) !important; ">
+              Количество участников: {{interactivesData?.interactive_list?.find(item => item.id
                 === id)?.participant_count
               }}
             </div>
-            <img
-              src="/public/images/history/history_delete.svg"
-              style="cursor: pointer;"
-              @click="selectedInteractives = selectedInteractives.filter(item => item !== id)"
-            >
+            <img src="/public/images/history/history_delete.svg" style="cursor: pointer;"
+              @click="selectedInteractives = selectedInteractives.filter(item => item !== id)">
           </div>
-          <div
-            class="broadcasts_Line"
-            style="width: calc((1030/1280)*100dvw); margin: 0 auto;"
-          />
         </div>
       </div>
-      <div
-        v-if="selectedInteractives.length > 0"
-        class="broadcasts_list_selected_download"
-        @click="validateBeforeSend()"
-      >
+      <div v-if="selectedInteractives.length > 0" class="broadcasts_list_selected_download"
+        @click="validateBeforeSend()">
         Отправить рассылку
       </div>
-      <div
-        v-if="selectedInteractives.length === 0"
-        class="broadcasts_selected_interactives_info"
-      >
+      <div v-if="selectedInteractives.length === 0" class="broadcasts_selected_interactives_info">
         <img src="/public/images//history/finder_info.svg">
 
         <div class="broadcasts_selected_interactives_info_h2">
@@ -282,31 +232,17 @@ function toggleLeader(id: string) {
         </div>
       </div>
     </div>
-    <div
-      class="broadcasts_finder"
-      :class="{ margin_24: !is_empty_list }"
-    >
+    <div class="broadcasts_finder" :class="{ margin_24: !is_empty_list }">
       <div class="broadcasts_finder_header">
         Список проведенных интерактивов
       </div>
       <div class="broadcasts_finder_finder">
-        <img
-          src="/public/images/history/finder.svg"
-          class="broadcasts_input-icon"
-        >
+        <img src="/public/images/history/finder.svg" class="broadcasts_input-icon">
 
-        <input
-          v-model="finder"
-          type="text"
-          placeholder="Поиск интерактива"
-          class="broadcasts_search-input"
-        >
+        <input v-model="finder" type="text" placeholder="Поиск интерактива" class="broadcasts_search-input">
       </div>
     </div>
-    <div
-      v-if="interactivesData && is_empty_list"
-      class="broadcasts_empty_list_info"
-    >
+    <div v-if="interactivesData && is_empty_list" class="broadcasts_empty_list_info">
       <img src="/public/images//history/finder_info.svg">
       <div class="broadcasts_empty_list_info_h1">
         У Вас нет интерактивов
@@ -315,10 +251,7 @@ function toggleLeader(id: string) {
         Проведите свой первый интерактив и он отобразится здесь
       </div>
     </div>
-    <div
-      v-if="interactivesData && !is_empty_list"
-      class="broadcasts_list"
-    >
+    <div v-if="interactivesData && !is_empty_list" class="broadcasts_list">
       <div class="broadcasts_list_header">
         <div class="broadcasts_list_header_title">
           Название
@@ -333,28 +266,14 @@ function toggleLeader(id: string) {
           Количество участников
         </div>
       </div>
-      <div
-        v-for="(item, index) in interactivesData.interactive_list"
-        :key="item.id"
-        class="broadcasts_list_list"
-      >
-        <div
-          v-if="index === 0"
-          class="broadcasts_Line"
-        />
+      <div v-for="(item, index) in interactivesData.interactive_list" :key="item.id" class="broadcasts_list_list">
         <div class="broadcasts_list_list_item">
-          <div
-            class="broadcasts_list_list_item_title title-clamp"
-            :class="{ expanded: expandedTitles[item.id] }"
-            @click="toggleTitle(item.id)"
-          >
+          <div class="broadcasts_list_list_item_title title-clamp" :class="{ expanded: expandedTitles[item.id] }"
+            @click="toggleTitle(item.id)">
             {{ item.title }}
           </div>
-          <div
-            class="broadcasts_list_list_item_leadername title-clamp"
-            :class="{ expanded: expandedLeaders[item.id] }"
-            @click="toggleLeader(item.id)"
-          >
+          <div class="broadcasts_list_list_item_leadername title-clamp" :class="{ expanded: expandedLeaders[item.id] }"
+            @click="toggleLeader(item.id)">
             {{ item.username }}
           </div>
           <div class="broadcasts_list_list_item_date">
@@ -363,114 +282,68 @@ function toggleLeader(id: string) {
           <div class="broadcasts_list_list_item_count">
             {{ item.participant_count }}
           </div>
-          <div
-            class="broadcasts_list_list_item_download_many"
+          <div class="broadcasts_list_list_item_download_many"
             :style="{ visibility: selectedInteractives.includes(item.id) ? 'hidden' : 'visible' }"
-            @click="selectManyOption(item.id)"
-          >
+            @click="selectManyOption(item.id)">
             Выбрать
           </div>
         </div>
-        <div class="broadcasts_Line" />
       </div>
-      <div
-        v-if="!interactivesData.is_end"
-        class="broadcasts_show_more"
-        @click="more_load()"
-      >
+      <div v-if="!interactivesData.is_end" class="broadcasts_show_more" @click="more_load()">
         Показать еще
       </div>
     </div>
 
-    <div
-      v-if="showPopup"
-      class="broadcasts_popup-overlay"
-    >
+    <div v-if="showPopup" class="broadcasts_popup-overlay">
       <div class="broadcasts_popup">
         <div class="broadcasts_popup-header">
           <div class="broadcasts_popup-header-text">
             Подтвердите отправку рассылки
           </div>
-          <img
-            src="/images/history/Vector_1.svg"
-            class="broadcasts_popup-close"
-            @click="closePopup()"
-          >
+          <img src="/images/history/Vector_1.svg" class="broadcasts_popup-close" @click="closePopup()">
         </div>
-        <div
-          class="broadcasts_popup-body"
-          :class="{ margins: sendStatus !== 'idle' }"
-        >
+        <div class="broadcasts_popup-body" :class="{ margins: sendStatus !== 'idle' }">
           <div style="color: #7D7D7D; line-height: calc((16*1.2/832)*100dvh);">
             От лица “Название телеграмм бота” будет отправлена в личный чат с участником следующая информация
           </div>
-          <div
-            class="margin10"
-            style="  white-space: normal;
-    overflow-wrap: break-word; margin-top: calc((10 / 832) * 100dvh); line-height:calc((16*1.2/832)*100dvh);"
-          >
+          <div class="margin10" style="  white-space: normal;
+    overflow-wrap: break-word; margin-top: calc((10 / 832) * 100dvh); line-height:calc((16*1.2/832)*100dvh);">
             Сообщение: {{ text }}
           </div>
-          <div
-            class="margin10"
-            style="margin-top: calc((10 / 832) * 100dvh);line-height: calc((16*1.2/832)*100dvh);"
-          >
+          <div class="margin10" style="margin-top: calc((10 / 832) * 100dvh);line-height: calc((16*1.2/832)*100dvh);">
             Файлы: {{ uploadedFileName }}
           </div>
-          <div
-            class="margin10"
-            style="margin-top: calc((10 / 832) * 100dvh);line-height: calc((16*1.2/832)*100dvh);"
-          >
+          <div class="margin10" style="margin-top: calc((10 / 832) * 100dvh);line-height: calc((16*1.2/832)*100dvh);">
             Количество получателей: {{ count }}
           </div>
-          <div
-            class="margin10"
-            style="margin-top: calc((10 / 832) * 100dvh);color: #7D7D7D;line-height: calc((16*1.2/832)*100dvh);"
-          >
+          <div class="margin10"
+            style="margin-top: calc((10 / 832) * 100dvh);color: #7D7D7D;line-height: calc((16*1.2/832)*100dvh);">
             Используйте рассылку по назначению.
             Злоупотребление ею приведет к блокировке бота со стороны Telegram.
           </div>
         </div>
-        <div
-          v-if="sendStatus === 'idle'"
-          class="broadcasts_popup-footer"
-        >
-          <div
-            class="broadcasts_popup_back"
-            @click=" closePopup()"
-          >
+        <div v-if="sendStatus === 'idle'" class="broadcasts_popup-footer">
+          <div class="broadcasts_popup_back" @click=" closePopup()">
             Отменить
           </div>
-          <div
-            class="broadcasts_popup_send"
-            @click=" submitBroadcasts()"
-          >
+          <div class="broadcasts_popup_send" @click=" submitBroadcasts()">
             <div>Отправить</div>
           </div>
         </div>
-        <div
-          v-if="sendStatus === 'sending'"
-          class="broadcasts_popup-footer_sending"
-        >
+        <div v-if="sendStatus === 'sending'" class="broadcasts_popup-footer_sending">
           <div class="broadcasts_popup_status_text">
             Идет рассылка получателям {{ ".".repeat(dotCount) }}
           </div>
         </div>
 
-        <div
-          v-if="sendStatus === 'success'"
-          class="broadcasts_popup-footer_success"
-        >
+        <div v-if="sendStatus === 'success'" class="broadcasts_popup-footer_success">
           <img src="/public/images/broadcasts/Group.svg"></img>
           <div class="broadcasts_popup_status_text">
             Рассылка успешно отправлена участникам!
           </div>
         </div>
 
-        <div
-          v-if="sendStatus === 'error'"
-          class="broadcasts_popup-footer_error"
-        >
+        <div v-if="sendStatus === 'error'" class="broadcasts_popup-footer_error">
           <img src="/public/images/broadcasts/Vector (2).svg"></img>
           <div class="broadcasts_popup_status_text">
             Произошла ошибка. Повторите отправку.

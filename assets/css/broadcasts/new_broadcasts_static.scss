@@ -326,7 +326,7 @@ overflow: hidden;
     letter-spacing: 0.16px;;
     vertical-align: middle;
     color: #1D1D1D;
-    overflow-x: hidden;
+    overflow: hidden;
     min-height: 162px;
 }
 
@@ -339,7 +339,8 @@ overflow: hidden;
 
 .broadcasts_list_header {
     display: flex;
-    margin-left: 22px;
+    padding-left: 22px;
+    align-items: center;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
@@ -348,8 +349,10 @@ overflow: hidden;
     text-align: center;
     vertical-align: middle;
     color: #A9A9A9;
-    margin-bottom: 15px;
+   
+    min-height: 46px;;
     overflow-x: hidden;
+     border-bottom: 1px solid  #1D1D1D1D;
 }
 
 .broadcasts_list_header_title {
@@ -378,12 +381,13 @@ overflow: hidden;
 
     display: flex;
     flex-direction: column;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 .broadcasts_list_list_item {
-    overflow-x: hidden;
+    overflow: hidden;
     display: flex;
+    align-items: center;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
@@ -391,19 +395,22 @@ overflow: hidden;
     letter-spacing:0.16px;
     text-align: center;
     vertical-align: middle;
+    border-bottom: 1px solid  #1D1D1D1D;
+    height: 46px;;
 }
 .broadcasts_list_list_item_selected{
     overflow-x: hidden;
     overflow-y: hidden;
     display: flex;
     align-items: center;
-     height: 46.13px;
+     height: 46px;
     font-family: "Lato", sans-serif;
     font-weight: 400;
     font-style: Regular;
      font-size: 16px;
     letter-spacing:0.16px;
     text-align: center;
+    border-bottom: 1px solid  #1D1D1D1D;
     vertical-align: middle;
 }
 .broadcasts_list_list_item_selected>img {
@@ -414,7 +421,6 @@ overflow: hidden;
 }
 .broadcasts_list_list_item > div{
 
-      line-height: 19.2px;
 }
 .broadcasts_list_list_item>img {
     height: 18px;
@@ -441,7 +447,7 @@ overflow: hidden;
 }
 .broadcasts_list_list_item_leadername {margin-left: 43px;
  margin-top:15px;
-  text-align: left;
+  text-align: center;
      margin-bottom:15px;;
   width: 137px;
 }
