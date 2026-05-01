@@ -16,43 +16,21 @@ async function goTo(url: string, active: string): Promise<void> {
   <div class="layot">
     <header_logo />
     <div class="layot_margins">
-      <Header
-        :go-to="goTo"
-        :active="props.active_nav"
-      />
+      <Header :go-to="goTo" :active="props.active_nav" />
       <slot />
     </div>
   </div>
 </template>
 
 <style>
-@media (max-height:1078px),
-(max-width:1918px) {
-.layot_margins{width: calc((1056 / 1280) * 100dvw);
-        box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-       margin-left: calc((112 / 1280) * 100dvw);
-    }
-}
-
-@media (min-width:1918px) and (min-height:1078px) {
- .layot_margins{width: 1056px;
-        box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-       margin:0 auto 0 auto;
-    }
-}
-
 .layot {
-    width: 100dvw;
-    height: 100dvh;
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-    background-color: white;
-    position: relative;
-    overflow-x: hidden;
+  width: 100dvw;
+  height: 100dvh;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  background-color: white;
+  position: relative;
+  overflow-x: hidden;
 }
 </style>

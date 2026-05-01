@@ -7,9 +7,9 @@ definePageMeta({
 </script>
 
 <template>
-  <div>
+  <Layout :active_nav="'main'">
     <main_menu />
-  </div>
+  </Layout>
 </template>
 
 <style>
