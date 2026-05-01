@@ -90,11 +90,31 @@ function onTouchEnd(e: TouchEvent) {
 watch(showLogout, (val) => {
   document.body.classList.toggle('modal-open', val)
 })
+const route = useRoute()
+
+const back = ref(false)
+
+
+// Явно отслеживаем изменения route
+watch(
+  () => [route.path, route.query.mode],
+  ([path, mode]) => {
+    const cleanPath = String(path).slice(1)
+    back.value = cleanPath === 'reset' || cleanPath === 'first_reg' || mode === 'forgot'
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
   <div :class="$style.header__fon">
     <div :class="$style.header">
+      <svg width="10" height="18" viewBox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg"
+        :class="$style.back" @click="router.push({ path: '/', query: { mode: 'login' } })" v-if="back">
+        <path
+          d="M10 1.47109L8.51275 0L0.412044 8.01742C0.281465 8.14589 0.177836 8.29866 0.107121 8.46693C0.0364052 8.6352 0 8.81566 0 8.99792C0 9.18017 0.0364052 9.36063 0.107121 9.5289C0.177836 9.69718 0.281465 9.84994 0.412044 9.97841L8.51275 18L9.9986 16.5289L2.39552 9L10 1.47109Z"
+          fill="white" />
+      </svg>
 
       <img id="logo_header" src="/public/images/interactive_editor/logo.svg" :class="[
         $style.header__logo,
@@ -196,6 +216,16 @@ watch(showLogout, (val) => {
   letter-spacing: 1%;
   vertical-align: middle;
 
+}
+
+.back {
+  width: 10px;
+  height: 18px;
+  margin-top: 4px;
+
+  @media (min-width:768px) {
+    display: none;
+  }
 }
 
 .header {

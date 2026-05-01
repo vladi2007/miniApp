@@ -8,8 +8,9 @@ definePageMeta({
 </script>
 
 <template>
-    <header_logo />
-    <first_reg />
+    <Layout :active_nav="'login'">
+        <first_reg />
+    </Layout>
 </template>
 
 <style></style>

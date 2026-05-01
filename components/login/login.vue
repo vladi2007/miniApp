@@ -120,14 +120,20 @@ async function onSubmitForgot(event: FormSubmitEvent<SchemaForgot>) {
 }
 const showPasswordLogin = ref(false)
 const showPasswordReg = ref(false)
-
-const searchParams = useUrlSearchParams('history')
-const activeMode = ref<'login' | 'reg' | 'forgot'>(searchParams.mode as 'login' | 'reg' | 'forgot' || 'login')
-
-watch(activeMode, (newMode) => {
-  searchParams.mode = newMode
+const route = useRoute()
+const router = useRouter()
+// Используем computed для двусторонней синхронизации
+const activeMode = computed({
+  get: () => {
+    const mode = route.query.mode
+    if (mode === 'reg' || mode === 'forgot') return mode
+    return 'login'
+  },
+  set: (value: 'login' | 'reg' | 'forgot') => {
+    router.push({ query: { mode: value } })
+  }
 })
-searchParams.mode = activeMode.value
+
 const customLoginError = ref<string | null>(null)
 </script>
 
