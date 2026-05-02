@@ -2,211 +2,364 @@
 import { mutateOrganizationDescription } from '~/composables/api/organization/useOrganizationMutation'
 import { useAuthStore } from '~/store/auth'
 import { useOrganizationDescription } from '~/composables/api/organization/useOrganizationQuery'
+import { object, string, type InferType } from 'yup'
+import type { FormSubmitEvent } from '@nuxt/ui'
 
 const auth = useAuthStore()
 const userRole = auth.$state.role
 const canEdit = computed(() => userRole === 'organizer')
 const { data: org, isLoading, refetch } = useOrganizationDescription()
-const orgNameInput = ref<string>('')
-const orgDescInput = ref<string>('')
-watch(
-  () => org.value,
-  (val) => {
-    orgNameInput.value = val?.organization_name ?? ''
-    orgDescInput.value = val?.organization_description ?? ''
-  },
-  { immediate: true },
-)
+
 
 const { mutate: saveOrg } = mutateOrganizationDescription()
 
-const originalName = computed(() => org.value?.organization_name ?? '')
-const originalDesc = computed(() => org.value?.organization_description ?? '')
-const canSave = computed(() => {
-  const trimmedName = orgNameInput.value.trim()
-  const trimmedDesc = orgDescInput.value.trim()
-  if (trimmedName.length < 3) {
-    // Можно показать уведомление
-    window.alert('Название вашей организации должно быть длинее 2 символов')
-    return
-  }
-  return (
-    trimmedName !== originalName.value.trim() || trimmedDesc !== originalDesc.value.trim()
 
-  )
+
+
+const schemaSettings = object({
+  name: string().required('Введите название вашей организации').max(32, 'Название вашей организации должно быть короче 33 символов').min(2, 'Название вашей организации должно быть длинее 2 символов'),
+  description: string(),
+
 })
+type SchemaSettings = InferType<typeof schemaSettings>
+const initialSettings = {
+  name: org.value?.organization_name,
+  description: org.value?.organization_description,
+}
+const stateSettings = reactive({ ...initialSettings })
+// Следим за загрузкой данных и обновляем форму
+watch(
+  () => org.value,
+  (newOrg) => {
+    if (newOrg) {
+      stateSettings.name = newOrg.organization_name ?? ''
+      stateSettings.description = newOrg.organization_description ?? ''
+    }
+  },
+  { immediate: true } // immediate: true запустит watch сразу при монтировании
+)
+
+const formSettings = useTemplateRef('formSettings')
+async function onSubmitSettings(event: FormSubmitEvent<SchemaSettings>) {
+  saveOrg({ organization_description: stateSettings.description!, organization_name: stateSettings.name! })
+}
 </script>
 
 <template>
   <layout :active_nav="'organization_settings'">
-    <form class="org_form">
-      <div class="org_form_input">
-        <div class="org_form_input_title">
-          Название организации:
-        </div>
-        <textarea
-          v-model="orgNameInput"
-          class="org_form_input_input"
-          placeholder="Название"
-          maxlength="32"
-          minlength="3"
-          :disabled="!canEdit"
-        />
+    <div class="settings">
+      <div class="settings__body">
+        <UForm ref="formSettings" :validate-on="['input']" :schema="schemaSettings" :state="stateSettings"
+          @submit="onSubmitSettings" class="settings__form">
+          <UFormField v-slot="{ error }" :ui="{ error: 'settings__error', }" :validate-on-input-delay="0"
+            :eager-validation="true" name="name">
+            <div class="form-field-wrapper">
+              <div>
+                Название организации:
+              </div>
+              <div class="settings__field" :class="{ 'settings__field-error': error }">
+                <UInput v-model="stateSettings.name" placeholder="Название" :ui="{ base: 'settings__input' }"
+                  :disabled="!canEdit" />
+              </div>
+            </div>
+
+          </UFormField>
+
+          <UFormField v-slot="{ error }" :ui="{ error: 'settings__error', }" :validate-on-input-delay="0"
+            :eager-validation="true" name="description">
+            <div class="form-field-wrapper">
+              <div>
+                Описание организации:
+              </div>
+              <div class="settings__field" :class="{ 'settings__field-error': error }">
+                <UInput v-model="stateSettings.description" placeholder="Описание"
+                  :ui="{ base: 'settings__input custom-height' }" :disabled="!canEdit" />
+
+              </div>
+            </div>
+
+
+          </UFormField>
+
+          <UButton type="submit" class="settings__submit" :disabled="!formSettings?.dirty || !canEdit" v-if="canEdit">
+            Сохранить изменения
+          </UButton>
+
+        </UForm>
       </div>
-      <div class="org_form_input">
-        <div class="org_form_input_title">
-          Описание организации:
-        </div>
-        <textarea
-          v-model="orgDescInput"
-          class="org_form_input_input"
-          placeholder="Описание"
-          maxlength="200"
-          :disabled="!canEdit"
-        />
-      </div>
-      <div
-        v-if="canEdit"
-        class="org_form_input_button"
-        @click="canSave && saveOrg({ organization_name: orgNameInput.trim(), organization_description: orgDescInput.trim() })"
-      >
-        Сохранить изменения
-      </div>
-    </form>
+    </div>
   </layout>
 </template>
 
-<style>
-@media (max-width:1918px),
-(max-height:1078px) {
-  .org_form {
-    margin-top: calc((25 / 832) * 100dvh);
-    margin-left: calc(327/1280*100dvw);
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-    width: calc((378 / 1280) * 100dvw);
-    ;
-  }
-
-  .org_form_input {
-    display: flex;
-    flex-direction: column;
-    gap: calc((10 / 832) * 100dvh);
-    margin-bottom: calc((10 / 832) * 100dvh);
-    ;
-  }
-
-  .org_form_input_title {
-    height: calc((18 / 832) * 100dvh);
-    ;
-    display: flex;
-    align-items: center;
-  }
-
-  .org_form_input>textarea {
-    height: calc((42 / 832) * 100dvh);
-    ;
-    border-radius: calc((8 / 832) * 100dvh);
-    ;
-    border: calc((1.5 / 832) * 100dvh) solid #E0E0E0;
-    ;
-    padding-left: calc(12/1280*100dvw);
-    padding-top: calc((12 / 832) * 100dvh);
-    ;
-    line-height: calc((18 / 832) * 100dvh);
-    box-sizing: border-box;
-    vertical-align: middle;
-
-    font-family: Lato;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-
-  }
-
-  .org_form_input_button {
-    width: calc((165 / 1280) * 100dvw);
-    ;
-    margin-left: auto;
-    ;
-    color: #6AB23D;
-    cursor: pointer;
-  }
+<style lang="scss">
+.custom-height {
+  height: 54px !important;
 }
 
-@media (min-width:1918px) and (min-height:1078px) {
-  .org_form {
+/* убрать стандартный глазок в Edge / IE */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+/* иногда появляется в Chromium-based */
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  display: none !important;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: 'Lato', sans-serif;
+  font-weight: 400;
+  line-height: 120%;
+  letter-spacing: 1%;
+  vertical-align: middle;
+}
+
+.settings {
+  padding: 0 22px;
+  margin-top: 10px;
+  height: 172px;
+  position: relative;
+  display: flex; // Добавьте это
+  flex-direction: column; // Добавьте это
+  width: 100%;
+
+  @media (min-width:768px) {
+    width: 402px;
+    height: 189px;
+    position: relative;
+    display: flex; // Добавьте это
+    flex-direction: column; // Добавьте это
+    margin: 0 auto;
     margin-top: 25px;
-    ;
-    margin-left: 327px;
-    ;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-size: 16px;
-    letter-spacing: 0.16px;
-    ;
-    width: 378px;
-    ;
+    padding: 0;
   }
 
-  .org_form_input {
+  &__body {
+
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+
+    height: 100%; // Добавьте это
+
+    @media (min-width:768px) {
+      height: 100%;
+      width: 378px;
+      display: flex;
+      flex-direction: column;
+    }
+
+  }
+
+  &__form {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-bottom: 10px;
-    ;
+    width: 100%;
+
+    flex: 1;
+
+
+
+    @media (min-width:768px) {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      margin: 0px;
+      gap: 10px;
+
+    }
+
+    .form-field-wrapper {
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      width: 100%;
+
+      @media (min-width:768px) {
+        font-size: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+
+      }
+    }
+
+    :deep(.u-form-field) {
+      display: flex;
+      flex-direction: column;
+      gap: 8px; // Здесь задаете нужный промежуток между label и полем
+    }
   }
 
-  .org_form_input_title {
-    height: 18px;
-    ;
-    display: flex;
-    align-items: center;
-  }
+  &__field {
 
-  .org_form_input>textarea {
-    height: 42px;
-    ;
+    position: relative;
+    width: 100%;
+    font-size: 14px;
+    border: 1px solid #E0E0E0;
     border-radius: 8px;
-    ;
-    border: 1.5px solid #E0E0E0;
-    ;
-    padding-left: 12px;
-    padding-top: 12px;
-    ;
-    ;
-    line-height: 18px;
-    box-sizing: border-box;
-    vertical-align: middle;
 
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: 16px;
-    ;
-    letter-spacing: 0.16px;
-    ;
+
+    @media (min-width:768px) {
+      font-size: 16px;
+      position: relative;
+      border: 1px solid #E0E0E0;
+      border-radius: 8px;
+    }
+
+    &>input {
+      transition: none !important;
+      /* убираем все анимации при ошибках */
+      background-color: transparent !important;
+      /* если фон тоже мерцает */
+    }
+
+    &-error {
+      border: 1px solid #F0436C !important;
+      border-radius: 8px;
+
+
+
+      @media (min-width:768px) {
+
+        border-bottom: 1px solid #F0436C !important;
+        border-radius: 8px;
+      }
+
+      input {
+        color: #F0436C !important;
+
+
+        @media (min-width:768px) {
+          color: #F0436C !important;
+        }
+      }
+
+    }
+
+    &-success {
+      @media (min-width:768px) {
+        border-color: #6AB23D !important;
+      }
+
+      input {
+
+
+        @media (min-width:768px) {
+          color: #6AB23D;
+        }
+      }
+
+    }
+  }
+
+  &__input {
+    position: relative;
+    height: 37px;
+    width: 100%;
+    padding: 0 10px;
+
+    font-size: 14px;
+    outline: none;
+    border: none;
+    border-radius: 8px;
+
+
+    color: #1D1D1D;
+
+    @media (min-width:768px) {
+      font-weight: 500;
+      height: 44px;
+      font-size: 16px;
+      padding: 0 13px;
+    }
+
+    &:focus {
+      border-color: #7D7D7D;
+      outline: none;
+    }
+
+
 
   }
 
-  .org_form_input_button {
-    width: 165px;
-    ;
-    ;
-    margin-left: auto;
-    ;
+  &__submit {
+
+    height: 17px;
+    padding: 0;
+    width: 100%;
+    background-color: white;
+    border: none;
     color: #6AB23D;
+    width: auto; // 👈 Изменить с 100% на auto
+    display: block; // 👈 Добавить
+    margin-left: auto;
     cursor: pointer;
+    font-size: 16px;
+
+    @media (min-width:768px) {
+
+      background-color: white;
+      border: none;
+      color: #6AB23D;
+      color: #6AB23D;
+      height: 19px;
+      width: 100%;
+      font-size: 16px;
+      padding: 0;
+      width: auto; // 👈 Изменить с 100% на auto
+      display: block; // 👈 Добавить
+      margin-left: auto;
+      cursor: pointer;
+    }
+
+    &:hover {
+      @media (min-width:768px) {}
+
+    }
+
+    &.forgot {
+      color: white;
+      border-color: #853CFF;
+      background-color: #853CFF;
+
+      @media (min-width:768px) {
+        color: #853CFF;
+        background-color: white;
+        border-color: #853CFF;
+      }
+
+      &:hover {
+
+        @media (min-width:768px) {
+          color: #853CFF;
+          border-color: #853CFF;
+        }
+      }
+    }
   }
-}
 
-.org_form_input_button {
-  white-space: nowrap;
-}
+  &__error {
+    padding-left: 10px;
+    color: #F0436C;
+    font-weight: 500;
+    font-size: 14px;
 
-textarea {
-  resize: none;
+
+
+    @media (min-width:768px) {
+      padding: 0;
+      margin-top: 6px;
+      font-size: 16px;
+    }
+
+  }
 }
 </style>

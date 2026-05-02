@@ -93,9 +93,9 @@ const auth = useAuthStore()
 
     font-size: 20px;
     height: 26px;
-    padding: 0 22px;
     margin: 0 auto;
     margin-top: 34px;
+    width: calc(100% - 44px);
     max-width: 1056px;
   }
 
@@ -103,6 +103,7 @@ const auth = useAuthStore()
     max-width: 1056px;
     margin: 0 auto;
     margin-top: 34px;
+    padding: 0;
   }
 
   &__login {
