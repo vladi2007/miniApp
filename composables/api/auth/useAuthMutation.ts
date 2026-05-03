@@ -10,12 +10,14 @@ export function mutateAddParticipant() {
   return useMutation({
     mutationFn: async (payload: { email: string, role: string }) => postRegister(payload.email, payload.role),
     onSuccess: (data, payload) => {
+      
       $queryClient.invalidateQueries({
         queryKey: ['org_participants', String(auth.id), 'all'],
       }),
       $queryClient.invalidateQueries({
         queryKey: ['org_participants', String(auth.id), String(payload.role)],
       })
+      window.alert('Письмо успешно отправлено')
     },
     onError: (err) =>{
       const error = err as AxiosError<ApiErrorResponse>

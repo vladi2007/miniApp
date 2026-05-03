@@ -34,7 +34,10 @@ async function onSubmitAdd(event: FormSubmitEvent<SchemaAdd>) {
     closeAddPopup()
   }
   catch {
-    window.alert('sad')
+    window.alert('Произошла ошибка')
+  }
+  finally {
+
   }
 }
 const groups = {
@@ -42,11 +45,7 @@ const groups = {
   admin: 'Администраторы',
   leader: 'Ведущие',
 }
-const roles = {
-  admin: 'Администратор',
-  leader: 'Ведущий',
-  organizer: 'Создатель организации',
-}
+
 
 const isOpen = ref(false)
 const current_id = ref(0)
@@ -158,1275 +157,1163 @@ function closeAddPopup() {
   isOpen.value = false
   resetAddForm()
 }
-</script>
-
-<template>
-  <layout :active_nav="'users'">
-    <div class="users_title">
-      Пользователи
-    </div>
-    <form class="users_form">
-      <div class="users_form_finder_finder">
-        <img src="/public/images/history/finder.svg" class="users_form_input-icon">
-
-        <input type="text" placeholder="Поиск интерактива" class="users_form_search-input" maxlength="32">
-      </div>
-      <div class="users_form_button" @click="onAddClick()">
-        <div>
-          Добавить
-        </div>
-        <img src="/public//images/users/add.svg"></img>
-      </div>
-    </form>
-    <div class="users_list">
-      <div class="users_list_groups">
-        <div v-for="(value, key) in groups" class="group" @click="activeGroup = key; current_id = undefined;">
-          <div v-if="activeGroup == key" class="group_active" />
-          <div class="group_value" :style="{ fontWeight: activeGroup === key ? 600 : 400 }">
-            {{ value }}
-          </div>
-        </div>
-      </div>
-      <div class="users_list_list_column">
-        <div class="users_list_list">
-          <div class="users_list_list_header" style="color: #853CFF;">
-            <span class="users_list_list_name">
-              Имя
-            </span>
-            <span class="users_list_list_role">
-              Роль
-            </span>
-          </div>
-          <div class="users_list_list_line" />
-        </div>
-        <div v-for="(user, key) in org_participants?.participants" :key="key" class="users_list_list_list">
-          <div class="users_list_list_header">
-            <div style="display: grid;">
-              <span class="users_list_list_name">
-                {{ user?.name }}
-              </span>
-              <span>
-                @{{ user?.username }}
-              </span>
-            </div>
-
-            <div :class="{ users_list_list_role: userRole !== 'organizer' }">
-              <div class="users_list_list_role_block">
-                <div style="display: flex; align-items: center  ;"
-                  :style="{ cursor: canChangeRole(user.role, userRole, user.is_you) ? 'pointer' : 'default' }"
-                  @click=" canChangeRole(user.role, userRole, user.is_you) && toggleItemDropdown(user.id)">
-                  <div style="color:#7D7D7D;" :class="{ users_list_list_role_margin: userRole !== 'organizer' }">
-                    {{ roles[user.role] }}
-                  </div>
-
-                  <img v-if="canChangeRole(user.role, userRole, user.is_you)" class="open_role"
-                    :src="getDropdownIcon(user.id)">
-                </div>
-                <img v-if="canChangeRole(user.role, userRole, user.is_you)" class="kick_user"
-                  src="/public/images/users/kick_user.svg" @click=" showDelete(user.name, user.id)">
-              </div>
-              <div v-if="current_id === user.id && canChangeRole(user.role, userRole, user.is_you)"
-                class="users_list_item-dropdown-options" style=" z-index: 10001 !important;">
-                <div class="users_list_item-dropdown-option" :class="{ option_margin: true }"
-                  @click="user.role !== 'admin' && showChange('admin', user.name, user.id)">
-                  <span>Выдать роль “Администратор”</span>
-                </div>
-                <div class="users_list_item-dropdown-option" :class="{ option_second_margin: true }"
-                  @click="user.role !== 'leader' && showChange('leader', user.name, user.id)">
-                  <span>Выдать роль “Ведущий”</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="users_list_list_line" />
-        </div>
-      </div>
-    </div>
-    <div v-if="showDeletePop" class="users_popup-overlay">
-      <div class="users_popup-content">
-        <div class="users_popup-text">
-          Вы уверены, что хотите удалить пользователя<br><span style="color: #853CFF;">{{ currentName }}</span>?
-        </div>
-        <div class="users_popup-text_">
-          Это действие отменить будет невозможно.
-        </div>
-        <div class="users_popup-buttons">
-          <button class="users_popup-btn cancel delete" @click="hidePopup()">
-            Отменить
-          </button>
-          <button class="users_popup-btn confirm delete" @click="deleteParticipants()">
-            Удалить
-          </button>
-        </div>
-      </div>
-    </div>
-    <div v-if="showChangeRole" class="users_popup-overlay">
-      <div class="users_change_popup-content" :class="{ height: true }">
-        <div class="users_popup-text" :class="{ margin_text: true }">
-          Вы уверены, что хотите выдать роль
-          “{{ tochangeRole === 'leader' ? "Ведущий" : "Администратор" }}” пользователю <span style="color: #853CFF;">{{
-            currentName }}</span>?
-        </div>
-        <div class="users_popup-buttons" :class="{ margin: true }">
-          <button class="users_popup-btn cancel" @click="hidePopupChange()">
-            Отменить
-          </button>
-          <button class="users_popup-btn confirm" style="display: flex;
-      align-items: center;
-      justify-content: center;" :class="{ margin_left: true }" @click="ChangeRole()">
-            Выдать
-          </button>
-        </div>
-      </div>
-    </div>
-    <div v-if="showAddPop" class="users_popup-overlay">
-      <div class="add_popup-content">
-        <img src="/images/history/Vector_1.svg" class="add_popup-close" @click="closeAddPopup()">
-        <div class="add_popup-text">
-          Добавление пользователя в организацию
-        </div>
-        <UForm ref="formAdd" :validate-on="['input']" :schema="schemaAdd" :state="stateAdd" class="add_form"
-          @submit="onSubmitAdd">
-          <UFormField v-slot="{ error }" :ui="{ error: 'error' }" :validate-on-input-delay="0" :eager-validation="true"
-            label="" name="email">
-            <UInput v-model="stateAdd.email" placeholder="Введите email"
-              :ui="{ base: error ? 'input error' : (stateAdd.email ? 'input success' : 'input') }" />
-          </UFormField>
-
-          <div class="add_custom-dropdown" @click="toggleDropdown">
-            <div class="add_custom-dropdown-selected">
-              {{ options_code[selectedText] }}
-            </div>
-            <div class="add_custom-arrow" :class="{ open: isOpen }">
-              <img v-if="isOpen" src="/public/images/interactives/open.svg">
-              <img v-if="!isOpen" src="/public/images/interactives/close.svg">
-            </div>
-          </div>
-          <div v-if="isOpen" class="add_custom-dropdown-options">
-            <div class="add_custom-dropdown-option-list">
-              <div v-for="(label, value) in options_code" :key="value" class="add_custom-dropdown-option"
-                @click="selectOption(value)">
-                <img v-if="selectedText === value" class="add_custom-dropdown-circle"
-                  src="/public/images/interactives/picked.svg">
-                <img v-else class="add_custom-dropdown-circle" src="/public/images/interactives/Ellipse.svg">
-                <div class="add_custom-dropdown-text">
-                  {{ label }}
-                </div>
-              </div>
-            </div>
-          </div>
-          <UButton class="add_popup-btn" type="submit">
-            Добавить
-          </UButton>
-        </UForm>
-      </div>
-    </div>
-  </layout>
-</template>
-
-<style lang="scss">
-.input,
-input,
-textarea {
-  outline: none;
-  /* убирает стандартную подсветку при фокусе */
-  border: 1.5px solid #E0E0E0;
-  /* ваш обычный бордер */
-  transition: border-color 0.2s;
-  /* плавное изменение цвета, если нужно */
+const expandedTitles = reactive<{ [key: string]: boolean }>({})
+const expandedLeaders = reactive<{ [key: string]: boolean }>({})
+// Функции для переключения раскрытия
+function toggleTitle(id: string) {
+  expandedTitles[id] = !expandedTitles[id]
 }
 
-.input:focus,
-input:focus,
-textarea:focus {
-  border-color: #853CFF;
-  /* можно задать цвет бордера при фокусе */
-  outline: none;
-  /* убедимся, что черная подсветка точно не появится */
+function toggleLeader(id: string) {
+  expandedLeaders[id] = !expandedLeaders[id]
+}
+const startY = ref(0)
+const currentY = ref(0)
+const isMobile = useMediaQuery('(max-width: 767px)')
+const $style = useCssModule()
+const isDragging = ref(false)
+const roles = {
+  admin: computed(() => isMobile.value ? 'Админ' : 'Администратор'),
+  leader: computed(() => isMobile.value ? 'Ведущий' : 'Ведущий'),
+  organizer: computed(() => isMobile.value ? 'Создатель' : 'Создатель организации'),
 }
 
-.error {
-  margin-top: calc((6 / 832) * 100dvh);
-  color: #F0436C;
-  font-family: 'Lato', sans-serif;
-  font-weight: 500;
-  font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-  line-height: 110.00000000000001%;
-  letter-spacing: 0%;
-  vertical-align: middle;
-  margin-left: calc((20 / 1280) * 100dvw);
-
-  @media (min-width:1918px) and (min-height:1078px) {
-    margin-top: 6px;
-    color: #F0436C;
-    font-family: 'Lato', sans-serif;
-    font-weight: 500;
-    font-size: 16px;
-    ;
-    line-height: 110.00000000000001%;
-    letter-spacing: 0%;
-    vertical-align: middle;
-    margin-left: 20px;
-  }
+function onTouchStart(e: TouchEvent) {
+  if (!isMobile.value) return
+  isDragging.value = true
+  startY.value = e.touches[0].clientY
 }
 
-@media (max-width:1918px),
-(max-height:1078px) {
-  .option_margin {
-    margin-top: calc((17 / 832) * 100dvh) !important;
-  }
-
-  .option_second_margin {
-    margin-top: calc((4 / 832) * 100dvh) !important;
-  }
-
-  .users_title {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-    letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
-    margin-top: calc((25 / 832) * 100dvh);
-  }
-
-  .users_form {
-    margin-top: calc((20 / 832) * 100dvh);
-    display: flex;
-
-  }
-
-  .users_list {
-    margin-top: calc((12 / 832) * 100dvh);
-    display: grid;
-    grid-template-columns: calc(231/1280*100dvw) calc(805/1280*100dvw);
-    gap: calc(20/1280*100dvw)
-  }
-
-  .users_list_groups {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-    width: calc(231 / 1280 * 100dvw);
-    height: calc((107 / 832) * 100dvh) !important;
-    padding-left: calc(10 / 1280 * 100dvw);
-    padding-top: calc((15 / 832) * 100dvh);
-    border: calc(3/2/832*100dvh) solid #E0E0E0;
-    border-radius: calc(8/832*100dvh);
-  }
-
-  .users_list_groups>div {
-    height: calc((19 / 832) * 100dvh);
-    margin-bottom: calc((10 / 832) * 100dvh);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-  }
-
-  .group {
-    position: relative;
-  }
-
-  .group_value {
-    margin-left: calc(10 / 1280 * 100dvw);
-  }
-
-  .group_active {
-    position: absolute;
-    height: 100%;
-    background-color: #853CFF;
-    width: calc(2/1280*100dvw);
-    border-radius: calc(2/832*100dvh);
-  }
-
-  .users_list_list {
-    margin-top: calc((23 / 832) * 100dvh);
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-
-  }
-
-  .users_list_list_list {
-    color: #1D1D1D !important;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-  }
-
-  .users_list_list_header {
-    margin-left: calc(18/1280*100dvw);
-    display: flex;
-    align-items: center;
-    height: calc((46.13 / 832) * 100dvh) !important;
-  }
-
-  .users_list_list_header>div {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-
-  .users_list_list_name {
-    width: calc(473/1280*100dvw);
-  }
-
-  .users_list_list_role {
-    width: calc(146/1280*100dvw) !important;
-  }
-
-  .users_list_list_role_block {
-    display: flex;
-    align-items: center;
-    width: calc(281.73/1280*100dvw) !important;
-  }
-
-  .open_role {
-    margin-left: calc(10/1280*100dvw);
-    width: calc(16 / 1280 * 100dvw);
-    height: calc((9 / 832) * 100dvh);
-  }
-
-  .kick_user {
-    margin-left: auto;
-    width: calc(24 / 1280 * 100dvw);
-    height: calc((24 / 832) * 100dvh);
-    cursor: pointer;
-  }
-
-  .users_list_list_role_margin {
-    display: flex;
-    width: calc(120/1280*100dvw) !important;
-  }
-
-  .users_list_list_line {
-    background-color: #e9e9e9 !important;
-    height: calc((1 / 832) * 100dvh) !important;
-  }
-
-  .users_form_finder_header {
-
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-    color: #1D1D1D;
-  }
-
-  .users_form_finder_finder {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-
-  .users_form_search-input {
-    width: calc(231 / 1280 * 100dvw);
-    height: calc((39 / 832) * 100dvh);
-    line-height: calc((39 / 832) * 100dvh);
-    color: #1D1D1D !important;
-    border: calc((1.5 / 832) * 100dvh) solid #E0E0E0;
-    border-radius: calc((8 / 832)*100dvh);
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    display: flex;
-    align-items: center;
-    padding-left: calc((50 / 1280) * 100dvw);
-    box-sizing: border-box;
-  }
-
-  .users_form_search-input::placeholder {
-    line-height: calc((39 / 832) * 100dvh);
-    display: flex;
-    align-items: center;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    color: #A9A9A9;
-  }
-
-  .users_form_input-icon {
-    position: absolute;
-    left: calc((17 / 1280) * 100dvw);
-    top: 50%;
-    transform: translateY(-50%);
-    width: calc((19/1280) * 100dvw);
-    height: calc((19/1280) * 100dvw);
-    pointer-events: none;
-  }
-
-  .users_form_button {
-    box-sizing: border-box;
-    width: calc((157/1280) * 100dvw) !important;
-    height: calc((39/832) * 100dvh);
-    background-color: #6AB23D;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: calc((10/1280) * 100dvw);
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-    letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
-
-  }
-
-  .users_form_button {
-    margin-left: calc(20/1280*100dvw);
-    border-radius: calc((5 / 832)*100dvh);
-    cursor: pointer;
-  }
-
-  .users_form_button>img {
-    width: calc((19/1280) * 100dvw);
-    height: calc((19/832) * 100dvh);
-  }
-
-  .users_list_item-dropdown-options {
-    position: absolute;
-    top: calc(100% + calc(11/832)*100dvh);
-    box-shadow: 0px 1px 13.8px 0px #00000025;
-    width: calc((310 / 1280) * 100dvw);
-    height: calc((106 / 832) * 100dvh);
-    border-radius: calc((14/832*100dvh));
-    left: calc((-14 / 1280) * 100dvw);
-    background: white;
-    z-index: 665455;
-
-  }
-
-  .users_list_item-dropdown-option {
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    font-family: "Lato", sans-serif;
-    color: #1D1D1D;
-    white-space: nowrap;
-    font-weight: 400;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-    letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
-    width: calc((298/1280) * 100dvw);
-    height: calc((34 / 832) * 100dvh);
-    padding-left: calc((8/1280) * 100dvw);
-
-  }
-
-  .users_list_item-dropdown-option:hover {
-    border-radius: calc(7/832*100dvh);
-    background-color: #DFDFDF !important;
-  }
-
-  .users_popup-overlay {
-    font-family: "Lato", sans-serif;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #00000052;
-    display: flex;
-    justify-content: center;
-    z-index: 1000;
-
-  }
-
-  .users_popup-content {
-    margin-top: calc((273/832)*100dvh);
-    background: white;
-    width: calc((524 / 1280) * 100dvw);
-    height: calc((233 / 832) * 100dvh);
-    border-radius: calc((18/832)*100dvh);
-    box-sizing: border-box;
-
-  }
-
-  .users_change_popup-content {
-    margin-top: calc((290/832)*100dvh);
-    background: white;
-    width: calc((524 / 1280) * 100dvw);
-    height: calc((173 / 832) * 100dvh);
-    border-radius: calc((18/832)*100dvh);
-    box-sizing: border-box;
-  }
-
-  .height {
-    height: calc((173 / 832) * 100dvh) !important;
-  }
-
-  .margin {
-    margin-top: calc((18/832)*100dvh) !important;
-    margin-left: calc((203/1280)*100dvw) !important;
-  }
-
-  .margin_text {
-    height: calc((64 / 832) * 100dvh) !important;
-  }
-
-  .margin_left {
-    width: calc((150 / 1280) * 100dvw) !important;
-  }
-
-  .users_popup-text {
-    margin-top: calc((24/832)*100dvh) !important;
-    margin-left: calc((20/1280)*100dvw) !important;
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-style: Bold;
-    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
-    letter-spacing: clamp(0.20px, calc((20 /100/ 1280) * 100dvw), 0.4px);
-    ;
-    line-height: calc((32/832)*100dvh);
-  }
-
-  .users_popup-text_ {
-    margin-top: calc((10/832)*100dvh) !important;
-    margin-left: calc((20/1280)*100dvw) !important;
-    line-height: calc((19.2 / 1280) * 100dvw);
-
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-    color: #7D7D7D;
-    letter-spacing: clamp(0.10px, calc((16 /100/ 1280) * 100dvw), 0.32px);
-    ;
-    vertical-align: middle;
-  }
-
-  .users_popup-buttons {
-    display: flex;
-
-    margin-top: calc((56/832)*100dvh);
-    margin-left: calc((218 / 1280) * 100dvw);
-
-  }
-
-  .users_popup-btn.confirm {
-    margin-left: calc((10 / 1280) * 100dvw);
-  }
-
-  .users_popup-btn {
-    width: calc((138 / 1280) * 100dvw);
-    height: calc((41/832)*100dvh);
-    font-size: clamp(20px, calc((20 / 1280) * 100dvw), 40px);
-    font-family: "Lato", sans-serif;
-    border-radius: calc((8/832)*100dvh);
-    cursor: pointer;
-  }
-
-  .users_popup-btn.confirm {
-    background-color: #6ab23d;
-    border: calc((1.5/832)*100dvh) solid #6ab23d;
-    color: white;
-  }
-
-  .users_popup-btn.confirm:hover {
-    background-color: #559130;
-    border: calc((1.5/832)*100dvh) solid #559130;
-  }
-
-  .users_popup-btn.cancel {
-    background-color: #FFFFFF;
-    border: calc((1.5/832)*100dvh) solid #853CFF;
-    color: #853CFF;
-  }
-
-  .users_popup-btn.cancel:hover {
-    color: #FFFFFF;
-    background-color: #AA77FF;
-  }
-
-  .users_popup-btn.cancel.delete {
-    background-color: #FFFFFF;
-    border: none;
-    color: #7D7D7D;
-  }
-
-  .users_popup-btn.cancel.delete:hover {
-    color: #1D1D1D;
-    border: calc((1.5/832)*100dvh) solid#1D1D1D;
-  }
-
-  .users_popup-btn.confirm.delete {
-    background-color: white;
-    border: calc((1.5/832)*100dvh) solid #F0436C !important;
-    color: #F0436C;
-  }
-
-  .users_popup-btn.confirm.delete:hover {
-    background-color: #F0436C;
-    color: white;
-    border: calc((1.5/832)*100dvh) solid#F0436C;
-  }
-
-  .add_popup-content {
-    position: relative;
-    margin-top: calc((273/832)*100dvh);
-    background: white;
-    width: calc((525 / 1280) * 100dvw);
-    height: calc((266 / 832) * 100dvh);
-    border-radius: calc((18/832)*100dvh);
-    box-sizing: border-box;
-    position: relative;
-  }
-
-  .add_popup-text {
-    margin-top: calc((24/832)*100dvh);
-    margin-left: calc((20/1280)*100dvw) !important;
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-style: Bold;
-    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
-    letter-spacing: clamp(0.20px, calc((20 /100/ 1280) * 100dvw), 0.4px);
-    ;
-    line-height: calc((32/832)*100dvh);
-  }
-
-  .add_popup-close {
-    position: absolute;
-    width: calc((16 / 1280) * 100dvw);
-    height: calc((16 / 832) * 100dvh);
-    top: calc((16 / 832) * 100dvh);
-    right: calc((16 / 1280) * 100dvw);
-    ;
-    cursor: pointer;
-  }
-
-  .add_form .input {
-    width: calc((321 / 1280) * 100dvw);
-    margin-left: calc((20 / 1280) * 100dvw);
-    ;
-    margin-top: calc((19/832)*100dvh);
-    ;
-    height: calc((39 / 832) * 100dvh);
-    ;
-    border-radius: calc((8 / 832) * 100dvh);
-    ;
-    border: calc((1.5 / 832) * 100dvh) solid #E0E0E0;
-    ;
-    padding-left: calc(15/1280*100dvw);
-
-    ;
-    line-height: calc((39 / 832) * 100dvh);
-    box-sizing: border-box;
-    vertical-align: middle;
-
-    font-family: Lato;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-
-  }
-
-  .input.error {
-    border: calc((1.5 / 832) * 100dvh) solid #F0436C !important;
-  }
-
-  .input.success {
-    border: calc((1.5 / 832) * 100dvh) solid #6AB23D !important;
-    color: #6AB23D;
-  }
-
-  .add_custom-dropdown {
-    margin-top: calc(10/832*100dvh);
-    display: flex;
-    margin-left: calc((20 / 1280) * 100dvw);
-    ;
-    justify-content: space-between;
-    align-items: center;
-    width: calc((189 / 1280) * 100dvw);
-    height: calc((36 / 832) * 100dvh);
-    border-radius: calc((14/832)*100dvh);
-    background-color: #F3F3F3;
-    box-sizing: border-box;
-    cursor: pointer;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-    z-index: 999;
-    letter-spacing: 0.1px;
-    vertical-align: middle;
-    box-sizing: border-box;
-    padding-left: calc((15/1280)*100dvw);
-    padding-right: calc((15/1280)*100dvw);
-  }
-
-  .add_custom-dropdown:hover {
-    background-color: #DFDFDF;
-  }
-
-  .add_custom-arrow {
-    width: calc((16 / 1280) * 100dvw);
-    height: calc((9 / 832) * 100dvh);
-    display: flex;
-  }
-
-  /* Стили для списка - ИЗМЕНЕНИЯ ЗДЕСЬ */
-  .add_custom-dropdown-options {
-    box-shadow: 0px 1px 13.8px 0px #00000040;
-    border-radius: calc((8/832)*100dvh);
-    width: calc((179 / 1280) * 100dvw) !important;
-    height: calc((76 / 832) * 100dvh);
-    margin-top: calc((10 / 832) * 100dvh);
-    position: absolute;
-    /* Позиционируем относительно родителя */
-    left: calc((20 / 1280) * 100dvw);
-    z-index: 9999;
-    /* Увеличиваем z-index */
-    background-color: white;
-    /* Добавляем фон */
-  }
-
-  .add_custom-dropdown-option-list {
-    margin-top: calc((15 / 832) * 100dvh);
-    margin-left: calc((15 / 1280) * 100dvw);
-    z-index: 10000;
-    /* Увеличиваем z-index */
-  }
-
-  .add_custom-dropdown-options_header {
-    font-family: "Lato", sans-serif;
-    font-weight: 600;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-    line-height: 120%;
-    letter-spacing: 0.1px;
-    vertical-align: middle;
-    margin-top: calc((7 / 832) * 100dvh);
-    margin-left: calc((41 / 1280) * 100dvw);
-  }
-
-  .add_custom-dropdown-selected {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.34px);
-    vertical-align: middle;
-  }
-
-  .add_custom-dropdown-option {
-    display: flex;
-    align-items: center;
-    margin-top: calc((9 / 832) * 100dvh);
-    height: calc((19 / 832) * 100dvh);
-    cursor: pointer;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-    vertical-align: middle;
-  }
-
-  .add_custom-dropdown-circle {
-    width: calc((17 / 1280) * 100dvw);
-    height: calc((17 / 832) * 100dvh);
-  }
-
-  .add_custom-dropdown-circle>img {
-    width: calc((17 / 1280) * 100dvw);
-    height: calc((17 / 832) * 100dvh);
-  }
-
-  .add_custom-dropdown-text {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-    vertical-align: middle;
-    margin-left: calc((5 / 1280) * 100dvw);
-    display: flex;
-    align-items: center;
-  }
-
-  .add_popup-btn {
-    position: absolute;
-    width: calc((138 / 1280) * 100dvw);
-    height: calc((41/832)*100dvh);
-    font-size: clamp(20px, calc((20 / 1280) * 100dvw), 40px);
-    font-family: "Lato", sans-serif;
-    border-radius: calc((8/832)*100dvh);
-    cursor: pointer;
-    color: #6AB23D;
-    border: calc((1.5/832)*100dvh) solid #6AB23D;
-    background-color: white;
-    bottom: calc((20/832)*100dvh);
-    right: calc((20 / 1280) * 100dvw);
-
-    &:hover {
-      background-color: #6AB23D;
-      color: white;
+function onTouchMove(e: TouchEvent) {
+  if (!isMobile.value || !isDragging.value) return
+
+  currentY.value = e.touches[0].clientY
+  const diff = currentY.value - startY.value
+
+  if (diff > 0) {
+    e.preventDefault()
+    const sheet = document.querySelector(`.${$style.users__popup}`) as HTMLElement
+    if (sheet) {
+      sheet.style.transform = `translateY(${diff}px)`
+      sheet.style.transition = 'none'
     }
   }
 }
 
-@media (min-width:1918px) and (min-height:1078px) {
-  .option_margin {
-    margin-top: 17px !important;
+function onTouchEnd(e: TouchEvent) {
+  if (!isMobile.value || !isDragging.value) return
+  isDragging.value = false
+
+  const diff = currentY.value - startY.value
+  const sheet = document.querySelector(`.${$style.users__popup}`) as HTMLElement
+
+  if (!sheet) return
+  // Добавляем плавную анимацию для возврата или закрытия
+  sheet.style.transition = 'transform 0.01s ease'
+  if (diff > 150) {
+    // закрываем
+    e.preventDefault()
+    showDeletePop.value = false
+    showChangeRole.value = false
+    showAddPop.value = false
+    sheet.style.transform = ''
+  } else {
+    // возвращаем назад
+    sheet.style.transform = 'translateY(0)'
+  }
+}
+watch([showDeletePop, showChangeRole, showAddPop], (val) => {
+  document.body.classList.toggle('modal-open', showDeletePop.value || showChangeRole.value || showAddPop.value)
+})
+</script>
+
+<template>
+  <layout :active_nav="'users'">
+    <div :class="$style.users">
+      <div :class="$style.users__header">
+        Пользователи
+      </div>
+      <form :class="$style.users__form">
+        <div :class="$style.users__form_finder">
+          <img src="/public/images/history/finder.svg" :class="$style.users__form_finder_icon">
+
+          <input type="text" placeholder="Поиск пользователей" :class="$style.users__form_finder_input" maxlength="32">
+        </div>
+        <div @click="onAddClick()" :class="$style.users__form_button">
+          <div :class="$style.users__form_button_text">
+            Добавить
+          </div>
+          <img src="/public//images/users/add.svg" :class="$style.users__form_button_desk"></img>
+          <div :class="$style.users__form_button_mobile">
+            <img src="/public/images/users/add_mobile.svg" />
+          </div>
+        </div>
+      </form>
+      <div :class="$style.users__list">
+        <div :class="$style.users__list_groups">
+          <div v-for="(value, key) in groups" :class="$style.users__list_group"
+            @click="activeGroup = key; current_id = undefined;">
+
+            <div :class="[activeGroup == key ? $style.users__list_group_active : $style.users__list_group]">
+              {{ value }}
+            </div>
+          </div>
+        </div>
+        <div :class="$style.users__list_body">
+          <div :class="$style.users__list_body_header" style="color: #853CFF;">
+            <span>
+              Имя
+            </span>
+            <span>
+              Роль
+            </span>
+          </div>
+          <div :class="$style.users__list_body_list">
+            <div v-for="(user, key) in org_participants?.participants" :key="key" :class="$style.users__list_user">
+              <div :class="$style.users__list_user_header">
+
+                <span
+                  :class="[$style.users__list_user_name, $style.titleClamp, expandedTitles[user.id] ? $style.expanded : '']"
+                  class="title-clamp" @click="toggleTitle(String(user.id))">
+                  {{ user?.name }}
+                </span>
+                <span
+                  :class="[$style.users__list_user_login, $style.titleClamp, expandedLeaders[user.id] ? $style.expanded : '']"
+                  class="title-clamp" @click="toggleLeader(String(user.id))">
+                  @{{ user?.username }}
+                </span>
+
+              </div>
+              <div :class="$style.users__list_user_role">
+                <div :class="$style.users__list_user_role_text">
+                  <div :style="{ cursor: canChangeRole(user.role, userRole, user.is_you) ? 'pointer' : 'default' }"
+                    @click=" canChangeRole(user.role, userRole, user.is_you) && toggleItemDropdown(user.id)">
+                    <div :class="{ users_list_list_role_margin: userRole !== 'organizer' }">
+                      {{ roles[user.role] }}
+                    </div>
+
+                    <img v-if="canChangeRole(user.role, userRole, user.is_you)" class="open_role"
+                      :src="getDropdownIcon(user.id)">
+                  </div>
+                  <img v-if="canChangeRole(user.role, userRole, user.is_you)" :class="$style.hide"
+                    src="/public/images/users/kick_user.svg" @click=" showDelete(user.name, user.id)">
+                  <img v-if="canChangeRole(user.role, userRole, user.is_you)" :class="$style.hide_mobile"
+                    src="/public/images/users/kick_mobile.svg" @click=" showDelete(user.name, user.id)">
+                </div>
+                <div v-if="current_id === user.id && canChangeRole(user.role, userRole, user.is_you)"
+                  class="users_list_item-dropdown-options" style=" z-index: 10001 !important;"
+                  :class="$style.users__list_user_dropdown">
+                  <div class="users_list_item-dropdown-option"
+                    @click="user.role !== 'admin' && showChange('admin', user.name, user.id)"
+                    :class="$style.users__list_user_dropdown_option">
+                    <span>Выдать роль “Администратор”</span>
+                  </div>
+                  <div :class="$style.users__list_user_dropdown_option"
+                    @click="user.role !== 'leader' && showChange('leader', user.name, user.id)">
+                    <span>Выдать роль “Ведущий”</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div v-if="showDeletePop" class="users_popup-overlay" :class="[$style.users__popup_overlay]">
+        <div class="users_popup-content" :class="[$style.users__popup, $style.users__popup_delete]" @click.stop
+          @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd">
+          <div :class="$style.users__popup_line"></div>
+          <div class="users_popup-text" :class="$style.users__popup_text">
+            Вы уверены, что хотите удалить пользователя<br><span style="color: #853CFF;">{{ currentName }}</span>?
+          </div>
+          <div class="users_popup-text_" :class="$style.users__popup_text_">
+            Это действие отменить будет невозможно.
+          </div>
+          <div class="users_popup-buttons" :class="[$style.users__popup_buttons, $style.users__popup_buttons_delete]">
+            <button class="users_popup-btn cancel delete" @click="hidePopup()"
+              :class="[$style.users__popup_btn, $style.users__popup_btn_first, $style.users__popup_btn_first_delete]">
+              Отменить
+            </button>
+            <button class="users_popup-btn confirm delete" @click="deleteParticipants()"
+              :class="[$style.users__popup_btn, $style.users__popup_btn_second, $style.users__popup_btn_second_delete]">
+              Удалить
+            </button>
+          </div>
+        </div>
+      </div>
+      <div v-if="showChangeRole" class="users_popup-overlay" :class="$style.users__popup_overlay" @click.stop
+        @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd">
+        <div class="users_change_popup-content" :class="$style.users__popup">
+          <div :class="$style.users__popup_line"></div>
+          <div class="users_popup-text" :class="$style.users__popup_text">
+            Вы уверены, что хотите выдать роль
+            “{{ tochangeRole === 'leader' ? "Ведущий" : "Администратор" }}” пользователю <span
+              style="color: #853CFF;">@{{
+                currentName }}?</span>
+          </div>
+          <div class="users_popup-buttons" :class="$style.users__popup_buttons">
+            <button class="users_popup-btn cancel" @click="hidePopupChange()"
+              :class="[$style.users__popup_btn, $style.users__popup_btn_first, $style.users__popup_btn_first_change]">
+              Отменить
+            </button>
+            <button class="users_popup-btn confirm" @click="ChangeRole()"
+              :class="[$style.users__popup_btn, $style.users__popup_btn_second, $style.users__popup_btn_second_change]">
+              Выдать
+            </button>
+          </div>
+        </div>
+      </div>
+      <div v-if="showAddPop" class="users_popup-overlay" :class="$style.users__popup_overlay" @click.stop
+        @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd">
+        <div class="add_popup-content" :class="[$style.users__popup, $style.users__popup_add]">
+          <div :class="$style.users__popup_line"></div>
+          <img src="/images/history/Vector_1.svg" class="add_popup-close" @click="closeAddPopup()">
+          <div class="add_popup-text" :class="$style.users__popup_text">
+            Добавление пользователя в организацию
+          </div>
+          <UForm ref="formAdd" :validate-on="['input']" :schema="schemaAdd" :state="stateAdd" class="add_form"
+            @submit="onSubmitAdd">
+            <UFormField v-slot="{ error }" :ui="{ error: 'error' }" :validate-on-input-delay="0"
+              :eager-validation="true" label="" name="email">
+              <UInput v-model="stateAdd.email" placeholder="Введите email"
+                :ui="{ base: error ? 'input error' : (stateAdd.email ? 'input success' : 'input') }" />
+            </UFormField>
+
+            <div class="add_custom-dropdown" @click="toggleDropdown">
+              <div class="add_custom-dropdown-selected">
+                {{ options_code[selectedText] }}
+              </div>
+              <div class="add_custom-arrow" :class="{ open: isOpen }">
+                <img v-if="isOpen" src="/public/images/interactives/open.svg">
+                <img v-if="!isOpen" src="/public/images/interactives/close.svg">
+              </div>
+            </div>
+            <div v-if="isOpen" class="add_custom-dropdown-options">
+              <div class="add_custom-dropdown-option-list">
+                <div v-for="(label, value) in options_code" :key="value" class="add_custom-dropdown-option"
+                  @click="selectOption(value)" :class="{ active: selectedText === value }">
+                  <img v-if="selectedText === value" class="add_custom-dropdown-circle"
+                    src="/public/images/interactives/picked.svg">
+                  <img v-else class="add_custom-dropdown-circle" src="/public/images/interactives/Ellipse.svg">
+                  <div class="add_custom-dropdown-text" :class="{ active: selectedText === value }">
+                    {{ label }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <UButton class="add_popup-btn" type="submit">
+              Добавить
+            </UButton>
+          </UForm>
+        </div>
+      </div>
+    </div>
+
+  </layout>
+</template>
+<style>
+.title-clamp::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: calc((31 / 1280) * 100dvw);
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(85.63deg, rgba(255, 255, 255, 0.4) 29.36%, #ffffff 89.3%);
+
+}
+
+.title-clamp.expanded::after {
+  display: none;
+  /* только у текущего элемента с expanded */
+}
+
+@media (min-width:768px) {
+  .title-clamp::after {
+    display: none;
+    cursor: default;
+  }
+}
+</style>
+<style module lang="scss">
+* {
+  box-sizing: border-box;
+  font-family: 'Lato', sans-serif;
+  font-weight: 400;
+  line-height: 120%;
+  letter-spacing: 1%;
+  vertical-align: middle;
+}
+
+.titleClamp {
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+  max-width: 100%;
+  flex: 1;
+
+  @media (min-width:768px) {
+    cursor: default;
+  }
+}
+
+.expanded {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.titleClamp::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 35px;
+  height: 100%;
+  pointer-events: none;
+  background: linear-gradient(85.63deg, rgba(247, 247, 247, 0.4) 26.36%, #F7F7F7 89.3%);
+
+}
+
+.expanded::after {
+  display: none;
+}
+
+.hide {
+  display: none;
+
+  @media (min-width:768px) {
+    display: block;
   }
 
-  .option_second_margin {
-    margin-top: 4px !important;
+}
+
+.hide_mobile {
+
+  @media (min-width:768px) {
+    display: none;
   }
 
-  .users_title {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: 20px;
-    letter-spacing: 0.2px;
-    margin-top: 25px;
+}
+
+.users {
+  padding: 0 22px;
+  margin-top: 10px;
+  width: 100%;
+  font-size: 14px;
+
+  @media (min-width:768px) {
+    padding: 0;
+    width: calc(100% - 44px);
+    max-width: 1056px;
+    margin: 0 auto;
   }
 
-  .users_form {
-    margin-top: 20px;
-    display: flex;
 
-  }
-
-  .users_list {
-    margin-top: 12px;
-    display: grid;
-    grid-template-columns: 231px 805px;
-    gap: 20px;
-  }
-
-  .users_list_groups {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: 16px;
-    ;
-    letter-spacing: 0.16px;
-    ;
-    width: 231px;
-    height: 107px !important;
-    padding-left: 10px;
-    padding-top: 15px;
-    border: 1.5px solid #E0E0E0;
-    border-radius: 8px;
-  }
-
-  .users_list_groups>div {
-    height: 19px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-  }
-
-  .group {
-    position: relative;
-  }
-
-  .group_value {
-    margin-left: 10px;
-  }
-
-  .group_active {
-    position: absolute;
-    height: 100%;
-    background-color: #853CFF;
-    width: 2px;
-    ;
-    border-radius: 2px;
-  }
-
-  .users_list_list {
-    margin-top: 23px;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: 16px;
-    ;
-    letter-spacing: 0.16px;
-    ;
-
-  }
-
-  .users_list_list_list {
-    color: #1D1D1D !important;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: 16px;
-    ;
-    letter-spacing: 0.16px;
-    ;
-  }
-
-  .users_list_list_header {
-    margin-left: 18px;
-    display: flex;
-    align-items: center;
-    height: 46.13px !important;
-  }
-
-  .users_list_list_header>div {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-
-  .users_list_list_name {
-    width: 473px;
-  }
-
-  .users_list_list_role {
-    width: 146px !important;
-  }
-
-  .users_list_list_role_block {
-    display: flex;
-    align-items: center;
-    width: 281.73px !important;
-  }
-
-  .open_role {
-    margin-left: 10px;
-    width: 16px;
-    height: 9px;
-  }
-
-  .kick_user {
-    margin-left: auto;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-  }
-
-  .users_list_list_role_margin {
-    display: flex;
-    width: 120px !important;
-  }
-
-  .users_list_list_line {
-    background-color: #e9e9e9 !important;
-    height: 1px !important;
-  }
-
-  .users_form_finder_header {
-
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-size: 16px;
-    ;
-    letter-spacing: 0.16px;
-    ;
+  &__header {
+    font-size: 14px;
     color: #1D1D1D;
+
+    @media (min-width:768px) {
+      font-size: 20px;
+      margin-top: 25px;
+    }
   }
 
-  .users_form_finder_finder {
+  &__form {
+    margin-top: 5px;
+    display: flex;
+    height: 29px;
+    width: 100%;
+    gap: 10px;
+
+    @media (min-width:768px) {
+      display: flex;
+      font-size: 20px;
+      margin-top: 20px;
+      width: 408px;
+      height: 39px;
+      gap: 20px;
+    }
+
+    &_finder {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      width: 100%;
+
+      @media (min-width:768px) {
+        width: 231px;
+        height: 39px;
+      }
+
+      &_icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 19px;
+        height: 19px;
+        pointer-events: none;
+
+        @media (min-width:768px) {
+          width: 19px;
+          height: 19px;
+          left: 17px;
+        }
+      }
+
+      &_input {
+        width: 100%;
+        height: 29px;
+        line-height: 29px;
+        color: #1D1D1D !important;
+        border: 1px solid #E0E0E0;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        padding-left: 35px;
+        box-sizing: border-box;
+
+        @media (min-width:768px) {
+          font-size: 16px;
+          height: 39px;
+          padding-left: 50px;
+        }
+
+        &::placeholder {
+          line-height: 29px;
+          display: flex;
+          align-items: center;
+          font-family: "Lato", sans-serif;
+          font-weight: 500;
+          font-size: 14px;
+          color: #A9A9A9;
+
+          @media (min-width:768px) {
+            font-size: 16px;
+          }
+        }
+
+
+      }
+    }
+
+    &_button {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+
+      @media (min-width:768px) {
+        background-color: #6AB23D;
+        width: 157px;
+        padding: 0 18px;
+        color: white;
+        border-radius: 5px;
+      }
+
+      &_text {
+        display: none;
+
+        @media (min-width:768px) {
+
+          display: block;
+        }
+      }
+
+      &_desk {
+        display: none;
+
+        @media (min-width:768px) {
+
+          display: block;
+        }
+      }
+
+      &_mobile {
+        width: 29px;
+        height: 29px;
+        background-color: #E0F9C7;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        @media (min-width:768px) {
+
+          display: none;
+        }
+      }
+    }
+  }
+
+  &__list {
+    margin-top: 18px;
+
+    @media (min-width:768px) {
+
+      display: flex;
+      gap: 20px;
+      margin-top: 12px;
+    }
+
+    &_groups {
+      display: flex;
+      align-items: center;
+      height: 17px;
+      gap: 10px;
+
+      @media (min-width:768px) {
+        display: flex;
+        flex-direction: column;
+        width: 231px;
+        height: 107px;
+        border: 1.5px solid #E0E0E0;
+        border-radius: 8px;
+        align-items: flex-start;
+        padding: 16px 10px 16px 0px;
+      }
+
+
+    }
+
+    &_group {
+      color: #A9A9A9;
+      font-size: 14px;
+      border-bottom: 1px solid #FFFFFF;
+      box-sizing: border-box;
+
+      @media (min-width:768px) {
+        padding: 0;
+        font-size: 16px;
+        color: #1D1D1D;
+        height: 17px;
+        padding-left: 10px;
+        border-left: 2px solid #FFFFFF;
+      }
+
+      &_active {
+
+        font-size: 14px;
+        border-bottom: 1px solid #853CFF;
+        position: relative;
+        box-sizing: border-box;
+        color: #1D1D1D;
+
+        @media (min-width:768px) {
+          border: none;
+          padding: 0;
+          font-weight: 600;
+          border-left: 2px solid #853CFF;
+          font-size: 16px;
+          color: #1D1D1D;
+          height: 17px;
+          padding-left: 10px;
+        }
+      }
+    }
+
+    &_body {
+      @media (min-width:768px) {
+        width: 805px;
+      }
+
+      &_header {
+        font-size: 14px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        margin-top: 20px;
+        padding-left: 10px;
+        margin-bottom: 5px;
+
+        @media (min-width:768px) {
+          max-width: 805px;
+          padding: 0;
+          font-size: 16px;
+          margin-top: 23px;
+          color: #853CFF;
+          padding-left: 18px;
+          height: 45px !important;
+          display: flex;
+          align-items: center;
+          border-bottom: 1px solid #1D1D1D1D;
+          margin-bottom: 0px;
+        }
+
+        span:last-child {
+          // стили для "Роль"
+          width: 160px;
+          max-width: 160px;
+          margin-left: auto;
+
+          @media (min-width:768px) {
+            width: 314px;
+            max-width: 314px;
+            margin-left: auto;
+          }
+        }
+
+
+      }
+
+      &_list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        @media (min-width:768px) {
+          gap: 0px;
+        }
+      }
+    }
+
+    &_user {
+
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      border: 1px solid #F7F7F7;
+      border-radius: 5px;
+      color: #1D1D1D;
+      background-color: #F7F7F7;
+
+      @media (min-width:768px) {
+        border: none;
+        margin: 0;
+        border-bottom: 1px solid #1D1D1D1D;
+        background-color: white;
+        padding: 0;
+        padding-left: 18px;
+        height: 45px !important;
+        font-size: 16px;
+      }
+
+      &_header {
+        display: grid;
+      }
+
+      &_name {
+        width: 140px;
+
+
+        &.expanded {
+          white-space: normal;
+          word-break: break-word;
+          overflow-wrap: break-word;
+        }
+      }
+
+      &_login {
+        width: 140px;
+
+        &.expanded {
+          white-space: normal;
+          word-break: break-word;
+          overflow-wrap: break-word;
+        }
+      }
+
+      &_role {
+        position: relative;
+        margin-left: auto;
+        white-space: nowrap;
+
+        @media (min-width:768px) {
+          color: #7D7D7D;
+        }
+
+        &_text {
+          width: 150px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+
+          @media (min-width:768px) {
+            width: 282px;
+            max-width: 282px;
+            margin-right: 32px;
+          }
+
+          &>div {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 80px;
+
+            @media (min-width:768px) {
+              width: 146px;
+              max-width: 146px;
+            }
+
+            &>img {
+              width: 14px;
+              height: 8px;
+
+              @media (min-width:768px) {
+                width: 16px;
+                height: 9px;
+              }
+            }
+          }
+
+          &>img {
+            width: 20px;
+            height: 20px;
+
+            @media (min-width:768px) {
+              width: 25px;
+              height: 25px;
+            }
+          }
+        }
+      }
+
+      &_dropdown {
+        position: absolute;
+        top: calc(100% + 11px);
+        box-shadow: 0px 1px 13.8px 0px #00000025;
+        width: 222px;
+        height: 66px;
+        border-radius: 8px;
+        left: -97px;
+        background: white;
+        z-index: 665455;
+        display: flex;
+        flex-direction: column;
+        padding: 6px;
+
+        @media (min-width:768px) {
+          left: -14px;
+          width: 310px;
+          height: 106px;
+          font-size: 20px;
+          color: #1D1D1D;
+          padding: 17px 6px;
+          gap: 4px;
+          box-shadow: 0px 1px 13.8px 0px #00000040;
+
+        }
+
+        &_option {
+          padding: 4px;
+          height: 25px;
+          white-space: nowrap;
+
+          @media (min-width:768px) {
+            height: 34px;
+            padding: 0px 5px;
+          }
+
+          &:hover {
+
+
+            @media (min-width:768px) {
+              background-color: #E0E0E0;
+              border-radius: 7px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &__popup {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     position: relative;
-    display: flex;
-    align-items: center;
-  }
+    background: white;
+    height: 458px;
+    margin-top: auto;
+    width: 100%;
+    border-top-left-radius: 30px;
+    border-top-right-radius: 30px;
+    touch-action: pan-y; // Разрешаем только вертикальный скролл
+    transition: transform 1s ease;
 
-  .users_form_search-input {
-    width: 231px;
-    height: 39px;
-    line-height: 39px;
-    color: #1D1D1D !important;
-    border: 1.5px solid #E0E0E0;
-    border-radius: 8px;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-size: 16px;
-    ;
-    letter-spacing: 0.16px;
-    ;
-    display: flex;
-    align-items: center;
-    padding-left: 50px;
-    box-sizing: border-box;
-  }
+    @media (min-width:768px) {
+      width: 524px;
+      height: 173px;
+      margin-top: 290px;
+      border-radius: 18px;
+    }
 
-  .users_form_search-input::placeholder {
-    line-height: 39px;
-    display: flex;
-    align-items: center;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-size: 16px;
-    ;
-    letter-spacing: 0.16px;
-    ;
-    color: #A9A9A9;
-  }
+    &_delete {
+      @media (min-width:768px) {
+        height: 233px;
+      }
+    }
 
-  .users_form_input-icon {
-    position: absolute;
-    left: 17px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 19px;
-    height: 19px;
-    pointer-events: none;
-  }
+    &_add {
+      @media (min-width:768px) {
+        height: 266px;
+      }
+    }
 
-  .users_form_button {
-    box-sizing: border-box;
-    width: 157px !important;
-    height: 39px;
+    &>img {
+      display: none;
+
+      @media (min-width:768px) {
+        display: block;
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 20px;
+        right: 20px;
+      }
+    }
+
+    &_overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #00000052;
+
+      z-index: 22222999;
+
+      display: flex;
+      justify-content: center;
+    }
+
+    &_line {
+      background-color: #A9A9A9;
+      border-radius: 5px;
+      height: 5px;
+      width: 72px;
+      margin: 0 auto;
+      margin-top: 20px;
+
+      @media (min-width:768px) {
+        display: none;
+
+      }
+    }
+
+    &_text {
+      font-size: 14px;
+      padding: 0 22px;
+      margin-top: 40px;
+      font-weight: 500;
+
+
+      @media (min-width:768px) {
+        font-size: 20px;
+        padding: 0 22px;
+        margin-top: 29px;
+        line-height: 32px;
+        font-weight: 700;
+        vertical-align: middle;
+      }
+
+      &>span {
+        @media (min-width:768px) {
+          padding: 0;
+        }
+      }
+
+      &_ {
+        font-size: 14px;
+        padding: 0 22px;
+        margin-top: 10px;
+        color: #7D7D7D;
+
+        @media (min-width:768px) {
+          font-size: 16px;
+
+        }
+      }
+    }
+
+    &_buttons {
+      padding: 0 22px;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 10px;
+      margin-top: 148px;
+
+      @media (min-width:768px) {
+        margin-top: 19px;
+        display: flex;
+        flex-direction: row;
+        margin-left: 186px;
+      }
+
+      &_delete {
+        @media (min-width:768px) {
+          margin-top: 56px;
+        }
+      }
+    }
+
+
+
+    &_btn {
+      height: 44px;
+      border-radius: 8px;
+      font-size: 16px;
+
+      @media (min-width:768px) {
+        height: 41px;
+        font-size: 20px;
+        cursor: pointer;
+      }
+
+      &_first {
+        @media (min-width:768px) {
+          width: 138px;
+        }
+
+        &_delete {
+          background-color: white;
+          border: 1px solid #7D7D7D;
+          color: #7D7D7D;
+
+
+          @media (min-width:768px) {
+            background-color: white;
+            border: 1px solid white;
+            color: #7D7D7D;
+          }
+
+          &:hover {
+            @media (min-width:768px) {
+              border: 1px solid #1D1D1D;
+              color: #1D1D1D;
+            }
+          }
+        }
+
+        &_change {
+          background-color: white;
+          border: 1px solid #853CFF;
+          color: #853CFF;
+
+          &:hover {
+            @media (min-width:768px) {
+              background-color: #AA77FF;
+              color: white;
+            }
+          }
+        }
+
+
+
+      }
+
+      &_second {
+        @media (min-width:768px) {
+          width: 150px;
+        }
+
+        &_delete {
+          background-color: #F0436C;
+          color: white;
+          border: 1px solid #F0436C;
+
+          @media (min-width:768px) {
+            background-color: white;
+            border: 1px solid #F0436C;
+            color: #F0436C;
+          }
+
+          &:hover {
+            @media (min-width:768px) {
+              border: 1px solid #F0436C;
+              background-color: #F0436C;
+              color: white;
+            }
+          }
+        }
+
+        &_change {
+          background-color: #6AB23D;
+          color: white;
+          border: 1px solid #6AB23D;
+
+          &:hover {
+            @media (min-width:768px) {
+              background-color: #559130;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+</style>
+<style>
+.add_form .input {
+  width: calc(100% - 44px);
+  margin-left: 20px;
+  margin-top: 10px;
+  height: 39px;
+  border-radius: 8px;
+  border: 1.5px solid #E0E0E0;
+  padding-left: 15px;
+  line-height: 22px;
+  box-sizing: border-box;
+
+  font-size: 14px;
+
+}
+
+.input.error {
+  border: 1.5px solid #F0436C !important;
+}
+
+.input.success {
+  border: 1.5px solid #6AB23D !important;
+  color: #6AB23D;
+}
+
+.add_custom-dropdown {
+  margin-top: 10px;
+  display: flex;
+  margin-left: 20px;
+  justify-content: space-between;
+  align-items: center;
+  width: 147px;
+  height: 36px;
+  border-radius: 14px;
+  background-color: #F3F3F3;
+  box-sizing: border-box;
+  cursor: pointer;
+  font-size: 122px !important;
+  z-index: 999;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.add_custom-dropdown:hover {
+  background-color: #DFDFDF;
+}
+
+.add_custom-arrow {
+  width: 16px;
+  height: 9px;
+  display: flex;
+}
+
+/* Стили для списка - ИЗМЕНЕНИЯ ЗДЕСЬ */
+.add_custom-dropdown-options {
+  box-shadow: 0px 1px 13.8px 0px #00000040;
+  border-radius: 8px;
+  width: 125px !important;
+  height: 66px;
+  margin-top: 5px;
+  position: absolute;
+  /* Позиционируем относительно родителя */
+  left: 20px;
+  z-index: 9999;
+  /* Увеличиваем z-index */
+  background-color: white;
+  /* Добавляем фон */
+  padding: 6px;
+}
+
+.add_custom-dropdown-option-list {
+  z-index: 10000;
+  /* Увеличиваем z-index */
+}
+
+.add_custom-dropdown-options_header {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.add_custom-dropdown-selected {
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.add_custom-dropdown-option {
+
+  display: flex;
+  align-items: center;
+  height: 25px;
+  cursor: pointer;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.add_custom-dropdown-circle {
+  display: none;
+  width: 17px;
+  height: 17px;
+}
+
+.add_custom-dropdown-circle>img {
+  display: none;
+  width: 17px;
+  height: 17px;
+}
+
+.add_custom-dropdown-text {
+  padding: 4px;
+  font-weight: 400;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.add_custom-dropdown-option.active {
+  background-color: #E0E0E0;
+  border-radius: 7px;
+}
+
+.add_popup-btn {
+  width: calc(100% - 44px);
+  margin: 0 22px;
+  margin-top: 168px;
+  height: 41px;
+  font-size: 20px;
+  font-family: "Lato", sans-serif;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #6AB23D;
+  border: 1.5px solid #6AB23D;
+  background-color: white;
+
+  &:hover {
     background-color: #6AB23D;
     color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-size: 20px;
-    letter-spacing: 0.2px;
-    ;
-
   }
+}
 
-  .users_form_button {
-    margin-left: 20px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
+.error {
 
-  .users_form_button>img {
-    width: 19px;
-    height: 19px;
-  }
+  color: #F0436C;
+  font-family: 'Lato', sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  padding-left: 22px;
+  line-height: 110.00000000000001%;
+  letter-spacing: 0%;
+  vertical-align: middle;
 
-  .users_list_item-dropdown-options {
-    position: absolute;
-    top: calc(100% + 11px);
-    box-shadow: 0px 1px 13.8px 0px #00000025;
-    width: 310px;
-    height: 106px;
-    border-radius: 14px;
-    left: -14px;
-    background: white;
-    z-index: 665455;
+}
 
-  }
-
-  .users_list_item-dropdown-option {
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    font-family: "Lato", sans-serif;
-    color: #1D1D1D;
-    white-space: nowrap;
-    font-weight: 400;
-    font-size: 20px;
-    letter-spacing: 0.2px;
-    ;
-    width: 298px;
-    height: 34px;
-    padding-left: 8px;
-
-  }
-
-  .users_list_item-dropdown-option:hover {
-    border-radius: 7px;
-    background-color: #DFDFDF !important;
-  }
-
-  .users_popup-overlay {
-    font-family: "Lato", sans-serif;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    z-index: 1000;
-  }
-
-  .users_popup-content {
-    margin-top: 273px;
-    background: white;
-    width: 524px;
-    height: 233px;
-    border-radius: 18px;
-    box-sizing: border-box;
-
-  }
-
-  .users_change_popup-content {
-    margin-top: 290px;
-    background: white;
-    width: 524px;
-    height: 173px;
-    border-radius: 18px;
-    box-sizing: border-box;
-  }
-
-  .users_popup-text {
-    margin-top: 24px !important;
-    margin-left: 20px !important;
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-style: normal;
-    font-style: Bold;
-    font-size: 20px;
-    line-height: 32px;
-  }
-
-  .users_popup-text_ {
-    margin-top: 10px !important;
-    margin-left: 20px !important;
-    line-height: 19.2px;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: 16px;
-    color: #7D7D7D;
-    letter-spacing: 0.16px !important;
-    vertical-align: middle;
-    font-style: normal;
-
-  }
-
-  .users_popup-buttons {
-    display: flex;
-    margin-top: 50px;
-    margin-left: 218px;
-
-  }
-
-  .users_popup-btn.confirm {
-    margin-left: 10px;
-  }
-
-  .users_popup-btn {
-    width: 138px;
-    height: 41px;
-    font-size: 20px;
-    font-family: "Lato", sans-serif;
-    border-radius: 8px;
-    cursor: pointer;
-  }
-
-  .users_popup-btn.confirm {
-    background-color: #6ab23d;
-    border: 1.5px solid #6ab23d;
-    color: white;
-  }
-
-  .users_popup-btn.confirm:hover {
-    background-color: #559130;
-    border: 1.5px solid#559130;
-  }
-
-  .users_popup-btn.cancel {
-    background-color: #FFFFFF;
-    border: 1.5px solid #853CFF;
-    color: #853CFF;
-  }
-
-  .users_popup-btn.cancel:hover {
-    color: #FFFFFF;
-    background-color: #AA77FF;
-  }
-
-  .users_popup-btn.cancel.delete {
-    background-color: #FFFFFF;
-    border: none;
-    color: #7D7D7D;
-  }
-
-  .users_popup-btn.cancel.delete:hover {
-    color: #1D1D1D;
-    border: 1.5px solid#1D1D1D;
-
-  }
-
-  .users_popup-btn.confirm.delete {
-    background-color: white;
-    border: 1.5px solid#F0436C;
-    color: #F0436C;
-  }
-
-  .users_popup-btn.confirm.delete:hover {
-    background-color: #F0436C;
-    color: white;
-    border: 1.5px solid#F0436C;
-  }
-
-  .height {
-    height: 173px !important;
-  }
-
-  .margin {
-    margin-top: 18px !important;
-    margin-left: 203px !important;
-  }
-
-  .margin_text {
-    height: 64px !important;
-  }
-
-  .margin_left {
-    width: 150px !important;
-  }
-
-  .add_popup-content {
-    position: relative;
-    margin-top: 273px;
-    background: white;
-    width: 525px;
-    height: 266px;
-    border-radius: 18px;
-    box-sizing: border-box;
-    position: relative;
-  }
-
-  .add_popup-text {
-    margin-top: 24px;
-    margin-left: 20px !important;
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-style: Bold;
-    font-size: 20px;
-    letter-spacing: 0.2px;
-    ;
-    line-height: 32px;
-  }
-
-  .add_popup-close {
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    top: 16px;
-    right: 16px;
-    ;
-    cursor: pointer;
-  }
-
+@media (min-width:768px) {
   .add_form .input {
     width: 321px;
     margin-left: 20px;
-    ;
-    margin-top: 19px;
-    ;
+    margin-top: 20px;
     height: 39px;
-    ;
     border-radius: 8px;
-    ;
     border: 1.5px solid #E0E0E0;
-    ;
     padding-left: 15px;
-
-    ;
     line-height: 22px;
     box-sizing: border-box;
-    vertical-align: middle;
 
-    font-family: Lato;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
     font-size: 16px;
-    letter-spacing: 0.16px;
 
   }
 
@@ -1443,7 +1330,6 @@ textarea:focus {
     margin-top: 10px;
     display: flex;
     margin-left: 20px;
-    ;
     justify-content: space-between;
     align-items: center;
     width: 189px;
@@ -1452,16 +1338,11 @@ textarea:focus {
     background-color: #F3F3F3;
     box-sizing: border-box;
     cursor: pointer;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: 16px;
+    font-size: 122px !important;
     z-index: 999;
-    letter-spacing: 0.1px;
-    vertical-align: middle;
-    box-sizing: border-box;
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 16px;
   }
 
   .add_custom-dropdown:hover {
@@ -1487,76 +1368,71 @@ textarea:focus {
     z-index: 9999;
     /* Увеличиваем z-index */
     background-color: white;
+    padding: 16px;
     /* Добавляем фон */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
   }
 
   .add_custom-dropdown-option-list {
-    margin-top: 15px;
-    ;
-    margin-left: 15px;
-    ;
     z-index: 10000;
     /* Увеличиваем z-index */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .add_custom-dropdown-options_header {
-    font-family: "Lato", sans-serif;
     font-weight: 600;
     font-size: 16px;
-    line-height: 120%;
-    letter-spacing: 0.1px;
-    vertical-align: middle;
-    margin-top: 7px;
-    margin-left: 41px;
   }
 
   .add_custom-dropdown-selected {
-    font-family: "Lato", sans-serif;
     font-weight: 400;
-    font-style: Regular;
     font-size: 16px;
-    letter-spacing: 0.16px;
-    vertical-align: middle;
   }
 
   .add_custom-dropdown-option {
+    padding: 0;
     display: flex;
     align-items: center;
-    margin-top: 9px;
-    height: 19px;
+    height: 17px;
     cursor: pointer;
-    font-family: "Lato", sans-serif;
     font-weight: 400;
-    font-style: Regular;
-    font-size: 16px;
-    letter-spacing: 0.16px;
-    vertical-align: middle;
+    font-size: 162px;
   }
 
   .add_custom-dropdown-circle {
+    display: block;
     width: 17px;
     height: 17px;
   }
 
   .add_custom-dropdown-circle>img {
+    display: block;
     width: 17px;
     height: 17px;
   }
 
   .add_custom-dropdown-text {
-    font-family: "Lato", sans-serif;
+    padding: 5px;
     font-weight: 400;
-    font-style: Regular;
     font-size: 16px;
-    letter-spacing: 0.16px;
-    vertical-align: middle;
-    margin-left: 5px;
     display: flex;
     align-items: center;
   }
 
+  .add_custom-dropdown-option.active {
+    background-color: white;
+    border-radius: 7px;
+  }
+
   .add_popup-btn {
     position: absolute;
+    bottom: 20px;
+    right: 0px;
     width: 138px;
     height: 41px;
     font-size: 20px;
@@ -1566,21 +1442,25 @@ textarea:focus {
     color: #6AB23D;
     border: 1.5px solid #6AB23D;
     background-color: white;
-    right: 20px;
-    bottom: 20px;
 
-    &:hover {
-      background-color: #6AB23D;
-      color: white;
-    }
+
   }
-}
 
-textarea {
-  resize: none;
-}
+  .add_popup-btn:hover {
+    background-color: #6AB23D;
+    color: white;
+  }
 
-* {
-  box-sizing: border-box;
+  .error {
+    color: #F0436C;
+    font-family: 'Lato', sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    padding-left: 22px;
+    line-height: 110.00000000000001%;
+    letter-spacing: 0%;
+    vertical-align: middle;
+
+  }
 }
 </style>
