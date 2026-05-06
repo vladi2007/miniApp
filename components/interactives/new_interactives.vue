@@ -270,7 +270,7 @@ watch(isIpad, (newValue, oldValue) => {
   }
 })
 function handleStartClick(item: any) {
-  if (!item.is_conducted && item.is_you) return
+  if (item.is_conducted || !item.is_you) return
   showStart.value = true
   currID.value = item.id
   showMoreMobile.value = false
@@ -458,7 +458,7 @@ watch(
             </div>
             <div
               :class="[$style.interactives__list_item_start, item.is_conducted || !item.is_you ? $style.interactives__list_item_start_ended : $style.interactives__list_item_start,]"
-              @click="handleStartClick">
+              @click="handleStartClick(item)">
               <img v-if="!item.is_conducted && item.is_you" src="/public/images/interactives/start_mobile.svg">
               <img v-else src="/public/images/interactives/start_end_mobile.svg">
               <div>
@@ -843,10 +843,13 @@ watch(
     text-align: left;
     height: 36px;
     background-color: white;
+    font-size: 16px;
+    font-weight: 400;
   }
 
   .interactives_list_list_item_leadername {
-
+    font-size: 16px;
+    font-weight: 400;
     padding: 0;
     margin-left: 27px;
     width: 150px;
