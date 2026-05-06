@@ -167,6 +167,11 @@ const auth = useAuthStore()
     margin-right: 10px;
     color: #A9A9A9;
 
+    @media (min-width:768px) {
+      gap: 18px;
+      margin-right: 0px;
+    }
+
     &>div {
 
       @media (min-width:768px) {

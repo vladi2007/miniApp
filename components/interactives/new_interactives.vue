@@ -72,6 +72,15 @@ function setDropdownRef(el: HTMLElement | null, index: number) {
 
 // В onMounted добавь:
 onMounted(() => {
+  if (!searchParams.from_number) {
+    searchParams.from_number = '0'
+  }
+  if (!searchParams.to_number) {
+    searchParams.to_number = '9'
+  }
+  if (!searchParams.filter) {
+    searchParams.filter = 'all'
+  }
   document.addEventListener('click', handleClickOutside)
 })
 
@@ -102,9 +111,11 @@ async function checkSettings(id: number) {
   })
 }
 const { data: interactivesData, isLoading, refetch, error } = useInteractivities(filter, to_number as Ref<string>, from_number as Ref<string>)
-
 async function more_load() {
+  const scrollY = window.scrollY
   to_number.value = String(Number(to_number.value) + 10)
+  await nextTick()
+  window.scrollTo(0, scrollY)
 }
 const showPopup = ref(false)
 const currentInteractiveId = ref<string | null>(null)
@@ -141,6 +152,8 @@ function closePopup() {
 }
 const { mutate: deleteMutation } = mutateDeleteInteractive()
 function deleteInteractive(id: number, is_conducted: boolean) {
+  showMoreMobile.value = false;
+  showMoreMobileId.value = 0;
   closePopup()
   deleteMutation({ interactive_id: id })
 }
@@ -223,7 +236,10 @@ const currID = ref(0)
 const showEdit = ref(false)
 function urlReport(value: string) {
   if (selectedOption.value !== value) { return '/images/interactives/circle_report.svg' }
-  else { return '/images/interactives/circle_report_picked.svg' }
+  else {
+    if (!isMobile.value) return '/images/interactives/circle_report_picked.svg'
+    else return '/images/interactives/circle_report_picked_mobile.svg'
+  }
 }
 const expandedTitles = reactive<{ [key: string]: boolean }>({})
 const expandedLeaders = reactive<{ [key: string]: boolean }>({})
@@ -236,2518 +252,1233 @@ function toggleTitle(id: string) {
 function toggleLeader(id: string) {
   expandedLeaders[id] = !expandedLeaders[id]
 }
+
+const startY = ref(0)
+const currentY = ref(0)
+const isMobile = useMediaQuery('(max-width: 767px)')
+const isIpad = useMediaQuery('(max-width: 1056px)')
+const $style = useCssModule()
+const isDragging = ref(false)
+
+const showMoreMobile = ref(false)
+const showMoreMobileId = ref(0)
+const showMoreItem = computed(() => (interactivesData.value!.interactive_list.find((item) => item.id == showMoreMobileId.value)!))
+watch(isIpad, (newValue, oldValue) => {
+  if (oldValue !== undefined && newValue !== oldValue) {
+    showMoreMobile.value = false
+    showMoreMobileId.value = 0
+  }
+})
+function handleStartClick(item: any) {
+  if (!item.is_conducted && item.is_you) return
+  showStart.value = true
+  currID.value = item.id
+  showMoreMobile.value = false
+  showMoreMobileId.value = 0
+}
+function resetTouch() {
+  isDragging.value = false
+  startY.value = 0
+  currentY.value = 0
+}
+function closeAllPopups() {
+  showMoreMobile.value = false
+  showDeletePopap.value = false
+  showEdit.value = false
+  showPopup.value = false
+  showStart.value = false
+  show_report_Popup.value = false
+  openDropdownId.value = null
+  showMoreMobileId.value = 0
+  currID.value = 0
+  currentInteractiveId.value = null
+  selectedInteractive.value = 0
+  selectedOption.value = ''
+
+  resetTouch()
+}
+function onTouchStart(e: TouchEvent) {
+  if (!isMobile.value) return
+
+  isDragging.value = true
+  startY.value = e.touches[0].clientY
+}
+
+function onTouchMove(e: TouchEvent) {
+  if (!isMobile.value || !isDragging.value) return
+
+  currentY.value = e.touches[0].clientY
+  const diff = currentY.value - startY.value
+
+  if (diff > 0) {
+    e.preventDefault()
+
+    const sheet = document.querySelector(`.${$style.interactives__popup_overlay}`) as HTMLElement
+    if (sheet) {
+      sheet.style.transform = `translateY(${diff}px)`
+      sheet.style.transition = 'none'
+    }
+  }
+}
+
+function onTouchEnd(e: TouchEvent, start: string) {
+  if (!isMobile.value || !isDragging.value) return
+  isDragging.value = false
+
+  const diff = currentY.value - startY.value
+  const sheet = document.querySelector(`.${$style.interactives__popup_overlay}`) as HTMLElement
+  if (sheet) {
+    sheet.style.transform = ''
+  }
+
+  if (!sheet) return
+  // Добавляем плавную анимацию для возврата или закрытия
+  sheet.style.transition = 'transform 0.01s ease'
+  if (diff > 150) {
+    // закрываем
+    e.preventDefault()
+    if (start == 'start') {
+      showStart.value = false
+      currID.value = 0
+    }
+    else if (start === 'more') {
+      showMoreMobile.value = false
+      showMoreMobileId.value = 0
+    }
+    else {
+      closeAllPopups()
+    }
+
+    sheet.style.transform = ''
+  } else {
+    // возвращаем назад
+    sheet.style.transform = 'translateY(0)'
+  }
+}
+watch(
+  [showPopup, showStart, showEdit, showDeletePopap, show_report_Popup, showMoreMobile],
+  ([popup, start, edit, del, report, more]) => {
+    if (!popup && !start && !edit && !del && !report && !more) {
+      resetTouch()
+    }
+  }
+)
 </script>
 
 <template>
   <Layout :active_nav="'interactives'">
-    <div class="interactives_finder">
-      <div class="interactives_finder_finder">
-        <img src="/public/images/history/finder.svg" class="interactives_input-icon">
+    <div :class="$style.interactives">
+      <div :class="$style.interactives__finder">
+        <div :class="$style.interactives__finder_finder">
+          <img src="/public/images/history/finder.svg" :class="$style.interactives__finder_finder_icon">
 
-        <input v-model="finder" type="text" placeholder="Поиск интерактива" class="interactives_search-input">
-      </div>
-      <div class="interactives_create" @click="goTo('/leader/create_interactive', '')">
-        Создать интерактив
-      </div>
-    </div>
-    <div ref="dropdownRef" class="interactives_input-group_type">
-      <div class="interactives_custom-dropdown" @click="toggleDropdown">
-        <div class="interactives_custom-dropdown-selected">
-          Фильтр
+          <input v-model="finder" type="text" placeholder="Поиск интерактива"
+            :class="$style.interactives__finder_finder_input">
         </div>
-        <div class="interactives_custom-arrow" :class="{ open: isOpen }">
-          <img v-if="isOpen" src="/public/images/interactives/open.svg">
-          <img v-if="!isOpen" src="/public/images/interactives/close.svg">
-        </div>
-      </div>
+        <div @click="goTo('/leader/create_interactive', '')" :class="$style.interactives__create">
+          <img src="/public/images/interactives/create.svg" />
+          <span>
+            Создать интерактив
+          </span>
 
-      <div v-if="isOpen" class="interactives_custom-dropdown-options">
-        <div class="interactives_custom-dropdown-option-list">
-          <div v-for="(label, value) in options_code" :key="value" class="interactives_custom-dropdown-option"
-            @click.stop="selectOption(value)">
-            <img v-if="filter === value" class="interactives_custom-dropdown-circle"
-              src="/public/images/interactives/picked.svg">
-            <img v-else class="interactives_custom-dropdown-circle" src="/public/images/interactives/Ellipse.svg">
-            <div class="interactives_custom-dropdown-text">
-              {{ label }}
-            </div>
-          </div>
         </div>
       </div>
-    </div>
-    <div v-if="!isLoading && is_empty_list" class="interactives_empty_list_info">
-      <img src="/public/images//history/finder_info.svg">
-      <div class="interactives_empty_list_info_h1">
-        У Вас нет интерактивов
-      </div>
-      {{ }}
-      <div class="interactives_empty_list_info_h2">
-        {{ info }}
-      </div>
-    </div>
-    <div v-if="!isLoading && !is_empty_list" class="interactives_list">
-      <div class="interactives_list_header">
-        <div class="interactives_list_header_title">
-          Название
-        </div>
-        <div class="interactives_list_header_leadername">
-          Ведущий
-        </div>
-        <div class="interactives_list_header_date">
-          Дата
-        </div>
-        <div class="interactives_list_header_status">
-          Статус
-        </div>
-        <div class="interactives_list_header_count">
-          Количество участников
-        </div>
-      </div>
-      <div v-for="(item, index) in interactivesData?.interactive_list" :key="item.id" class="interactives_list_list">
-        <div class="interactives_list_list_item">
-          <div class="interactives_list_list_item_title title-clamp" :class="{ expanded: expandedTitles[item.id] }"
-            @click="toggleTitle(String(item.id))">
-            {{ item.title }}
+      <div ref="dropdownRef" :class="$style.interactives__filter">
+        <div @click="toggleDropdown" :class="$style.interactives__filter_dropdown">
+          <div :class="$style.interactives__filter_selected">
+            Фильтр
           </div>
-          <div class="interactives_list_list_item_leadername title-clamp"
-            :class="{ expanded: expandedLeaders[item.id] }" @click="toggleLeader(String(item.id))">
-            {{ item.username }}
+          <div :class="$style.interactives__filter_arrow">
+            <img v-if="isOpen" src="/public/images/interactives/open.svg">
+            <img v-if="!isOpen" src="/public/images/interactives/close.svg">
           </div>
-          <div class="interactives_list_list_item_date">
-            {{ item.date_completed }}
-          </div>
-          <div class="interactives_list_list_item_status">
-            {{ item.is_conducted ? "Проведен" : "Не проведен" }}
-          </div>
-          <div class="interactives_list_list_item_count" :class="{ hidden: !item.is_conducted }">
-            {{ item.participant_count }}
-          </div>
-          <div class="interactives_buttons">
-            <div class="interactives_dublicate" title="Дублировать интерактив" @click="Popup(String(item.id))">
-              <img id="dublicate" src="/images/interactives/dublicate_2.svg">
-            </div>
-            <div v-if="item.is_conducted" class="interactives_leader_board" title="Показать лидерборд"
-              @click="goTo(`/leader/interactive_leader_board/${item.id}`, '')">
-              <img id="leader_board" src="/images/interactives/leader_board.svg">
-            </div>
-            <div v-if="!item.is_you" class="interactives_check" title="Просмотреть настройки интерактива"
-              @click="checkSettings(item.id)">
-              <img src="/images/interactives/check.svg">
-            </div>
-            <div v-if="!item.is_conducted && item.is_you" class="interactives_edit" title="Редактировать интерактив"
-              @click="showEdit = true; currID = item.id">
-              <img id="edit" src="/images/interactives/edit_2.svg">
-            </div>
-            <div v-if="!item.is_conducted && item.is_you" class="interactives_start" title="Запустить интерактив"
-              @click="showStart = true; currID = item.id">
-              <img src="/images/interactives/start_2.svg">
-            </div>
-            <div v-if="!item.is_conducted && (item.is_you || userRole === 'admin' || userRole === 'organizer')"
-              class="interactive_delete" title="Удалить интерактив" style="margin-left: auto;"
-              @click="deletePopup(item.id)">
-              <img id="delete" src="/images/interactives/vector.png">
-            </div>
-            <div v-if="item.is_conducted" :ref="el => setDropdownRef(el, index)"
-              class="interactives_list_list_item_actions" style="margin-left: auto !important;">
-              <div class="interactives_more_options" title="Еще" @click="toggleItemDropdown(String(item.id))">
-                <img id="more_options" src="/images/interactives/more.svg">
-              </div>
-              <div v-if="openDropdownId == String(item.id)" class="interactives_item-dropdown-options"
-                style=" z-index: 10001 !important;">
-                <div id="first_option" class="interactives_item-dropdown-option"
-                  style="  margin-top: calc((22/832)*100dvh);"
-                  @click="show_report_Popup = true; selectedInteractive = item.id; openDropdownId = null;">
-                  <img id="first_option_img" src="/public/images/interactives/download.svg"
-                    class="interactives_item-dropdown-icon"
-                    style="     height: calc((24/832) * 100dvh) ;width: calc((24 / 1280) * 100dvw) ; margin-left: calc((24/1280)*100dvw);">
-                  <span style="margin-left: calc((9/1280)*100dvw);">Выгрузить отчет</span>
-                </div>
-                <div id="second_option" class="interactives_item-dropdown-option"
-                  style="  margin-top: calc((14/832)*100dvh);" @click="goToBroadcast(item.id)">
-                  <img id="second_option_img" src="/public/images/interactives/send.svg"
-                    class="interactives_item-dropdown-icon"
-                    style="     height: calc((24/832) * 100dvh) ;width: calc((24 / 1280) * 100dvw) ; margin-left: calc((24/1280)*100dvw);">
-                  <span style="margin-left: calc((9/1280)*100dvw);">Отправить рассылку</span>
-                </div>
+        </div>
+
+        <div v-if="isOpen" :class="$style.interactives__filter_options" style="z-index: 10001;">
+          <div :class="$style.interactives__filter_list">
+            <div v-for="(label, value) in options_code" :key="value"
+              :class="[$style.interactives__filter_option, filter === value ? $style.interactives__filter_option_active : $style.interactives__filter_option]"
+              @click.stop="selectOption(value)">
+              <img v-if="filter === value" src="/public/images/interactives/picked.svg">
+              <img v-else src="/public/images/interactives/Ellipse.svg">
+              <div :class="$style.interactives__filter_option_text">
+                {{ label }}
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div v-if="!interactivesData!.is_end" class="interactives_show_more" @click="more_load()">
-        Показать еще
+      <div v-if="!isLoading && is_empty_list" :class="$style.interactives__info">
+        <img src="/public/images//history/finder_info.svg" :class="$style.interactives__info_img">
+        <div :class="$style.interactives__info_header">
+          У Вас нет интерактивов
+        </div>
+        {{ }}
+        <div :class="$style.interactives__info_text">
+          {{ info }}
+        </div>
       </div>
-    </div>
+      <div v-if="!isLoading && !is_empty_list" :class="$style.interactives__list">
+        <div :class="$style.interactives__list_header">
+          <div :class="$style.interactives__list_header_name">
+            Название
+          </div>
+          <div :class="$style.interactives__list_header_leader">
+            Ведущий
+          </div>
+          <div :class="$style.interactives__list_header_date">
+            Дата
+          </div>
+          <div :class="$style.interactives__list_header_status">
+            Статус
+          </div>
+          <div :class="$style.interactives__list_header_count">
+            Количество участников
+          </div>
+        </div>
+        <div v-for="(item, index) in interactivesData?.interactive_list" :key="item.id"
+          :class="$style.interactives__list_grid">
+          <div :class="$style.interactives__list_item">
+            <div class="interactives_list_list_item_title title-clamp" :class="{ expanded: expandedTitles[item.id] }"
+              @click="toggleTitle(String(item.id))">
+              {{ item.title }}
+            </div>
+            <div class="interactives_list_list_item_leadername title-clamp" @click="toggleLeader(String(item.id))"
+              :class="{ expanded: expandedLeaders[item.id] }">
+              {{ item.username }}
+            </div>
+            <div :class="$style.interactives__list_item_date">
+              {{ item.date_completed }}
+            </div>
+            <div :class="$style.interactives__list_item_status">
+              {{ item.is_conducted ? "Проведен" : "Не проведен" }}
+            </div>
+            <div :class="$style.interactives__list_item_count">
+              {{ item.is_conducted ? item.participant_count : '' }}
+            </div>
+            <div
+              :class="[$style.interactives__list_item_start, item.is_conducted || !item.is_you ? $style.interactives__list_item_start_ended : $style.interactives__list_item_start,]"
+              @click="handleStartClick">
+              <img v-if="!item.is_conducted && item.is_you" src="/public/images/interactives/start_mobile.svg">
+              <img v-else src="/public/images/interactives/start_end_mobile.svg">
+              <div>
+                Запустить
+              </div>
 
-    <div v-if="showPopup" class="interactives_popup-overlay">
-      <div class="interactives_popup">
-        <div class="interactives_popup-header">
-          <div class="interactives_popup-header-text">
+            </div>
+            <img src="/public/images/interactives/more_mobile.svg" :class="$style.interactives__list_item_more"
+              @click="showMoreMobile = true; showMoreMobileId = item.id">
+
+
+            <div :class="$style.interactives__list_item_buttons">
+              <div title="Дублировать интерактив" @click="Popup(String(item.id))" style="background-color: #853CFF;"
+                id="dublicate">
+                <img src="/images/interactives/dublicate_2.svg">
+              </div>
+              <div v-if="!item.is_you || item.is_conducted" title="Просмотреть настройки интерактива"
+                @click="checkSettings(item.id)" style="background-color: #6AB23D;;margin-left: 10px;" id="leader_board">
+                <img src="/images/interactives/check.svg">
+              </div>
+              <div v-if="item.is_conducted" title="Показать лидерборд"
+                @click="goTo(`/leader/interactive_leader_board/${item.id}`, '')"
+                style="background-color: #6AB23D;;margin-left: 10px;" id="leader_board">
+                <img src="/images/interactives/leader_board.svg">
+              </div>
+
+              <div v-if="!item.is_conducted && item.is_you" title="Редактировать интерактив"
+                @click="showEdit = true; currID = item.id" style="background-color: #F0436C;margin-left: 10px;"
+                id="edit">
+                <img src="/images/interactives/edit_2.svg">
+              </div>
+              <div v-if="!item.is_conducted && item.is_you" title="Запустить интерактив"
+                @click="showStart = true; currID = item.id" style="background-color: #6AB23D;;margin-left: 10px;"
+                id="leader_board">
+                <img src="/images/interactives/start_2.svg">
+              </div>
+              <div v-if="!item.is_conducted && (item.is_you || userRole === 'admin' || userRole === 'organizer')"
+                title="Удалить интерактив" style="width: 14px;height: 18px;margin-left: auto;"
+                @click="deletePopup(item.id)" id="delete">
+                <img id="delete" src="/images/interactives/vector.png" style="width: 14px;height: 18px;">
+              </div>
+              <div v-if="item.is_conducted" :ref="el => setDropdownRef(el, index)" style="margin-left: auto; position: relative;width: 14px;height: 36px;display: flex;
+                align-items: center;justify-content: center">
+                <div title="Еще" @click="toggleItemDropdown(String(item.id))" style=" display: flex;
+                align-items: center;justify-content: center; cursor: pointer;" id="delete">
+                  <img id="more_options" src="/images/interactives/more.svg">
+                </div>
+                <div v-if="openDropdownId == String(item.id)" style=" z-index: 10001 !important;"
+                  :class="$style.interactives__list_item_buttons_more">
+                  <div @click="show_report_Popup = true; selectedInteractive = item.id; openDropdownId = null;">
+                    <img id="first_option_img" src="/public/images/interactives/download.svg">
+                    <span>Выгрузить отчет</span>
+                  </div>
+                  <div @click="goToBroadcast(item.id)">
+                    <img id="second_option_img" src="/public/images/interactives/send.svg">
+                    <span>Отправить рассылку</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-if="!interactivesData!.is_end" :class="$style.interactives__list_show" @click="more_load()">
+          Показать еще
+        </div>
+
+      </div>
+
+      <div v-if="showMoreMobile && useMediaQuery('(max-width: 1056px)').value" :class="$style.interactives__popup">
+        <div :class="[$style.interactives__popup_overlay, $style.interactives__popup_more]" @click.stop
+          @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="(e) => onTouchEnd(e, 'more')">
+          <div :class="$style.interactives__popup_line"></div>
+
+          <div :class="$style.interactives__popup_block" v-if="!showMoreItem!.is_conducted">
+            <div :class="$style.interactives__popup_func" v-if="!showMoreItem!.is_conducted && showMoreItem!.is_you"
+              @click="showEdit = true; currID = showMoreItem.id">
+              <img src="/public/images/interactives/more_edit.svg" style="width: 16px; height: 17px; margin-left: 4px;">
+              <div style="margin-left: 10px;">
+                Редактировать
+              </div>
+              <img src="/public/images/interactives/more_popup_arrow.svg">
+
+            </div>
+            <div :class="$style.interactives__popup_func"
+              @click="showPopup = true; currentInteractiveId = String(showMoreItem.id)">
+              <img src="/public/images/interactives/more_dubl.svg">
+              <div>
+                Дублировать
+              </div>
+              <img src="/public/images/interactives/more_popup_arrow.svg">
+
+            </div>
+            <div :class="$style.interactives__popup_func" v-if="!showMoreItem!.is_you"
+              @click="checkSettings(showMoreItem.id)">
+              <img src="/public/images/interactives/more_check.svg">
+              <div>
+                Просмотр
+              </div>
+              <img src="/public/images/interactives/more_popup_arrow.svg">
+            </div>
+            <div :class="$style.interactives__popup_func"
+              v-if="!showMoreItem!.is_conducted && (showMoreItem!.is_you || userRole === 'admin' || userRole === 'organizer')"
+              @click="deletePopup(showMoreItem.id)">
+              <img src="/public/images/interactives/more_delete.svg"
+                style="width: 14px; height: 18px; margin-left: 5px;">
+              <div style="margin-left: 11px;">
+                Удалить
+              </div>
+              <img src="/public/images/interactives/more_popup_arrow.svg">
+
+            </div>
+
+          </div>
+          <div :class="$style.interactives__popup_block" v-if="showMoreItem.is_conducted">
+            <div :class="$style.interactives__popup_func"
+              @click="showPopup = true; currentInteractiveId = String(showMoreItem.id)">
+              <img src="/public/images/interactives/more_dubl.svg">
+              <div>
+                Дублировать
+              </div>
+              <img src="/public/images/interactives/more_popup_arrow.svg">
+
+            </div>
+            <div :class="$style.interactives__popup_func" @click="checkSettings(showMoreItem.id)">
+              <img src="/public/images/interactives/more_check.svg">
+              <div>
+                Просмотр
+              </div>
+              <img src="/public/images/interactives/more_popup_arrow.svg">
+
+            </div>
+            <div :class="$style.interactives__popup_func" v-if="showMoreItem!.is_conducted"
+              @click="goTo(`/leader/interactive_leader_board/${showMoreItem.id}`, '')">
+              <img src="/public/images/interactives/more_board.svg">
+              <div>
+                Показать лидерборд
+              </div>
+              <img src="/public/images/interactives/more_popup_arrow.svg">
+
+            </div>
+
+          </div>
+
+          <div :class="[$style.interactives__popup_block, $style.interactives__popup_block_conducted]"
+            v-if="showMoreItem!.is_conducted">
+
+            <div :class="$style.interactives__popup_func"
+              @click="show_report_Popup = true; selectedInteractive = showMoreItem.id; openDropdownId = null">
+              <img src="/public/images/interactives/more_report.svg">
+              <div>
+                Выгрузить отчёт
+              </div>
+              <img src="/public/images/interactives/more_popup_arrow.svg">
+
+            </div>
+            <div :class="$style.interactives__popup_func" @click="goToBroadcast(showMoreItem.id)">
+              <img src="/public/images/interactives/more_broad.svg">
+              <div>
+                Отправить рассылку
+              </div>
+              <img src="/public/images/interactives/more_popup_arrow.svg">
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="showPopup" :class="$style.interactives__popup">
+        <div :class="[$style.interactives__popup_overlay, $style.interactives__popup_overlay_dubl]" @click.stop
+          @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="(e) => onTouchEnd(e, 'popup')">
+          <div :class="$style.interactives__popup_line"></div>
+          <div :class="$style.interactives__popup_text">
             Вы уверены, что хотите продублировать выбранный интерактив?
           </div>
-        </div>
-        <div class="interactives_popup-body">
-          <button class="interactives_popup-button" @click="duplicateAndSaveInteractive(Number(currentInteractiveId!))">
-            Дублировать
-          </button>
+          <div :class="[$style.interactives__popup_buttons, $style.interactives__popup_buttons_report]">
+            <button @click="showPopup = false; currentInteractiveId = null"
+              :class="[$style.interactives__popup_btn, $style.interactives__popup_btn_second, $style.interactives__popup_btn_first_start]">
+              Отменить
+            </button>
 
-          <button class="interactives_popup-button" @click="dublicate_interactive(String(currentInteractiveId))">
-            Дублировать и редактировать
-          </button>
-          <button class="interactives_popup-button" @click="showPopup = false">
-            Отменить
-          </button>
+
+            <button @click="dublicate_interactive(String(currentInteractiveId))"
+              :class="[$style.interactives__popup_btn, $style.interactives__popup_btn_third, $style.interactives__popup_btn_third_start]">
+              Дублировать и редактировать
+            </button>
+            <button @click="duplicateAndSaveInteractive(Number(currentInteractiveId!))"
+              :class="[$style.interactives__popup_btn, $style.interactives__popup_btn_first, $style.interactives__popup_btn_second_start]">
+              Дублировать
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-    <div v-if="showStart" class="settings_popup-overlay">
-      <div class="settings_popup-content">
-        <div class="settings_popup-text">
-          Вы уверены, что хотите запустить интерактив?
-        </div>
-        <div class="settings_popup-text_">
-          По окончании интерактива Вы сможете выгрузить отчет.
-        </div>
-        <div class="settings_popup-buttons">
-          <button class="settings_popup-btn cancel" @click="showStart = false; currID = 0">
-            Отменить
-          </button>
-          <button class="settings_popup-btn confirm" style="" @click="start_interactive(String(currID)); currID = 0">
-            Запустить
-          </button>
-        </div>
-      </div>
-    </div>
-    <div v-if="showEdit" class="settings_popup-overlay">
-      <div class="settings_popup-content" :class="{ height: true }">
-        <div class="settings_popup-text" :class="{ margin_text: true }">
-          Вы уверены, что хотите отредактировать интерактив?
-        </div>
-        <div class="settings_popup-buttons" :class="{ margin: true }">
-          <button class="settings_popup-btn cancel" @click="showEdit = false; currID = 0">
-            Отменить
-          </button>
-          <button class="settings_popup-btn confirm" style="display: flex;
-      align-items: center;
-      justify-content: center;" :class="{ margin_left: true }" @click="edit_interactive(String(currID)); currID = 0">
-            Редактировать
-          </button>
+      <div v-if="showStart" :class="$style.interactives__popup">
+        <div :class="[$style.interactives__popup_overlay]" @click.stop @touchstart="onTouchStart"
+          @touchmove="onTouchMove" @touchend="(e) => onTouchEnd(e, 'start')">
+          <div :class="$style.interactives__popup_line"></div>
+          <div :class="$style.interactives__popup_text">
+            Вы уверены, что хотите запустить интерактив?
+          </div>
+          <div :class="$style.interactives__popup_text_">
+            По окончании интерактива Вы сможете выгрузить отчет.
+          </div>
+          <div :class="[$style.interactives__popup_buttons, $style.interactives__popup_buttons_delete]">
+            <button @click="showStart = false; currID = 0"
+              :class="[$style.interactives__popup_btn, $style.interactives__popup_btn_first, $style.interactives__popup_btn_first_start]">
+              Отменить
+            </button>
+            <button style="" @click="start_interactive(String(currID)); currID = 0"
+              :class="[$style.interactives__popup_btn, $style.interactives__popup_btn_second, $style.interactives__popup_btn_second_start]">
+              Запустить
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-    <div v-if="showDeletePopap" class="interactives_delete_popup-overlay">
-      <div class="interactives_delete_popup">
-        <div class="interactives_delete_popup-close" @click="closePopup()">
-          <img src="/public/images/interactives/delete_close.svg">
+      <div v-if="showEdit" :class="$style.interactives__popup">
+        <div :class="[$style.interactives__popup_overlay, $style.interactives__popup_overlay_edit]" @click.stop
+          @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="(e) => onTouchEnd(e, 'popup')">
+          <div :class="$style.interactives__popup_line"></div>
+          <div :class="$style.interactives__popup_text">
+            Вы уверены, что хотите отредактировать интерактив?
+          </div>
+          <div
+            :class="[$style.interactives__popup_buttons, $style.interactives__popup_buttons_delete, $style.interactives__popup_buttons_edit]">
+            <button @click="showEdit = false; currID = 0"
+              :class="[$style.interactives__popup_btn, $style.interactives__popup_btn_first, $style.interactives__popup_btn_first_start]">
+              Отменить
+            </button>
+            <button
+              :class="[$style.interactives__popup_btn, $style.interactives__popup_btn_second, $style.interactives__popup_btn_second_start]"
+              @click="edit_interactive(String(currID)); currID = 0">
+              Редактировать
+            </button>
+          </div>
         </div>
-        <div class="interactives_delete_popup-header">
-          <div class="interactives_delete_popup-header-text">
+      </div>
+      <div v-if="showDeletePopap" :class="$style.interactives__popup">
+        <div :class="[$style.interactives__popup_overlay]" @click.stop @touchstart="onTouchStart"
+          @touchmove="onTouchMove" @touchend="(e) => onTouchEnd(e, 'popup')">
+          <div :class="$style.interactives__popup_line"></div>
+          <img src="/public/images/interactives/delete_close.svg" @click="closePopup()">
+
+          <div :class="$style.interactives__popup_text">
             {{ isRunning
               ? 'Интерактив запущен! Все данные интерактива будут удалены!'
               : 'Вы уверены, что хотите удалить интерактив?' }}
           </div>
-          <div class="interactives_delete_popup-header-text_">
-            Это действие отменить будет невозможно. Вопросы и данные интерактива не будут сохранены.
+          <div :class="$style.interactives__popup_text_">
+            Это действие отменить будет невозможно. <br />Вопросы и данные интерактива не будут сохранены.
+          </div>
+          <div :class="[$style.interactives__popup_buttons, $style.interactives__popup_buttons_delete]">
+            <button @click="closePopup()"
+              :class="[$style.interactives__popup_btn, $style.interactives__popup_btn_first, $style.interactives__popup_btn_first_delete]">
+              Отменить
+            </button>
+            <button
+              @click="deleteInteractive(Number(currentInteractiveId), (interactivesData?.interactive_list?.find((v) => v.id == Number(currentInteractiveId)))!.is_conducted)"
+              :class="[$style.interactives__popup_btn, $style.interactives__popup_btn_second, $style.interactives__popup_btn_second_delete]">
+              {{ isRunning ? 'Закончить и удалить интерактив' : 'Удалить' }}
+            </button>
           </div>
         </div>
-        <div class="interactives_delete_popup-body">
-          <button class="interactives_delete_popup-button cancel" @click="closePopup()">
-            Отменить
-          </button>
-          <button class="interactives_delete_popup-button confirm"
-            @click="deleteInteractive(Number(currentInteractiveId), (interactivesData?.interactive_list?.find((v) => v.id == Number(currentInteractiveId)))!.is_conducted)">
-            {{ isRunning ? 'Закончить и удалить интерактив' : 'Удалить' }}
-          </button>
-        </div>
       </div>
-    </div>
 
-    <div v-if="show_report_Popup === true" class="popup-overlay">
-      <div class="popup">
-        <img src="/images/history/Vector_1.svg" class="popup-close"
-          @click="show_report_Popup = false; selectedInteractive = 0; selectedOption = ''">
-        <div class="popup-header">
-          <div class="popup-header-text">
+      <div v-if="show_report_Popup === true" :class="$style.interactives__popup">
+        <div :class="[$style.interactives__popup_overlay]" @click.stop @touchstart="onTouchStart"
+          @touchmove="onTouchMove" @touchend="(e) => onTouchEnd(e, 'popup')">
+          <div :class="$style.interactives__popup_line"></div>
+          <img src="/images/history/Vector_1.svg"
+            @click="show_report_Popup = false; selectedInteractive = 0; selectedOption = ''">
+          <div :class="[$style.interactives__popup_text, $style.interactives__popup_text_report]">
             Выгрузить отчет
           </div>
-        </div>
-        <div class="popup-body">
-          <div class="popup-option" @click="selectedOption = 'forLeader'">
-            <img :src="urlReport('forLeader')">
-            <span class="popup-option-span">Отчет для ведущего</span>
+          <div :class="[$style.interactives__popup_report]">
+            <div @click="selectedOption = 'forLeader'" :class="[$style.interactives__popup_option]">
+              <img :src="urlReport('forLeader')">
+              <span>Отчет для ведущего</span>
+            </div>
+            <div @click="selectedOption = 'forAnalise'" :class="[$style.interactives__popup_option]">
+              <img :src="urlReport('forAnalise')">
+              <span>Отчет для обработки</span>
+            </div>
           </div>
-          <div class="popup-option second" @click="selectedOption = 'forAnalise'">
-            <img :src="urlReport('forAnalise')">
-            <span class="popup-option-span">Отчет для обработки</span>
+          <div :class="[$style.interactives__popup_buttons, $style.interactives__popup_buttons_delete]">
+            <button @click="show_report_Popup = false; selectedInteractive = 0; selectedOption = ''"
+              :class="[$style.interactives__popup_btn, $style.interactives__popup_btn_second, $style.interactives__popup_btn_first_delete]">
+              Отменить
+            </button>
+            <button @click="submitReport"
+              :class="[$style.interactives__popup_btn, $style.interactives__popup_btn_third, $style.interactives__popup_btn_third_start]">
+              Выгрузить
+            </button>
           </div>
-        </div>
-        <div class="popup-footer">
-          <button class="popup-cancel" @click="show_report_Popup = false">
-            Отменить
-          </button>
-          <button class="popup-submit" @click="submitReport">
-            Выгрузить
-          </button>
         </div>
       </div>
     </div>
+
   </Layout>
 </template>
-
 <style>
-button {
+#delete:hover {
+  filter: brightness(11%);
+}
+
+#dublicate:hover {
+  background-color: #AA77FF !important;
+}
+
+#leader_board:hover {
+  background-color: #9AC57E !important;
+}
+
+#edit:hover {
+  background-color: #DE7D94 !important;
+}
+
+.interactives_list_list_item_title,
+.interactives_list_list_item_leadername {
+  position: relative;
+  /* для ::after */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.interactives_Line {
+  background-color: #e9e9e9 !important;
+  height: 1px !important;
+}
+
+.interactives_list_list_item_title {
+
+
+  grid-area: title;
+  width: 100%;
+  background-color: #F7F7F7;
+  border-radius: 5px;
+  padding: 0 5px;
+  height: 36px;
   display: flex;
   align-items: center;
-  justify-content: center;
 }
 
-.hidden {
-  visibility: hidden;
+.interactives_list_list_item_leadername {
+
+  display: none;
 }
 
-@media (max-height:1078px),
-(max-width:1918px) {
-  .interactives_margins {
-    width: calc((1056 / 1280) * 100dvw);
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-    margin-left: calc((112 / 1280) * 100dvw);
-  }
+.title-clamp::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 31px;
+  height: 36px;
+  pointer-events: none;
+  background: linear-gradient(85.63deg, rgba(255, 255, 255, 0.4) 26.36%, #FFFFFF 89.3%);
 
-  .interactives_list_list_item_actions {
-    position: relative;
-  }
 
-  .interactives {
-    width: 100dvw;
-    height: 100dvh;
+}
 
-    background-color: white;
-    position: relative;
-    overflow-x: hidden;
-  }
+.interactives_list_list_item_leadername.expanded,
+.interactives_list_list_item_title.expanded {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
 
-  .interactives_finder {
-    width: calc((1056/1280) * 100dvw);
-    margin-top: calc((25 / 832) * 100dvh);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+.title-clamp.expanded::after {
+  display: none;
+  /* только у текущего элемента с expanded */
+}
 
-  .interactives_finder_header {
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-style: Medium;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-    vertical-align: middle;
-    color: #1D1D1D;
-  }
 
-  .interactives_finder_finder {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
 
-  .interactives_search-input {
-    width: calc((765/1280) * 100dvw);
-    height: calc((39 / 832) * 100dvh);
-    line-height: calc((39 / 832) * 100dvh);
-    color: #1D1D1D !important;
-    border: calc((1.5 / 832) * 100dvh) solid #E0E0E0;
-    border-radius: calc((8 / 832)*100dvh);
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    display: flex;
-    align-items: center;
-    padding-left: calc((50 / 1280) * 100dvw) !important;
-    box-sizing: border-box;
-  }
-
-  .interactives_search-input::placeholder {
-    line-height: calc((39 / 832) * 100dvh);
-    display: flex;
-    align-items: center;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    color: #A9A9A9;
-  }
-
-  .interactives_input-icon {
-    position: absolute;
-    left: calc((17 / 1280) * 100dvw);
-    top: 50%;
-    transform: translateY(-50%);
-    width: calc((19/1280) * 100dvw);
-    height: calc((19/1280) * 100dvw);
-    pointer-events: none;
-  }
-
-  .interactives_create {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #6AB23D;
-    border-radius: calc((5/832) * 100dvh);
-    width: calc((261/1280) * 100dvw);
-    height: calc((39 / 832) * 100dvh);
-    /* padding-top:   calc((8 / 832) * 100dvh);
-    padding-left:  calc((35/1280) * 100dvw) ;;;
-    padding-bottom:   calc((8 / 832) * 100dvh);
-    padding-right:  calc((35/1280) * 100dvw) ;;; */
-    white-space: nowrap;
-
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-style: Medium;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-    letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
-    text-align: center;
-    vertical-align: middle;
-    color: white;
-    margin-left: calc((30/1280)*100dvw);
-    border: calc(1.5/832*100dvh) solid #6AB23D;
-  }
-
-  .interactives_create:hover {
-    background-color: white;
-    color: #6AB23D;
-    border: calc(1.5/832*100dvh) solid #6AB23D;
-  }
-
-  .interactives_input-group_type {
-    position: relative;
-    z-index: 1000;
-    height: calc((36 / 832) * 100dvh);
-    width: calc((159 / 1280) * 100dvw) !important;
-  }
-
-  .interactives_input-group_type select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    height: calc((47 / 832) * 100dvh);
-    border-radius: calc((14/832)*100dvh);
-    box-sizing: border-box;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-  }
-
-  .interactives_input-group_row {
-    display: flex;
-    width: calc((159 / 1280) * 100dvw);
-    height: calc((47 / 832) * 100dvh);
-    align-items: center;
-    border-radius: calc((14/832)*100dvh);
-    background-color: #F3F3F3;
-  }
-
-  /* Кастомный выпадающий список */
-  .interactives_custom-dropdown {
-    margin-top: calc(20/832*100dvh);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: calc((121 / 1280) * 100dvw);
-    height: calc((36 / 832) * 100dvh);
-    border-radius: calc((14/832)*100dvh);
-    background-color: #F3F3F3;
-    box-sizing: border-box;
-    cursor: pointer;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-    z-index: 999;
-    letter-spacing: 0.1px;
-    vertical-align: middle;
-    box-sizing: border-box;
-    padding-left: calc((15/1280)*100dvw);
-    padding-right: calc((15/1280)*100dvw);
-  }
-
-  .interactives_custom-dropdown:hover {
-    background-color: #DFDFDF;
-  }
-
-  .interactives_custom-arrow {
-    width: calc((16 / 1280) * 100dvw);
-    height: calc((9 / 832) * 100dvh);
-    display: flex;
-  }
-
-  /* Стили для списка - ИЗМЕНЕНИЯ ЗДЕСЬ */
-  .interactives_custom-dropdown-options {
-    box-shadow: 0px 1px 13.8px 0px #00000040;
-    border-radius: calc((8/832)*100dvh);
-    width: calc((179 / 1280) * 100dvw) !important;
-    height: calc((103 / 832) * 100dvh);
-    margin-top: calc((10 / 832) * 100dvh);
-    position: absolute;
-    top: 100%;
-    /* Позиционируем относительно родителя */
-    left: 0;
-    z-index: 9999;
-    /* Увеличиваем z-index */
-    background-color: white;
-    /* Добавляем фон */
-  }
-
-  .interactives_custom-dropdown-option-list {
-    margin-top: calc((15 / 832) * 100dvh);
-    margin-left: calc((15 / 1280) * 100dvw);
-    z-index: 10000;
-    /* Увеличиваем z-index */
-  }
-
-  .interactives_custom-dropdown-options_header {
-    font-family: "Lato", sans-serif;
-    font-weight: 600;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-    line-height: 120%;
-    letter-spacing: 0.1px;
-    vertical-align: middle;
-    margin-top: calc((7 / 832) * 100dvh);
-    margin-left: calc((41 / 1280) * 100dvw);
-  }
-
-  .interactives_custom-dropdown-selected {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.34px);
-    vertical-align: middle;
-  }
-
-  .interactives_custom-dropdown-option {
-    display: flex;
-    align-items: center;
-    margin-top: calc((9 / 832) * 100dvh);
-    height: calc((19 / 832) * 100dvh);
-    cursor: pointer;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-    vertical-align: middle;
-  }
-
-  .interactives_custom-dropdown-circle {
-    width: calc((17 / 1280) * 100dvw);
-    height: calc((17 / 832) * 100dvh);
-  }
-
-  .interactives_custom-dropdown-circle>img {
-    width: calc((17 / 1280) * 100dvw);
-    height: calc((17 / 832) * 100dvh);
-  }
-
-  .interactives_custom-dropdown-text {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-    vertical-align: middle;
-    margin-left: calc((5 / 1280) * 100dvw);
-    display: flex;
-    align-items: center;
-  }
-
-  .interactives_input-group_score {
-    display: flex;
-    align-items: center;
-    margin-left: calc((58 / 1280) * 100dvw);
-  }
-
-  textarea:focus,
-  input:focus {
-    border-color: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-  }
-
-  .interactives_input-group_score>input {
-    margin-left: calc((10 / 1280) * 100dvw);
-    width: calc((73 / 1280) * 100dvw);
-    height: calc((42 / 832) * 100dvh);
-    border: 1.5px solid #E0E0E0;
-    box-sizing: border-box;
-    border-radius: 8px;
-    box-sizing: border-box;
-    padding: calc((12 / 832) * 100dvh) calc((12 / 1280) * 100dvw);
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-  }
-
-  .interactives_input-group_score>div {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-    width: calc((55 / 1280) * 100dvw);
-    line-height: 120%;
-    letter-spacing: 1%;
-    vertical-align: middle;
-  }
-
-  .interactives_empty_list_info {
-    margin-top: calc((34 / 832) * 100dvh);
-    margin-left: calc((290 / 1280) * 100dvw);
-    width: calc((475/1280) * 100dvw);
-    display: grid;
-    justify-items: center;
-  }
-
-  .interactives_empty_list_info>img {
-    width: calc((54/1280) * 100dvw);
-    height: calc((54/1280) * 100dvw);
-  }
-
-  .interactives_empty_list_info_h1 {
-    margin-top: calc((10 / 832) * 100dvh);
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-style: Bold;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-    letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
-    vertical-align: middle;
-    text-align: center;
-    vertical-align: middle;
-    color: #7D7D7D;
-  }
-
-  .interactives_empty_list_info_h2 {
-    margin-top: calc((5 / 832) * 100dvh);
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-style: Bold;
-    font-size: clamp(10px, calc(14 / 1280 * 100dvw), 28px);
-    letter-spacing: clamp(0.1px, calc(14 / 100 / 1280 * 100dvw), 0.28px);
-    vertical-align: middle;
-    text-align: center;
-    vertical-align: middle;
-    color: #7D7D7D;
-  }
-
-  .interactives_list {
-    width: calc((1056 / 1280) * 100dvw);
-    margin-top: calc((27 / 832) * 100dvh);
-    padding-bottom: calc((100 / 832) * 100dvh);
-  }
-
-  .interactives_list_header {
-    display: flex;
-    align-items: center;
-    padding-left: calc((22 / 1280) * 100dvw);
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-    color: #A9A9A9;
-    height: calc((46 / 832) * 100dvh);
-    min-height: 46px;
-    ;
-    border-bottom: 1px solid #1D1D1D1D;
-  }
-
-  .interactives_list_header_title {
-    width: calc((89 / 1280) * 100dvw);
-
-  }
-
-  .interactives_list_header_leadername {
-    width: calc((96 / 1280) * 100dvw);
-    text-align: center;
-    margin-left: calc((189 / 1280) * 100dvw);
-  }
-
-  .interactives_list_header_date {
-    margin-left: calc((47 / 1280) * 100dvw);
-    text-align: center;
-    width: calc((96 / 1280) * 100dvw);
-  }
-
-  .interactives_list_header_status {
-    margin-left: calc((38 / 1280) * 100dvw);
-    text-align: center;
-    width: calc((102 / 1280) * 100dvw);
-  }
-
-  .interactives_list_header_count {
-    margin-left: calc((20 / 1280) * 100dvw);
-    text-align: center;
-    width: calc((192 / 1280) * 100dvw);
-  }
-
-  .interactives_list_list {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .interactives_list_list_item {
-    display: flex;
-    align-items: center;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-    height: calc((46 / 832) * 100dvh);
-    min-height: 46px;
-    ;
-    border-bottom: 1px solid #1D1D1D1D;
-  }
-
-  .interactives_list_list_item>img {
-    height: calc((18/832) * 100dvh);
-    width: calc((14 / 1280) * 100dvw);
-    margin-left: auto;
-    margin-right: calc((22 / 1280) * 100dvw);
-  }
-
-  .interactives_Line {
-    background-color: #e9e9e9 !important;
-    height: calc((1 / 832) * 100dvh) !important;
-  }
-
-  .interactives_list_list_item>div {
-    display: flex;
-    align-items: center;
-  }
-
-  .interactives_list_list_item_title,
-  .interactives_list_list_item_leadername {
-    position: relative;
-    /* для ::after */
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-
+@media (min-width:1056px) {
   .interactives_list_list_item_title {
-    margin-top: calc((15/832)*100dvh);
-    ;
-    margin-bottom: calc((15/832)*100dvh);
-    ;
-    margin-left: calc((22 / 1280) * 100dvw);
-    width: calc((222 / 1280) * 100dvw);
-    text-align: left;
-
-  }
-
-  .interactives_list_list_item_leadername {
-    margin-top: calc((15/832)*100dvh);
-    ;
-    text-align: center !important;
-    margin-bottom: calc((15/832)*100dvh);
-    margin-left: calc((29 / 1280) * 100dvw);
-    width: calc((150 / 1280) * 100dvw);
-    display: flex;
-    justify-content: center;
-  }
-
-  .title-clamp::after {
-    content: "";
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: calc((31 / 1280) * 100dvw);
-    height: 100%;
-    pointer-events: none;
-    background: linear-gradient(85.63deg, rgba(255, 255, 255, 0.4) 29.36%, #ffffff 89.3%);
-  }
-
-  .interactives_list_list_item_leadername.expanded,
-  .interactives_list_list_item_title.expanded {
-    white-space: normal;
-    word-break: break-word;
-    overflow-wrap: break-word;
-  }
-
-  .title-clamp.expanded::after {
-    display: none;
-    /* только у текущего элемента с expanded */
-  }
-
-  .interactives_list_list_item_date {
-    margin-top: calc((15/832)*100dvh);
-    ;
-    margin-bottom: calc((15/832)*100dvh);
-    ;
-    margin-left: calc((13 / 1280) * 100dvw);
-    width: calc((111 / 1280) * 100dvw);
-    text-align: center;
-  }
-
-  .interactives_list_list_item_status {
-    margin-top: calc((15/832)*100dvh);
-    ;
-    margin-bottom: calc((15/832)*100dvh);
-    ;
-    margin-left: calc((31 / 1280) * 100dvw) !important;
-    width: calc((100 / 1280) * 100dvw);
-    text-align: left;
-  }
-
-  .interactives_list_list_item_count {
-    margin-top: calc((15/832)*100dvh);
-    ;
-    margin-bottom: calc((15/832)*100dvh);
-    ;
-    margin-left: calc((69 / 1280) * 100dvw);
-    width: calc((68 / 1280) * 100dvw);
-    text-align: center;
-  }
-
-  .interactives_show_more {
-    white-space: nowrap;
-    width: calc((104 / 1280) * 100dvw);
-    margin-left: calc((476 / 1280) * 100dvw);
-    margin-top: calc((15 / 832) * 100dvh);
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.1px, calc(16 / 100 / 1280 * 100dvw), 0.32px);
-    text-align: center;
-    vertical-align: middle;
-    color: #853CFF;
-    cursor: pointer;
-    position: relative;
-  }
-
-  /* Полоска */
-  .interactives_show_more::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: 1px;
-    /* расстояние от текста */
-    width: 100%;
-    height: 1.5px;
-    /* толщина полоски */
-    background: #853CFF;
-    transform: scaleX(0);
-  }
-
-  /* Появляется при наведении */
-  .interactives_show_more:hover::after {
-    transform: scaleX(1);
-  }
-
-  .interactives_buttons {
-    display: flex;
-    position: relative;
-    width: calc((152 / 1280) * 100dvw);
-    ;
-    margin-left: calc((77 / 1280) * 100dvw);
-    margin-top: calc((5.13/832)*100dvh) !important;
-    margin-bottom: calc((5/832)*100dvh) !important;
-    height: calc((36/832)*100dvh);
-    align-items: center;
-    gap: calc((10 / 1280) * 100dvw);
-    ;
-  }
-
-  .interactive_delete:hover {
-    filter: brightness(11%);
-  }
-
-  #leader_board,
-  #dublicate,
-  .interactives_check>img {
-    width: calc((24/1280) * 100dvw) !important;
-    height: calc((24/832) * 100dvh) !important;
-  }
-
-  #edit {
-    width: calc((16/1280) * 100dvw) !important;
-    height: calc((17/832) * 100dvh) !important;
-  }
-
-  .interactives_start>img {
-    width: calc((12/1280) * 100dvw) !important;
-    height: calc((17/832) * 100dvh) !important;
-  }
-
-  .interactives_leader_board,
-  .interactives_check {
-    background-color: #6AB23D;
-  }
-
-  .interactives_leader_board:hover,
-  .interactives_check:hover {
-    background-color: #9AC57E;
-  }
-
-  .interactives_dublicate {
-    background-color: #853CFF;
-  }
-
-  .interactives_dublicate:hover {
-    background-color: #AA77FF;
-    ;
-  }
-
-  .interactives_edit {
-    background-color: #F0436C;
-  }
-
-  .interactives_edit:hover {
-    background-color: #DE7D94;
-    ;
-  }
-
-  .interactives_start {
-    background-color: #6AB23D;
-  }
-
-  .interactives_start:hover {
-    background-color: #9AC57E;
-  }
-
-  .interactive_delete {
-    width: calc((14 / 1280) * 100dvw);
-    height: calc((18 / 832) * 100dvh);
-    cursor: pointer;
-  }
-
-  .interactive_delete>img {
-    width: calc((14/1280) * 100dvw) !important;
-    height: calc((18/832) * 100dvh) !important;
-  }
-
-  .interactives_dublicate,
-  .interactives_edit,
-  .interactives_start,
-  .interactives_leader_board,
-  .interactives_check {
-    width: calc((36/1280) * 100dvw);
-    height: calc((36/832) * 100dvh);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: calc((5/832)*100dvh);
-    cursor: pointer;
-  }
-
-  /* Стили для троеточия и dropdown */
-  .interactives_dots {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: calc((30 / 1280) * 100dvw);
-    height: calc((30 / 832) * 100dvh);
-    margin: 0 auto;
-  }
-
-  .interactives_dots img {
-    width: calc((30 / 1280) * 100dvw);
-    height: calc((30 / 832) * 100dvh);
-    background-color: #6AB23D;
-  }
-
-  .interactives_item-dropdown-options {
-    position: absolute;
-    top: calc(100% + calc(7/832)*100dvh);
-    box-shadow: 0px 1px 13.8px 0px #00000025;
-    width: calc((283 / 1280) * 100dvw);
-    height: calc((106 / 832) * 100dvh);
-    border-radius: calc((8/832*100dvh));
-    right: 0;
-    background: white;
-    z-index: 665455;
-
-  }
-
-  .interactives_item-dropdown-option {
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    font-family: "Lato", sans-serif;
-    color: #1D1D1D;
-    white-space: nowrap;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-    letter-spacing: clamp(0.1px, calc(20 / 100 / 1280 * 100dvw), 0.4px);
-    vertical-align: middle;
-    width: calc((271/1280) * 100dvw);
-  }
-
-  .interactives_item-dropdown-option:hover {
-    background-color: #DFDFDF;
-    border-radius: calc((7/832)*100dvh);
-  }
-
-  .interactives_more_options {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: calc((14 / 1280) * 100dvw);
-    height: calc((18 / 832) * 100dvh);
-    cursor: pointer;
-    z-index: 0 !important;
-  }
-
-  .interactives_more_options:hover {
-    filter: brightness(11%);
-  }
-
-  .interactives_more_options>img {
-    z-index: 0 !important;
-    width: calc((9.75/1280) * 100dvw) !important;
-    height: calc((18.75/1280) * 100dvw) !important;
-  }
-
-  .interactives_popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #00000052;
-
-    z-index: 11999;
-
-    display: flex;
-    justify-content: center;
-  }
-
-  .interactives_popup {
-    background: white;
-    border-radius: calc((18 / 832) * 100dvh);
-    width: calc((524 / 1280) * 100dvw);
-    height: calc((270 / 832) * 100dvh);
-    margin-top: calc((290 / 832) * 100dvh);
-
-    position: relative;
-  }
-
-  .interactives_popup-close {
-    position: absolute;
-    top: 25px;
-    right: 25px;
-    cursor: pointer;
-    font-size: 30px;
-    color: #aaa;
-  }
-
-  .interactives_popup-header-text {
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-style: Bold;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-    margin-top: calc((24/832)*100dvh);
-    margin-left: calc((20/1280)*100dvw);
-    line-height: clamp(10px, calc(32 / 1280 * 100dvw), 64px);
-    ;
-    height: calc((64/832)*100dvh);
-  }
-
-  .interactives_popup-body {
-    margin-top: calc((20/832)*100dvh);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: calc((10/832)*100dvh);
-  }
-
-  .interactives_popup-button {
-    width: calc((360 / 1280) * 100dvw);
-    height: calc((41 / 832) * 100dvh);
-    border-radius: calc((8 / 832) * 100dvh);
-    font-family: "Lato", sans-serif;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-    font-weight: 500;
-    border: none;
-    cursor: pointer;
-  }
-
-  .interactives_popup-button:nth-child(2) {
-    background-color: #853CFF;
-    border: calc((1.5/832)*100dvh) solid #853CFF !important;
-    color: white;
-  }
-
-  .interactives_popup-button:nth-child(2):hover {
-    background-color: #AA77FF;
-    border: calc((1.5/832)*100dvh) solid #853CFF !important;
-  }
-
-  .interactives_popup-button:nth-child(3) {
-    background-color: white !important;
-    border: calc((1.5/832)*100dvh) solid #853CFF;
-    color: #853CFF;
-  }
-
-  .interactives_popup-button:nth-child(3):hover {
-    background-color: #853CFF !important;
-    color: white !important;
-  }
-
-  .interactives_popup-button:nth-child(1) {
-    background-color: #6ab23d;
-    color: white;
-  }
-
-  .interactives_popup-button:nth-child(1):hover {
-    background-color: #559130;
-  }
-
-  .popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #00000052;
-    z-index: 10000999;
-    display: flex;
-    justify-content: center;
-  }
-
-  .popup {
-    background: white;
-    border-radius: calc((18 / 832) * 100dvh);
-    width: calc((525 / 1280) * 100dvw);
-    height: calc((233 / 832) * 100dvh);
-    margin-top: calc((273 / 832) * 100dvh) !important;
-    position: relative;
-  }
-
-  .popup-header-text {
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-    line-height: clamp(10px, calc(32 / 1280 * 100dvw), 64px);
-    height: calc(32 / 832 * 100dvh);
-    letter-spacing: 1%;
-    text-align: center;
-    margin-top: calc(24 / 832 * 100dvh);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .popup-close {
-    width: calc((16 / 1280) * 100dvw);
-    height: calc((16 / 832) * 100dvh);
-    position: absolute;
-    top: calc((20 / 832) * 100dvh);
-    right: calc((20 / 1280) * 100dvw);
-    cursor: pointer;
-
-  }
-
-  .popup-body {
-    margin-top: calc((20 / 832) * 100dvh);
-  }
-
-  .popup-option.second {
-    margin-top: calc((20 / 832) * 100dvh) !important;
-  }
-
-  .popup-option {
-    height: calc(20 / 832 * 100dvh);
-    margin-left: calc(20 / 1280 * 100dvw);
-    display: flex;
-    align-items: center;
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    cursor: pointer;
-    position: relative;
-  }
-
-  .popup-option img {
-    width: calc((20 / 1280) * 100dvw);
-    height: calc((20 / 832) * 100dvh);
-
-  }
-
-  .popup-option span {
-    margin-left: calc(5 / 1280 * 100dvw);
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    position: relative;
-
-    font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-    letter-spacing: clamp(0.10px, calc(16 /100/ 1280 * 100dvw), 0.32px);
-    ;
-    vertical-align: middle;
-
-  }
-
-  .popup-footer {
-    margin-top: calc((40 / 832) * 100dvh);
-    display: flex;
-    margin-left: calc(203 / 1280 * 100dvw);
-  }
-
-  .popup-footer>button {
-    width: calc((138 / 1280) * 100dvw);
-    height: calc((41 / 832) * 100dvh);
-  }
-
-  .popup-submit {
-    margin-left: calc(10 / 1280 * 100dvw) !important;
-  }
-
-  .popup-submit {
-    background-color: white;
-    color: #853cff;
-    border: calc((1.5 / 832) * 100dvh) solid #853cff;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    border-radius: calc((8 / 832) * 100dvh);
-    cursor: pointer;
-    vertical-align: middle;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-    ;
-  }
-
-  .popup-submit:hover {
-    background-color: #AA77FF;
-    color: #FFFFFF;
-  }
-
-  .popup-cancel {
-    background-color: white;
-    color: #7D7D7D;
-    border: none;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    border-radius: calc((8 / 832) * 100dvh);
-    cursor: pointer;
-    vertical-align: middle;
-    font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-    ;
-  }
-
-  .popup-cancel:hover {
-    border: calc((1.5 / 832) * 100dvh) solid #1D1D1D !important;
-    ;
-    color: #1D1D1D;
-  }
-
-  .interactives_delete_popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #00000052;
-
-    z-index: 22222999;
-
-    display: flex;
-    justify-content: center;
-
-  }
-
-  .interactives_delete_popup {
-    margin-top: calc((273/832)*100dvh);
-    background: white;
-    border-radius: calc((18/832)*100dvh);
-    width: calc((524/1280)*100dvw);
-    height: calc((233/832)*100dvh);
-
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-
-    position: relative;
-  }
-
-  .interactives_delete_popup-close {
-    position: absolute;
-    top: calc((20/832)*100dvh);
-    right: calc((20/1280)*100dvw);
-    width: calc((16/1280)*100dvw);
-    height: calc((16/832)*100dvh);
-    cursor: pointer;
-    color: #aaa;
-  }
-
-  .interactives_delete_popup-close>img {
-    width: calc((16/1280)*100dvw);
-    height: calc((16/832)*100dvh);
-  }
-
-  .interactives_delete_popup-header-text {
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
-    margin: 0 auto;
-    margin-top: calc((24/832)*100dvh);
-    margin-left: calc((20/1280)*100dvw);
-    ;
-  }
-
-  .interactives_delete_popup-header-text_ {
-    margin-left: calc((20/1280)*100dvw);
-    ;
-    font-family: "Lato", sans-serif;
-    margin-top: calc((19/832)*100dvh);
-    color: #7D7D7D;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-    line-height: 120%;
-    letter-spacing: 1%;
-    vertical-align: middle;
-
-  }
-
-  .interactives_delete_popup-body {
-    margin-left: calc((218/1280)*100dvw);
-    ;
-    display: flex;
-    margin-top: calc((59/832)*100dvh);
-
-  }
-
-  .interactives_delete_popup-button {
-    width: calc((138/1280)*100dvw) !important;
-    height: calc((41/832)*100dvh);
-    border-radius: 8px;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-style: Medium;
-    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
-    line-height: 120%;
-    letter-spacing: 1%;
-    text-align: center;
-    vertical-align: middle;
-
-  }
-
-  .interactives_delete_popup-button:nth-child(1) {
-    background-color: white;
-    color: #7D7D7D;
-    border: none;
-    ;
-  }
-
-  .interactives_delete_popup-button:nth-child(1):hover {
-    color: #1D1D1D;
-    border: calc((1.5/832)*100dvh) solid #1D1D1D;
-
-  }
-
-  .interactives_delete_popup-button:nth-child(2) {
-    margin-left: calc((10/1280)*100dvw);
-    ;
-    background-color: white;
-    color: #F0436C;
-    border: calc((1.5/832)*100dvh) solid #F0436C;
-    border-color: #F0436C;
-  }
-
-  .interactives_delete_popup-button:nth-child(2):hover {
-    background-color: #F0436C;
-    color: white;
-  }
-
-  .settings_popup-overlay {
-    font-family: "Lato", sans-serif;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #00000052 !important;
-    display: flex;
-    justify-content: center;
-    z-index: 1000;
-
-  }
-
-  .settings_popup-content {
-    margin-top: calc((273/832)*100dvh);
-    background: white;
-    width: calc((524 / 1280) * 100dvw);
-    height: calc((233 / 832) * 100dvh);
-    border-radius: calc((18/832)*100dvh);
-    box-sizing: border-box;
-
-  }
-
-  .settings_popup-text {
-    margin-top: calc((24/832)*100dvh) !important;
-    margin-left: calc((20/1280)*100dvw) !important;
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-style: Bold;
-    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
-    letter-spacing: clamp(0.20px, calc((20 /100/ 1280) * 100dvw), 0.4px);
-    ;
-  }
-
-  .settings_popup-text_ {
-    height: calc((47/832)*100dvh);
-    margin-top: calc((19/832)*100dvh) !important;
-    margin-left: calc((20/1280)*100dvw) !important;
-    line-height: calc((19.2 / 1280) * 100dvw);
-
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: clamp(10px, calc((16 / 1280) * 100dvw), 32px);
-    color: #7D7D7D;
-    letter-spacing: clamp(0.10px, calc((16 /100/ 1280) * 100dvw), 0.32px);
-    ;
-    vertical-align: middle;
-
-  }
-
-  .settings_popup-buttons {
-    display: flex;
-    margin-top: calc((50/832)*100dvh);
-    margin-left: calc((218 / 1280) * 100dvw);
-
-  }
-
-  .settings_popup-btn.confirm {
-    margin-left: calc((10 / 1280) * 100dvw);
-
-  }
-
-  .settings_popup-btn {
-    width: calc((138 / 1280) * 100dvw);
-    height: calc((41/832)*100dvh);
-    font-size: clamp(10px, calc((20 / 1280) * 100dvw), 40px);
-    font-family: "Lato", sans-serif;
-    border-radius: calc((8/832)*100dvh);
-    cursor: pointer;
-  }
-
-  .settings_popup-btn.confirm {
-    background-color: #6ab23d;
-    border: calc((1.5/832)*100dvh) solid #6ab23d;
-    color: white;
-  }
-
-  .settings_popup-btn.confirm:hover {
-    background-color: #559130;
-    border: calc((1.5/832)*100dvh) solid #559130;
-  }
-
-  .settings_popup-btn.cancel {
-    background-color: #FFFFFF;
-    border: calc((1.5/832)*100dvh) solid #853CFF;
-    color: #853CFF;
-  }
-
-  .settings_popup-btn.cancel:hover {
-    color: #FFFFFF;
-    background-color: #AA77FF;
-  }
-
-  .settings_popup-btn.cancel.delete {
-    background-color: #FFFFFF;
-    border: none;
-    color: #7D7D7D;
-  }
-
-  .settings_popup-btn.cancel.delete:hover {
-    color: #1D1D1D;
-    border: calc((1.5/832)*100dvh) solid#1D1D1D;
-  }
-
-  .settings_popup-btn.confirm.delete {
-    background-color: white;
-    border: calc((1.5/832)*100dvh) #F0436C;
-    color: #F0436C;
-  }
-
-  .settings_popup-btn.confirm.delete:hover {
-    background-color: #F0436C;
-    color: white;
-    border: calc((1.5/832)*100dvh) solid#F0436C;
-  }
-
-  .height {
-    height: calc((173 / 832) * 100dvh) !important;
-  }
-
-  .margin {
-    margin-top: calc((18/832)*100dvh) !important;
-    margin-left: calc((203/1280)*100dvw) !important;
-  }
-
-  .margin_text {
-    height: calc((64 / 832) * 100dvh) !important;
-  }
-
-  .margin_left {
-    width: calc((150 / 1280) * 100dvw) !important;
-  }
-}
-
-@media (min-width:1918px) and (min-height:1078px) {
-
-  .interactives_margins {
-    width: 1056px;
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-    margin: 0 auto 0 auto;
-  }
-
-  .interactives_list_list_item_actions {
-    position: relative;
-  }
-
-  .interactives {
-    width: 100dvw;
-    height: 100dvh;
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
-    background-color: white;
-    position: relative;
-    overflow-x: hidden;
-  }
-
-  .interactives_finder {
-    width: 1056px;
-    margin-top: 61px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .interactives_finder_header {
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-style: Medium;
-    font-size: 16px;
-    letter-spacing: 0.16px;
-    vertical-align: middle;
-    color: #1D1D1D;
-  }
-
-  .interactives_finder_finder {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-
-  .interactives_search-input {
-    width: 765px;
-    height: 39px;
-    line-height: 39px;
-    color: #1D1D1D !important;
-    border: 1.5px solid #E0E0E0;
-    border-radius: 8px;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    padding-left: 50px;
-    box-sizing: border-box;
-  }
-
-  .interactives_search-input::placeholder {
-    line-height: 39px;
-    display: flex;
-    align-items: center;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-size: 16px;
-    color: #A9A9A9;
-  }
-
-  .interactives_input-icon {
-    position: absolute;
-    left: 17px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 19px;
-    height: 19px;
-    pointer-events: none;
-  }
-
-  .interactives_create {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #6AB23D;
-    border-radius: 5px;
-    white-space: nowrap;
-    width: 261px;
-    height: 39px;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-style: Medium;
-    font-size: 20px;
-    letter-spacing: 0.2px;
-    text-align: center;
-    vertical-align: middle;
-    color: white;
-    margin-left: 30px;
-    ;
-    border: 1.5px solid #6AB23D;
-  }
-
-  .interactives_create:hover {
-    background-color: white;
-    color: #6AB23D;
-    border: 1.5px solid #6AB23D;
-  }
-
-  .interactives_input-group_type {
-    position: relative;
-    z-index: 1000;
-    height: 36px;
-    width: 47px !important;
-  }
-
-  .interactives_input-group_type select {
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    height: 47px;
-    border-radius: 14px;
-    ;
-    box-sizing: border-box;
-    font-size: 16px;
-    ;
-  }
-
-  .interactives_input-group_row {
-    display: flex;
-    width: 159px;
-    height: 47px;
-    ;
-    align-items: center;
-    border-radius: 14px;
-    ;
-    background-color: #F3F3F3;
-  }
-
-  /* Кастомный выпадающий список */
-  .interactives_custom-dropdown {
-    margin-top: 20px;
-    ;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 121px;
-    ;
-    ;
-    height: 36px;
-    ;
-    border-radius: 14px;
-    ;
-    background-color: #F3F3F3;
-    box-sizing: border-box;
-    cursor: pointer;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: 16px !important;
-    ;
-    z-index: 999;
-    letter-spacing: 0.1px;
-    vertical-align: middle;
-    box-sizing: border-box;
-    padding-left: 15px;
-    ;
-    padding-right: 15px;
-    ;
-  }
-
-  .interactives_custom-dropdown:hover {
-    background-color: #DFDFDF;
-  }
-
-  .interactives_custom-arrow {
-    width: 16px;
-    ;
-    height: 9px;
-    display: flex;
-  }
-
-  /* Стили для списка - ИЗМЕНЕНИЯ ЗДЕСЬ */
-  .interactives_custom-dropdown-options {
-    box-shadow: 0px 1px 13.8px 0px #00000040;
-    border-radius: 8px;
-    ;
-    width: 179px !important;
-    height: 103px;
-    ;
-    ;
-    margin-top: 10px;
-    ;
-    position: absolute;
-    top: 100%;
-    /* Позиционируем относительно родителя */
-    left: 0;
-    z-index: 9999;
-    /* Увеличиваем z-index */
-    background-color: white;
-    /* Добавляем фон */
-  }
-
-  .interactives_custom-dropdown-option-list {
-    margin-top: 15px;
-    ;
-    margin-left: 15px;
-    ;
-    z-index: 10000;
-    /* Увеличиваем z-index */
-  }
-
-  .interactives_custom-dropdown-options_header {
-    font-family: "Lato", sans-serif;
-    font-weight: 600;
-    font-size: 16px;
-    ;
-
-    vertical-align: middle;
-    margin-top: 7px;
-    ;
-    margin-left: 41px;
-    ;
-  }
-
-  .interactives_custom-dropdown-selected {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: 16px;
-    ;
-    letter-spacing: 0.32px;
-    ;
-    vertical-align: middle;
-  }
-
-  .interactives_custom-dropdown-option {
-    display: flex;
-    align-items: center;
-    margin-top: 9px;
-    height: 19px;
-    ;
-    cursor: pointer;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: 20px;
-    ;
-    letter-spacing: 0.2px;
-    ;
-    vertical-align: middle;
-  }
-
-  .interactives_custom-dropdown-circle {
-    width: 17px;
-    height: 17px;
-    display: flex;
-    cursor: pointer;
-    justify-content: center;
-  }
-
-  .interactives_custom-dropdown-circle>img {
-    width: 17px;
-    height: 17px;
-  }
-
-  .interactives_custom-dropdown-text {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: 16px;
-    ;
-    letter-spacing: 0.32px;
-    ;
-    vertical-align: middle;
-    margin-left: 5px;
-    ;
-    ;
-    display: flex;
-    align-items: center;
-  }
-
-  .interactives_input-group_score {
-    display: flex;
-    align-items: center;
-    margin-left: 58px;
-    ;
-  }
-
-  textarea:focus,
-  input:focus {
-    border-color: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-  }
-
-  .interactives_input-group_score>input {
-    margin-left: 10px;
-    ;
-    width: 73px;
-    ;
-    height: 42px;
-    ;
-    border: 1.5px solid #E0E0E0;
-    box-sizing: border-box;
-    border-radius: 8px;
-    box-sizing: border-box;
-    padding: 12px 12px;
-    ;
-    font-size: 16px;
-    ;
-  }
-
-  .interactives_input-group_score>div {
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: 16px;
-    ;
-    width: 55px;
-    ;
-    line-height: 120%;
-    letter-spacing: 1%;
-    vertical-align: middle;
-  }
-
-  .interactives_empty_list_info {
-    margin-top: 34px;
-    ;
-    margin-left: 290px;
-    ;
-    width: 475px;
-    ;
-    display: grid;
-    justify-items: center;
-  }
-
-  .interactives_empty_list_info>img {
-    width: 54px;
-    height: 54px;
-  }
-
-  .interactives_empty_list_info_h1 {
-    margin-top: 10px;
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-style: Bold;
-    font-size: 20px;
-    ;
-    letter-spacing: 0.2px;
-    ;
-    vertical-align: middle;
-    text-align: center;
-    vertical-align: middle;
-    color: #7D7D7D;
-  }
-
-  .interactives_empty_list_info_h2 {
-    margin-top: 5px;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-style: Bold;
-    font-size: 14px;
-    ;
-    letter-spacing: 0.14px;
-    ;
-    vertical-align: middle;
-    text-align: center;
-    vertical-align: middle;
-    color: #7D7D7D;
-  }
-
-  .interactives_list {
-    width: 1056px;
-    margin-top: 27px;
-    ;
-    padding-bottom: 100px;
-    ;
-  }
-
-  .interactives_list_header {
-    display: flex;
-    padding-left: 22px;
-    ;
-    align-items: center;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: 16px;
-    letter-spacing: 0.16px;
-    ;
-    text-align: center;
-    vertical-align: middle;
-    color: #A9A9A9;
-    height: 46px;
-    ;
-    border-bottom: 1px solid #1D1D1D1D;
-  }
-
-  .interactives_list_header_title {
-    width: 89px;
-
-  }
-
-  .interactives_list_header_leadername {
-    width: 96px;
-    text-align: center;
-    margin-left: 189px;
-    ;
-  }
-
-  .interactives_list_header_date {
-    margin-left: 47px;
-    text-align: center;
-    width: 96px;
-  }
-
-  .interactives_list_header_status {
-    margin-left: 38px;
-    text-align: center;
-    width: 102px;
-  }
-
-  .interactives_list_header_count {
-    margin-left: 20px;
-    text-align: center;
-    width: 192px;
-  }
-
-  .interactives_list_list {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .interactives_list_list_item {
-    display: flex;
-    align-items: center;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: 16px;
-    letter-spacing: 0.16px;
-    ;
-    text-align: center;
-    vertical-align: middle;
-    height: 46px;
-    ;
-    border-bottom: 1px solid #1D1D1D1D;
-  }
-
-  .interactives_list_list_item>img {
-    height: 18px;
-    width: 14px;
-    margin-left: auto;
-    margin-right: 22px;
-  }
-
-  .interactives_list_list_item>div {
-    display: flex;
-    align-items: center;
-  }
-
-  .interactives_list_list_item_title,
-  .interactives_list_list_item_leadername {
-    position: relative;
-    /* для ::after */
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-
-  .interactives_Line {
-    background-color: #e9e9e9 !important;
-    height: 1px !important;
-  }
-
-  .interactives_list_list_item_title {
-    margin-top: 15px;
-    ;
-    margin-bottom: 15px;
-    ;
     margin-left: 22px;
-    ;
     width: 222px;
-    ;
     text-align: left;
+    height: 36px;
+    background-color: white;
   }
 
   .interactives_list_list_item_leadername {
-    margin-top: 15px;
-    ;
-    margin-bottom: 15px;
-    ;
-    margin-left: 29px;
-    ;
+
+    padding: 0;
+    margin-left: 27px;
     width: 150px;
-    ;
     text-align: center;
     display: flex;
     justify-content: center;
+    background-color: white;
   }
 
-  .title-clamp::after {
-    content: "";
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 31px;
-    height: 100%;
-    pointer-events: none;
-    background: linear-gradient(85.63deg, rgba(255, 255, 255, 0.4) 29.36%, #ffffff 89.3%);
+}
+</style>
+<style module lang="scss">
+* {
+  box-sizing: border-box;
+  font-family: 'Lato', sans-serif;
+  font-weight: 400;
+  line-height: 120%;
+  letter-spacing: 1%;
+  vertical-align: middle;
+}
+
+// Класс для развернутого состояния
+.title-expanded {
+  -webkit-line-clamp: unset !important;
+  line-clamp: unset !important;
+  white-space: normal !important;
+  max-height: none !important;
+
+  &::after {
+    display: none !important;
   }
+}
 
-  .interactives_list_list_item_leadername.expanded,
-  .interactives_list_list_item_title.expanded {
-    white-space: normal;
-    word-break: break-word;
-    overflow-wrap: break-word;
-  }
+.interactives {
+  padding: 0 22px;
+  margin-top: 10px;
+  width: 100%;
 
-  .title-clamp.expanded::after {
-    display: none;
-    /* только у текущего элемента с expanded */
-  }
-
-  .interactives_list_list_item_date {
-    margin-top: 15px;
-    ;
-    margin-bottom: 15px;
-    ;
-    margin-left: 13px;
-    ;
-    width: 111px;
-    text-align: center;
-  }
-
-  .interactives_list_list_item_status {
-    margin-top: 15px;
-    ;
-    margin-bottom: 15px;
-    ;
-    margin-left: 31px !important;
-    width: 100px;
-    text-align: left;
-  }
-
-  .interactives_list_list_item_count {
-    margin-top: 15px;
-    ;
-    margin-bottom: 15px;
-    ;
-    margin-left: 69px;
-    width: 68px;
-    text-align: center;
-  }
-
-  .interactives_show_more {
-    white-space: nowrap;
-    width: 104px;
-    ;
-    margin-left: 476px;
-    ;
-    margin-top: 15px;
-    ;
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: 16px;
-    letter-spacing: 0.16px;
-    ;
-    text-align: center;
-    vertical-align: middle;
-    color: #853CFF;
-    cursor: pointer;
-    position: relative;
-  }
-
-  /* Полоска */
-  .interactives_show_more::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: 1px;
-    /* расстояние от текста */
-    width: 100%;
-    height: 1.5px;
-    /* толщина полоски */
-    background: #853CFF;
-    transform: scaleX(0);
-  }
-
-  /* Появляется при наведении */
-  .interactives_show_more:hover::after {
-    transform: scaleX(1);
-  }
-
-  .interactives_buttons {
-    display: flex;
-    position: relative;
-    width: 152px;
-    ;
-    margin-left: 77px;
-    margin-top: 5px !important;
-    margin-bottom: 5px !important;
-    height: 36px;
-    align-items: center;
-    gap: 10px;
-    ;
-    ;
-  }
-
-  #leader_board {
-    height: 24px !important;
-    width: 24px !important;
-  }
-
-  #leader_board,
-  #dublicate,
-  .interactives_check>img {
-    height: 24px !important;
-    width: 24px !important;
-  }
-
-  #edit {
-    height: 16px !important;
-    width: 17px !important;
-  }
-
-  .interactives_leader_board,
-  .interactives_check {
-    background-color: #6AB23D;
-  }
-
-  .interactives_leader_board:hover,
-  .interactives_check:hover {
-    background-color: #9AC57E;
-  }
-
-  .interactives_dublicate {
-    background-color: #853CFF;
-  }
-
-  .interactives_dublicate:hover {
-    background-color: #AA77FF;
-  }
-
-  .interactives_edit {
-    background-color: #F0436C;
-  }
-
-  .interactives_edit:hover {
-    background-color: #DE7D94;
-  }
-
-  .interactives_start {
-    background-color: #6AB23D;
-  }
-
-  .interactives_start:hover {
-    background-color: #9AC57E;
-  }
-
-  .interactive_delete {
-    width: 14px !important;
-    height: 18px !important;
-    cursor: pointer;
-  }
-
-  .interactive_delete:hover {
-    filter: brightness(11%);
-  }
-
-  .interactives_more_options:hover {
-    filter: brightness(11%);
-  }
-
-  .interactive_delete>img {
-
-    width: 14px !important;
-    height: 18px !important;
-  }
-
-  .interactives_dublicate,
-  .interactives_edit,
-  .interactives_start,
-  .interactives_leader_board,
-  .interactives_check {
-    width: 36px !important;
-    height: 36px !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 5px;
-    ;
-    cursor: pointer;
-  }
-
-  /* Стили для троеточия и dropdown */
-  .interactives_dots {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-
-    background-color: #7D7D7D;
-  }
-
-  .interactives_dots img {
-    width: 30px;
-    height: 30px;
-
-    background-color: #6AB23D;
-  }
-
-  .interactives_item-dropdown-options {
-    position: absolute;
-    top: calc(100% + 7px);
-    box-shadow: 0px 1px 13.8px 0px #00000025;
-    width: 283px !important;
-    height: 106px !important;
-    border-radius: 8px;
-    right: -6px;
-    background: white;
-    z-index: 665455;
-
-  }
-
-  .interactives_item-dropdown-option {
+  @media (min-width:768px) {
+    padding: 0;
+    width: calc(100% - 44px);
+    max-width: 1056px;
     margin: 0 auto;
+    margin-top: 10px;
+  }
+
+  @media (min-width:1056px) {
+    margin-top: 25px;
+  }
+
+  &__finder {
+    width: 100%;
     display: flex;
-    align-items: center;
-    cursor: pointer;
-    font-family: "Lato", sans-serif;
-    color: #1D1D1D;
+    flex-direction: column-reverse;
+    gap: 10px;
 
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: 20px;
-    letter-spacing: 0.2px;
-    vertical-align: middle;
-    width: 271px;
+    @media (min-width:1056px) {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 30px;
+    }
+
+    &_finder {
+      position: relative;
+      display: flex;
+      align-items: center;
+      height: 29px;
+      width: 100%;
+
+      @media (min-width:1056px) {
+        width: 765px;
+        height: 39px;
+      }
+
+      &_icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 15px;
+        height: 15px;
+        pointer-events: none;
+
+        @media (min-width:1056px) {
+          width: 19px;
+          height: 19px;
+          left: 17px;
+        }
+      }
+
+      &_input {
+        width: 100%;
+        height: 29px;
+        line-height: 29px;
+        color: #1D1D1D !important;
+        border: 1px solid #E0E0E0;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        padding-left: 30px;
+        box-sizing: border-box;
+
+        @media (min-width:1056px) {
+          font-size: 16px;
+          height: 39px;
+          padding-left: 50px;
+        }
+
+        &::placeholder {
+          line-height: 29px;
+          display: flex;
+          align-items: center;
+          font-family: "Lato", sans-serif;
+          font-weight: 500;
+          font-size: 14px;
+          color: #A9A9A9;
+
+          @media (min-width:1056px) {
+            font-size: 16px;
+          }
+        }
+
+
+      }
+    }
   }
 
-  #first_option {
-    height: 24px;
-    ;
-    margin-top: 22px !important;
-  }
-
-  #first_option_img {
-    width: 24px !important;
-    height: 24px !important;
-    ;
-    margin-left: 24px !important;
-    ;
-  }
-
-  #first_option>span {
-    margin-left: 9px !important;
-  }
-
-  #second_option {
-    height: 24px;
-    ;
-    margin-top: 14px !important;
-  }
-
-  #second_option_img {
-    margin-left: 24px !important;
-    ;
-    width: 24px !important;
-    height: 24px !important;
-    ;
-  }
-
-  #second_option>span {
-    margin-left: 9px !important;
-  }
-
-  .interactives_item-dropdown-option:hover {
-    background-color: #DFDFDF;
-    border-radius: 7px;
-  }
-
-  .interactives_more_options {
-
+  &__create {
+    height: 29px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 14px;
-    ;
-    height: 18px;
-    cursor: pointer;
-    z-index: 0 !important;
+    gap: 10px;
+    background-color: #E0F9C7;
+    color: #6AB23D;
+    font-size: 14px;
+
+    @media (min-width:1056px) {
+      font-size: 20px;
+      width: 261px;
+      height: 39px;
+      background-color: #6AB23D;
+      color: white;
+      cursor: pointer;
+
+      &:hover {
+        background-color: white;
+        color: #6AB23D;
+        border: 1px solid #6AB23D;
+      }
+    }
+
+    &>img {
+      width: 13px;
+      height: 13px;
+
+      @media (min-width:1056px) {
+        display: none;
+      }
+    }
   }
 
-  #more_options {
-    z-index: 0 !important;
-    width: 3.75px;
-    ;
-    height: 18.75px;
-    ;
-  }
+  &__filter {
 
-  .interactives_popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #00000052;
-
-    z-index: 11999;
-
-    display: flex;
-    justify-content: center;
-  }
-
-  .interactives_popup {
-    background: white;
-    border-radius: 18px;
-    ;
-    width: 524px;
-    ;
-    height: 270px;
-    margin-top: 290px;
-
+    margin-top: 10px;
     position: relative;
+
+    @media (min-width:1056px) {
+      margin-top: 20px;
+    }
+
+    &_dropdown {
+      font-size: 14px;
+      width: 97px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      background-color: #F3F3F3;
+      border-radius: 20px;
+      position: relative;
+
+      @media (min-width:1056px) {
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        width: 121px;
+        font-size: 16px;
+      }
+    }
+
+    &_arrow {
+      &>img {
+        width: 13px;
+        height: 7px;
+
+        @media (min-width:1056px) {
+          width: 16px;
+          height: 9px;
+        }
+      }
+    }
+
+    &_options {
+      position: absolute;
+      height: 95px;
+      width: 157px;
+      background-color: #FFFFFF;
+      box-shadow: 0px 1px 13.8px 0px #00000040;
+      border-radius: 8px;
+      top: calc(100% + 10px);
+      padding: 6px;
+
+      @media (min-width:1056px) {
+        padding: 16px;
+        height: 103px;
+        width: 179px;
+
+      }
+    }
+
+    &_list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      @media (min-width:1056px) {
+        gap: 8px;
+      }
+    }
+
+    &_option {
+      display: flex;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      padding: 4px;
+
+      @media (min-width:1056px) {
+        font-size: 16px;
+        padding: 0;
+        height: 19px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+      }
+
+      &>img {
+        display: none;
+
+        @media (min-width:1056px) {
+          display: block;
+          width: 17px;
+          height: 17px;
+        }
+      }
+
+      &_active {
+
+        background-color: #E0E0E0;
+        border-radius: 7px;
+
+        @media (min-width:1056px) {
+          background-color: white;
+        }
+      }
+    }
   }
 
-  .interactives_popup-close {
-    position: absolute;
-    top: 25px;
-    right: 25px;
-    cursor: pointer;
-    font-size: 30px;
-    color: #aaa;
-  }
-
-  .interactives_popup-header-text {
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-style: Bold;
-    font-size: 20px;
-    margin-top: 24px;
-    ;
-    margin-left: 20px;
-    line-height: 32px;
-    ;
-    height: 64px;
-  }
-
-  .interactives_popup-body {
-    margin-top: 20px;
+  &__info {
+    margin-top: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+
+    @media (min-width:1056px) {
+      margin-top: 34px;
+    }
+
+    &_img {
+      width: 40px;
+      height: 40px;
+
+      @media (min-width:1056px) {
+        width: 54px;
+        height: 54px;
+      }
+    }
+
+    &_header {
+      color: #7D7D7D;
+      margin-top: 10px;
+      ;
+      font-size: 14px;
+      font-weight: 500;
+
+      @media (min-width:1056px) {
+        font-weight: 700;
+        font-size: 20px;
+      }
+    }
+
+    &_text {
+      color: #7D7D7D;
+      font-size: 12px;
+      font-weight: 400;
+      margin-top: 5px;
+
+      @media (min-width:1056px) {
+        font-size: 14px;
+      }
+    }
   }
 
-  .interactives_popup-button {
-    width: 360px;
-    height: 41px;
-    border-radius: 8px;
-    font-family: "Lato", sans-serif;
-    font-size: 20px;
-    font-weight: 500;
-    border: none;
-    cursor: pointer;
-  }
-
-  .interactives_popup-button:nth-child(2) {
-    background-color: #853CFF;
-    border: 1.5px solid #853CFF !important;
-    color: white;
-  }
-
-  .interactives_popup-button:nth-child(2):hover {
-    background-color: #AA77FF;
-    border: 1.5px solid #853CFF !important;
-  }
-
-  .interactives_popup-button:nth-child(3) {
-    background-color: white !important;
-    border: 1.5px solid #853CFF;
-    color: #853CFF;
-  }
-
-  .interactives_popup-button:nth-child(3):hover {
-    background-color: #853CFF !important;
-    color: white !important;
-  }
-
-  .interactives_popup-button:nth-child(1) {
-    background-color: #6ab23d;
-    color: white;
-  }
-
-  .interactives_popup-button:nth-child(1):hover {
-    background-color: #559130;
-  }
-
-  .popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #00000052;
-    z-index: 10000999;
-    display: flex;
-    justify-content: center;
-  }
-
-  .popup {
-    background: white;
-    border-radius: 18px;
-    width: 525px;
-    height: 233px;
-    margin-top: 273px !important;
-    position: relative;
-  }
-
-  .popup-header-text {
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-size: 20px;
-    line-height: 32px;
-    height: 32px;
-    letter-spacing: 1%;
-    text-align: center;
-    margin-top: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .popup-close {
-    width: 16px;
-    height: 16px;
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    cursor: pointer;
-    font-size: 30px;
-    color: #aaa;
-  }
-
-  .popup-body {
-    margin-top: 20px;
-  }
-
-  .popup-option.second {
-    margin-top: 20px !important;
-  }
-
-  .popup-option {
-    height: 20px;
-    margin-left: 20px;
-    display: flex;
-    align-items: center;
+  &__list {
+    margin-top: 19.25px;
+    padding-bottom: 92px;
     font-size: 16px;
-    cursor: pointer;
-    position: relative;
+
+    &_header {
+      display: none;
+
+      @media (min-width:1056px) {
+        margin-top: 35px;
+        height: 46px;
+        display: flex;
+        align-items: center;
+        color: #A9A9A9;
+        padding-left: 22px;
+        border-bottom: 1px solid #1D1D1D1D;
+      }
+
+      &_name {
+
+        @media (min-width:1056px) {
+          width: 222px;
+          text-align: left;
+        }
+      }
+
+      &_leader {
+        @media (min-width:1056px) {
+          width: 150px;
+          text-align: center;
+          margin-left: 27px;
+        }
+      }
+
+      &_date {
+        @media (min-width:1056px) {
+          width: 111px;
+          text-align: center;
+          margin-left: 13px;
+        }
+      }
+
+      &_status {
+        @media (min-width:1056px) {
+          width: 128px;
+          text-align: center;
+          margin-left: 17px;
+        }
+      }
+
+      &_count {
+        @media (min-width:1056px) {
+          width: 192px;
+          text-align: center;
+          margin-left: 7px;
+        }
+      }
+    }
+
+    &_grid {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15.63px;
+
+      @media (min-width:1056px) {
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+      }
+
+    }
+
+    &_item {
+      display: grid;
+      align-items: center;
+      grid-template-areas:
+        "date more"
+        "title title"
+        "start start";
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+
+      @media (min-width:1056px) {
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+        gap: 0px;
+        height: 46px;
+        border-bottom: 1px solid #1D1D1D1D;
+
+        &>div {
+          white-space: nowrap;
+        }
+      }
+
+      &_leadername {
+        display: none;
+
+        @media (min-width:1056px) {
+          display: block;
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          line-clamp: 1;
+          -webkit-box-orient: vertical;
+          position: relative;
+
+
+
+        }
+      }
+
+      &_title {
+        grid-area: title;
+        width: 100%;
+        background-color: #F7F7F7;
+        border-radius: 5px;
+        padding: 0 5px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+
+
+
+        @media (min-width:1056px) {
+          // Стили для обрезки текста на мобильных
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          line-clamp: 1;
+          -webkit-box-orient: vertical;
+          position: relative;
+          background-color: white;
+          ;
+          display: block;
+          width: 222px;
+        }
+
+
+
+
+
+        .expanded {
+          white-space: normal;
+          word-break: break-word;
+          overflow-wrap: break-word;
+        }
+      }
+
+      &_date {
+        box-sizing: border-box;
+        grid-area: date;
+        color: #A9A9A9;
+        font-size: 14px;
+        font-weight: 400;
+        grid-area: date;
+        height: 18.75px; // Высота первой строки
+        display: flex;
+        align-items: center;
+        padding: 0 5px;
+
+        @media (min-width:1056px) {
+          padding: 0;
+          color: #1D1D1D;
+          width: 111px;
+          font-size: 16px;
+          margin-left: 13px;
+        }
+      }
+
+
+      &_more {
+        grid-area: more;
+        height: 18.75px;
+
+        width: 3.75px;
+        width: 3.75;
+        margin-right: 8px;
+
+        @media (min-width:1056px) {
+          display: none;
+        }
+
+      }
+
+      &_count {
+        display: none;
+
+        @media (min-width:1056px) {
+          display: block;
+          width: 26px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-left: 103px;
+        }
+      }
+
+      &_status {
+        display: none;
+
+        @media (min-width:1056px) {
+          display: block;
+          width: 102px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-left: 30px;
+        }
+      }
+
+      &_buttons {
+        display: none;
+
+        @media (min-width:1056px) {
+          display: flex;
+          align-items: center;
+          width: 150px;
+          margin-left: auto;
+        }
+
+        &>div {
+          @media (min-width:1056px) {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 5px;
+            cursor: pointer;
+          }
+        }
+
+        &_more {
+          @media (min-width:1056px) {
+            position: absolute;
+            top: calc(100% + 13px);
+            right: -27px;
+            border-radius: 14px;
+            height: 106px;
+            width: 283px;
+            padding: 17px 6px;
+            box-shadow: 0px 1px 13.8px 0px #00000040;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background-color: white;
+          }
+
+          &>div {
+            height: 34px;
+            padding: 5px 13px 5px 24px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 20px;
+
+            &:hover {
+              background-color: #DFDFDF;
+              border-radius: 7px;
+            }
+
+          }
+        }
+      }
+
+      &_start {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        margin-left: auto;
+        grid-area: start;
+        width: 168px;
+        height: 29px;
+        background-color: #E0F9C7;
+        border-radius: 8px;
+        color: #6AB23D;
+
+        @media (min-width:1056px) {
+          display: none;
+        }
+
+        &_ended {
+          background-color: #DFDFDF;
+          color: #7D7D7D;
+        }
+
+        &>img {
+          width: 12px;
+          height: 14px;
+        }
+      }
+
+
+    }
+
+
+
+    &_show {
+      margin-top: 15px;
+      color: #853CFF;
+      text-align: center;
+    }
   }
 
-  .popup-option img {
-    width: 20px;
-    height: 20px;
-
-  }
-
-  .popup-option span {
-    margin-left: 5px;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    position: relative;
-
-    font-size: 16px;
-    letter-spacing: 0.20px;
-    vertical-align: middle;
-
-  }
-
-  .popup-footer {
-    margin-top: 40px;
-    display: flex;
-    margin-left: 203px;
-    ;
-  }
-
-  .popup-footer>button {
-    width: 138px;
-    ;
-    height: 41px;
-    ;
-  }
-
-  .popup-submit {
-    margin-left: 10px !important;
-  }
-
-  .popup-submit {
-    background-color: white;
-    color: #853cff;
-    border: 1.5px solid #853cff;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    border-radius: 8px;
-    ;
-    cursor: pointer;
-    vertical-align: middle;
-    font-size: 20px;
-    ;
-  }
-
-  .popup-submit:hover {
-    background-color: #AA77FF;
-    color: #FFFFFF;
-  }
-
-  .popup-cancel {
-    background-color: white;
-    color: #7D7D7D;
-    border: none;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    border-radius: 8px;
-    ;
-    cursor: pointer;
-    vertical-align: middle;
-    font-size: 20px;
-    ;
-    ;
-  }
-
-  .popup-cancel:hover {
-    border: 1.5px solid #1D1D1D !important;
-    ;
-    color: #1D1D1D;
-  }
-
-  .interactives_delete_popup-overlay {
+  &__popup {
     position: fixed;
     top: 0;
     left: 0;
@@ -2760,249 +1491,362 @@ button {
     display: flex;
     justify-content: center;
 
+    &_more {
+      height: 317px !important;
+    }
+
+    &_overlay {
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      position: relative;
+      background: white;
+      height: 458px;
+      margin: 0px;
+      width: 100%;
+      margin-top: auto;
+      border-top-left-radius: 30px;
+      border-top-right-radius: 30px;
+      touch-action: pan-y; // Разрешаем только вертикальный скролл
+      transition: transform 1s ease;
+
+      @media (min-width:1056px) {
+        height: 233px;
+        margin-top: 273px;
+        width: 524px;
+        border-radius: 18px;
+      }
+
+      &>img {
+        display: none;
+
+        @media (min-width:1056px) {
+          position: absolute;
+          display: block;
+          top: 16px;
+          right: 16px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      &_dubl {
+        @media (min-width:1056px) {
+          height: 270px !important;
+        }
+
+      }
+
+      &_edit {
+        @media (min-width:1056px) {
+          height: 173px !important;
+        }
+
+      }
+
+    }
+
+    &_line {
+      background-color: #A9A9A9;
+      border-radius: 5px;
+      height: 5px;
+      width: 72px;
+      margin: 0 auto;
+      margin-top: 20px;
+
+      @media (min-width:1056px) {
+        display: none;
+
+      }
+    }
+
+    &_text {
+      color: #1D1D1D;
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 40px;
+      padding: 0 22px;
+
+      @media (min-width:1056px) {
+        font-size: 20px;
+        font-weight: 700;
+        margin-top: 24px;
+      }
+
+      &_report {
+        text-align: center;
+      }
+
+      &_ {
+        font-size: 14px;
+        padding: 0 22px;
+        margin-top: 10px;
+        color: #7D7D7D;
+        line-height: 120%;
+        font-weight: 400;
+        letter-spacing: 1%;
+
+        @media (min-width:1056px) {
+          font-size: 16px;
+          margin-top: 19px;
+        }
+      }
+    }
+
+    &_buttons {
+      padding: 0 22px;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 10px;
+      margin-top: 148px;
+
+      @media (min-width:1056px) {
+        position: absolute;
+        right: 0;
+        position: absolute;
+        bottom: 20px;
+        display: flex;
+        flex-direction: row;
+      }
+
+      &_delete {
+        @media (min-width:1056px) {
+          margin-top: 56px;
+        }
+      }
+
+      &_report {
+        margin-top: 121px;
+
+        @media (min-width:1056px) {
+          margin: 0;
+          position: absolute;
+          bottom: 20px;
+          display: flex;
+          flex-direction: column-reverse;
+          gap: 10px;
+          right: 62px;
+
+        }
+
+        &>button {
+
+          @media (min-width:1056px) {
+            width: 360px;
+
+
+          }
+        }
+      }
+
+      &_edit {
+        @media (min-width:1056px) {
+          margin-top: 25px;
+        }
+      }
+
+    }
+
+    &_btn {
+      height: 44px;
+      border-radius: 8px;
+      font-size: 16px;
+
+      @media (min-width:1056px) {
+        height: 41px;
+        font-size: 20px;
+        cursor: pointer;
+      }
+
+      &_first {
+        @media (min-width:1056px) {
+          width: 138px;
+        }
+
+        &_delete {
+          background-color: white;
+          border: 1px solid #7D7D7D;
+          color: #7D7D7D;
+
+
+          @media (min-width:1056px) {
+            background-color: white;
+            border: 1px solid white;
+            color: #7D7D7D;
+          }
+
+          &:hover {
+            @media (min-width:1056px) {
+              border: 1px solid #1D1D1D;
+              color: #1D1D1D;
+            }
+          }
+        }
+
+        &_start {
+          background-color: white;
+          border: 1px solid #853CFF;
+          color: #853CFF;
+
+          &:hover {
+            @media (min-width:1056px) {
+              background-color: #AA77FF;
+              color: white;
+            }
+          }
+        }
+
+        &_report {
+          background-color: white;
+          border: 1px solid #7D7D7D;
+          color: #7D7D7D;
+
+          &:hover {
+            @media (min-width:1056px) {
+              background-color: #AA77FF;
+              color: white;
+            }
+          }
+        }
+
+      }
+
+      &_second {
+        @media (min-width:1056px) {
+          width: 138px;
+        }
+
+        &_delete {
+          background-color: #F0436C;
+          color: white;
+          border: 1px solid #F0436C;
+
+          @media (min-width:1056px) {
+            background-color: white;
+            border: 1px solid #F0436C;
+            color: #F0436C;
+          }
+
+          &:hover {
+            @media (min-width:1056px) {
+              border: 1px solid #F0436C;
+              background-color: #F0436C;
+              color: white;
+            }
+          }
+        }
+
+        &_start {
+          background-color: #6AB23D;
+          color: white;
+          border: 1px solid #6AB23D;
+
+          &:hover {
+            @media (min-width:1056px) {
+              background-color: #559130;
+            }
+          }
+        }
+      }
+
+      &_third {
+        @media (min-width:1056px) {
+          width: 138px;
+        }
+
+        &_start {
+          background-color: #853CFF;
+          color: white;
+          border: 1px solid #853CFF;
+
+          &:hover {
+
+            @media (min-width:1056px) {
+              background-color: #AA77FF;
+            }
+          }
+        }
+      }
+    }
+
+    &_block {
+      margin-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 0px;
+      font-size: 14px;
+      font-weight: 400;
+      color: #1D1D1D;
+
+      &_conducted {
+        margin-top: 11px;
+        padding-top: 11px;
+        position: relative;
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 22px; // Отступ слева
+          right: 22px; // Отступ справа
+          height: 1px;
+          background-color: #1D1D1D1D;
+        }
+      }
+    }
+
+    &_func {
+      height: 39px;
+      display: flex;
+      align-items: center;
+      padding: 0px 22px 0px 18px;
+
+      &:hover {
+        background-color: #E0E0E0;
+      }
+
+      img:first-child {
+        width: 24px;
+        height: 24px;
+      }
+
+      img:last-child {
+        margin-left: auto; // Прижимает стрелку к правому краю
+      }
+
+      &>div {
+        margin-left: 6px;
+      }
+    }
+
+
+
+    &_div {
+      height: 1px;
+      margin-top: 11px;
+      padding: 0 22px;
+    }
+
+    &_report {
+      margin-top: 19px;
+      padding: 0 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      font-size: 14px;
+
+    }
+
+    &_option {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+      &>img {
+        width: 17px;
+        height: 17px;
+      }
+    }
   }
 
-  .interactives_delete_popup {
-    margin-top: 273px;
-    background: white;
-    border-radius: 18px;
-    ;
-    width: 524px;
-    ;
-    height: 233px;
-    ;
 
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-
-    position: relative;
-  }
-
-  .interactives_delete_popup-close {
-    position: absolute;
-    top: 25px;
-    right: 25px;
-    cursor: pointer;
-    font-size: 30px;
-    color: #aaa;
-  }
-
-  .interactives_delete_popup-header-text {
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-size: 20px;
-    ;
-    margin: 0 auto;
-    margin-top: 24px;
-    margin-left: 20px;
-    ;
-    ;
-  }
-
-  .interactives_delete_popup-header-text_ {
-    margin-left: 20px;
-    ;
-    ;
-    font-family: "Lato", sans-serif;
-    margin-top: 19px;
-    ;
-    color: #7D7D7D;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: 16px;
-    ;
-    line-height: 120%;
-    letter-spacing: 1%;
-    vertical-align: middle;
-
-  }
-
-  .interactives_delete_popup-body {
-    margin-left: 218px;
-    ;
-    ;
-    display: flex;
-    margin-top: 59px;
-
-  }
-
-  .interactives_delete_popup-button {
-    width: 138px !important;
-    height: 41px;
-    ;
-    border-radius: 8px;
-    font-family: "Lato", sans-serif;
-    font-weight: 500;
-    font-style: Medium;
-    font-size: 20px;
-    ;
-    line-height: 120%;
-    letter-spacing: 1%;
-    text-align: center;
-    vertical-align: middle;
-
-  }
-
-  .interactives_delete_popup-button:nth-child(1) {
-    background-color: white;
-    color: #7D7D7D;
-    border: none;
-    ;
-  }
-
-  .interactives_delete_popup-button:nth-child(1):hover {
-    color: #1D1D1D;
-    border: 1.5px solid #1D1D1D;
-
-  }
-
-  .interactives_delete_popup-button:nth-child(2) {
-    margin-left: 10px;
-    ;
-    ;
-    background-color: white;
-    color: #F0436C;
-    border: 1.5px solid #F0436C;
-    border-color: #F0436C;
-  }
-
-  .interactives_delete_popup-button:nth-child(2):hover {
-    background-color: #F0436C;
-    color: white;
-  }
-
-  .settings_popup-overlay {
-    font-family: "Lato", sans-serif;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #00000052 !important;
-    display: flex;
-    justify-content: center;
-    z-index: 1000;
-  }
-
-  .settings_popup-content {
-    margin-top: 273px;
-    background: white;
-    width: 524px;
-    height: 233px;
-    border-radius: 18px;
-    box-sizing: border-box;
-
-  }
-
-  .settings_popup-text {
-    margin-top: 24px !important;
-    margin-left: 20px !important;
-    font-family: "Lato", sans-serif;
-    font-weight: 700;
-    font-style: normal;
-    font-style: Bold;
-    font-size: 20px;
-    line-height: 32px;
-  }
-
-  .settings_popup-text_ {
-    height: 47px;
-    ;
-    margin-top: 19px !important;
-    margin-left: 20px !important;
-    line-height: 19.2px;
-    ;
-
-    font-family: "Lato", sans-serif;
-    font-weight: 400;
-    font-size: 16px;
-    color: #7D7D7D;
-    letter-spacing: 0.16px !important;
-    ;
-    ;
-    vertical-align: middle;
-    font-style: normal
-  }
-
-  .settings_popup-buttons {
-    display: flex;
-    margin-top: 50px;
-    margin-left: 218px;
-
-  }
-
-  .settings_popup-btn.confirm {
-    margin-left: 10px;
-  }
-
-  .settings_popup-btn {
-    width: 138px;
-    height: 41px;
-    font-size: 20px;
-    font-family: "Lato", sans-serif;
-    border-radius: 8px;
-    cursor: pointer;
-  }
-
-  .settings_popup-btn.confirm {
-    background-color: #6ab23d;
-    border: 1.5px solid #6ab23d;
-    color: white;
-  }
-
-  .settings_popup-btn.confirm:hover {
-    background-color: #559130;
-    border: 1.5px solid#559130;
-  }
-
-  .settings_popup-btn.cancel {
-    background-color: #FFFFFF;
-    border: 1.5px solid #853CFF;
-    color: #853CFF;
-  }
-
-  .settings_popup-btn.cancel:hover {
-    color: #FFFFFF;
-    background-color: #AA77FF;
-  }
-
-  .settings_popup-btn.cancel.delete {
-    background-color: #FFFFFF;
-    border: none;
-    color: #7D7D7D;
-  }
-
-  .settings_popup-btn.cancel.delete:hover {
-    color: #1D1D1D;
-    border: 1.5px solid#1D1D1D;
-  }
-
-  .settings_popup-btn.confirm.delete {
-    background-color: white;
-    border: 1.5px#F0436C;
-    color: #F0436C;
-  }
-
-  .settings_popup-btn.confirm.delete:hover {
-    background-color: #F0436C;
-    color: white;
-    border: 1.5px solid#F0436C;
-  }
-
-  .height {
-    height: 173px !important;
-  }
-
-  .margin {
-    margin-top: 18px !important;
-    margin-left: 203px !important;
-  }
-
-  .margin_text {
-    height: 64px !important;
-  }
-
-  .margin_left {
-    width: 150px !important;
-  }
 }
 </style>
