@@ -481,6 +481,7 @@ watch(
     display: flex;
     gap: 3px;
     height: 28px;
+    margin-bottom: 20px;
 
     @media (min-width:1056px) {
       gap: 5px;
