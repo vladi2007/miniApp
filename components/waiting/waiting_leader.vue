@@ -77,20 +77,26 @@ function closeMobileModeration() {
       <Active :class="$style.waiting__desc_count" :count="props.data.participants_active" :context="context" />
     </div>
 
-    <div v-if="props.pause.state === 'timer_n'">
-      <div>
-        <div>
+    <div :class="$style.waiting__popup" v-if="props.pause.state == 'timer_n'">
+      <div :class="[$style.waiting__popup_overlay]">
+        <div :class="$style.waiting__popup_line"></div>
+        <div :class="$style.waiting__popup_text">
           Вы слишком долго бездействовали, запустите интерактив или через
           {{ props.pause.timer_n }}
           секунд он будет закрыт
         </div>
-        <div>
-          <button @click="startBeforePause()">
-            Запустить
-            интерактив
-          </button>
-          <button @click="morePause()">
+        <div :class="[$style.waiting__popup_buttons, $style.waiting__popup_buttons_delete]">
+
+          <button
+            :class="[$style.waiting__popup_btn, $style.waiting__popup_btn_first, $style.waiting__popup_btn_first_start]"
+            @click="morePause()">
             Еще подождать
+          </button>
+          <button
+            :class="[$style.waiting__popup_btn, $style.waiting__popup_btn_second, $style.waiting__popup_btn_second_start]"
+            @click="startBeforePause()">
+            Запустить
+
           </button>
         </div>
       </div>
@@ -270,5 +276,376 @@ function closeMobileModeration() {
       background-color: #6AB23D;
     }
   }
+
+  &__popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #00000052;
+
+    z-index: 22222999;
+
+    display: flex;
+    justify-content: center;
+
+    &_more {
+      height: 317px !important;
+    }
+
+    &_overlay {
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      position: relative;
+      background: white;
+      height: 458px;
+      margin: 0px;
+      width: 100%;
+      margin-top: auto;
+      border-top-left-radius: 30px;
+      border-top-right-radius: 30px;
+      touch-action: pan-y; // Разрешаем только вертикальный скролл
+      transition: transform 1s ease;
+
+      @media (min-width:1280px) {
+        height: 233px;
+        margin-top: 273px;
+        width: 524px;
+        border-radius: 18px;
+      }
+
+      &>img {
+        display: none;
+
+        @media (min-width:1280px) {
+          position: absolute;
+          display: block;
+          top: 16px;
+          right: 16px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      &_dubl {
+        @media (min-width:1280px) {
+          height: 270px !important;
+        }
+
+      }
+
+      &_edit {
+        @media (min-width:1280px) {
+          height: 173px !important;
+        }
+
+      }
+
+    }
+
+    &_line {
+      background-color: #A9A9A9;
+      border-radius: 5px;
+      height: 5px;
+      width: 72px;
+      margin: 0 auto;
+      margin-top: 20px;
+
+      @media (min-width:1280px) {
+        display: none;
+
+      }
+    }
+
+    &_text {
+      color: #1D1D1D;
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 40px;
+      padding: 0 22px;
+
+      @media (min-width:1280px) {
+        font-size: 20px;
+        font-weight: 700;
+        margin-top: 24px;
+      }
+
+      &_report {
+        text-align: center;
+      }
+
+      &_ {
+        font-size: 14px;
+        padding: 0 22px;
+        margin-top: 10px;
+        color: #7D7D7D;
+        line-height: 120%;
+        font-weight: 400;
+        letter-spacing: 1%;
+
+        @media (min-width:1280px) {
+          font-size: 16px;
+          margin-top: 19px;
+        }
+      }
+    }
+
+    &_buttons {
+      padding: 0 22px;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 10px;
+      margin-top: 148px;
+
+      @media (min-width:1280px) {
+        position: absolute;
+        right: 0;
+        position: absolute;
+        bottom: 20px;
+        display: flex;
+        flex-direction: row;
+      }
+
+      &_delete {
+        @media (min-width:1280px) {
+          margin-top: 56px;
+        }
+      }
+
+      &_report {
+        margin-top: 121px;
+
+        @media (min-width:1280px) {
+          margin: 0;
+          position: absolute;
+          bottom: 20px;
+          display: flex;
+          flex-direction: column-reverse;
+          gap: 10px;
+          right: 62px;
+
+        }
+
+        &>button {
+
+          @media (min-width:1280px) {
+            width: 360px;
+
+
+          }
+        }
+      }
+
+      &_edit {
+        @media (min-width:1280px) {
+          margin-top: 25px;
+        }
+      }
+
+    }
+
+    &_btn {
+      height: 44px;
+      border-radius: 8px;
+      font-size: 16px;
+
+      @media (min-width:1280px) {
+        height: 41px;
+        font-size: 20px;
+        cursor: pointer;
+      }
+
+      &_first {
+        @media (min-width:1280px) {
+          width: 178px;
+        }
+
+        &_delete {
+          background-color: white;
+          border: 1px solid #7D7D7D;
+          color: #7D7D7D;
+
+
+          @media (min-width:1280px) {
+            background-color: white;
+            border: 1px solid white;
+            color: #7D7D7D;
+          }
+
+          &:hover {
+            @media (min-width:1280px) {
+              border: 1px solid #1D1D1D;
+              color: #1D1D1D;
+            }
+          }
+        }
+
+        &_start {
+          background-color: white;
+          border: 1px solid #853CFF;
+          color: #853CFF;
+          white-space: nowrap;
+
+          &:hover {
+            @media (min-width:1280px) {
+              background-color: #AA77FF;
+              color: white;
+            }
+          }
+        }
+
+        &_report {
+          background-color: white;
+          border: 1px solid #7D7D7D;
+          color: #7D7D7D;
+
+          &:hover {
+            @media (min-width:1280px) {
+              background-color: #AA77FF;
+              color: white;
+            }
+          }
+        }
+
+      }
+
+      &_second {
+        @media (min-width:1280px) {
+          width: 138px;
+        }
+
+        &_delete {
+          background-color: #F0436C;
+          color: white;
+          border: 1px solid #F0436C;
+
+          @media (min-width:1280px) {
+            background-color: white;
+            border: 1px solid #F0436C;
+            color: #F0436C;
+          }
+
+          &:hover {
+            @media (min-width:1280px) {
+              border: 1px solid #F0436C;
+              background-color: #F0436C;
+              color: white;
+            }
+          }
+        }
+
+        &_start {
+          background-color: #6AB23D;
+          color: white;
+          border: 1px solid #6AB23D;
+
+          &:hover {
+            @media (min-width:1280px) {
+              background-color: #559130;
+            }
+          }
+        }
+      }
+
+      &_third {
+        @media (min-width:1280px) {
+          width: 138px;
+        }
+
+        &_start {
+          background-color: #853CFF;
+          color: white;
+          border: 1px solid #853CFF;
+
+          &:hover {
+
+            @media (min-width:1280px) {
+              background-color: #AA77FF;
+            }
+          }
+        }
+      }
+    }
+
+    &_block {
+      margin-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 0px;
+      font-size: 14px;
+      font-weight: 400;
+      color: #1D1D1D;
+
+      &_conducted {
+        margin-top: 11px;
+        padding-top: 11px;
+        position: relative;
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 22px; // Отступ слева
+          right: 22px; // Отступ справа
+          height: 1px;
+          background-color: #1D1D1D1D;
+        }
+      }
+    }
+
+    &_func {
+      height: 39px;
+      display: flex;
+      align-items: center;
+      padding: 0px 22px 0px 18px;
+
+      &:hover {
+        background-color: #E0E0E0;
+      }
+
+      img:first-child {
+        width: 24px;
+        height: 24px;
+      }
+
+      img:last-child {
+        margin-left: auto; // Прижимает стрелку к правому краю
+      }
+
+      &>div {
+        margin-left: 6px;
+      }
+    }
+
+
+
+    &_div {
+      height: 1px;
+      margin-top: 11px;
+      padding: 0 22px;
+    }
+
+    &_report {
+      margin-top: 19px;
+      padding: 0 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      font-size: 14px;
+
+    }
+
+    &_option {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+      &>img {
+        width: 17px;
+        height: 17px;
+      }
+    }
+  }
+
 }
 </style>
