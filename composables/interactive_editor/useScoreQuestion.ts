@@ -1,31 +1,59 @@
-export function useScoreQuestion(currentQuestion) {
-  const score = ref(1)
+export function useScoreQuestion(form) {
+  const scores = ref<Record<number, number>>({})
 
-  // Вызывается при потере фокуса или Enter
-  function validateScore() {
-    let v = Number(score.value)
-    if (isNaN(v) || v < 1) v = 1
-    if (v > 5) v = 5
-    score.value = v
-    currentQuestion.value.question.score = v
+  function getScore(qIndex: number) {
+    const val = scores.value[qIndex]
+
+    if (val !== undefined) {
+      return val
+    }
+
+    const formScore = Number(
+      form.value.questions[qIndex]?.question?.score,
+    )
+
+    return !isNaN(formScore) && formScore > 0
+      ? formScore
+      : 1
   }
 
-  // Следим за сменой вопроса
+  function setScore(qIndex: number, value: number) {
+    scores.value[qIndex] = value
+    form.value.questions[qIndex].question.score = value
+  }
+
+  function validateScore(qIndex: number) {
+    let v = Number(scores.value[qIndex])
+
+    if (isNaN(v) || v < 1) v = 1
+    if (v > 5) v = 5
+
+    scores.value[qIndex] = v
+    form.value.questions[qIndex].question.score = v
+  }
+
   watch(
-    () => currentQuestion.value,
-    (newQuestion) => {
-      if (!newQuestion?.question) return
-      const val = Number(newQuestion.question.score)
-      score.value = !isNaN(val) && val > 0 ? val : 1
+    () => form.value.questions,
+    (questions) => {
+      questions.forEach((q, index) => {
+        const val = Number(q.question.score)
+
+        scores.value[index]
+          = !isNaN(val) && val > 0
+            ? val
+            : 1
+      })
     },
-    { immediate: true },
+    {
+      immediate: true,
+      deep: true,
+    },
   )
 
-  // Следим за обновлением из вне (но не вмешиваемся в ввод)
-  watch(score, (newVal) => {
-    if (!currentQuestion.value?.question) return
-    currentQuestion.value.question.score = newVal
-  })
-
-  return { score, validateScore }
+  return {
+    scores,
+    getScore,
+    setScore,
+    validateScore,
+  }
 }
