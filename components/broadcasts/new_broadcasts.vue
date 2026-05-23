@@ -393,7 +393,7 @@ watch(
           </div>
           <img src="/images/history/Vector_1.svg" @click="closePopup()">
           <div :class="$style.broadcasts__popup_text_">
-            От лица “Название телеграмм бота” будет отправлена в личный чат с участником следующая информация
+            Отправитель: phylingsentmens198221@rambler.ru
           </div>
           <div :class="$style.broadcasts__popup_body">
 
@@ -406,7 +406,11 @@ watch(
             <div :class="$style.broadcasts__popup_count">
               Количество получателей: {{ count }}
             </div>
-
+            <div :class="$style.broadcasts__popup_info">
+              Используйте рассылку по назначению. <br />
+              Письмо рассылки придет всем участникам, кто указал почту <br />
+              при подключении к интерактиву.
+            </div>
           </div>
           <div :class="[$style.broadcasts__popup_buttons, $style.broadcasts__popup_buttons_delete]"
             v-if="sendStatus === 'idle'">
@@ -1361,7 +1365,11 @@ watch(
       margin-top: 10px;
     }
 
-    &_message {}
+    &_info {
+      color: #7D7D7D !important;
+      font-size: 14px;
+      line-height: 16.8px;
+    }
 
     &_buttons {
       padding: 0 22px;
