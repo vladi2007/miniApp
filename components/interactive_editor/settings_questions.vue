@@ -520,7 +520,7 @@ function showDeletefn(index: number) {
 
 
     </div>
-    <div :class="$style.questions__mobile_buttons">
+    <div :class="$style.questions__mobile_buttons" v-if="!isCheckMode">
       <button @click="!isCheckMode && addQuestion()" :class="$style.questions__mobile_buttons_add">
         <svg width="11" height="11" viewBox="0 0 11 11" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
@@ -532,10 +532,10 @@ function showDeletefn(index: number) {
           Добавить вопрос
         </div>
       </button>
-      <button @click="emit('showSave')" :class="$style.questions__mobile_buttons_save">
+      <button @click="!isCheckMode && emit('showSave')" :class="$style.questions__mobile_buttons_save">
         Сохранить
       </button>
-      <button @click="emit('start')" :class="$style.questions__mobile_buttons_start">
+      <button @click="!isCheckMode && emit('start')" :class="$style.questions__mobile_buttons_start">
         <svg width="11" height="13" viewBox="0 0 11 13" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path fill-rule="evenodd" clip-rule="evenodd"
             d="M0.279969 0.987533C0.299062 0.814568 0.355341 0.648787 0.444332 0.503369C0.533323 0.357952 0.652571 0.236908 0.792597 0.14986C0.932623 0.0628117 1.08957 0.0121603 1.25095 0.00193231C1.41233 -0.00829567 1.5737 0.0221818 1.72223 0.0909416C2.47306 0.43678 4.1557 1.25872 6.29081 2.58647C8.42664 3.91497 9.929 5.07513 10.5815 5.60151C11.1387 6.05171 11.1401 6.94449 10.5823 7.39621C9.93606 7.91954 8.45209 9.06447 6.29081 10.4097C4.12742 11.755 2.46457 12.567 1.72082 12.9083C1.08028 13.2031 0.363394 12.756 0.279969 12.0117C0.182404 11.1418 0 9.16654 0 6.49886C0 3.8327 0.181697 1.85822 0.279969 0.987533Z"
