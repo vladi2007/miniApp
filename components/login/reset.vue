@@ -107,61 +107,84 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
     pointer-events: none;
 }
 
+* {
+    box-sizing: border-box;
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
+    line-height: 120%;
+    letter-spacing: 1%;
+    vertical-align: middle;
+}
+
 .login {
 
-    width: calc((579/1280) * 100dvw);
-    height: calc((459 / 832) * 100dvh);
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 14px;
-    box-shadow: 0px 4px 13px 0px rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(133, 60, 255, 1);
-    margin: 0 auto;
-    margin-top: calc((120 / 832) * 100dvh);
+    margin: 0 22px;
+    margin-top: 119px;
+    height: 277px;
     position: relative;
+    display: flex; // Добавьте это
+    flex-direction: column; // Добавьте это
 
-    @media (min-width:1918px) and (min-height:1078px) {
+    @media (min-width:768px) {
         width: 579px;
         height: 459px;
-        margin-top: 120px;
-    }
-
-    &_reset {
-        width: calc((579/1280) * 100dvw);
-        height: calc((481.25 / 832) * 100dvh);
+        position: relative;
+        display: flex; // Добавьте это
+        flex-direction: column; // Добавьте это
         background-color: rgba(255, 255, 255, 0.1);
         border-radius: 14px;
         box-shadow: 0px 4px 13px 0px rgba(0, 0, 0, 0.25);
         border: 1px solid rgba(133, 60, 255, 1);
         margin: 0 auto;
-        margin-top: calc((120 / 832) * 100dvh);
-        position: relative;
+        margin-top: 115px;
 
-        @media (min-width:1918px) and (min-height:1078px) {
+    }
+
+    &_reset {
+        margin: 0 22px;
+        margin-top: 119px;
+        height: 277px;
+        position: relative;
+        display: flex; // Добавьте это
+        flex-direction: column; // Добавьте это
+
+        @media (min-width:768px) {
             width: 579px;
             height: 481.25px;
+            margin: 0 auto;
             margin-top: 120px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            box-shadow: 0px 4px 13px 0px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(133, 60, 255, 1);
+            position: relative;
         }
     }
 
     &__body {
 
-        padding: calc((45 / 832) * 100dvh) calc((45/1280) * 100dvw) calc((25 / 832) * 100dvh) calc((45/1280) * 100dvw);
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
 
-        @media (min-width:1918px) and (min-height:1078px) {
+        height: 100%; // Добавьте это
+
+        @media (min-width:768px) {
+            height: 100%;
+            align-items: flex-start;
             padding: 45px 45px 25px 45px;
         }
     }
 
     &__header {
 
-        font-family: 'Lato', sans-serif;
-        font-weight: 700;
-        font-size: clamp(10px, calc(40 / 1280 * 100dvw), 80px);
-        line-height: 120%;
-        letter-spacing: 1%;
-        vertical-align: middle;
+        font-size: 20px;
+        font-weight: 500;
 
-        @media (min-width:1918px) and (min-height:1078px) {
+
+        @media (min-width:768px) {
+            font-weight: 700;
             font-size: 40px;
             line-height: 120%;
             letter-spacing: 1%;
@@ -169,11 +192,40 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
     }
 
     &__form {
-        display: grid;
+        display: flex; // Измените с grid на flex
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 40px;
+        width: 100%;
 
+        flex: 1;
+
+        @media (min-width:768px) {
+            display: flex; // Измените с grid на flex
+            flex-direction: column;
+            flex: 1;
+            margin: 0px;
+            gap: 0px;
+        }
     }
 
     &__field {
+        position: relative;
+        width: 100%;
+        font-size: 14px;
+
+        border: 1px solid #E0E0E0;
+        border-radius: 8px;
+
+
+        @media (min-width:768px) {
+            position: relative;
+            border: none;
+            border-bottom: 1px solid #1D1D1D80;
+            border-radius: 0;
+            margin-top: 30px;
+        }
+
         &>input {
             transition: none !important;
             /* убираем все анимации при ошибках */
@@ -181,52 +233,67 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
             /* если фон тоже мерцает */
         }
 
-        position: relative;
-        margin-top: calc((30 / 832) * 100dvh);
 
-        width: 100%;
-        border-bottom: 1px solid #1D1D1D80;
-
-        @media (min-width:1918px) and (min-height:1078px) {
-            margin-top: 30px;
-        }
 
         &-error {
+            border: 1px solid #F0436C !important;
+            border-radius: 8px;
 
-            border-color: #F0436C !important;
+
+
+            @media (min-width:768px) {
+                border: none !important;
+                border-bottom: 1px solid #F0436C !important;
+                border-radius: 0px;
+            }
 
             input {
                 color: #F0436C !important;
+
+
+                @media (min-width:768px) {
+                    color: #F0436C !important;
+                }
             }
 
         }
 
         &-success {
-
-            border-color: #6AB23D !important;
+            @media (min-width:768px) {
+                border-color: #6AB23D !important;
+            }
 
             input {
-                color: #6AB23D;
+
+
+                @media (min-width:768px) {
+                    color: #6AB23D;
+                }
             }
 
         }
     }
 
     &__input {
-        height: calc((44 / 832) * 100dvh);
-        width: calc(100% - calc(38 / 1280 * 100dvw));
-        border: none;
-        font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-        outline: none;
-        background-color: #FFFFFF1A;
-        font-family: 'Lato', sans-serif;
-        line-height: 120%;
-        letter-spacing: 1%;
+        position: relative;
+        height: 37px;
+        width: 100%;
 
-        @media (min-width:1918px) and (min-height:1078px) {
+
+        font-size: 14px;
+        outline: none;
+        border: none;
+        border-radius: 8px;
+        padding: 0 10px;
+
+        color: #1D1D1D;
+
+        @media (min-width:768px) {
+            font-weight: 500;
             height: 44px;
             font-size: 20px;
             width: calc(100% - 38px);
+            padding: 0;
         }
 
         &:focus {
@@ -236,14 +303,19 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
 
         &_show {
             position: absolute;
-            width: calc((18/1280) * 100dvw);
-            height: calc((18 / 832) * 100dvh);
-            bottom: calc((13 / 832) * 100dvh);
+            width: 18px;
+            height: 18px;
             cursor: pointer;
-            right: 0;
+            right: 13px;
+            top: 55%;
+            transform: translateY(-50%);
 
-            @media (min-width:1918px) and (min-height:1078px) {
+
+            @media (min-width:768px) {
+                position: absolute;
                 width: 18px;
+                cursor: pointer;
+                right: 8px;
                 height: 18px;
                 bottom: 13px;
             }
@@ -252,39 +324,43 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
     }
 
     &__forgot {
-        margin-top: calc((6 / 832) * 100dvh);
-        background-color: #FFFFFF1A;
-        border: none;
-        cursor: pointer;
-        font-family: 'Lato', sans-serif;
-        font-weight: 500;
-        font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-        line-height: 120%;
-        letter-spacing: 1%;
-
+        padding: 0;
         color: #853CFF;
-        text-align: left !important;
+        font-size: 12px;
+        padding-left: 10px;
+        height: 14px;
 
-        @media (min-width:1918px) and (min-height:1078px) {
-            margin-top: 6px;
+        @media (min-width:768px) {
+
+            background-color: #FFFFFF1A;
+            border: none;
+            cursor: pointer;
             font-size: 16px;
+            padding: 0;
+            margin-top: 10px;
+            color: #853CFF;
             text-align: left !important;
         }
     }
 
     &__submit {
-        height: calc((42 / 832) * 100dvh);
-        width: calc(489 / 1280 * 100dvw);
-        background-color: #FFFFFF1A;
+        margin-top: auto;
+        height: 44px;
+        width: 100%;
+        background-color: #6AB23D;
         border: 1px solid #6AB23D;
         border-radius: 8px;
-        color: #6AB23D;
-        position: absolute;
-        bottom: calc((64 / 832) * 100dvh);
-        cursor: pointer;
-        font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
+        color: white;
 
-        @media (min-width:1918px) and (min-height:1078px) {
+        cursor: pointer;
+        font-size: 16px;
+
+        @media (min-width:768px) {
+            margin-top: auto;
+            background-color: white;
+            border: 1px solid #6AB23D;
+            color: #6AB23D;
+            position: absolute;
             height: 42px;
             width: 489px;
             bottom: 64px;
@@ -292,30 +368,44 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
         }
 
         &:hover {
-            background-color: #6AB23D;
-            color: white;
+            @media (min-width:768px) {
+                background-color: #6AB23D;
+                color: white;
+            }
+
         }
 
         &.forgot {
-            color: #853CFF;
+            color: white;
             border-color: #853CFF;
+            background-color: #853CFF;
+
+            @media (min-width:768px) {
+                color: #853CFF;
+                background-color: white;
+                border-color: #853CFF;
+            }
 
             &:hover {
-                color: white;
-                background-color: #853CFF;
+
+                @media (min-width:768px) {
+                    color: #853CFF;
+                    border-color: #853CFF;
+                }
             }
         }
     }
 
     &__reg {
-        position: absolute;
-        width: calc(489 / 1280 * 100dvw);
-        height: calc((24 / 832) * 100dvh);
-        bottom: calc((25 / 832) * 100dvh);
-        font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-        background-color: #FFFFFF1A;
+        width: 100%;
+        height: 17px;
+        font-size: 14px;
         font-weight: 500;
         border: none;
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
         &>span {
             color: #6AB23D;
@@ -327,7 +417,8 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
             }
         }
 
-        @media (min-width:1918px) and (min-height:1078px) {
+        @media (min-width:768px) {
+            position: absolute;
             height: 24px;
             width: 489px;
             bottom: 25px;
@@ -336,17 +427,16 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
     }
 
     &__error {
-        position: absolute;
-        margin-top: calc((6 / 832) * 100dvh);
+        padding-left: 10px;
         color: #F0436C;
-        font-family: 'Lato', sans-serif;
         font-weight: 500;
-        font-size: clamp(10px, calc(16 / 1280 * 100dvw), 32px);
-        line-height: 110.00000000000001%;
-        letter-spacing: 0%;
-        vertical-align: middle;
+        font-size: 12px;
 
-        @media (min-width:1918px) and (min-height:1078px) {
+
+
+        @media (min-width:768px) {
+            position: absolute;
+            padding: 0;
             margin-top: 6px;
             font-size: 16px;
         }
@@ -354,17 +444,10 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
     }
 
     &__info {
-        font-family: 'Lato', sans-serif;
-        font-weight: 500;
-        font-style: Medium;
-        font-size: clamp(10px, calc(20 / 1280 * 100dvw), 40px);
-        line-height: calc((30 / 832) * 100dvh);
-        margin-top: calc((30 / 832) * 100dvh);
-        letter-spacing: 1%;
-        vertical-align: middle;
-        color: #7D7D7D;
+        display: none;
 
-        @media (min-width:1918px) and (min-height:1078px) {
+        @media (min-width:768px) {
+            font-weight: 500;
             font-size: 20px;
             margin-top: 40px;
             line-height: 30px;
@@ -373,32 +456,30 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
     }
 
     &__back {
-        width: calc(50 / 1280 * 100dvw);
-        height: calc(50 / 832 * 100dvh);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        object-fit: cover;
-        background-color: #FFFFFF;
-        box-shadow: 0px 4px 13px 0px #00000040;
-        cursor: pointer;
-        position: absolute;
-        top: calc(-14 / 832 * 100dvh);
-        left: calc(-13 / 1280 * 100dvw);
-        box-sizing: border-box;
-        color: #7D7D7D;
 
-        &:hover {
-            color: #853CFF;
-            border: 1px solid #853CFF;
-        }
+        display: none;
 
-        @media (min-width:1918px) and (min-height:1078px) {
+        @media (min-width:768px) {
+            position: absolute;
+            display: flex;
+            color: #7D7D7D;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            object-fit: cover;
+            background-color: #FFFFFF;
+            box-shadow: 0px 4px 13px 0px #00000040;
+            cursor: pointer;
             width: 50px;
             height: 50px;
             top: -14px;
             left: -13px;
+            box-sizing: border-box;
+
+            &:hover {
+                color: #853CFF;
+                border: 1px solid #853CFF;
+            }
         }
 
         &>svg path {
@@ -409,7 +490,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
             width: calc(10.45 / 1280 * 100dvw);
             height: calc(18.96 / 832 * 100dvh);
 
-            @media (min-width:1918px) and (min-height:1078px) {
+            @media (min-width:768px) {
                 width: 10.45px;
                 height: 18.96px;
             }

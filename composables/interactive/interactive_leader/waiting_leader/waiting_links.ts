@@ -37,6 +37,10 @@ export function UseLinks(code: string) {
   function updateQrSize() {
     const w = window.innerWidth
     const h = window.innerHeight
+    if (w < 1280) {
+    qrSize.value = 138
+    return
+  }
     // формула — как твоя calc((300 / 1280) * 100dvw) и calc((300 / 832) * 100dvh)
     const sizeW = (300 / 1280) * w
     const sizeH = (300 / 832) * h

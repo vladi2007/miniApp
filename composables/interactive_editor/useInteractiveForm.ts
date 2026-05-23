@@ -32,7 +32,9 @@ export function useInteractiveForm() {
       },
     ],
   })
-
+  function updateCurrentQuestionIndex(index: number) {
+  currentQuestionIndex.value = index
+}
   async function loadDB() {
     const savedForm = await loadFromDeviceStorage(FORM_STORAGE_KEY)
     if (savedForm) {
@@ -55,10 +57,8 @@ export function useInteractiveForm() {
 
   const currentQuestionIndex = ref(0)
   const active_step = ref('main')
-  const currentQuestion = computed(
-    () => form.value.questions[currentQuestionIndex.value],
-  )
 
+  
   watch(
     () => form.value,
     async (newForm) => {
@@ -78,9 +78,8 @@ export function useInteractiveForm() {
   return {
     form,
     active_step,
-    currentQuestion,
     currentQuestionIndex,
     loadDB,
-    take_step,
+    take_step,updateCurrentQuestionIndex
   }
 }

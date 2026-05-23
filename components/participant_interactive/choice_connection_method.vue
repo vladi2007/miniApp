@@ -123,7 +123,7 @@ onMounted(async () => {
                 </svg>
 
             </div>
-            <div :class="$style.methods__max">
+            <!-- <div :class="$style.methods__max">
                 <img src="/public/images/connection/max.svg">
                 <span>
                     Войти через MAX
@@ -134,7 +134,7 @@ onMounted(async () => {
                         fill="white" />
                 </svg>
 
-            </div>
+            </div> -->
             <div :class="$style.methods__email" @click="choiceEmail = true">
                 <span>
                     E-mail

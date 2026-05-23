@@ -12,6 +12,8 @@ export function useSave(
   mode?,
   userId?,
   id?,
+   scrollToFirstError,
+  questionRefs,
 ) {
   const { mutate: saveInteractive } = mutateCreateInteractivities()
   const { mutate: editInteractive } = mutateEditInteractive()
@@ -50,6 +52,7 @@ export function useSave(
     const isQuestionsValid = validateQuestions()
     if (!isQuestionsValid) {
       active_step.value = 'questions'
+      scrollToFirstError()
       return false
     }
 
@@ -101,12 +104,13 @@ export function useSave(
     const isQuestionsValid = validateQuestions()
     if (!isQuestionsValid) {
       active_step.value = 'questions'
+       scrollToFirstError()
       showStart.value = false
       return false
     }
     const response = await handleSave()
     $queryClient.invalidateQueries(['interactives'])
-    route.push(`/leader/${response}`)
+    route.push(`/leader/${id}`)
   }
 
   return { showSavePopup, handleSave, handleStart, showStart }

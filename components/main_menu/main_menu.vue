@@ -11,34 +11,29 @@ async function goTo(url: string, active: string) {
 </script>
 
 <template>
-  <div class="main_menu_fon">
-    <header_logo />
-    <Header
-      :go-to="goTo"
-      :active="'menu'"
-    />
-    <div class="main_menu_content">
-      <description />
-    </div>
+  <div class="main_menu_content">
+    <description />
   </div>
 </template>
 
 <style>
 @import url("/assets/css/main_menu/main_menu.scss");
+
 * {
   margin: 0;
   box-sizing: border-box;
 }
-.main_menu_fon {
- width: 100dvw;
-    height: 100dvh;
 
-    background-color: white;
+.main_menu_fon {
+  width: 100dvw;
+  height: 100dvh;
+
+  background-color: white;
 }
 
-.main_menu_content{
-     width: 1320px;
-     margin: 0 auto 0 auto;
+.main_menu_content {
+  width: 1320px;
+  margin: 0 auto 0 auto;
 
 }
 </style>

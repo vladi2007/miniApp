@@ -35,10 +35,7 @@ const { type } = useTimer(toRef(props, 'type'))
         <div class="check_question_question-num-text">
           Вопрос {{ props.currentIndex + 1 }}<span style="color:#A9A9A9">/{{ props.questions_count }}</span>
         </div>
-        <img
-          src="/images/question/Star_3.svg"
-          class="check_question_icon"
-        >
+        <img src="/images/question/Star_3.svg" class="check_question_icon">
       </div>
 
       <div class="check_question_title">
@@ -47,22 +44,12 @@ const { type } = useTimer(toRef(props, 'type'))
       <div class="check_question_title_score">
         {{ type }}<br>Балл: {{ props.score }}
       </div>
-      <div
-        v-if="props.image"
-        class="check_question_image"
-      >
-        <img
-          :src="props.image"
-          alt="Изображение вопроса"
-          class="question-image"
-        >
+      <div v-if="props.image" class="check_question_image">
+        <img :src="props.image" alt="Изображение вопроса" class="question-image">
       </div>
 
       <div class="check_question_list">
-        <div
-          v-for="answer in answers"
-          class="check_question_answer"
-        >
+        <div v-for="answer in answers" class="check_question_answer">
           <span class="check_question_text">{{ answer.text ? answer.text : 'Поле для ввода' }}</span>
         </div>
       </div>
@@ -73,11 +60,13 @@ const { type } = useTimer(toRef(props, 'type'))
 <style scoped>
 @import url("/assets/css/question/check_question.scss");
 
-@import url("/assets/css/question/check_question_static.scss");
-.check_question{
+
+
+.check_question {
   overflow-y: hidden !important;
 }
-.check_question_image > img{
+
+.check_question_image>img {
   width: 100%;
   aspect-ratio: 16/ 9;
 }

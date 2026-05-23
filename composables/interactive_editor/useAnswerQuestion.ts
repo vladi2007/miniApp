@@ -1,4 +1,4 @@
-export function useAnswerQuestion(currentQuestion) {
+export function useAnswerQuestion(form) {
   const getAnswerCount = (type) => {
     if (type === 'text') {
       return [{ text: '', is_correct: true }] // Для типа 'text' один ответ и он правильный по умолчанию
@@ -7,29 +7,30 @@ export function useAnswerQuestion(currentQuestion) {
       return Array(3).fill({ text: '', is_correct: false }) // Для других типов 3 ответа
     }
   }
-  function deleteAnswer(index) {
-    const question = currentQuestion.value?.question
-    if (!question || !question.answers) return
-    if (question.type === 'many' && question.answers.length < 3) {
-      return
-    }
-    else {
-      question.answers.splice(index, 1)
-    }
-  }
-  function toggleCorrect(index) {
-    const type = currentQuestion.value.question.type
-    const answers = currentQuestion.value.question.answers
+  function deleteAnswer(questionIndex, answerIndex) {
+  const question = form.value.questions[questionIndex]?.question
+  if (!question?.answers) return
 
-    if (type === 'one') {
-      // Снимаем флаг со всех, кроме выбранного
-      answers.forEach((a, i) => a.is_correct = i === index)
-    }
-    else if (type === 'many') {
-      // Переключаем только текущий
-      answers[index].is_correct = !answers[index].is_correct
-    }
+  if (question.type === 'many' && question.answers.length < 3) return
+
+  question.answers.splice(answerIndex, 1)
+}
+  function toggleCorrect(questionIndex, answerIndex) {
+  const question = form.value.questions[questionIndex]?.question
+  if (!question) return
+
+  const { type, answers } = question
+
+  if (type === 'one') {
+    answers.forEach((a, i) => {
+      a.is_correct = i === answerIndex
+    })
   }
+
+  if (type === 'many') {
+    answers[answerIndex].is_correct = !answers[answerIndex].is_correct
+  }
+}
 
   function getIconSrc(type, isCorrect) {
     if (type === 'one') {
@@ -45,39 +46,36 @@ export function useAnswerQuestion(currentQuestion) {
     return '' // Для text ничего не показываем
   }
   // Функция для добавления нового ответа
-  function addAnswer() {
-    const question = currentQuestion.value?.question
+  function addAnswer(questionIndex) {
+  const question = form.value.questions[questionIndex]?.question
+  if (!question) return
 
-    if (!question || !question.answers) return
-
-    // Добавление нового ответа в зависимости от типа вопроса
-    if ((question.type === 'one' || question.type === 'many') && question.answers.length < 5) {
-      // Для 'one' и 'many' добавляем новый ответ без is_correct
-      question.answers.push({ text: '', is_correct: false })
-    }
-    else if (question.type === 'text' && question.answers.length < 3) {
-      // Для 'text' добавляем один правильный ответ
-      question.answers.push({ text: '', is_correct: true })
-    }
+  if ((question.type === 'one' || question.type === 'many') && question.answers.length < 5) {
+    question.answers.push({ text: '', is_correct: false })
   }
 
+  if (question.type === 'text' && question.answers.length < 3) {
+    question.answers.push({ text: '', is_correct: true })
+  }
+}
+
   const limit_answers = computed(() => {
-    const question = currentQuestion.value?.question
+  return form.value.questions.map((q) => {
+    const question = q.question
 
-    if (!question || !question.answers) return false
+    if (!question?.answers) return false
 
-    // Для типов 'one' и 'many' лимит 5 ответов
     if (question.type === 'one' || question.type === 'many') {
       return question.answers.length >= 5
     }
 
-    // Для типа 'text' лимит 3 ответа
     if (question.type === 'text') {
       return question.answers.length >= 3
     }
 
     return false
   })
+})
 
   return { getAnswerCount, deleteAnswer, toggleCorrect, getIconSrc, addAnswer, limit_answers }
 }

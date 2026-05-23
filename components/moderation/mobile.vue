@@ -1,49 +1,108 @@
 <script setup lang="ts">
-const participants = ref([
-    { username: "Иванов Иван Сергеевич", participant_id: "1", is_hidden: false, is_blocked: false },
-    { username: "Петров Петр Петрович", participant_id: "2", is_hidden: true, is_blocked: false },
-    { username: "Сидоров Сидор Сидорович", participant_id: "3", is_hidden: false, is_blocked: true },
-    { username: "Кузнецов Алексей Андреевич", participant_id: "4", is_hidden: false, is_blocked: false },
-    { username: "Смирнова Анна Олеговна", participant_id: "5", is_hidden: true, is_blocked: true },
-    { username: "Попов Дмитрий Сергеевич", participant_id: "6", is_hidden: false, is_blocked: false },
-    { username: "Васильева Мария Ивановна", participant_id: "7", is_hidden: true, is_blocked: false },
-    { username: "Новиков Артем Павлович", participant_id: "8", is_hidden: false, is_blocked: true },
-    { username: "Федорова Екатерина Ильинична", participant_id: "9", is_hidden: false, is_blocked: false },
-    { username: "Морозов Николай Викторович", participant_id: "10", is_hidden: true, is_blocked: true },
-    { username: "Волков Сергей Анатольевич", participant_id: "11", is_hidden: false, is_blocked: false },
-    { username: "Алексеев Максим Игоревич", participant_id: "12", is_hidden: true, is_blocked: false },
-    { username: "Лебедева Ольга Сергеевна", participant_id: "13", is_hidden: false, is_blocked: true },
-    { username: "Семенов Роман Евгеньевич", participant_id: "14", is_hidden: false, is_blocked: false },
-    { username: "Егорова Татьяна Викторовна", participant_id: "15", is_hidden: true, is_blocked: true },
-    { username: "Козлов Андрей Николаевич", participant_id: "16", is_hidden: false, is_blocked: false },
-    { username: "Никитина Юлия Андреевна", participant_id: "17", is_hidden: true, is_blocked: false },
-    { username: "Орлов Денис Сергеевич", participant_id: "18", is_hidden: false, is_blocked: true },
-    { username: "Григорьева Анастасия Павловна", participant_id: "19", is_hidden: false, is_blocked: false },
-    { username: "Юрий Борисович Мельников", participant_id: "20", is_hidden: true, is_blocked: true },
-    { username: "Михаил Петрович Воронов", participant_id: "21", is_hidden: false, is_blocked: false },
-    { username: "Беляева Дарья Сергеевна", participant_id: "22", is_hidden: true, is_blocked: false }
-]);
-//сортируем в порядке очереди - участник имеющий больший id зашел позже - выводим его выше в таблице
-const sortedParticipants = computed(() =>
-    [...participants.value].sort((a, b) => Number(b.participant_id) - Number(a.participant_id))
-);
-function toggleHidden(id: string) {
-    const participant = participants.value.find(p => p.participant_id === id);
-    if (participant) {
-        participant.is_hidden = !participant.is_hidden;
+import { useAuthStore } from '~/store/auth'
+
+type ModerationList = {
+    username: string
+    participant_id: string
+    is_hidden: boolean
+    is_blocked: boolean
+}
+
+const props = defineProps<{
+    interactiveId: string
+}>()
+
+const emit = defineEmits<{
+    (e: 'close'): void
+}>()
+
+const config = useRuntimeConfig().public
+const auth = useAuthStore()
+
+const data = ref(null)
+const participants = ref<ModerationList[]>([])
+
+let send: any = null
+
+function createWebSocket(interactiveId: string) {
+    const url = config.wsBackend
+
+    const ws = useWebSocket(
+        `${url}/moderation/${interactiveId}?token=${auth.accessToken}`,
+    )
+
+    send = ws.send
+
+    ws.open = () => {
+        send(JSON.stringify({
+            type: 'auth',
+            token: auth.accessToken,
+        }))
     }
+
+    watch(ws.data, (val) => {
+        data.value = val
+    })
+}
+
+onMounted(() => {
+    createWebSocket(props.interactiveId)
+})
+
+watch(data, (newVal) => {
+    if (!newVal) return
+
+    try {
+        const parsedData = JSON.parse(newVal)
+
+        participants.value = parsedData.data || []
+    }
+    catch (error) {
+        console.error('Ошибка websocket:', error)
+    }
+})
+
+const sortedParticipants = computed(() =>
+    [...participants.value]
+        .sort((a, b) => Number(b.participant_id) - Number(a.participant_id)),
+)
+
+function toggleHidden(id: string) {
+    const participant = participants.value.find(
+        p => p.participant_id === id,
+    )
+
+    if (participant) {
+        participant.is_hidden = !participant.is_hidden
+    }
+
+    send?.(JSON.stringify({ hide: id }))
 }
 
 const showBanSheet = ref(false)
 const selectedId = ref<string | null>(null)
 
 function openBanSheet(id: string) {
-    const participant = participants.value.find(p => p.participant_id === id)
+    const participant = participants.value.find(
+        p => p.participant_id === id,
+    )
+
     if (participant?.is_blocked) return
 
     selectedId.value = id
     showBanSheet.value = true
 }
+
+function blockParticipant() {
+    if (!selectedId.value) return
+
+    send?.(JSON.stringify({
+        block: Number(selectedId.value),
+    }))
+
+    showBanSheet.value = false
+}
+
 watch(showBanSheet, (val) => {
     document.body.classList.toggle('modal-open', val)
 })
@@ -61,10 +120,12 @@ function onTouchMove(e: TouchEvent) {
     if (!isDragging.value) return
 
     currentY.value = e.touches[0].clientY
+
     const diff = currentY.value - startY.value
 
     if (diff > 0) {
         const sheet = document.querySelector('.sheet') as HTMLElement
+
         if (sheet) {
             sheet.style.transform = `translateY(${diff}px)`
         }
@@ -75,33 +136,36 @@ function onTouchEnd() {
     isDragging.value = false
 
     const diff = currentY.value - startY.value
+
     const sheet = document.querySelector('.sheet') as HTMLElement
 
     if (!sheet) return
 
     if (diff > 150) {
-        // закрываем
         showBanSheet.value = false
         sheet.style.transform = ''
-    } else {
-        // возвращаем назад
+    }
+    else {
         sheet.style.transform = 'translateY(0)'
     }
 }
 </script>
+
 <template>
     <div :class="$style.moderation">
         <div :class="$style.moderation__header">
-            <div :class="$style.moderation__goback">
+            <div :class="$style.moderation__goback" @click="emit('close')">
                 <img src="/public/images/moderation/goback.svg">
             </div>
-            <img src="/public/images/logo.svg" :class="$style.moderation__logo" />
 
+            <img src="/public/images/logo.svg" :class="$style.moderation__logo">
         </div>
+
         <div :class="$style.moderation__block">
             <span :class="$style.moderation__block_header">
                 Модерация участников
             </span>
+
             <div class="users_form_finder_finder" :class="$style.users_form_finder_finder">
                 <img src="/public/images/history/finder.svg" class="users_form_input-icon"
                     :class="$style['users_form_input-icon']">
@@ -109,42 +173,55 @@ function onTouchEnd() {
                 <input type="text" placeholder="Поиск участников" class="users_form_search-input" maxlength="32"
                     :class="$style['users_form_search-input']">
             </div>
+
             <div :class="$style.moderation__list">
                 <div :class="$style.moderation__list_header">
-                    <span>
-                        Никнеймы
-                    </span>
-                    <span>
-                        Модерация
-                    </span>
+                    <span>Никнеймы</span>
+                    <span>Модерация</span>
                 </div>
+
                 <div :class="$style.moderation__list_container">
-
-
-                    <div v-for="(participant, index) in sortedParticipants" :key="participant.participant_id"
+                    <div v-for="participant in sortedParticipants" :key="participant.participant_id"
                         :class="$style.moderation__list_body">
-
                         <div @click="toggleHidden(participant.participant_id)">
-                            <span>{{ !participant.is_hidden ? '•••' : participant.username
-                                }}</span>
+                            <span>
+                                {{
+                                    participant.is_hidden
+                                        ? '•••'
+                                        : participant.username
+                                }}
+                            </span>
                         </div>
-                        <img @click="openBanSheet(participant.participant_id)" :style="{
-                            cursor: participant.is_blocked ? 'default' : 'pointer'
-                        }"
-                            :src="participant.is_blocked ? '/images/moderation/banned.svg' : '/images/moderation/ban.svg'" />
 
+                        <img :style="{
+                            cursor: participant.is_blocked
+                                ? 'default'
+                                : 'pointer',
+                        }" :src="participant.is_blocked
+                            ? '/images/moderation/banned.svg'
+                            : '/images/moderation/ban.svg'
+                            " @click="openBanSheet(participant.participant_id)">
                     </div>
                 </div>
             </div>
         </div>
+
         <div v-if="showBanSheet" class="sheet-overlay" @click="showBanSheet = false">
             <div class="sheet" @click.stop @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd">
                 <div class="sheet-handle"></div>
 
                 <div class="sheet-content">
-                    <div>Вы уверены, что хотите заблокировать участника?</div>
-                    <button class="danger" id="cancel">Заблокировать</button>
-                    <button @click="showBanSheet = false" id="ban">Отмена</button>
+                    <div>
+                        Вы уверены, что хотите заблокировать участника?
+                    </div>
+
+                    <button id="cancel" class="danger" @click="blockParticipant">
+                        Заблокировать
+                    </button>
+
+                    <button id="ban" @click="showBanSheet = false">
+                        Отмена
+                    </button>
                 </div>
             </div>
         </div>

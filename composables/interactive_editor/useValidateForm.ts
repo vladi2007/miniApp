@@ -10,8 +10,6 @@ import { useInteractiveForm } from './useInteractiveForm'
 export function useValidateForm(
   form,
   active_step,
-  currentQuestion,
-  currentQuestionIndex,
 ) {
   const questionErrors = ref([])
   const isFormComplete = computed(() => {
@@ -95,11 +93,7 @@ export function useValidateForm(
 
       questionErrors.value[i] = error
 
-      // Переключаемся на первый вопрос с ошибкой
-      if (!isValid) {
-        currentQuestionIndex.value = i
-        break
-      }
+     
     }
     if (!isValid && active_step.value === 'main') {
       active_step.value = 'questions'

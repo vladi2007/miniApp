@@ -11,15 +11,14 @@ export function useEdit(
   userId?,
   id?,
   form,
-  currentQuestionIndex,
   imageUrls,
 ) {
   async function getOriginalFileNameFromMeta(url: string): Promise<string> {
     if (!url) return ''
     try {
-      const response = await fetch(url, { method: 'HEAD' })
+      const response = await fetch(url, { method: 'HEAD',mode: 'cors', })
       if (!response.ok) return decodeURIComponent(url.split('/').pop() || '')
-
+        console.log(response.headers.get('x-amz-meta-original-filename'))
       const meta = response.headers.get('x-amz-meta-original-filename')
       return meta || decodeURIComponent(url.split('/').pop() || '')
     }
@@ -73,7 +72,6 @@ export function useEdit(
           }),
         ),
       }
-      currentQuestionIndex.value = 0
       imageUrls.value = data.questions.map((q: any) => q.image || null)
     }
     catch (err) {
