@@ -4,7 +4,7 @@ import type { EndData, EndWinners } from '~/store/types/stageData'
 import Results from '~/components/interactive_end/results.vue'
 import WinnersTable from '~/components/interactive_end/winners_table.vue'
 import { clearDeviceStorage } from '~/utils/deviceStorage'
-
+import declOfNum from '~/composables/declension'
 onMounted(() => {
   sessionStorage.clear()
   localStorage.clear()
@@ -45,7 +45,7 @@ function formatTime(secondsStr: number): string {
               <p>{{ props.data.participants_total }}</p>
             </div>
             <p class="participant-text">
-              Участников
+              {{ declOfNum(Number(props.data.participantsTotal), ['участников', 'участник', 'участника']) }}
             </p>
           </div>
         </div>
