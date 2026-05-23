@@ -25,7 +25,8 @@ const { copyToClipboard, participantUrl, qrSize } = UseLinks(props.id)
       <QrcodeVue :value="participantUrl" :size="qrSize" />
     </div>
     <div :class="$style.links__link">
-      <img id="link" src="/images/waiting/line-md_link.svg" title="Скопировать ссылку" @click="copyToClipboard">
+      <img id="link" src="/images/waiting/line-md_link.svg" title="Скопировать ссылку" @click="copyToClipboard"
+        style="cursor: pointer;">
       <a :href="participantUrl" target="_blank" rel="noopener noreferrer">
         {{ participantUrl }}
       </a>

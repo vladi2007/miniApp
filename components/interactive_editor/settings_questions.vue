@@ -190,8 +190,13 @@ function showDeletefn(index: number) {
         <img :class="$style.questions__nav_down" src="/public/images/interactive_editor/question_down.svg"
           @click="scrollDown()">
 
-        <div :class="$style.questions__nav_plus" @click="!isCheckMode && addQuestion(idx)">
-          <img src="/public/images/interactive_editor/greeen_plus.svg">
+        <div :class="$style.questions__nav_plus" @click="!isCheckMode && addQuestion(idx)"
+          :style="{ cursor: !isCheckMode ? 'pointer' : 'default' }">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M16.25 10H10V16.25C10 16.5815 9.8683 16.8995 9.63388 17.1339C9.39946 17.3683 9.08152 17.5 8.75 17.5C8.41848 17.5 8.10054 17.3683 7.86612 17.1339C7.6317 16.8995 7.5 16.5815 7.5 16.25V10H1.25C0.918479 10 0.600537 9.8683 0.366117 9.63388C0.131696 9.39946 0 9.08152 0 8.75C0 8.41848 0.131696 8.10054 0.366117 7.86612C0.600537 7.6317 0.918479 7.5 1.25 7.5H7.5V1.25C7.5 0.918479 7.6317 0.600537 7.86612 0.366116C8.10054 0.131696 8.41848 0 8.75 0C9.08152 0 9.39946 0.131696 9.63388 0.366116C9.8683 0.600537 10 0.918479 10 1.25V7.5H16.25C16.5815 7.5 16.8995 7.6317 17.1339 7.86612C17.3683 8.10054 17.5 8.41848 17.5 8.75C17.5 9.08152 17.3683 9.39946 17.1339 9.63388C16.8995 9.8683 16.5815 10 16.25 10Z" />
+          </svg>
+
         </div>
       </div>
 
@@ -202,8 +207,14 @@ function showDeletefn(index: number) {
             Вопрос {{ currentQuestionIndex + 1 }}
           </div>
 
-          <img id="question_edit_delete" src="/public/images/interactive_editor/delete.svg"
-            @click="!isCheckMode && showDeletefn(currentQuestionIndex)">
+
+
+          <svg id="question_edit_delete" @click="!isCheckMode && showDeletefn(currentQuestionIndex)" width="14"
+            height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M11 6V16H3V6H11ZM9.5 0H4.5L3.5 1H0V3H14V1H10.5L9.5 0ZM13 4H1V16C1 17.1 1.9 18 3 18H11C12.1 18 13 17.1 13 16V4Z" />
+          </svg>
+
         </div>
         <div :class="$style.questions__body">
           <div :class="$style.questions__text">
@@ -211,7 +222,7 @@ function showDeletefn(index: number) {
               :class="{ 'field-error': questionErrors[currentQuestionIndex]?.text }" :disabled="isCheckMode" />
           </div>
           <div @click="!isCheckMode && !currentQuestion.question.uploadedFileName && openFile(currentQuestionIndex)"
-            :class="$style.questions__img">
+            :class="$style.questions__img" :style="{ cursor: !isCheckMode ? 'pointer' : 'default' }">
             <input :ref="el => fileInputs[currentQuestionIndex] = el" type="file"
               accept="image/jpeg,image/png,image/gif,image/webp,image/bmp,image/tiff,image/svg+xml" hidden
               :disabled="isCheckMode" @change="handleFileChange($event, currentQuestionIndex)">
@@ -223,7 +234,7 @@ function showDeletefn(index: number) {
                 </span>
 
                 <img src="/public/images/interactive_editor/delete.svg" class="remove-icon"
-                  @click.stop="removeImage(currentQuestionIndex)">
+                  @click.stop="!isCheckMode && removeImage(currentQuestionIndex)">
               </div>
               <div v-else>
                 <span>
@@ -242,7 +253,8 @@ function showDeletefn(index: number) {
           <div :class="$style.questions__score">
             <div :ref="el => dropdownRefs[currentQuestionIndex] = el" :class="$style.questions__score_type"
               @click="!isCheckMode && toggleDropdown(currentQuestionIndex, 'desktop')">
-              <div :class="$style.questions__score_type_block">
+              <div :class="$style.questions__score_type_block"
+                :style="{ cursor: !isCheckMode ? 'pointer' : 'default' }">
                 <div class="custom-dropdown-selected">
                   {{ selectedText(currentQuestionIndex) }}
                 </div>
@@ -261,7 +273,8 @@ function showDeletefn(index: number) {
                 <div :class="$style.questions__score_type_list_block">
 
                   <div v-for="(option, index) in options" :key="index" class="custom-dropdown-option"
-                    @click.stop="selectOption(option, currentQuestionIndex, 'desktop')">
+                    @click.stop="selectOption(option, currentQuestionIndex, 'desktop')"
+                    :style="{ cursor: !isCheckMode ? 'pointer' : 'default' }">
                     <img v-if="typeMap[currentQuestion.question.type] === option" class="custom-dropdown-circle"
                       src="/public/images/interactive_editor/purple_circle.svg">
 
@@ -307,7 +320,7 @@ function showDeletefn(index: number) {
                       questionErrors[currentQuestionIndex]?.correctAnswers,
                       index,
                       currentQuestion.question,
-                    )">
+                    )" :style="{ cursor: !isCheckMode ? 'pointer' : 'default' }">
                   </div>
 
                   <input v-model="answer.text" :class="{
@@ -318,16 +331,23 @@ function showDeletefn(index: number) {
                     : 'Поле для ввода'" maxlength="30" :disabled="isCheckMode">
                 </div>
 
-                <img v-if="currentQuestion.question.answers.length > 1" id="delete-answer-icon"
-                  class="delete-answer-icon" src="public/images/interactive_editor/grey_delete.svg" alt="Удалить ответ"
-                  @click="!isCheckMode && deleteAnswer(currentQuestionIndex, index)">
+
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"
+                  v-if="currentQuestion.question.answers.length > 1" id="delete-answer-icon" class="delete-answer-icon"
+                  alt="Удалить ответ" @click="!isCheckMode && deleteAnswer(currentQuestionIndex, index)"
+                  :style="{ cursor: !isCheckMode ? 'pointer' : 'default' }">
+                  <path
+                    d="M12.7412 2.13381L8.32182 6.55322L12.7412 10.9726C12.9757 11.2071 13.1074 11.525 13.1074 11.8565C13.1074 12.188 12.9757 12.506 12.7412 12.7404C12.5068 12.9748 12.1889 13.1065 11.8574 13.1065C11.5258 13.1065 11.2079 12.9748 10.9735 12.7404L6.55406 8.32099L2.13464 12.7404C1.90022 12.9748 1.58228 13.1065 1.25076 13.1065C0.919235 13.1065 0.601292 12.9748 0.366872 12.7404C0.132451 12.506 0.000755602 12.188 0.000755381 11.8565C0.000755508 11.525 0.132451 11.2071 0.366872 10.9726L4.78629 6.55322L0.366872 2.13381C0.132451 1.89938 0.000755086 1.58144 0.00075496 1.24992C0.000755181 0.918401 0.132451 0.600459 0.366872 0.366038C0.601292 0.131618 0.919234 -7.81218e-05 1.25075 -7.83431e-05C1.58228 -7.78794e-05 1.90022 0.131618 2.13464 0.366038L6.55406 4.78546L10.9735 0.366038C11.2079 0.131618 11.5258 -7.84273e-05 11.8574 -7.87645e-05C12.1889 -7.87645e-05 12.5068 0.131618 12.7412 0.366038C12.9757 0.600459 13.1074 0.9184 13.1074 1.24992C13.1074 1.58144 12.9757 1.89939 12.7412 2.13381Z" />
+                </svg>
+
 
               </div>
 
             </div>
 
             <div v-if="!limit_answers[currentQuestionIndex]" :class="$style.questions__answers_add"
-              @click="!isCheckMode && addAnswer(currentQuestionIndex)">
+              @click="!isCheckMode && addAnswer(currentQuestionIndex)"
+              :style="{ cursor: !isCheckMode ? 'pointer' : 'default' }">
               <img class="add_question_icon" src="/public/images/interactive_editor/add_question.svg">
             </div>
             <div v-if="!isCheckMode" :class="$style.questions__desktop_buttons">
@@ -366,8 +386,11 @@ function showDeletefn(index: number) {
             Вопрос {{ qIndex + 1 }}
           </div>
 
-          <img id="question_edit_delete" src="/public/images/interactive_editor/delete.svg"
-            @click="!isCheckMode && showDeletefn(qIndex)"">
+          <svg id="question_edit_delete" @click="!isCheckMode && showDeletefn(qIndex)" width="14" height="18"
+            viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M11 6V16H3V6H11ZM9.5 0H4.5L3.5 1H0V3H14V1H10.5L9.5 0ZM13 4H1V16C1 17.1 1.9 18 3 18H11C12.1 18 13 17.1 13 16V4Z" />
+          </svg>
         </div>
         <div :class="$style.questions__body">
           <div :class="$style.questions__text">
@@ -500,9 +523,13 @@ function showDeletefn(index: number) {
                     : 'Поле для ввода'" maxlength="30" :disabled="isCheckMode">
                 </div>
 
-                <img v-if="questionItem.question.answers.length > 1" id="delete-answer-icon" class="delete-answer-icon"
-                  src="public/images/interactive_editor/grey_delete.svg" alt="Удалить ответ"
-                  @click="!isCheckMode && deleteAnswer(qIndex, index)">
+
+                <svg v-if="questionItem.question.answers.length > 1" id="delete-answer-icon" class="delete-answer-icon"
+                  alt="Удалить ответ" @click="!isCheckMode && deleteAnswer(qIndex, index)" width="14" height="14"
+                  viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M12.7412 2.13381L8.32182 6.55322L12.7412 10.9726C12.9757 11.2071 13.1074 11.525 13.1074 11.8565C13.1074 12.188 12.9757 12.506 12.7412 12.7404C12.5068 12.9748 12.1889 13.1065 11.8574 13.1065C11.5258 13.1065 11.2079 12.9748 10.9735 12.7404L6.55406 8.32099L2.13464 12.7404C1.90022 12.9748 1.58228 13.1065 1.25076 13.1065C0.919235 13.1065 0.601292 12.9748 0.366872 12.7404C0.132451 12.506 0.000755602 12.188 0.000755381 11.8565C0.000755508 11.525 0.132451 11.2071 0.366872 10.9726L4.78629 6.55322L0.366872 2.13381C0.132451 1.89938 0.000755086 1.58144 0.00075496 1.24992C0.000755181 0.918401 0.132451 0.600459 0.366872 0.366038C0.601292 0.131618 0.919234 -7.81218e-05 1.25075 -7.83431e-05C1.58228 -7.78794e-05 1.90022 0.131618 2.13464 0.366038L6.55406 4.78546L10.9735 0.366038C11.2079 0.131618 11.5258 -7.84273e-05 11.8574 -7.87645e-05C12.1889 -7.87645e-05 12.5068 0.131618 12.7412 0.366038C12.9757 0.600459 13.1074 0.9184 13.1074 1.24992C13.1074 1.58144 12.9757 1.89939 12.7412 2.13381Z" />
+                </svg>
 
               </div>
 
@@ -664,6 +691,7 @@ function showDeletefn(index: number) {
     &_up {
       width: 19px;
       height: 10px;
+      cursor: pointer;
     }
 
     &_scroll {
@@ -679,12 +707,14 @@ function showDeletefn(index: number) {
         justify-content: center;
         border: 1.5px solid #E0E0E0;
         border-radius: 8px;
+        cursor: pointer;
       }
     }
 
     &_down {
       width: 19px;
       height: 10px;
+      cursor: pointer;
     }
 
     &_plus {
@@ -696,6 +726,19 @@ function showDeletefn(index: number) {
       border: 1.5px solid #6AB23D;
       border-radius: 8px;
       margin-top: 7px;
+
+
+      &>svg {
+        fill: #6AB23D;
+      }
+
+      &:hover {
+        background-color: #6AB23D;
+
+        svg path {
+          fill: white;
+        }
+      }
     }
   }
 
@@ -734,6 +777,7 @@ function showDeletefn(index: number) {
           font-size: 20px;
           border: 2px solid white;
           border-radius: 8px;
+          cursor: pointer;
         }
       }
 
@@ -743,6 +787,13 @@ function showDeletefn(index: number) {
           border: 2px solid #6AB23D;
         }
 
+        &:hover {
+          @media (min-width:1056px) {
+            color: white !important;
+            border: 2px solid #6AB23D;
+            background-color: #9AC57E !important;
+          }
+        }
       }
 
       &>div:nth-child(2) {
@@ -753,6 +804,13 @@ function showDeletefn(index: number) {
           ;
         }
 
+        &:hover {
+          @media (min-width:1056px) {
+            color: white !important;
+            border: 2px solid #559130;
+            background-color: #559130 !important;
+          }
+        }
       }
     }
   }
@@ -885,9 +943,17 @@ function showDeletefn(index: number) {
       height: 18px;
     }
 
-    &>img {
+    &>svg {
       width: 14px;
       height: 18px;
+      cursor: pointer;
+      fill: #7D7D7D;
+
+      &:hover {
+
+        fill: #F0436C;
+      }
+
     }
   }
 
@@ -1105,6 +1171,10 @@ function showDeletefn(index: number) {
 
           &:hover {
             background-color: #E0E0E0;
+
+            @media (min-width:1056px) {
+              background-color: white;
+            }
           }
         }
 
@@ -1118,6 +1188,7 @@ function showDeletefn(index: number) {
             display: flex;
             align-items: center;
             gap: 5px;
+            cursor: pointer;
           }
         }
       }
@@ -1204,12 +1275,13 @@ function showDeletefn(index: number) {
         height: 42px;
       }
 
-      &>img {
+      &>svg {
         position: absolute;
         top: 10px;
         right: 10px;
         width: 17px;
         height: 17px;
+        fill: #7D7D7D;
 
         @media (min-width:1056px) {
           width: 15px;
@@ -1217,6 +1289,12 @@ function showDeletefn(index: number) {
           top: 15px;
           right: 15px;
         }
+
+        &:hover {
+          fill: #F0436C;
+
+        }
+
       }
 
       &>div {

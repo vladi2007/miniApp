@@ -13,10 +13,11 @@ const props = defineProps<{
   <div :class="$style.edit">
     <div :class="$style.edit__nav">
 
-      <div @click="take_step('main')"" :class="[active_step == 'main' ? $style.edit__active : '']">
+      <div @click="take_step('main')"" :class="[active_step == 'main' ? $style.edit__active : '']"
+        style="cursor: pointer;">
         Общие настройки
       </div>
-      <div :class="[active_step == 'questions' ? $style.edit__active : '']">
+      <div :class="[active_step == 'questions' ? $style.edit__active : '']" style="cursor: pointer;">
         <div @click=" validateForm() && take_step('questions')">
           Вопросы
         </div>
@@ -87,6 +88,12 @@ const props = defineProps<{
         height: 26px;
         border-bottom: 1.5px solid white;
         margin-top: 6px;
+      }
+    }
+
+    &>div:not(.edit__nav_lock) {
+      &:hover {
+        color: #000;
       }
     }
 

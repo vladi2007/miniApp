@@ -152,6 +152,15 @@ const auth = useAuthStore()
         padding: 0;
         box-sizing: border-box;
         border-bottom: 1px solid white;
+        cursor: pointer;
+      }
+
+      &:hover {
+        color: #853CFF !important;
+
+        @media (min-width:768px) {
+          color: #1D1D1D !important;
+        }
       }
     }
 
@@ -178,6 +187,15 @@ const auth = useAuthStore()
         padding: 0;
         box-sizing: border-box;
         border-bottom: 1px solid white;
+        cursor: pointer;
+      }
+
+      &:hover {
+        color: #853CFF !important;
+
+        @media (min-width:768px) {
+          color: #1D1D1D !important;
+        }
       }
     }
 

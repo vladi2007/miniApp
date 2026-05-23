@@ -776,6 +776,15 @@ watch(
 
         @media (min-width:1056px) {
           margin-left: auto;
+          cursor: pointer;
+        }
+
+        &:hover {
+          @media (min-width:1056px) {
+            filter: brightness(11%);
+
+          }
+
         }
       }
     }
@@ -863,6 +872,13 @@ watch(
         background-color: #6AB23D;
         color: white;
         margin-bottom: 20px;
+        cursor: pointer;
+      }
+
+      &:hover {
+        background-color: white;
+        color: #6AB23D;
+        border: 1px solid #6AB23D;
       }
     }
 
@@ -1185,11 +1201,19 @@ watch(
           height: 24px;
           width: 81px;
           margin-left: auto;
-          margin-right: 22px;
           color: #853CFF;
           font-size: 20px;
           font-weight: 500;
+          cursor: pointer;
+          width: 131px;
+          height: 36px;
+        }
 
+        &:hover {
+          @media (min-width:1056px) {
+            border: 1px solid #853CFF;
+            border-radius: 5px;
+          }
         }
       }
 
@@ -1288,6 +1312,7 @@ watch(
           right: 16px;
           width: 20px;
           height: 20px;
+          cursor: pointer;
         }
       }
 

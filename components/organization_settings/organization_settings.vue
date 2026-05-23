@@ -47,33 +47,33 @@ async function onSubmitSettings(event: FormSubmitEvent<SchemaSettings>) {
 
 <template>
   <layout :active_nav="'organization_settings'">
-    <div class="settings">
-      <div class="settings__body">
+    <div class="OrgSettings">
+      <div class="OrgSettings__body">
         <UForm ref="formSettings" :validate-on="['input']" :schema="schemaSettings" :state="stateSettings"
-          @submit="onSubmitSettings" class="settings__form">
+          @submit="onSubmitSettings" class="OrgSettings__form">
           <UFormField v-slot="{ error }" :ui="{ error: 'settings__error', }" :validate-on-input-delay="0"
             :eager-validation="true" name="name">
             <div class="form-field-wrapper">
               <div>
                 Название организации:
               </div>
-              <div class="settings__field" :class="{ 'settings__field-error': error }">
-                <UInput v-model="stateSettings.name" placeholder="Название" :ui="{ base: 'settings__input' }"
+              <div class="OrgSettings__field" :class="{ 'OrgSettings__field-error': error }">
+                <UInput v-model="stateSettings.name" placeholder="Название" :ui="{ base: 'OrgSettings__input' }"
                   :disabled="!canEdit" />
               </div>
             </div>
 
           </UFormField>
 
-          <UFormField v-slot="{ error }" :ui="{ error: 'settings__error', }" :validate-on-input-delay="0"
+          <UFormField v-slot="{ error }" :ui="{ error: 'OrgSettings__error', }" :validate-on-input-delay="0"
             :eager-validation="true" name="description">
             <div class="form-field-wrapper">
               <div>
                 Описание организации:
               </div>
-              <div class="settings__field" :class="{ 'settings__field-error': error }">
+              <div class="OrgSettings__field" :class="{ 'OrgSettings__field-error': error }">
                 <UInput v-model="stateSettings.description" placeholder="Описание"
-                  :ui="{ base: 'settings__input custom-height' }" :disabled="!canEdit" />
+                  :ui="{ base: 'OrgSettings__input custom-height' }" :disabled="!canEdit" />
 
               </div>
             </div>
@@ -81,7 +81,8 @@ async function onSubmitSettings(event: FormSubmitEvent<SchemaSettings>) {
 
           </UFormField>
 
-          <UButton type="submit" class="settings__submit" :disabled="!formSettings?.dirty || !canEdit" v-if="canEdit">
+          <UButton type="submit" class="OrgSettings__submit" :disabled="!formSettings?.dirty || !canEdit"
+            v-if="canEdit">
             Сохранить изменения
           </UButton>
 
@@ -118,7 +119,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
   vertical-align: middle;
 }
 
-.settings {
+.OrgSettings {
   padding: 0 22px;
   margin-top: 10px;
   height: 172px;

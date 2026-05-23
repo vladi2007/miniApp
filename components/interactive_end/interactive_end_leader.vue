@@ -142,6 +142,10 @@ function goToMainMenu() {
     &_moderation {
       width: 18px;
       height: 12px;
+
+      @media (min-width:1280px) {
+        display: none
+      }
     }
   }
 

@@ -628,6 +628,16 @@ watch(
 
         @media (min-width:1056px) {
           margin-left: auto;
+          cursor: pointer;
+
+        }
+
+        &:hover {
+          @media (min-width:1056px) {
+            filter: brightness(11%);
+
+          }
+
         }
       }
     }
@@ -714,6 +724,17 @@ watch(
         height: 24px;
         background-color: white;
         color: #6AB23D;
+        cursor: pointer;
+        width: 131px;
+        height: 36px;
+      }
+
+      &:hover {
+        @media (min-width:1056px) {
+          background-color: #6AB23D;
+          color: white;
+
+        }
       }
     }
 
@@ -1033,11 +1054,18 @@ watch(
           background-color: #6AB23D;
           height: 36px;
           width: 131px;
-          margin-left: 62px;
+          margin-left: 32px;
           color: white;
           font-size: 20px;
           font-weight: 500;
+          cursor: pointer;
+          border-radius: 5px;
 
+          &:hover {
+            border-radius: 5px;
+            background-color: #9AC57E;
+            border: 1px solid #6AB23D;
+          }
         }
       }
 
@@ -1046,10 +1074,21 @@ watch(
 
         @media (min-width:1056px) {
           display: flex;
+          align-items: center;
+          justify-content: center;
           font-size: 20px;
           font-weight: 500;
           color: #853CFF;
           margin-left: auto;
+          cursor: pointer;
+          height: 36px;
+          width: 131px;
+          text-align: center;
+
+          &:hover {
+            border-radius: 5px;
+            border: 1px solid #853CFF;
+          }
         }
 
         &_mobile {
@@ -1127,6 +1166,7 @@ watch(
           right: 16px;
           width: 20px;
           height: 20px;
+          cursor: pointer;
         }
       }
 
@@ -1441,6 +1481,7 @@ watch(
       display: flex;
       align-items: center;
       gap: 5px;
+      cursor: pointer;
 
       &>img {
         width: 17px;

@@ -13,10 +13,10 @@ const props = defineProps<{ title: string, description: string, context: string,
       {{ description }}
     </div>
     <div v-if="context === 'leader'" :class="$style.desc__buttons">
-      <button @click="goBack" :class="$style.desc__buttons_back">
+      <button @click="goBack" :class="$style.desc__buttons_back" style="cursor: pointer;">
         Вернуться
       </button>
-      <button @click="onStatus('going')" :class="$style.desc__buttons_start">
+      <button @click="onStatus('going')" :class="$style.desc__buttons_start" style="cursor: pointer;">
         Запустить
       </button>
     </div>
@@ -66,6 +66,10 @@ const props = defineProps<{ title: string, description: string, context: string,
       font-size: clamp(24px, 1.5vw, 32px);
       font-weight: 500;
       border: none;
+
+      &:hover {
+        background-color: #DE7D94;
+      }
     }
 
     &_start {
@@ -77,6 +81,10 @@ const props = defineProps<{ title: string, description: string, context: string,
       font-size: clamp(24px, 1.5vw, 32px);
       font-weight: 500;
       border: none;
+
+      &:hover {
+        background-color: #9AC57E;
+      }
     }
   }
 

@@ -564,8 +564,8 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
       &:hover {
 
         @media (min-width:768px) {
-          color: #853CFF;
-          border-color: #853CFF;
+          color: white;
+          background-color: #853CFF;
         }
       }
     }

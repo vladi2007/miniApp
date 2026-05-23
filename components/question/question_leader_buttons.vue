@@ -99,6 +99,11 @@ const emit = defineEmits(['show', 'close'])
       height: calc(44/832*100dvh);
       ;
     }
+
+    &:hover {
+      background-color: #AA77FF;
+      color: white;
+    }
   }
 
   &__pause {

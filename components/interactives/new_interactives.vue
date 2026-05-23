@@ -1044,6 +1044,7 @@ watch(
         padding: 10px 15px;
         width: 121px;
         font-size: 16px;
+        cursor: pointer;
       }
     }
 
@@ -1073,7 +1074,7 @@ watch(
         padding: 16px;
         height: 103px;
         width: 179px;
-
+        cursor: pointer;
       }
     }
 
@@ -1475,9 +1476,17 @@ watch(
 
 
     &_show {
+      margin: 0 auto;
       margin-top: 15px;
       color: #853CFF;
       text-align: center;
+      width: 104px;
+      cursor: pointer;
+
+
+      &:hover {
+        border-bottom: 1px solid #853CFF;
+      }
     }
   }
 
@@ -1528,6 +1537,7 @@ watch(
           right: 16px;
           width: 20px;
           height: 20px;
+          cursor: pointer;
         }
       }
 
@@ -1842,6 +1852,7 @@ watch(
       display: flex;
       align-items: center;
       gap: 5px;
+      cursor: pointer;
 
       &>img {
         width: 17px;
