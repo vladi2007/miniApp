@@ -262,7 +262,7 @@ function toggleHiddenName(id: string) {
       </div>
 
     </simplebar>
-    <button :class="$style.leaderboard__home" @click="goToMainMenu()">
+    <button :class="$style.leaderboard__home" @click="goToMainMenu()" style="cursor: pointer;">
       Выйти
     </button>
   </div>
@@ -576,6 +576,13 @@ function toggleHiddenName(id: string) {
       border: 1px solid #853CFF;
       color: #853CFF;
       background-color: white;
+    }
+
+    &:hover {
+      @media (min-width:1280px) {
+        background-color: #853CFF;
+        color: white;
+      }
     }
   }
 }

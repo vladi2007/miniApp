@@ -393,7 +393,7 @@ watch(
           </div>
           <img src="/images/history/Vector_1.svg" @click="closePopup()">
           <div :class="$style.broadcasts__popup_text_">
-            От лица “Название телеграмм бота” будет отправлена в личный чат с участником следующая информация
+            Отправитель: phylingsentmens198221@rambler.ru
           </div>
           <div :class="$style.broadcasts__popup_body">
 
@@ -406,7 +406,11 @@ watch(
             <div :class="$style.broadcasts__popup_count">
               Количество получателей: {{ count }}
             </div>
-
+            <div :class="$style.broadcasts__popup_info">
+              Используйте рассылку по назначению. <br />
+              Письмо рассылки придет всем участникам, кто указал почту <br />
+              при подключении к интерактиву.
+            </div>
           </div>
           <div :class="[$style.broadcasts__popup_buttons, $style.broadcasts__popup_buttons_delete]"
             v-if="sendStatus === 'idle'">
@@ -772,6 +776,15 @@ watch(
 
         @media (min-width:1056px) {
           margin-left: auto;
+          cursor: pointer;
+        }
+
+        &:hover {
+          @media (min-width:1056px) {
+            filter: brightness(11%);
+
+          }
+
         }
       }
     }
@@ -859,6 +872,13 @@ watch(
         background-color: #6AB23D;
         color: white;
         margin-bottom: 20px;
+        cursor: pointer;
+      }
+
+      &:hover {
+        background-color: white;
+        color: #6AB23D;
+        border: 1px solid #6AB23D;
       }
     }
 
@@ -1181,11 +1201,19 @@ watch(
           height: 24px;
           width: 81px;
           margin-left: auto;
-          margin-right: 22px;
           color: #853CFF;
           font-size: 20px;
           font-weight: 500;
+          cursor: pointer;
+          width: 131px;
+          height: 36px;
+        }
 
+        &:hover {
+          @media (min-width:1056px) {
+            border: 1px solid #853CFF;
+            border-radius: 5px;
+          }
         }
       }
 
@@ -1284,6 +1312,7 @@ watch(
           right: 16px;
           width: 20px;
           height: 20px;
+          cursor: pointer;
         }
       }
 
@@ -1361,7 +1390,11 @@ watch(
       margin-top: 10px;
     }
 
-    &_message {}
+    &_info {
+      color: #7D7D7D !important;
+      font-size: 14px;
+      line-height: 16.8px;
+    }
 
     &_buttons {
       padding: 0 22px;

@@ -196,7 +196,7 @@ watch([showConfirmPopup,], (val) => {
       @media (min-width:1280px) {
         padding: 0px;
         margin: 0 auto;
-        max-width: 1234px;
+        max-width: 1280px;
 
       }
 
@@ -225,6 +225,17 @@ watch([showConfirmPopup,], (val) => {
         margin-top: auto;
         margin-bottom: 5px;
         cursor: pointer;
+        padding: 0 14px;
+      }
+
+      &:hover {
+
+
+        @media (min-width:1056px) {
+          background-color: #AA77FF;
+          border-radius: 14px;
+          padding: 0 14px;
+        }
       }
 
       &>div {
@@ -281,6 +292,7 @@ watch([showConfirmPopup,], (val) => {
         height: 16px;
         top: 20px;
         right: 20px;
+        cursor: pointer;
       }
     }
 

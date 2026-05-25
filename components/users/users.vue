@@ -487,6 +487,7 @@ watch([showDeletePop, showChangeRole, showAddPop], (val) => {
 
   @media (min-width:768px) {
     display: block;
+    cursor: pointer;
   }
 
 }
@@ -617,6 +618,7 @@ watch([showDeletePop, showChangeRole, showAddPop], (val) => {
         padding: 0 18px;
         color: white;
         border-radius: 5px;
+        cursor: pointer;
       }
 
       &_text {
@@ -679,6 +681,7 @@ watch([showDeletePop, showChangeRole, showAddPop], (val) => {
         border-radius: 8px;
         align-items: flex-start;
         padding: 16px 10px 16px 0px;
+        cursor: pointer;
       }
 
 
@@ -910,15 +913,14 @@ watch([showDeletePop, showChangeRole, showAddPop], (val) => {
           @media (min-width:768px) {
             height: 34px;
             padding: 0px 5px;
+            cursor: pointer;
           }
 
           &:hover {
 
 
-            @media (min-width:768px) {
-              background-color: #E0E0E0;
-              border-radius: 7px;
-            }
+            background-color: #E0E0E0;
+            border-radius: 7px;
           }
         }
       }
@@ -966,6 +968,7 @@ watch([showDeletePop, showChangeRole, showAddPop], (val) => {
         height: 16px;
         top: 20px;
         right: 20px;
+        cursor: pointer;
       }
     }
 

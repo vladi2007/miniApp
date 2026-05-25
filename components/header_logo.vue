@@ -376,6 +376,7 @@ watch(
         display: flex;
         align-items: center;
         justify-content: center;
+        cursor: pointer;
       }
     }
   }
@@ -511,9 +512,16 @@ watch(
           background-color: white;
           color: #7D7D7D;
           border: none;
+          cursor: pointer;
         }
 
+        &:hover {
+          @media (min-width:768px) {
 
+            border: 1px solid #1D1D1D;
+            color: #1D1D1D;
+          }
+        }
       }
 
 
@@ -529,8 +537,15 @@ watch(
           color: #F0436C;
           border: 1.5px solid #F0436C;
           border-color: #F0436C;
+          cursor: pointer;
         }
 
+        &:hover {
+          @media (min-width:768px) {
+            background-color: #F0436C;
+            color: white;
+          }
+        }
 
       }
 

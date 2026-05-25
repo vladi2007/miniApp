@@ -61,7 +61,7 @@ function closeMobileModeration() {
             <img id="logo" src="/images/waiting/Group_7055.svg">
           </div>
           <img v-if="!isMobile" id='open_moderation' src="/images/waiting/open_moderation.svg"
-            @click="openModeration(code)" />
+            @click="openModeration(code)" style="cursor: pointer;" />
           <img v-else id='open_moderation' src="/images/waiting/open_moderation.svg" @click="openModeration(code)">
         </div>
         <Description :title="props.data?.title || ''" :description="props.data?.description || ''" :context="context"
@@ -89,12 +89,12 @@ function closeMobileModeration() {
 
           <button
             :class="[$style.waiting__popup_btn, $style.waiting__popup_btn_first, $style.waiting__popup_btn_first_start]"
-            @click="morePause()">
+            @click="morePause()" style="cursor: pointer;">
             Еще подождать
           </button>
           <button
             :class="[$style.waiting__popup_btn, $style.waiting__popup_btn_second, $style.waiting__popup_btn_second_start]"
-            @click="startBeforePause()">
+            @click="startBeforePause()" style="cursor: pointer;">
             Запустить
 
           </button>
@@ -268,6 +268,8 @@ function closeMobileModeration() {
       color: #F0436C;
       border: 1.5px solid #F0436C;
       background-color: white;
+
+
     }
 
     &_start {

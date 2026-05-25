@@ -14,9 +14,9 @@ export default defineNuxtConfig({
           content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
         },
       ],
-
+    
       link: [
-      
+         { rel: 'icon', type: 'image/x-icon', href: '/icon.png' },
         {
           rel: 'stylesheet',
           href: 'https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap',

@@ -69,7 +69,12 @@ const props = defineProps<{
       </div>
       <div :class="$style.main__next" @click="validateForm() && take_step('questions')">
         <div>Далее</div>
-        <img id="goto" src="/public/images/interactive_editor/purple.svg">
+
+        <svg id="goto" width="10" height="18" viewBox="0 0 10 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M0 1.47109L1.48725 0L9.58796 8.01742C9.71853 8.14589 9.82216 8.29866 9.89288 8.46693C9.96359 8.6352 10 8.81566 10 8.99792C10 9.18017 9.96359 9.36063 9.89288 9.5289C9.82216 9.69718 9.71853 9.84994 9.58796 9.97841L1.48725 18L0.0014019 16.5289L7.60448 9L0 1.47109Z" />
+        </svg>
+
       </div>
     </div>
 
@@ -203,13 +208,32 @@ const props = defineProps<{
       color: #853CFF;
       margin-left: auto;
       margin-top: 319px;
+      cursor: pointer;
+      fill: #853CFF;
     }
 
-    &>img {
+    &:hover {
+
+      color: #AA77FF;
+
+      svg path {
+        @media (min-width:1056px) {
+          fill: #AA77FF;
+        }
+      }
+    }
+
+    & svg path {
+      fill: #853CFF;
+    }
+
+    &>svg {
       @media (min-width:1056px) {
         width: 10px;
         height: 18px;
       }
+
+
     }
   }
 }
