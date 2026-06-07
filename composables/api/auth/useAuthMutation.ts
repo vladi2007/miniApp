@@ -17,7 +17,10 @@ export function mutateAddParticipant() {
       $queryClient.invalidateQueries({
         queryKey: ['org_participants', String(auth.id), String(payload.role)],
       })
-      window.alert('Письмо успешно отправлено')
+     window.prompt(
+    'Скопируйте ссылку для регистрации:',
+    data.url
+  )
     },
     onError: (err) =>{
       const error = err as AxiosError<ApiErrorResponse>

@@ -47,7 +47,7 @@ export default defineNuxtConfig({
   vite: {
     server: {
       allowedHosts: ['tidily-viable-mongoose.cloudpub.ru', 'allegedly-innate-dotterel.cloudpub.ru', 'swimmingly-astounding-nyala.cloudpub.ru',
-        'heatedly-gleaming-whydah.cloudpub.ru', 'noisily-unattached-otter.cloudpub.ru', 'statically-creative-emu.cloudpub.ru', 'compulsively-tops-accentor.cloudpub.ru'],
+        'heatedly-gleaming-whydah.cloudpub.ru', 'noisily-unattached-otter.cloudpub.ru', 'statically-creative-emu.cloudpub.ru', 'compulsively-tops-accentor.cloudpub.ru','humanely-certain-steelhead.cloudpub.ru'],
       proxy: {
         '/api': {
           target: process.env.NUXT_PUBLIC_API,
