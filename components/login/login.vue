@@ -19,25 +19,42 @@ const schemaLogin = object({
 const schemaReg = object({
   email: string()
     .email('Введите корректную почту')
+    .matches(/^\S+$/, 'Почта не должна содержать пробелы')
+    .matches(
+      /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
+      'Введите корректную почту'
+    )
     .required('Введите почту'),
+
 
   login: string()
     .min(8, 'От 8 до 12 символов')
+    .matches(/^\S+$/, 'Логин не должен содержать пробелы')
     .max(12, 'От 8 до 12 символов')
+
     .matches(/^[a-zA-Z0-9]+$/, 'Только латинские буквы и цифры')
     .required('Введите логин'),
 
   password: string()
+
     .min(8, 'От 8 до 15 символов')
+    .matches(/^\S+$/, 'Пароль не должен содержать пробелы')
     .max(15, 'От 8 до 15 символов')
-    .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Пароль должен содержать спецсимвол')
+    .matches(/[!@#$%^&*(),.?":{}|<>_]/, 'Пароль должен содержать спецсимвол')
+
     .required('Введите пароль'),
 })
 
 const schemaForgot = object({
   email: string()
     .email('Введите корректную почту')
-    .required('Введите почту'),
+    .matches(
+      /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
+      'Введите корректную почту'
+    )
+    .required('Введите почту')
+    .matches(/^\S+$/, 'Почта не должна содержать пробелы'),
+
 })
 type SchemaLogin = InferType<typeof schemaLogin>
 type SchemaReg = InferType<typeof schemaReg>
@@ -79,7 +96,7 @@ async function onSubmitReg(event: FormSubmitEvent<SchemaReg>) {
 }
 async function onSubmitLogin(event: FormSubmitEvent<SchemaLogin>) {
   try {
-    await auth.login({ password: event.data.password!, username: event.data.login! })
+    await auth.login({ password: event.data.password!.trim(), username: event.data.login!.trim() })
   }
   catch (err) {
     const error = err as AxiosError<ApiErrorResponse>;
@@ -148,7 +165,8 @@ const customLoginError = ref<string | null>(null)
         <UFormField v-slot="{ error }" :ui="{ error: 'login__error' }" :validate-on-input-delay="0"
           :eager-validation="true" label="" name="login">
           <div class="login__field" :class="{ 'login__field-error': error || customLoginError }">
-            <UInput v-model="stateLogin.login" placeholder="Логин*" :ui="{ base: 'login__input' }" />
+            <UInput v-model="stateLogin.login" placeholder="Логин*" :ui="{ base: 'login__input' }"
+              @keydown.space.prevent />
           </div>
         </UFormField>
 
@@ -156,7 +174,7 @@ const customLoginError = ref<string | null>(null)
           :eager-validation="true" label="" name="password">
           <div class="login__field" :class="{ 'login__field-error': error || customLoginError }">
             <UInput v-model="stateLogin.password" placeholder="Пароль*" :type="showPasswordLogin ? 'text' : 'password'"
-              :ui="{ base: 'login__input' }" />
+              :ui="{ base: 'login__input' }" @keydown.space.prevent />
             <img class="login__input-show" :src="showPasswordLogin ? hide : show"
               @click="showPasswordLogin = !showPasswordLogin">
           </div>
@@ -188,14 +206,16 @@ const customLoginError = ref<string | null>(null)
           :ui="{ error: 'login__error' }">
           <div class="login__field"
             :class="{ 'login__field-error': error, 'login__field-success': !error && stateReg.email }">
-            <UInput v-model="stateReg.email" placeholder="Email*" :ui="{ base: 'login__input' }" />
+            <UInput v-model="stateReg.email" placeholder="Email*" :ui="{ base: 'login__input' }"
+              @keydown.space.prevent />
           </div>
         </UFormField>
         <UFormField v-slot="{ error }" :eager-validation="true" :validate-on-input-delay="0" label="" name="login"
           :ui="{ error: 'login__error' }">
           <div class="login__field"
             :class="{ 'login__field-error': error, 'login__field-success': !error && stateReg.login }">
-            <UInput v-model="stateReg.login" placeholder="Логин*" :ui="{ base: 'login__input' }" />
+            <UInput v-model="stateReg.login" placeholder="Логин*" :ui="{ base: 'login__input' }"
+              @keydown.space.prevent />
           </div>
         </UFormField>
 
@@ -204,7 +224,7 @@ const customLoginError = ref<string | null>(null)
           <div class="login__field"
             :class="{ 'login__field-error': error, 'login__field-success': !error && stateReg.password }">
             <UInput v-model="stateReg.password" placeholder="Пароль*" :type="showPasswordReg ? 'text' : 'password'"
-              :ui="{ base: 'login__input' }" />
+              :ui="{ base: 'login__input' }" @keydown.space.prevent />
             <img class="login__input-show" :src="showPasswordReg ? hide : show"
               @click="showPasswordReg = !showPasswordReg">
           </div>
@@ -242,7 +262,8 @@ const customLoginError = ref<string | null>(null)
           :ui="{ error: 'login__error' }">
           <div class="login__field"
             :class="{ 'login__field-error': error, 'login__field-success': !error && stateForgot.email }">
-            <UInput v-model="stateForgot.email" placeholder="Email*" :ui="{ base: 'login__input' }" />
+            <UInput v-model="stateForgot.email" placeholder="Email*" :ui="{ base: 'login__input' }"
+              @keydown.space.prevent />
           </div>
         </UFormField>
         <UButton type="submit" class="login__submit forgot" :disabled="!formForgot?.dirty || forgotPending">
@@ -362,6 +383,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
       font-size: 40px;
       line-height: 120%;
       letter-spacing: 1%;
+      white-space: nowrap;
     }
   }
 
@@ -622,11 +644,15 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
     display: none;
 
     @media (min-width:768px) {
+      margin-top: 40px;
+      display: block;
+      font-family: 'Lato', sans-serif;
       font-weight: 500;
       font-size: 20px;
-      margin-top: 40px;
       line-height: 30px;
       letter-spacing: 1%;
+      vertical-align: middle;
+      color: #7D7D7D;
     }
   }
 

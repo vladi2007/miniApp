@@ -8,12 +8,14 @@ const schemaReset = object({
 
     password: string()
         .min(8, 'От 8 до 15 символов')
+        .matches(/^\S+$/, 'Пароль не должен содержать пробелы')
         .max(15, 'От 8 до 15 символов')
-        .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Пароль должен содержать спецсимвол')
+        .matches(/[!@#$%^&*(),.?":{}|<>_]/, 'Пароль должен содержать спецсимвол')
         .required('Введите пароль'),
 
     secondPassword: string()
         .required('Подтвердите пароль')
+        .matches(/^\S+$/, 'Пароль не должен содержать пробелы')
         .oneOf([yup.ref('password')], 'Пароли не совпадают')
 
 
@@ -64,7 +66,8 @@ import { useAuthStore } from '~/store/auth';
                         !error && stateReset.password && $style['login__field-success']
                     ]">
                         <UInput v-model="stateReset.password" placeholder="Ввод нового пароля*"
-                            :ui="{ base: $style.login__input }" :type="showPasswordReset ? 'text' : 'password'" />
+                            :ui="{ base: $style.login__input }" :type="showPasswordReset ? 'text' : 'password'"
+                            @keydown.space.prevent />
                         <img :class="$style.login__input_show" :src="showPasswordReset ? hide : show"
                             @click="showPasswordReset = !showPasswordReset">
                     </div>
@@ -78,7 +81,8 @@ import { useAuthStore } from '~/store/auth';
                         !error && stateReset.secondPassword && $style['login__field-success']
                     ]">
                         <UInput v-model="stateReset.secondPassword" placeholder="Подтверждение пароля*"
-                            :type="showSecondPasswordReset ? 'text' : 'password'" :ui="{ base: $style.login__input }" />
+                            :type="showSecondPasswordReset ? 'text' : 'password'" :ui="{ base: $style.login__input }"
+                            @keydown.space.prevent />
                         <img :class="$style.login__input_show" :src="showSecondPasswordReset ? hide : show"
                             @click="showSecondPasswordReset = !showSecondPasswordReset">
                     </div>

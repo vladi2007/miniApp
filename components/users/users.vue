@@ -19,7 +19,10 @@ const { mutate: patchRole } = mutateOrganizationParticipants()
 const { mutate: addParticipantFn } = mutateAddParticipant()
 
 const schemaAdd = object({
-  email: string().email('Введите корректную почту').required('Введите почту').max(32, 'Максимальная длина 32 символа'),
+  email: string().email('Введите корректную почту').matches(
+    /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
+    'Введите корректную почту'
+  ).required('Введите почту').max(32, 'Максимальная длина 32 символа').matches(/^\S+$/, 'Почта не должна содержать пробелы'),
 
 })
 type SchemaAdd = InferType<typeof schemaAdd>
@@ -377,7 +380,8 @@ watch([showDeletePop, showChangeRole, showAddPop], (val) => {
             <UFormField v-slot="{ error }" :ui="{ error: 'error' }" :validate-on-input-delay="0"
               :eager-validation="true" label="" name="email">
               <UInput v-model="stateAdd.email" placeholder="Введите email"
-                :ui="{ base: error ? 'input error' : (stateAdd.email ? 'input success' : 'input') }" />
+                :ui="{ base: error ? 'input error' : (stateAdd.email ? 'input success' : 'input') }"
+                @keydown.space.prevent />
             </UFormField>
 
             <div class="add_custom-dropdown" @click="toggleDropdown">

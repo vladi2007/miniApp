@@ -486,7 +486,7 @@ watch(
               </div>
 
               <div v-if="!item.is_conducted && item.is_you" title="Редактировать интерактив"
-                @click="showEdit = true; currID = item.id" style="background-color: #F0436C;margin-left: 10px;"
+                @click="edit_interactive(String(item.id));" style="background-color: #F0436C;margin-left: 10px;"
                 id="edit">
                 <img src="/images/interactives/edit_2.svg">
               </div>
@@ -534,7 +534,7 @@ watch(
 
           <div :class="$style.interactives__popup_block" v-if="!showMoreItem!.is_conducted">
             <div :class="$style.interactives__popup_func" v-if="!showMoreItem!.is_conducted && showMoreItem!.is_you"
-              @click="showEdit = true; currID = showMoreItem.id">
+              @click="edit_interactive(String(showMoreItem.id));">
               <img src="/public/images/interactives/more_edit.svg" style="width: 16px; height: 17px; margin-left: 4px;">
               <div style="margin-left: 10px;">
                 Редактировать

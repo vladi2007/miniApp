@@ -7,14 +7,17 @@ const schemaReg = object({
 
     login: string()
         .min(8, 'От 8 до 12 символов')
+        .matches(/^\S+$/, 'Логин не должен содержать пробелы')
         .max(12, 'От 8 до 12 символов')
         .matches(/^[a-zA-Z0-9]+$/, 'Только латинские буквы и цифры')
         .required('Введите логин'),
 
     password: string()
         .min(8, 'От 8 до 15 символов')
+        .matches(/^\S+$/, 'Пароль не должен содержать пробелы')
         .max(15, 'От 8 до 15 символов')
-        .matches(/[!@#$%^&*(),.?":{}|<>]/, 'Пароль должен содержать спецсимвол')
+
+        .matches(/[!@#$%^&*(),.?":{}|<>_]/, 'Пароль должен содержать спецсимвол')
         .required('Введите пароль'),
 })
 const initialReg = {
@@ -69,7 +72,7 @@ import { useAuthStore } from '~/store/auth';
                         !error && stateReg.login && $style['login__field-success']
                     ]">
                         <UInput v-model="stateReg.login" placeholder="Введите логин*"
-                            :ui="{ base: $style.login__input }" />
+                            :ui="{ base: $style.login__input }" @keydown.space.prevent />
                     </div>
                 </UFormField>
 
@@ -81,7 +84,8 @@ import { useAuthStore } from '~/store/auth';
                         !error && stateReg.password && $style['login__field-success']
                     ]">
                         <UInput v-model="stateReg.password" placeholder="Введите пароль*"
-                            :type="showPasswordReg ? 'text' : 'password'" :ui="{ base: $style.login__input }" />
+                            :type="showPasswordReg ? 'text' : 'password'" :ui="{ base: $style.login__input }"
+                            @keydown.space.prevent />
                         <img :class="$style.login__input_show" :src="showPasswordReg ? hide : show"
                             @click="showPasswordReg = !showPasswordReg">
                     </div>

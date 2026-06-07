@@ -59,7 +59,7 @@ async function onSubmitSettings(event: FormSubmitEvent<SchemaSettings>) {
               </div>
               <div class="OrgSettings__field" :class="{ 'OrgSettings__field-error': error }">
                 <UInput v-model="stateSettings.name" placeholder="Название" :ui="{ base: 'OrgSettings__input' }"
-                  :disabled="!canEdit" />
+                  :disabled="!canEdit" @keydown.enter.prevent />
               </div>
             </div>
 
@@ -73,7 +73,7 @@ async function onSubmitSettings(event: FormSubmitEvent<SchemaSettings>) {
               </div>
               <div class="OrgSettings__field" :class="{ 'OrgSettings__field-error': error }">
                 <UInput v-model="stateSettings.description" placeholder="Описание"
-                  :ui="{ base: 'OrgSettings__input custom-height' }" :disabled="!canEdit" />
+                  :ui="{ base: 'OrgSettings__input custom-height' }" :disabled="!canEdit" @keydown.enter.prevent />
 
               </div>
             </div>

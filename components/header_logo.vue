@@ -11,7 +11,6 @@ async function goTo(url: string) {
   showMenu.value = false
   router.push(url)
 }
-const orgs = ref(false)
 const org_name = ref('ИРИТ РТФ')
 const userId = useState('telegramUser')
 const { data: org, isLoading, refetch } = useMeInOrganization({
@@ -104,6 +103,36 @@ watch(
   },
   { immediate: true }
 )
+
+const orgs = ref(false)
+const dropdownRef = ref<HTMLElement | null>(null)
+
+function toggleDropdown() {
+  orgs.value = !orgs.value
+}
+
+function closeDropdown() {
+  orgs.value = false
+}
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
+function handleClickOutside(event: MouseEvent) {
+  if (!dropdownRef.value) return
+
+  if (!dropdownRef.value.contains(event.target as Node)) {
+    orgs.value = false
+  }
+}
+function selectOrg(name: string) {
+  org_name.value = name
+  orgs.value = false
+}
 </script>
 
 <template>
@@ -145,25 +174,27 @@ watch(
         <div class="header_nav_about_us" @click="goTo('/main')">
           О нас
         </div>
-        <div v-if="auth.isAuthenticated" class="header_nav_organization_settings" style="gap: 5px;">
+        <div ref="dropdownRef" v-if="auth.isAuthenticated" :class="[$style.header__nav_item_dropdown]" style="gap: 5px;"
+          @click="toggleDropdown">
           <div class="header_nav_organization_settings_name">
             {{ org?.organization_name }}
           </div>
-          <img src="../public/images/Vector.svg">
-          <!-- <div v-if="orgs" class="header_nav_item-dropdown-options" style=" z-index: 10001 !important;">
-            <div class="header_nav_item-dropdown-options-header">
+          <img v-if="!orgs" src="../public/images/Vector.svg">
+          <img v-if="orgs" src="../public/images/Vector.svg" style="transform: rotate(180deg);">
+          <div v-if="orgs" :class="[$style.header__nav_item_dropdown_options]" style=" z-index: 10001 !important;">
+            <div :class="[$style.header__nav_item_dropdown_options_header]">
               Выберите организацию:
             </div>
-            <div class="header_nav_item-dropdown-option" @click="org_name = 'Джойтека'">
+            <div :class="[$style.header__nav_item_dropdown_options_option]" @click="selectOrg('Джойтека')">
               Джойтека
             </div>
-            <div class="header_nav_item-dropdown-option" @click="org_name = 'Звезда'">
+            <div :class="[$style.header__nav_item_dropdown_options_option]" @click="selectOrg('Звезда')">
               Звезда
             </div>
-            <div class="header_nav_item-dropdown-option" @click="org_name = 'ИРИТ РТФ'">
+            <div :class="[$style.header__nav_item_dropdown_options_option]" @click="selectOrg('ИРИТ РТФ')">
               ИРИТ РТФ
             </div>
-          </div> -->
+          </div>
         </div>
         <div v-if="auth.isAuthenticated" class="header_nav_user" @click="goTo('/leader/user')">
           {{ org?.name }}
@@ -369,6 +400,7 @@ watch(
       gap: 30px;
       font-size: 20px;
       color: white;
+      position: relative;
     }
 
     &>div {
@@ -377,6 +409,68 @@ watch(
         align-items: center;
         justify-content: center;
         cursor: pointer;
+      }
+    }
+
+    &_item {
+      &_dropdown {
+        @media (min-width:768px) {
+          position: relative;
+        }
+
+        &_options {
+          @media (min-width:768px) {
+            position: absolute;
+            top: calc(100% + 32px);
+            background-color: white;
+            box-shadow: 0px 1px 13.8px 0px #00000025;
+            width: 318px;
+            height: 206px;
+            border-radius: 14px;
+            left: -11px;
+            background: white;
+            z-index: 665455;
+          }
+
+          &_header {
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-family: "Lato", sans-serif;
+            color: #1D1D1D;
+            white-space: nowrap;
+            font-weight: 500;
+            font-size: 20px;
+            letter-spacing: 0.2px;
+            width: 306px;
+            height: 34px;
+            padding-left: 5px;
+            margin-top: 17px
+          }
+
+          &_option {
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-family: "Lato", sans-serif;
+            color: #1D1D1D;
+            white-space: nowrap;
+            font-weight: 400;
+            font-size: 20px;
+            letter-spacing: 0.2px;
+            width: 306px;
+            height: 34px;
+            padding-left: 5px;
+            margin-top: 12px;
+
+            &:hover {
+              border-radius: 7px;
+              background-color: #DFDFDF !important;
+            }
+          }
+        }
       }
     }
   }
