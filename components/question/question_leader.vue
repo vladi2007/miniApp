@@ -707,13 +707,19 @@ watch(
         height: 14px;
 
         @media (min-width:1280px) {
-          height: calc(14/832*100dvh)
+          height: calc(22/832*100dvh);
         }
 
 
         &>img {
           display: none;
 
+          @media (min-width:1280px) {
+            display: block;
+            margin-left: calc(20/1280*100dvw);
+            width: calc(22/1280*100dvw);
+            height: auto;
+          }
         }
       }
 
@@ -725,8 +731,8 @@ watch(
         height: 100%;
 
         @media (min-width:1280px) {
-          margin-top: calc(16/832*100dvh);
-          gap: calc(18/832*100dvh);
+          margin-top: calc(11/832*100dvh);
+          gap: calc(11/832*100dvh);
         }
 
       }
@@ -736,7 +742,7 @@ watch(
         font-size: 16px;
 
         @media (min-width:1280px) {
-          font-size: clamp(20px, 1vw, 30px);
+          font-size: clamp(20px, 1.5vw, 70px);
         }
       }
 
@@ -744,8 +750,8 @@ watch(
         margin-left: 14px;
 
         @media (min-width:1280px) {
-          font-size: clamp(20px, 1vw, 30px);
-          margin-left: calc(14/1280*100dvw);
+          font-size: clamp(20px, 1.5vw, 70px);
+          margin-left: calc(7/1280*100dvw);
           ;
         }
       }
@@ -754,7 +760,7 @@ watch(
         margin-left: auto;
 
         @media (min-width:1280px) {
-          font-size: clamp(20px, 1vw, 30px);
+          font-size: clamp(20px, 1.5vw, 70px);
           margin-right: calc(25/1280*100dvw);
         }
       }

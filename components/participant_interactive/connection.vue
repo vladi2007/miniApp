@@ -5,6 +5,7 @@ const props = defineProps<{
     onNameSent: () => void;
     onAnswer: ((msg: string) => void) | null
     initName: string
+    email?: boolean
 }>()
 const { $bridge } = useNuxtApp()
 import type { FormSubmitEvent } from '@nuxt/ui';
@@ -19,7 +20,7 @@ const schemaCon = object({
 })
 type SchemaCon = InferType<typeof schemaCon>
 const initialCon = {
-    name: props.initName
+    name: props.email ? '' : props.initName
 }
 const stateCon = reactive({ ...initialCon })
 const formCon = useTemplateRef('formCon')
@@ -109,7 +110,7 @@ onMounted(async () => {
                         base: error
                             ? [$style.connection__input, $style.connection__form_errorInput]
                             : $style.connection__input
-                    }">
+                    }" :placeholder="props.initName">
                         <img :class="$style.connection__form_clear" src="/public/images/connection/clear_name.svg"
                             @click="stateCon.name = ''; formCon?.clear(); formCon?.validate()">
                     </UInput>

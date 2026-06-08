@@ -4,7 +4,6 @@ import { useAuthStore } from '~/store/auth'
 
 const telegramName = useState<string | null>('userName')
 const auth = useAuthStore()
-console.log(telegramName)
 
 const router = useRouter()
 async function goTo(url: string) {

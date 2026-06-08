@@ -9,7 +9,9 @@ export function useInteractivities(filter: Ref<InteractivitiesListFilter>,
   const auth = useAuthStore()
   return useQuery<InteractivitiesList>({
     queryKey: computed(() => ['interactives', String(auth.id), String(filter.value), String(from_number.value), String(to_number.value)]),
-    queryFn: async () => getInteractivities(filter.value, to_number.value, from_number.value)
+    queryFn: async () => getInteractivities(filter.value, to_number.value, from_number.value),
+         placeholderData: (prev) => prev,
+
   })
 }
 

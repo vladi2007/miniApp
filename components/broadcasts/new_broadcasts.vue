@@ -64,7 +64,6 @@ async function submitBroadcasts() {
     if (showPopup.value === false) { window.alert(`Ваше сообщение успешно отправлено`); sendStatus.value = 'idle' }
   }
   catch (e) {
-    console.log('error')
     sendStatus.value = 'error'
     if ((e as AxiosError).response?.data!.detail! == 'No recipients found') {
       window.alert('Никто из участников выбранных Вами интерактивов не оставил контакты для обратной связи')

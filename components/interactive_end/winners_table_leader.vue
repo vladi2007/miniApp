@@ -518,6 +518,23 @@ function toggleHiddenName(id: string) {
       }
     }
 
+    &_hide {
+
+      @media (min-width:1280px) {
+        width: calc(22/1280*100dvw);
+        height: auto;
+        margin-left: calc(73/1280*100dvw);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      &>img {
+        width: calc(22/1280*100dvw);
+        height: auto;
+      }
+    }
+
     &_name {
       width: 199px;
       margin-left: 14px;
@@ -526,8 +543,8 @@ function toggleHiddenName(id: string) {
 
       @media (min-width:1280px) {
         width: calc(250/1280*100dvw);
-        margin-left: calc(103/1280*100dvw);
-        text-align: center;
+        margin-left: calc(12/1280*100dvw);
+        text-align: left;
       }
 
     }

@@ -13,7 +13,7 @@ const props = defineProps<{
   <div :class="$style.edit">
     <div :class="$style.edit__nav">
 
-      <div @click="take_step('main')"" :class="[active_step == 'main' ? $style.edit__active : '']"
+      <div @click="take_step('main')" :class="[active_step == 'main' ? $style.edit__active : '']"
         style="cursor: pointer;">
         Общие настройки
       </div>

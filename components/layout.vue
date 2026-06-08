@@ -31,6 +31,6 @@ async function goTo(url: string, active: string): Promise<void> {
   margin: 0;
   background-color: white;
   position: relative;
-  overflow-x: hidden;
+  overflow: auto;
 }
 </style>

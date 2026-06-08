@@ -80,10 +80,7 @@ const showBan = ref(false)
 <template>
     <div :class="$style.moderation">
         <div :class="$style.moderation__header">
-            <div :class="$style.moderation__goback">
-                <img src="/public/images/moderation/goback.svg">
-                <span>Назад</span>
-            </div>
+
             <img src="/public/images/logo.svg" :class="$style.moderation__logo" />
 
         </div>
@@ -131,7 +128,7 @@ const showBan = ref(false)
 
                                 }" />
                         <span>{{ participant.is_hidden ? '•••' : participant.username
-                            }}</span>
+                        }}</span>
                     </div>
                     <span :style="{
                         color: participant.is_blocked ? '#FFFFFF' : '#F0436C',

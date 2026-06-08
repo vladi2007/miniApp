@@ -25,6 +25,7 @@ const showConfirmPopup = ref(false)
 const isCheckMode = ref(false)
 
 onMounted(() => {
+
   // 👇 читаем то что передали в router.push state
   if (history.state?.is_checkSettings === true) {
     isCheckMode.value = true
@@ -93,6 +94,7 @@ function onTouchEnd(e: TouchEvent) {
 watch([showConfirmPopup,], (val) => {
   document.body.classList.toggle('modal-open', showConfirmPopup.value)
 })
+
 </script>
 
 <template>
@@ -124,7 +126,7 @@ watch([showConfirmPopup,], (val) => {
         <div :class="$style.edit__popup_buttons">
           <button @click="confirmBack(false)"
             :class="[$style.edit__popup_btn, $style.edit__popup_btn_first, $style.edit__popup_btn_first_unsave]">
-            {{ router.params.mode !== "edit" ? "Не сохранять" : "Удалить" }}
+            {{ router.params.mode !== "edit" ? "Удалить" : "Удалить" }}
           </button>
           <button @click="confirmBack(true)"
             :class="[$style.edit__popup_btn, $style.edit__popup_btn_second, $style.edit__popup_btn_second_change]">

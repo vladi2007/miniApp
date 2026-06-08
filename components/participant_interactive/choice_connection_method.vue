@@ -11,6 +11,10 @@ const schemaCon = object({
     email: string()
         .required('Введите почту')
         .email('Введите корректную почту')
+        .matches(
+            /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
+            'Введите корректную почту'
+        )
 
 
 })
@@ -23,6 +27,8 @@ const formCon = useTemplateRef('formCon')
 const isSended = ref(false)
 async function onSubmitCon(event: FormSubmitEvent<SchemaCon>) {
     isSended.value = true
+
+    getEmailToken()
 }
 async function getVK() {
     const id = route.params.id as string
@@ -95,8 +101,7 @@ onMounted(async () => {
                     </UInput>
                 </div>
             </UFormField>
-            <UButton :class="$style.connection__form_submit" type="submit" :disabled="isSended"
-                @click="getEmailToken()">
+            <UButton :class="$style.connection__form_submit" type="submit" :disabled="isSended">
                 Далее
             </UButton>
         </UForm>

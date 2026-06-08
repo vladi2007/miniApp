@@ -42,7 +42,6 @@ function toggleInteractiveSelection(id) {
   else {
     selectedInteractives.value.splice(index, 1)
   }
-  console.log(selectedInteractives)
 }
 // флажок для ограничения отправки, чтоб только одно сообщение за раз
 const isSending = ref(false)
@@ -237,24 +236,15 @@ watch(selectedInteractives, (newSelectedInteractives) => {
 </script>
 
 <template>
-  <div
-    v-if="isReady"
-    class="broadcasts_fon"
-  >
+  <div v-if="isReady" class="broadcasts_fon">
     <div class="broadcasts">
       <div class="broadcasts_logo">
-        <img
-          id="broadcasts_nav_bar_logo"
-          src="/images/main_menu/logo.svg"
-        >
+        <img id="broadcasts_nav_bar_logo" src="/images/main_menu/logo.svg">
       </div>
       <div class="broadcasts_content-fon">
         <div class="broadcasts_content">
           <div>
-            <button
-              class="broadcasts_backButton"
-              @click="handleBackClick"
-            >
+            <button class="broadcasts_backButton" @click="handleBackClick">
               Вернуться
             </button>
           </div>
@@ -263,10 +253,7 @@ watch(selectedInteractives, (newSelectedInteractives) => {
               Рассылка участникам интерактива
             </div>
             <div class="broadcasts_content_menu_info">
-              <img
-                id="broadcasts_menu_info"
-                src="/images/history/history.svg"
-              >
+              <img id="broadcasts_menu_info" src="/images/history/history.svg">
               <div class="broadcasts_content_menu_info_guide">
                 Вы можете отослать материалы для участников интерактива в боте<br>
                 Доступна функция рассылки участникам нескольких интерактивов.<br>
@@ -277,48 +264,28 @@ watch(selectedInteractives, (newSelectedInteractives) => {
               <div class="broadcasts_message_text_button">
                 <div>Прикрепить файл</div>
               </div>
-              <label><textarea
-                v-model="messageText"
-                maxlength="4000"
-                placeholder="Введите сообщение для участников"
-                class="broadcasts_message_text_input"
-              />
+              <label><textarea v-model="messageText" maxlength="4000" placeholder="Введите сообщение для участников"
+                  class="broadcasts_message_text_input" />
               </label>
               <div class="pick_button">
-                <button
-                  v-if="selectMany"
-                  class="selectManyDownload"
-                  @click="openPopupManySelect()"
-                >
+                <button v-if="selectMany" class="selectManyDownload" @click="openPopupManySelect()">
                   Отправить участникам
                 </button>
-                <button
-                  v-if="!selectMany"
-                  class="selectManyDownload"
-                  @click="handleSelfSend()"
-                >
+                <button v-if="!selectMany" class="selectManyDownload" @click="handleSelfSend()">
                   Отправить только себе
                 </button>
-                <button
-                  v-if="props.data.interactives_list.length > 0"
-                  class="broadcasts_content_menu_info_button"
+                <button v-if="props.data.interactives_list.length > 0" class="broadcasts_content_menu_info_button"
                   :class="{ 'selectManyClass': selectMany, 'hoverable-select': !selectMany, 'hoverable-select_red': selectMany }"
-                  @click="selectManyOption()"
-                >
+                  @click="selectManyOption()">
                   {{ !selectMany ? "Выбрать" : "Отмена" }}
                 </button>
               </div>
             </div>
           </div>
 
-          <div
-            class="broadcasts_content_list"
-            :class="{ 'overflow-y-hidden': props.data.interactives_list.length === 0 }"
-          >
-            <div
-              v-for="interactive in props.data.interactives_list"
-              :key="interactive.interactive_id"
-            >
+          <div class="broadcasts_content_list"
+            :class="{ 'overflow-y-hidden': props.data.interactives_list.length === 0 }">
+            <div v-for="interactive in props.data.interactives_list" :key="interactive.interactive_id">
               <div class="broadcasts_interactive">
                 <div class="broadcasts_header">
                   <div class="broadcasts_date-fon">
@@ -329,10 +296,7 @@ watch(selectedInteractives, (newSelectedInteractives) => {
                   <div class="broadcasts_title">
                     {{ interactive.title }}
                   </div>
-                  <img
-                    id="broadcasts_line"
-                    src="/images/history/Vector_109.svg"
-                  >
+                  <img id="broadcasts_line" src="/images/history/Vector_109.svg">
                 </div>
 
                 <div class="broadcasts_info">
@@ -347,90 +311,51 @@ watch(selectedInteractives, (newSelectedInteractives) => {
                   </div>
                 </div>
 
-                <label
-                  v-if="selectMany"
-                  class="select_many_option"
-                >
-                  <input
-                    v-model="selectedInteractives"
-                    type="checkbox"
-                    :value="interactive.interactive_id"
-                    class="custom-checkbox"
-                  >
+                <label v-if="selectMany" class="select_many_option">
+                  <input v-model="selectedInteractives" type="checkbox" :value="interactive.interactive_id"
+                    class="custom-checkbox">
 
                 </label>
               </div>
             </div>
-            <div
-              v-if="props.data.interactives_list.length=== 0"
-              class="broadcasts_content_list_warn"
-            >
+            <div v-if="props.data.interactives_list.length === 0" class="broadcasts_content_list_warn">
               Вы не провели ни один интерактив!
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div
-      v-if="showPopup"
-      class="broadcasts_popup-overlay"
-    >
+    <div v-if="showPopup" class="broadcasts_popup-overlay">
       <div class="broadcasts_popup-content">
-        <div
-          v-if="!selfSendButton"
-          class="broadcasts_popup-text"
-        >
+        <div v-if="!selfSendButton" class="broadcasts_popup-text">
           Вы точно хотите сделать рассылку?
         </div>
-        <div
-          v-if="selfSendButton"
-          class="broadcasts_popup-text"
-        >
+        <div v-if="selfSendButton" class="broadcasts_popup-text">
           Вы хотите отправить сообщение только себе?
         </div>
         <div class="broadcasts_popup-buttons">
-          <button
-            v-if="!selfSendButton"
-            class="broadcasts_popup-btn confirm"
-            @click="submitBroadcasts"
-          >
+          <button v-if="!selfSendButton" class="broadcasts_popup-btn confirm" @click="submitBroadcasts">
             Да
           </button>
-          <button
-            v-if="selfSendButton"
-            class="broadcasts_popup-btn confirm"
-            @click="submitSelfBroadcasts"
-          >
+          <button v-if="selfSendButton" class="broadcasts_popup-btn confirm" @click="submitSelfBroadcasts">
             Да
           </button>
-          <button
-            class="broadcasts_popup-btn cancel"
-            @click="closePopup"
-          >
+          <button class="broadcasts_popup-btn cancel" @click="closePopup">
             Нет
           </button>
         </div>
       </div>
     </div>
-    <div
-      v-if="showConfirmPopup"
-      class="broadcasts_edit_popup-overlay"
-    >
+    <div v-if="showConfirmPopup" class="broadcasts_edit_popup-overlay">
       <div class="broadcasts_edit_popup-content">
         <div class="broadcasts_edit_popup-text">
           Вы действительно хотите вернуться на главное меню?
         </div>
         <div class="broadcasts_edit_popup-actions">
-          <button
-            class="broadcasts_edit_popup-btn save"
-            @click="confirmBack(true)"
-          >
+          <button class="broadcasts_edit_popup-btn save" @click="confirmBack(true)">
             Да
           </button>
-          <button
-            class="broadcasts_edit_popup-btn cancel"
-            @click="confirmBack(false)"
-          >
+          <button class="broadcasts_edit_popup-btn cancel" @click="confirmBack(false)">
             Нет
           </button>
         </div>

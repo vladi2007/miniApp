@@ -44,7 +44,6 @@ watch(props, (newProps) => {
     list.value = newProps.data.interactives_list
   }
   is_end.value = newProps.data.is_end
-  console.log(list)
 })
 
 function openPopupManySelect() {
@@ -130,7 +129,6 @@ function closePopup() {
 }
 
 watch(selectedInteractives, (newSelectedInteractives) => {
-  console.log(newSelectedInteractives.length)
   selectMany.value = newSelectedInteractives.length > 0
 }, { deep: true })
 
