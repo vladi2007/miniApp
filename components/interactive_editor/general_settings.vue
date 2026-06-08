@@ -115,14 +115,12 @@ onMounted(async () => {
   }
 
   const savedForm = loadFromDeviceStorage(FORM_STORAGE_KEY)
-  console.log('Loaded form from storage:', savedForm)
 
   if (savedForm) {
     form.value = savedForm
   }
 
   const savedIndex = loadFromDeviceStorage(CURRENT_INDEX_KEY)
-  console.log('Loaded index from storage:', savedIndex)
 
   if (typeof savedIndex === 'number') {
     currentQuestionIndex.value = savedIndex
@@ -315,12 +313,10 @@ const showConfirmPopup = ref(false)
 const showSavePopup = ref(false)
 
 watch(form, (newForm) => {
-  console.log('Saving form to storage', newForm)
   saveToDeviceStorage(FORM_STORAGE_KEY, newForm)
 }, { deep: true })
 
 watch(currentQuestionIndex, (newIndex) => {
-  console.log('Saving index to storage', newIndex)
   saveToDeviceStorage(CURRENT_INDEX_KEY, newIndex)
 })
 </script>
@@ -329,66 +325,36 @@ watch(currentQuestionIndex, (newIndex) => {
   <div class="general_settings">
     <div class="form-wrapper">
       <!-- Step 1: General Settings -->
-      <div
-        v-if="props.step === 1"
-        class="general_settings"
-      >
+      <div v-if="props.step === 1" class="general_settings">
         <div class="form-grid">
           <div class="form-column-first">
             <div class="input-group">
-              <label>Название интерактива*<textarea
-                v-model="form.title"
-                maxlength="40"
-              /></label>
-              <label>Описание интерактива*<textarea
-                id="description_input"
-                v-model="form.description"
-                maxlength="115"
-              /></label>
+              <label>Название интерактива*<textarea v-model="form.title" maxlength="40" /></label>
+              <label>Описание интерактива*<textarea id="description_input" v-model="form.description"
+                  maxlength="115" /></label>
             </div>
 
             <div class="input-group">
-              <label>Место проведения интерактива*<textarea
-                v-model="form.location"
-                maxlength="40"
-              /></label>
+              <label>Место проведения интерактива*<textarea v-model="form.location" maxlength="40" /></label>
             </div>
             <div class="input-group">
-              <label>Целевая аудитория участников*<textarea
-                v-model="form.target_audience"
-                maxlength="40"
-              /></label>
+              <label>Целевая аудитория участников*<textarea v-model="form.target_audience" maxlength="40" /></label>
             </div>
           </div>
 
           <div class="form-column-second">
             <div class="input-group">
-              <label>ФИО ведущего*<textarea
-                v-model="form.responsible_full_name"
-                maxlength="40"
-              /></label>
+              <label>ФИО ведущего*<textarea v-model="form.responsible_full_name" maxlength="40" /></label>
             </div>
             <div class="input-group">
-              <label>Время ответа (сек.)*<textarea
-                v-model.number="form.answer_duration"
-                type="number"
-                maxlength="2"
-              /></label>
-              <label>Время на показ ответа (сек.)*<textarea
-                v-model.number="form.discussion_duration"
-                type="number"
-                maxlength="2"
-              /></label>
-              <label>Обратный отсчет перед стартом (сек.)*<textarea
-                v-model.number="form.countdown_duration"
-                type="number"
-                maxlength="2"
-              /></label>
+              <label>Время ответа (сек.)*<textarea v-model.number="form.answer_duration" type="number"
+                  maxlength="2" /></label>
+              <label>Время на показ ответа (сек.)*<textarea v-model.number="form.discussion_duration" type="number"
+                  maxlength="2" /></label>
+              <label>Обратный отсчет перед стартом (сек.)*<textarea v-model.number="form.countdown_duration"
+                  type="number" maxlength="2" /></label>
             </div>
-            <div
-              class="next-btn"
-              @click="goToQuestions"
-            >
+            <div class="next-btn" @click="goToQuestions">
               <div class="next-btn-text">
                 Наполнение интерактива
               </div>
@@ -398,136 +364,72 @@ watch(currentQuestionIndex, (newIndex) => {
       </div>
 
       <!-- Step 2: Questions -->
-      <div
-        v-else-if="props.step === 2"
-        class="questions_section"
-      >
+      <div v-else-if="props.step === 2" class="questions_section">
         <!-- Панель навигации по вопросам -->
         <div class="question-nav">
           <div class="question_nav_header">
             Навигатор по вопросам
           </div>
-          <div
-            ref="questionNavRef"
-            class="question-buttons"
-          >
-            <button
-              v-for="(q, index) in form.questions"
-              :key="index"
-              :ref="el => questionButtonsRefs[index] = el"
-              class="quest-nav-button"
-              :class="{ active: index === currentQuestionIndex }"
-              @click="currentQuestionIndex = index"
-            >
+          <div ref="questionNavRef" class="question-buttons">
+            <button v-for="(q, index) in form.questions" :key="index" :ref="el => questionButtonsRefs[index] = el"
+              class="quest-nav-button" :class="{ active: index === currentQuestionIndex }"
+              @click="currentQuestionIndex = index">
               {{ index + 1 }}
             </button>
           </div>
           <div class="question-actions">
-            <button
-              id="delete_question"
-              :disabled="form.questions.length === 1"
-              @click="removeQuestion"
-            >
+            <button id="delete_question" :disabled="form.questions.length === 1" @click="removeQuestion">
               Удалить
             </button>
-            <button
-              id="add_question"
-              @click="addQuestion"
-            >
+            <button id="add_question" @click="addQuestion">
               Добавить
             </button>
           </div>
         </div>
 
         <!-- Редактирование вопроса -->
-        <div
-          v-if="currentQuestion"
-          id="answers_form"
-          class="question-form"
-        >
+        <div v-if="currentQuestion" id="answers_form" class="question-form">
           <div class="question-header">
             Вопрос {{ currentQuestion.position }}
           </div>
-          <div
-            id="question-text"
-            class="input-group"
-          >
+          <div id="question-text" class="input-group">
             <label class="question_label">Вопрос*</label>
-            <textarea
-              id="question_textarea"
-              v-model="currentQuestion.text"
-              type="text"
-              maxlength="100"
-            />
+            <textarea id="question_textarea" v-model="currentQuestion.text" type="text" maxlength="100" />
           </div>
 
-          <div
-            id="answers"
-            class="input-group"
-          >
-            <label
-              id="answers-text"
-              class="question_label"
-            >Ответы*</label>
-            <div
-              v-for="(answer, index) in currentQuestion.answers"
-              :key="index"
-              class="answer-item"
-            >
+          <div id="answers" class="input-group">
+            <label id="answers-text" class="question_label">Ответы*</label>
+            <div v-for="(answer, index) in currentQuestion.answers" :key="index" class="answer-item">
               <label class="answer-wrapper">
-                <input
-                  type="radio"
-                  :name="'correct-answer-' + currentQuestionIndex"
-                  :checked="answer.is_correct"
-                  @change="markCorrectAnswer(currentQuestionIndex, index)"
-                >
-                <input
-                  v-model="answer.text"
-                  type="text"
-                  class="answer-input"
-                  placeholder="Поле для ввода ответа"
-                  maxlength="50"
-                >
+                <input type="radio" :name="'correct-answer-' + currentQuestionIndex" :checked="answer.is_correct"
+                  @change="markCorrectAnswer(currentQuestionIndex, index)">
+                <input v-model="answer.text" type="text" class="answer-input" placeholder="Поле для ввода ответа"
+                  maxlength="50">
               </label>
             </div>
           </div>
           <!-- Кнопки "Сохранить" и "Запуск" -->
           <div class="question-controls">
-            <button
-              class="start-button"
-              @click="startInteractive()"
-            >
+            <button class="start-button" @click="startInteractive()">
               Запуск
             </button>
-            <button
-              class="save-button"
-              @click="showSavePopup = true"
-            >
+            <button class="save-button" @click="showSavePopup = true">
               Сохранить
             </button>
           </div>
         </div>
       </div>
     </div>
-    <div
-      v-if="showSavePopup"
-      class="settings_popup-overlay"
-    >
+    <div v-if="showSavePopup" class="settings_popup-overlay">
       <div class="settings_popup-content">
         <div class="settings_popup-text">
           Сохранить интерактив и перейти к списку всех интерактивов?
         </div>
         <div class="settings_popup-buttons">
-          <button
-            class="settings_popup-btn confirm"
-            @click="saveInteractiveButton()"
-          >
+          <button class="settings_popup-btn confirm" @click="saveInteractiveButton()">
             Да
           </button>
-          <button
-            class="settings_popup-btn cancel"
-            @click="showSavePopup = false"
-          >
+          <button class="settings_popup-btn cancel" @click="showSavePopup = false">
             Нет
           </button>
         </div>

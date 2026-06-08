@@ -92,7 +92,6 @@ function resetAllForms() {
   formForgot.value?.clear()
 }
 async function onSubmitReg(event: FormSubmitEvent<SchemaReg>) {
-  console.log(event.data)
 }
 async function onSubmitLogin(event: FormSubmitEvent<SchemaLogin>) {
   try {

@@ -108,7 +108,6 @@ onMounted(async () => {
     )
     isLoading.value = true
     await saveToDeviceStorage(FORM_STORAGE_KEY, toRaw(form.value))
-    console.log('💾 Форма сохранена после загрузки с бэкенда')
     isLoading.value = true
     originalForm.value = snapshot(toRaw(form.value))
   }

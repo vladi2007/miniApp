@@ -12,7 +12,6 @@ onMounted(async () => {
     webApp.value = window.Telegram.WebApp
     // вместо того чтобы обращаться к этим данным через api telegram, грузим это из sessionStorage
 
-    console.log(userId.value)
     if (userId.value) {
       const { data, error } = await useFetch(`/api/get_interactives`, {
 
@@ -28,12 +27,12 @@ onMounted(async () => {
         const mapList = list =>
           Array.isArray(list)
             ? list.map(item => ({
-                title: item.title,
-                question_count: String(item.question_count),
-                target_audience: item.target_audience,
-                id: String(item.id),
-                date_completed: item.date_completed,
-              }))
+              title: item.title,
+              question_count: String(item.question_count),
+              target_audience: item.target_audience,
+              id: String(item.id),
+              date_completed: item.date_completed,
+            }))
             : []
 
         my_interactives.value = {
@@ -52,10 +51,7 @@ definePageMeta({
 
 <template>
   <div>
-    <interactives
-      v-if="my_interactives"
-      :interactives_list="my_interactives"
-    />
+    <interactives v-if="my_interactives" :interactives_list="my_interactives" />
   </div>
 </template>
 

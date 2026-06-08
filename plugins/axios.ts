@@ -11,7 +11,6 @@ export default defineNuxtPlugin((nuxtApp) => {
   api.interceptors.request.use(function (config) {
     // Здесь можете сделать что-нибудь с перед отправкой запроса
     const auth = useAuthStore()
-    console.log(auth.role)
     if (auth.accessToken) {
       config.headers['Authorization'] = `Bearer ${auth.accessToken}`
     }

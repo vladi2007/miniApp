@@ -22,7 +22,6 @@ export function mutateCreateInteractivities() {
     onError: (err)=>{
       const error = err as AxiosError<ApiErrorResponse>
       const code = error.response?.data?.detail?.code
-      console.log(code)
       switch (code) {
           
           
@@ -74,7 +73,6 @@ export function mutateEditInteractive() {
     onError: (err)=>{
       const error = err as AxiosError<ApiErrorResponse>
       const code = error.response?.data?.detail?.code
-      console.log(code)
       switch (code) {
           
           
@@ -155,7 +153,6 @@ export function mutateDeleteInteractive() {
     onError: (err) =>{
       const error = err as AxiosError<ApiErrorResponse>
       const code = error.response?.data?.detail?.code
-      console.log(code)
       switch (code) {
           case 'ORGANIZATION_NOT_FOUND':
             window.alert('Организация не найдена')

@@ -18,7 +18,6 @@ export function useEdit(
     try {
       const response = await fetch(url, { method: 'HEAD',mode: 'cors', })
       if (!response.ok) return decodeURIComponent(url.split('/').pop() || '')
-        console.log(response.headers.get('x-amz-meta-original-filename'))
       const meta = response.headers.get('x-amz-meta-original-filename')
       return meta || decodeURIComponent(url.split('/').pop() || '')
     }

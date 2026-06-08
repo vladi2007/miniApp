@@ -40,7 +40,6 @@ export function mutateMeInOrganization() {
     onError: (err) =>{
       const error = err as AxiosError<ApiErrorResponse>
       const code = error.response?.data?.detail?.code
-      console.log(code)
       switch (code) {
         case 'NAME_TOO_LONG':
             window.alert('Ваше имя должно быть длиной от 3 до 32 символов')
@@ -71,7 +70,6 @@ export function mutateOrganizationDescription() {
     onError: (err) =>{
       const error = err as AxiosError<ApiErrorResponse>
       const code = error.response?.data?.detail?.code
-      console.log(code)
       switch (code) {
         case 'ORGANIZATION_NAME_TOO_LONG':
           window.alert('Название организации должно быть длиной от 3 до 32 символов')
@@ -166,7 +164,6 @@ export function mutateOrganizationParticipants() {
     onError: (err) =>{
       const error = err as AxiosError<ApiErrorResponse>
       const code = error.response?.data?.detail?.code
-      console.log(code)
       switch (code) {
           case 'INSUFFICIENT_ROLE_PERMISSIONS_TO_CHANGE_ROLE':
             window.alert('Менять роли могут только администраторы и организатор')

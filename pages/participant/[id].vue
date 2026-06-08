@@ -102,7 +102,6 @@ const componentMap = {
 }
 const timerData = ref({})
 const nameIsSended = ref<boolean>(false)
-console.log('nameIsSended:', nameIsSended.value)
 onMounted(() => {
     // Сохраняем изначальную высоту экрана в CSS переменную
     document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`)

@@ -23,7 +23,6 @@ export function useOrganizationDescription() {
 
 export function useOrganizationParticipants(filterRef: Ref<OrganizationParticipantsFilter>) {
   const auth = useAuthStore()
-  console.log(String(filterRef.value))
   return useQuery<OrganizationParticipants>({
     queryKey: computed(() => ['org_participants', String(auth.id), String(filterRef.value)]),
     queryFn: async () => getOrganizationParticipants(filterRef.value),

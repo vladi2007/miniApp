@@ -67,7 +67,6 @@ onMounted(async () => {
         const data = await $bridge?.send('VKWebAppGetUserInfo')
         stateCon.name = data.first_name + ' ' + data.last_name
         const nameFlag = localStorage.getItem(`name_${interactiveId.value}`)
-        console.log(nameFlag)
         if (nameFlag) {
             isSended.value = true
             props.onNameSent();

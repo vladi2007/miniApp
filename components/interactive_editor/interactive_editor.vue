@@ -58,10 +58,8 @@ onMounted(() => {
 
   if (storedStep !== null && !isNaN(Number(storedStep))) {
     step.value = Number(storedStep)
-    console.log('Загружен step из хранилища:', storedStep)
   }
   else {
-    console.log('Step не найден в хранилище или невалиден:', storedStep)
   }
 })
 </script>
@@ -71,52 +69,31 @@ onMounted(() => {
     <nav_bar />
     <div class="interactive_edit_top_menu">
       <div>
-        <button
-          class="interactive_edit_backButton"
-          :class="{ back_to_all_settings: step === 2 }"
-          @click="handleBackClick()"
-        >
+        <button class="interactive_edit_backButton" :class="{ back_to_all_settings: step === 2 }"
+          @click="handleBackClick()">
           {{ step === 1 ? 'Вернуться' : 'Вернуться к общим настройкам' }}
         </button>
       </div>
-      <div
-        class="interactive_edit_top_menu_header"
-        :class="{ margin_left_question: step === 2 }"
-      >
+      <div class="interactive_edit_top_menu_header" :class="{ margin_left_question: step === 2 }">
         {{ step === 1 ? 'Общие настройки интерактива' : 'Создание вопросов' }}
       </div>
     </div>
-    <div
-      v-if="showConfirmPopup"
-      class="interactive_edit_popup-overlay"
-    >
+    <div v-if="showConfirmPopup" class="interactive_edit_popup-overlay">
       <div class="interactive_edit_popup-content">
         <div class="interactive_edit_popup-text">
           Сохранить настройки перед выходом из редактирования викторины?
         </div>
         <div class="interactive_edit_popup-actions">
-          <button
-            class="interactive_edit_popup-btn save"
-            @click="confirmBack(true)"
-          >
+          <button class="interactive_edit_popup-btn save" @click="confirmBack(true)">
             Да
           </button>
-          <button
-            class="interactive_edit_popup-btn cancel"
-            @click="confirmBack(false)"
-          >
+          <button class="interactive_edit_popup-btn cancel" @click="confirmBack(false)">
             Нет
           </button>
         </div>
       </div>
     </div>
-    <general_settings
-      ref="generalSettingsRef"
-      :key="step"
-      :step="step"
-      :mode="mode"
-      @update-step="step = $event"
-    />
+    <general_settings ref="generalSettingsRef" :key="step" :step="step" :mode="mode" @update-step="step = $event" />
   </div>
 </template>
 

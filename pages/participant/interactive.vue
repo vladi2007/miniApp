@@ -55,17 +55,14 @@ function createWebSocket(interactiveId: string) {
 
   const ws = useWebSocket(wsUrl, {
     onConnected(ws) {
-      console.log('Connected!')
     },
     onDisconnected(ws, event) {
-      console.log('Disconnected!', event.code, JSON.parse(event.reason).detail)
       isBanned.value = JSON.parse(event.reason).detail
     },
     onError(ws, event) {
       console.error('Error:', event)
     },
     onMessage(ws, event) {
-      console.log('Message:', event.data)
     },
   })
   send = ws.send

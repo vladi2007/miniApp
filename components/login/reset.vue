@@ -37,7 +37,6 @@ async function onSubmitReset(event: FormSubmitEvent<SchemaReset>) {
 
     }
     finally {
-        console.log(decode(route.query.jwt! as string).payload)
         await auth.login({ password: event.data.password, username: decode(route.query.jwt! as string).payload.login })
     }
 }

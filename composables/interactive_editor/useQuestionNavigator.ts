@@ -75,7 +75,6 @@ const scrollToFirstError = async () => {
 
   async function addQuestion(afterIndex?: number) {
     const isValid = validateQuestions()
-    console.log(!isValid)
     if (!isValid) {
       scrollToFirstError()
       return
