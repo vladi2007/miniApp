@@ -1111,9 +1111,17 @@ watch(
     }
 
     &_more {
+      margin: 0 auto;
       margin-top: 15px;
       color: #853CFF;
       text-align: center;
+      cursor: pointer;
+      width: 104px;
+      white-space: nowrap;
+
+      &:hover {
+        border-bottom: 1px solid #853CFF;
+      }
     }
   }
 

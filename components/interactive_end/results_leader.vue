@@ -125,14 +125,13 @@ const props = defineProps<{
   &__title {
     font-size: 24px;
     font-weight: 700;
-    line-height: 24px;
     color: #FFFFFF;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     overflow: hidden;
     word-break: break-word;
-    height: 52px;
+    min-height: 58px;
 
 
     @media (min-width:1280px) {
@@ -143,7 +142,6 @@ const props = defineProps<{
       height: auto;
       font-size: clamp(40px, 2.5vw, 56px);
       z-index: 100000;
-      line-height: 40px;
       display: -webkit-box;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 2;
@@ -186,7 +184,7 @@ const props = defineProps<{
       ;
       ;
       font-size: clamp(40px, 2.5vw, 56px);
-      line-height: 40px;
+      line-height: calc(40/832*100dvh)
     }
   }
 
@@ -201,7 +199,7 @@ const props = defineProps<{
     @media (min-width:1280px) {
       padding: calc(7/832*100dvh) calc(14/1280*100dvw);
       font-size: clamp(40px, 2.5vw, 56px);
-      line-height: 40px;
+      line-height: calc(40/832*100dvh)
     }
   }
 }

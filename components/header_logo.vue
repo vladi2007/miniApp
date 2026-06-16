@@ -205,7 +205,7 @@ function selectOrg(name: string) {
           <img src="../public/images/logout.svg">
         </div>
         <div v-if="!auth.isAuthenticated" class="header_nav_login" @click="goTo('/')">
-          Вход/Регистрация
+          Вход
         </div>
       </div>
 

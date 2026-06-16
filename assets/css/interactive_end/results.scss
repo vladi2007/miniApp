@@ -25,7 +25,7 @@ align-items: center;
 
 
 .participants-num {
-
+width: calc((40 / 390) * 100dvw);
   display: flex;  margin-top:calc((12 / 844) * var(--app-height));
 
 
@@ -38,17 +38,22 @@ vertical-align: middle;
 
 }
 
-.num {
+.num {width: calc((40 / 390) * 100dvw);
   background-color: #f7f7f766;  border-radius: calc((5 / 844) * var(--app-height));;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.num > p {
+.num > p {width: calc((40 / 390) * 100dvw);
   color: #ffffff;
   font-weight: 500;font-size: clamp(10px,calc((24 / 840) * var(--app-height)),48px);
 letter-spacing:  clamp(0.10px,calc((24 /100/ 840) * var(--app-height)),0.48px);
   font-family: "Work Sans", sans-serif;
   padding:calc((6 / 390) * 100dvw) calc((6 / 390) * 100dvw);
   border-radius: calc((5 / 844) * var(--app-height));; display: flex;
+   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 .participant-text {

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import declOfNum from '~/composables/declension';
+
 // данные о результатах интерактива
 const props = defineProps<{
   title: string
@@ -17,13 +19,11 @@ const props = defineProps<{
           <p>{{ props.participantsTotal }}</p>
         </div>
         <p class="participant-text">
-          Участников
+          {{ declOfNum(Number(props.participantsTotal), ['участников', 'участник', 'участника']) }}
         </p>
       </div>
     </div>
   </div>
 </template>
 
-<style>
-
-</style>
+<style></style>

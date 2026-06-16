@@ -27,7 +27,7 @@ function formatTime(secondsStr: number): string {
       </div>
       <div class="winner_participant_header">
         <span class="position_participant_header">место</span>
-        <span class="name_participant_header">игрок</span>
+        <span class="name_participant_header">участник</span>
         <span class="time_participant_header">время</span>
         <span class="score_participant_header">балл</span>
       </div>
@@ -87,9 +87,9 @@ function formatTime(secondsStr: number): string {
 }
 
 .name_participant_header {
-  margin-left: calc((65 / 390) * 100dvw);
+  margin-left: calc((60 / 390) * 100dvw);
   ;
-  width: calc((47 / 390) * 100dvw);
+  width: calc((58 / 390) * 100dvw);
   display: flex;
   align-items: center;
 
@@ -108,7 +108,7 @@ function formatTime(secondsStr: number): string {
 .time_participant_header {
   width: calc((48 / 390) * 100dvw);
   ;
-  margin-left: calc((106 / 390) * 100dvw);
+  margin-left: calc((104 / 390) * 100dvw);
   ;
 
   display: flex;
@@ -151,11 +151,11 @@ function formatTime(secondsStr: number): string {
   width: calc((199 / 390) * 100dvw);
   display: flex;
   align-items: center;
-
+  justify-content: center;
 }
 
 .score_participant {
-  width: calc((20 / 390) * 100dvw);
+  width: calc((10 / 390) * 100dvw);
   margin-left: calc((15 / 390) * 100dvw);
   ;
   display: flex;
@@ -165,7 +165,7 @@ function formatTime(secondsStr: number): string {
 
 .time_participant {
   margin-left: calc((37 / 390) * 100dvw);
-  ;
+  width: calc((45 / 390) * 100dvw);
 
   display: flex;
   align-items: center;

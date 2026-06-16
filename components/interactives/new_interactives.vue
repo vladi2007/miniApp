@@ -1482,7 +1482,7 @@ watch(
       text-align: center;
       width: 104px;
       cursor: pointer;
-
+      white-space: nowrap;
 
       &:hover {
         border-bottom: 1px solid #853CFF;

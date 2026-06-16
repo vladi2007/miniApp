@@ -202,7 +202,8 @@ function showDeletefn(index: number) {
 
       <div :class="$style.questions__item">
 
-        <div :class="$style.questions__number">
+        <div
+          :class="[$style.questions__number, !isCheckMode && $style.hoverEnabled, !isCheckMode && $style.cursorEnabled]">
           <div>
             Вопрос {{ currentQuestionIndex + 1 }}
           </div>
@@ -235,6 +236,7 @@ function showDeletefn(index: number) {
 
                 <img src="/public/images/interactive_editor/delete.svg" class="remove-icon"
                   @click.stop="!isCheckMode && removeImage(currentQuestionIndex)">
+
               </div>
               <div v-else>
                 <span>
@@ -307,7 +309,8 @@ function showDeletefn(index: number) {
           <div :class="$style.questions__answers">
 
             <div v-for="(answer, index) in currentQuestion.question.answers" :key="index" class="answer-item">
-              <div class="answer-input-wrapper" :class="$style.questions__answers_item">
+              <div class="answer-input-wrapper"
+                :class="[$style.questions__answers_item, !isCheckMode && $style.hoverEnabled, !isCheckMode && $style.cursorEnabled]">
 
                 <div class="custom-answer-input" :class="{
                   'field-error': questionErrors[currentQuestionIndex]?.answers?.[index],
@@ -426,7 +429,7 @@ function showDeletefn(index: number) {
               </div>
 
               <img v-if="questionItem.question.uploadedFileName" src="/public/images/interactive_editor/delete (2).svg"
-                class="remove-icon" @click.stop="removeImage(qIndex)">
+                class="remove-icon" @click.stop="!isCheckMode && removeImage(qIndex)">
 
               <div v-if="!questionItem.question.uploadedFileName">
                 <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -666,6 +669,19 @@ function showDeletefn(index: number) {
   line-height: 120%;
   letter-spacing: 1%;
   vertical-align: middle;
+}
+
+.hoverEnabled {
+  &>svg:hover {
+    fill: #F0436C;
+    cursor: pointer;
+  }
+}
+
+.cursorEnabled {
+  &>svg {
+    cursor: pointer;
+  }
 }
 
 .questions {
@@ -946,13 +962,9 @@ function showDeletefn(index: number) {
     &>svg {
       width: 14px;
       height: 18px;
-      cursor: pointer;
+
       fill: #7D7D7D;
 
-      &:hover {
-
-        fill: #F0436C;
-      }
 
     }
   }
@@ -1290,10 +1302,7 @@ function showDeletefn(index: number) {
           right: 15px;
         }
 
-        &:hover {
-          fill: #F0436C;
 
-        }
 
       }
 

@@ -236,7 +236,11 @@ function toggleHiddenName(id: string) {
         балл
       </div>
     </div>
-    <simplebar style="width: 100%">
+
+    <simplebar :style="{
+      width: '100%',
+      maxHeight: isMobile ? '220px' : 'calc(328/832*100dvh)'
+    }">
       <div :class="$style.leaderboard__table">
         <div :class="$style.leaderboard__table_item" v-for="(winner, index) in props.winners" :key="index">
           <div :class="$style.leaderboard__table_position">
@@ -260,7 +264,6 @@ function toggleHiddenName(id: string) {
           </div>
         </div>
       </div>
-
     </simplebar>
     <button :class="$style.leaderboard__home" @click="goToMainMenu()" style="cursor: pointer;">
       Выйти
@@ -341,7 +344,6 @@ function toggleHiddenName(id: string) {
     width: 100%;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
     max-height: 220px;
     margin-bottom: 10px;
 
@@ -350,7 +352,6 @@ function toggleHiddenName(id: string) {
       font-size: clamp(40px, 2.5vw, 56px);
       line-height: 40px;
       max-height: calc(328/832*100dvh);
-      overflow-y: auto;
       width: calc(100%);
 
 
@@ -521,7 +522,7 @@ function toggleHiddenName(id: string) {
     &_hide {
 
       @media (min-width:1280px) {
-        width: calc(22/1280*100dvw);
+        width: calc(18/1280*100dvw);
         height: auto;
         margin-left: calc(73/1280*100dvw);
         display: flex;
@@ -530,7 +531,7 @@ function toggleHiddenName(id: string) {
       }
 
       &>img {
-        width: calc(22/1280*100dvw);
+        width: calc(18/1280*100dvw);
         height: auto;
       }
     }
@@ -539,7 +540,7 @@ function toggleHiddenName(id: string) {
       width: 199px;
       margin-left: 14px;
       white-space: nowrap;
-      text-align: left;
+      text-align: center;
 
       @media (min-width:1280px) {
         width: calc(250/1280*100dvw);

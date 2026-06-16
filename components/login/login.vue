@@ -187,10 +187,7 @@ const customLoginError = ref<string | null>(null)
         <UButton type="submit" class="login__submit" :disabled="!formLogin?.dirty">
           Войти
         </UButton>
-        <button class="login__reg">
-          Еще нет аккаунта?&nbsp;
-          <span @click="activeMode = 'reg'; resetAllForms()">Зарегистрироваться</span>
-        </button>
+
       </UForm>
     </div>
   </div>

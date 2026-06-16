@@ -13,7 +13,7 @@ const auth = useAuthStore()
     <div>
       <div :class="$style.header__interactives">
         <div @click="goTo('/', 'login')" :class="active == 'login' ? $style.header_active : ''">
-          Вход/регистрация
+          Вход
         </div>
         <div @click="goTo('/main', 'main')" :class="active == 'main' ? $style.header_active : ''">
           О нас

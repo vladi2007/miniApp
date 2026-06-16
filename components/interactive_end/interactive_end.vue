@@ -45,7 +45,7 @@ function formatTime(secondsStr: number): string {
               <p>{{ props.data.participants_total }}</p>
             </div>
             <p class="participant-text">
-              {{ declOfNum(Number(props.data.participantsTotal), ['участников', 'участник', 'участника']) }}
+              {{ declOfNum(Number(props.data.participants_total), ['участников', 'участник', 'участника']) }}
             </p>
           </div>
         </div>
